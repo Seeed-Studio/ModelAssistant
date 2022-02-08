@@ -1,0 +1,5 @@
+include requirements/*.txt
+include sscma/.mim/model-index.yml
+include sscma/.mim/demo/*/*
+recursive-include sscma/.mim/configs *.py *.yml
+recursive-include sscma/.mim/tools *.sh *.py
