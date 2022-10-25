@@ -21,7 +21,7 @@
 如果只是使用CPU进行训练，则通过以下命令即可配置完成相关环境。
 
 ```bash
-pip install -r ./requirement/*     
+pip install -r ./requirements/requirements.txt    
 mim install mmcv-full                       #todo
 ```
 
