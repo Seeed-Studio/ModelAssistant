@@ -18,14 +18,17 @@
 - [MMDetection](https://github.com/open-mmlab/mmdetection): OpenMMLab 检测工具箱和基准测试
 - [MMDPose](https://github.com/open-mmlab/mmpose): OpenMMLab 检测工具箱和基准测试
 
-如果你已经准备好了 Python 和 PyTorch 环境，那么只需要下面两行命令，就可以配置好 mmlab 相关的软件环境。
+如果只是使用CPU进行训练，则通过以下命令即可配置完成相关环境。
 
 ```bash
-pip install openmim mmcls mmdet mmpose          
+pip install -r ./requirement/*     
 mim install mmcv-full                       #todo
 ```
 
-对于上述命令若安装过程太慢可使用国内镜像，例如使用清华镜像可在后面添加`-i https://pypi.tuna.tsinghua.edu.cn/simple` 加快安装速度。
+- 对于上述命令若安装过程过慢可使用国内镜像，例如使用清华镜像可在后面添加`-i https://pypi.tuna.tsinghua.edu.cn/simple` 加快安装速度。
+
+如果需要使用GPU进行训练，可查看GPU训练相关环境[配置教程](./docs/zh_cn/get_started.md)
+
 <details>
 <summary>Windows</summary>
 
@@ -39,7 +42,7 @@ set PYTHONPATH
 </details>
 
 <details>
-<summary>Linux</summary>>
+<summary>Linux</summary>
 
 同样需要将本项目的文件路径添加至系统环境变量中，变量名为PYTHONPATH，其可通过修改~/.bashrc 文件以保证在后续新终端中可用。
 在终端中依次执行以下命令即可：
@@ -53,8 +56,7 @@ source ~/.bashrc
 
 ## 数据准备
 
-请将数据集放置在与本项目同级目录下，其数据与本项目结构组织如下所示：\
-本仓库示例所使用的数据需要按照如下结构组织：
+建议将数据集放置在与本项目同级目录下，其数据与本项目结构组织如下所示：\
 
 ```text
 edgelab/
@@ -68,10 +70,6 @@ datasets/
 │   └── meta
 │       ├── train.txt
 │       └── val.txt
-├── ade
-│   └── ADEChallengeData2016
-│       ├── annotations
-│       └── images
 └── coco
     ├── annotations
     │   ├── instance_train2017.json
@@ -80,149 +78,59 @@ datasets/
     └── val2017
 ```
 
-这里，我们只列举了用于训练和验证 ImageNet（分类任务）、ADE20K（分割任务）和 COCO（检测任务）的必要文件。
+这里，我们只列举了用于训练和验证 ImageNet（分类任务）、和 COCO（检测任务）的必要文件。
 
-## 用法
+- **提示：** 数据集文件可根据自己习惯放置，只需要在数据集的注释文件中能够找到对应的数据文件即可。
 
-首先我们需要确定所做的任务类型，属于目标检测,分类,或回归，确定后可根据需要选择需要的模型，并选择模型的配置文件。
+## 开始使用
 
-### 修改配置文件中的数据集路径
+1. 首先需要确定所做的任务类型，属于目标检测、分类、或回归；确定后可根据需要选择需要的模型，并确定模型的配置文件。
+2. 这里我们以YOLOv3人体检测模型为例演示如何修改配置文件中的相关参数训练自己的数据集，以及训练和导出。
 
-这里我们以YOLOv3为例展示如何修改配置文件中的数据集路径
+### 1.修改配置文件中的数据集路径
 
 1. 在[configs](./configs)文件夹下寻找所需要修改的[配置文件](./configs/yolo/yolov3_192_node2_person.py)。
-2. 在配置文件中找到变量`data_root`，将变量值替换为自己所用数据集的的根目录的路径。
+2. 在配置文件中找到变量`data_root`，将变量值替换为自己所用数据集的根目录的路径。
 3. 检查配合文件中的`img_perfix`和`ann_file`路径是否正确。
-    - `img_perfix` 为数据集图片的路径，`ann_file` 为数据集注释文件的路径
+    - **提示：** `img_perfix` 为数据集图片的路径，`ann_file` 为数据集注释文件的路径
 
-### 训练
+### 2.训练
 
-1.在上述环境中执行以下命令可开始训练YOLOv3模型。
+1.在配置好的环境终端中执行以下命令即可开始训练人体检测模型。
+
+- **提示：** 虚拟换环境需要启动对应的虚拟环境
 
 ```shell
-mim train mmdet $CONFIG_PATH --gpus=1 --workdir=$WORKERDIR
+mim train mmdet $CONFIG_PATH --workdir=$WORKERDIR --gpus=1
 ```
 
-其中`$CONFIG_PATH`需替换为你所使用的模型配置文件本示例中为[yolov3_192_node2_person.py](./configs/yolo/yolov3_192_node2_person.py)的路径。
-`$WORKERDIR`为训练过程产生的日志文件和权重文件保存的路径，默认为`worke_dir`
+#### 参数解释：
 
-2.在模型训练完成后会在$WORKERDIR文件夹下产生相应的日志文件和模型权重文件(后缀为`.pth`)。
+- `$CONFIG_PATH`需替换为你所使用的模型配置文件本示例中为[yolov3_192_node2_person.py](./configs/yolo/yolov3_192_node2_person.py)的路径。
+- `$WORKERDIR`为训练过程产生的日志文件和权重文件保存的文件夹名称，默认为`worke_dir`
+- `--gpus=1`表示使用一块GPU训练，若使用CPU进行训练可设置参数为`--gpus=0`
 
-### 训练和测试
+2.在模型训练完成后会在`$WORKERDIR`文件夹下产生相应的日志文件和模型权重文件(后缀为`.pth`)。
 
-对于训练可使用openmim项目下的mim工具，在以上执行`pip install openmim`命令时便已经安装了mim工具，此时可使用如下命令训练相应模型。
+**提示：** 对于更多训练任务的使用可查看更多[训练示例](./docs/zh_cn/train_example.md)
 
-
-<details>
-<summary>单机单 GPU：</summary>>
-
-```bash
-# 训练分类模型
-mim train mmcls $CONFIG --work-dir $WORK_DIR
-
-# 测试分类模型
-mim test mmcls $CONFIG -C $CHECKPOINT --metrics accuracy --metric-options "topk=(1, 5)"
-
-# 训练目标检测/实例分割模型
-mim train mmdet $CONFIG --work-dir $WORK_DIR
-
-# 测试目标检测/实例分割模型
-mim test mmdet $CONFIG -C $CHECKPOINT --eval bbox segm
-
-# 训练语义分割模型
-mim train mmseg $CONFIG --work-dir $WORK_DIR
-
-# 测试语义分割模型
-mim test mmseg $CONFIG -C $CHECKPOINT --eval mIoU
-```
-
-#### 参数解释
-
-- `$CONFIG`: `configs/` 文件夹下的配置文件路径
-- `$WORK_DIR`: 用于保存日志和模型权重文件的文件夹
-- `$CHECKPOINT`: 权重文件路径
-
-**[注意]** 添加参数`--gpus=0`可使用CPU进行训练。
-
-</details>
-<details>
-<summary>单机多 GPU （以 4 GPU 为例）：</summary>
-
-```bash
-# 训练分类模型
-mim train mmcls $CONFIG --work-dir $WORK_DIR --launcher pytorch --gpus 4
-
-# 测试分类模型
-mim test mmcls $CONFIG -C $CHECKPOINT --metrics accuracy --metric-options "topk=(1, 5)" --launcher pytorch --gpus 4
-
-# 训练目标检测/实例分割模型
-mim train mmdet $CONFIG --work-dir $WORK_DIR --launcher pytorch --gpus 4
-
-# 测试目标检测/实例分割模型
-mim test mmdet $CONFIG -C $CHECKPOINT --eval bbox segm --launcher pytorch --gpus 4
-
-# 训练语义分割模型
-mim train mmseg $CONFIG --work-dir $WORK_DIR --launcher pytorch --gpus 4 
-
-# 测试语义分割模型
-mim test mmseg $CONFIG -C $CHECKPOINT --eval mIoU --launcher pytorch --gpus 4
-```
-
-#### 参数解释
-
-- `$CONFIG`: `configs/` 文件夹下的配置文件路径
-- `$WORK_DIR`: 用于保存日志和模型权重文件的文件夹
-- `$CHECKPOINT`: 权重文件路径
-
-</details>
-<details>
-<summary>多机多 GPU （以 2 节点共计 16 GPU 为例）</summary>
-
-```bash
-# 训练分类模型
-mim train mmcls $CONFIG --work-dir $WORK_DIR --launcher slurm --gpus 16 --gpus-per-node 8 --partition $PARTITION
-
-# 测试分类模型
-mim test mmcls $CONFIG -C $CHECKPOINT --metrics accuracy --metric-options "topk=(1, 5)" --launcher slurm --gpus 16 --gpus-per-node 8 --partition $PARTITION
-
-# 训练目标检测/实例分割模型
-mim train mmdet $CONFIG --work-dir $WORK_DIR --launcher slurm --gpus 16 --gpus-per-node 8 --partition $PARTITION
-
-# 测试目标检测/实例分割模型
-mim test mmdet $CONFIG -C $CHECKPOINT --eval bbox segm --launcher slurm --gpus 16 --gpus-per-node 8 --partition $PARTITION
-
-# 训练语义分割模型
-mim train mmseg $CONFIG --work-dir $WORK_DIR --launcher slurm --gpus 16 --gpus-per-node 8 --partition $PARTITION
-
-# 测试语义分割模型
-mim test mmseg $CONFIG -C $CHECKPOINT --eval mIoU --launcher slurm --gpus 16 --gpus-per-node 8 --partition $PARTITION
-```
-
-#### 参数解释
-
-- `$CONFIG`: `configs/` 文件夹下的配置文件路径
-- `$WORK_DIR`: 用于保存日志和模型权重文件的文件夹
-- `$CHECKPOINT`: 模型权重文件路径
-- `$PARTITION`: 使用的 Slurm 分区
-
-</details>
-
-### 导出ONNX
+### 3.导出ONNX
 
 在模型训练完成后可将pth文件导出到onnx文件格式，并通过onnx转为其他想要使用的格式。
-假设此时环境在本项目路径下，可通过执行如下命令导出刚才训练的模型至onnx格式。
+假设此时环境在本项目路径下，可通过执行如下命令导出刚才训练的人体检测模型至onnx格式。
 
 ```shell
 #导出onnx时不对模型进行量化
-python ./tools/torch2onnx.py  --model $MODEL_PATH --output $OUTPUT --imgsz $IMGSZ 
+python ./tools/torch2onnx.py  --config ./config/yolo/yolov3_192_node2_person.py --checkpoint work_dirs/yolov3_192_node2_person/latest.pth  --imgsz $IMGSZ 
 
 #导出onnx时同时对模型进行量化(PTQ)
-python ./tools/torch2onnx.py --model $MODEL_PATH --output $OUTPUT --imgsz $IMGSZ --quantize
+python ./tools/torch2onnx.py --config ./config/yolo/yolov3_192_node2_person.py --checkpoint work_dirs/yolov3_192_node2_person/latest.pth --imgsz $IMGSZ --quantize
 ```
 
 ##### 参数解释:
 
-- `$MODEL_PATH`: 训练完成后在相应文件夹下产生的模型权重文件`.pth`后缀。
+- `--config`:模型训练相关配置文件的路径。
+- `--checkpoint`: 训练完成后在相应文件夹下产生的模型权重文件路径(`.pth`后缀)。
 - `$OUTPUT`:导出onnx的文件名，其路径在`$MODEL_PATH`下，与原模型同路径。
 - `$IMGSZ`:模型所输入数据大小，图片数据则为宽高，音频数据则为长度。
 
@@ -238,7 +146,7 @@ python ./tools/torch2onnx.py --model $MODEL_PATH --output $OUTPUT --imgsz $IMGSZ
 
 对于在环境配置与训练过程中可能出现的问题可先查看[相关问题解决文档](./docs/zh_cn/faq.md)
 查看。若没能解决您的问题可提出[issue](https://github.com/Seeed-Studio/edgelab/issues)，
-我们会尽快为你解决。
+我们会尽快为您解决。
 
 ## 许可证
 
