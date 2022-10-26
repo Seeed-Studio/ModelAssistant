@@ -15,6 +15,7 @@ class Audio_classify(BaseClassifier):
     def forward_train(self, img, **kwargs):
         features = self.backbone(img)
         result = self.cls_head(features)
+        # return {'result':result}
         return {'loss': self.cls_loss(result, kwargs['labels']),
                 'acc': (kwargs['labels'] == torch.max(result, dim=1)[1]).float().mean()}
 
@@ -24,5 +25,8 @@ class Audio_classify(BaseClassifier):
     def simple_test(self, img, **kwargs):
         features = self.backbone(img)
         result = self.cls_head(features)
-        return [{'loss': self.cls_loss(result, kwargs['labels']),
-                 'acc': (kwargs['labels'] == torch.max(result, dim=1)[1]).float().mean()}]
+        if 'labels' in kwargs.keys():
+            return [{'loss': self.cls_loss(result, kwargs['labels']),
+                     'acc': (kwargs['labels'] == torch.max(result, dim=1)[1]).float().mean()}]
+        else:
+            return {r'result': result}
