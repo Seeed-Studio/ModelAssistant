@@ -1,4 +1,4 @@
-_base_ = '../_base_/default_runtime.py'
+_base_ = '../_base_/pose_default_runtime.py'
 custom_imports = dict(imports=['models', 'datasets'], allow_failed_imports=False)
 # model settings
 model = dict(
@@ -102,7 +102,7 @@ test_pipeline = [
         ])
 ]
 data = dict(
-    samples_per_gpu=24,
+    samples_per_gpu=32,
     workers_per_gpu=4,
     train=dict(
         type='RepeatDataset',  # use RepeatDataset to speed up training
