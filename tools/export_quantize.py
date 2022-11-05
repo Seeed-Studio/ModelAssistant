@@ -142,7 +142,7 @@ def main(args):
     func_dict = {'onnx_fp16': onnx_fp16, 'onnx_quan_st': onnx_quant_static, 'onnx_quan_dy': onnx_quant_dynamic,
                  'ncnn': export_ncnn,
                  'ncnn_fp16': ncnn_fp16, 'ncnn_quan': ncnn_quant}
-    onnx_path = onnx_path = osp.abspath(args.onnx_path)
+    onnx_path = onnx_path = osp.abspath(args.onnx)
     export_type = args.export_type
     imags_dir = args.imags_path
 
@@ -150,7 +150,8 @@ def main(args):
 
     for f in export_type:
         if f not in func_dict.keys():
-            loger.error(f'{f} not in {func_dict.keys()},Please enter the correct export type')
+            loger.error(
+                f'{f} not in {func_dict.keys()},Please enter the correct export type')
         if f == 'ncnn_quan' and imags_dir:
             func_dict[f](onnx_path, imags_dir)
         else:
@@ -160,9 +161,9 @@ def main(args):
 def args_parse():
     args = argparse.ArgumentParser(description='export onnx to othaer.')
     args.add_argument(
-        '--onnx-path', default='./weights/best.onnx', help='onnx model file path')
+        'onnx', default='./weights/best.onnx', help='onnx model file path')
     args.add_argument('--imags-path', help='celacrater data file path')
-    args.add_argument('--export-type', nargs='+', default=['ncnn_quan5'],
+    args.add_argument('--type', nargs='+', default=['ncnn_quan5'],
                       help='from [onnx_fp16, onnx_quan_st, onnx_quan_dy, ncnn, ncnn_fp16, ncnn_quan]')
 
     return args.parse_args()
