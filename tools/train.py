@@ -106,6 +106,16 @@ def parse_args():
     return args
 
 
+def mkdir_work(work_dir):
+    work_dir = osp.abspath(work_dir)
+    os.makedirs(work_dir,exist_ok=True)
+    os.chdir(work_dir)
+    fl = os.listdir(work_dir)
+    num = max([int(i.replace('exp','')) for i in fl if 'exp' in i]+[0])+1
+    os.makedirs(f'exp{num}',exist_ok=True)
+    return osp.join(work_dir,f'exp{num}')
+
+
 def main():
     args = parse_args()
     train_type = args.type
@@ -200,7 +210,8 @@ def main():
         cfg.gpu_ids = range(world_size)
 
     # create work_dir
-    mmcv.mkdir_or_exist(osp.abspath(cfg.work_dir))
+    # mmcv.mkdir_or_exist(osp.abspath(cfg.work_dir))
+    cfg.work_dir = mkdir_work(cfg.work_dir)
     # dump config
     cfg.dump(osp.join(cfg.work_dir, osp.basename(args.config)))
     # init the logger before other steps
