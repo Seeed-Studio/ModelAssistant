@@ -63,12 +63,16 @@ def get_job(argv) -> int:
 
 def test_delay(name):
     p = Popen(f'ping {name} -c 3', shell=True, encoding='utf8', stdout=PIPE)
+    loger.info(f'testing to "{name}" delay')
     data = p.stdout.read()
     p.wait(5)
     if len(data):
         delay = re.findall('time=(.*?) ms', data)
-        print((sum([float(i) for i in delay]) / len(delay)).__round__(2))
-        return sum([float(i) for i in delay]) / len(delay).__round__(2)
+        if len(delay):
+            print((sum([float(i) for i in delay]) / len(delay)).__round__(2))
+            return sum([float(i) for i in delay]) / len(delay).__round__(2)
+        else:
+            return 1000
 
 
 def qure_ip():
@@ -101,7 +105,7 @@ def test_network():
                 delay = test
                 domain = i
         loger.info(mirror[domain])
-        return mirror[domain]
+        return mirror[domain], domain
 
     return False
 
@@ -242,8 +246,8 @@ def torch_install():
         )
     else:
         command(
-            f'{pip} install torch==1.10.0 torchvision==0.11.1 torchaudio==0.10.0'
-        )
+            f'{pip} install torch==1.10.0 torchvision==0.11.1 torchaudio==0.10.0 '
+            + '-i {mirror[0]} --trusted-host {mirror[1]}' if mirror else '')
 
 
 def mmlab_install():
@@ -257,7 +261,8 @@ def mmlab_install():
         ):
             loger.info('mmcv-full install succeeded!')
     else:
-        command(f'{pip} install mmcv-full')
+        command(f'{pip} install mmcv-full' +
+                f'-i {mirror[0]} --trusted-host {mirror[1]}' if mirror else '')
         loger.info('mmcv-full install succeeded!')
 
 
@@ -276,6 +281,8 @@ def install_protobuf(dep_dir) -> int:
     install_dir = os.path.join(dep_dir, 'pbinstall')
     if os.path.exists(install_dir):
         command('rm -rf {}'.format(install_dir))
+    else:
+        os.makedirs(install_dir)
 
     command('make clean')
     command('./configure --prefix={}'.format(install_dir))
@@ -425,3 +432,5 @@ if __name__ == '__main__':
     # export
     install_protobuf(now_path)
     install_pyncnn(now_path)
+    # ENV
+    command(f'source')
