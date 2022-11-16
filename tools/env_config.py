@@ -88,27 +88,17 @@ def test_network():
             if delay > test:
                 delay = test
                 domain = i
-        print(mirror[domain])
+        loger.info(mirror[domain])
         return mirror[domain]
 
     return False
 
 
-# mirror = test_network()
-
-
 def qure_gpu():
-    p = Popen('nvidia-smi |grep Driver', shell=True,
-              encoding='utf8', stdout=PIPE)
-    data = p.stdout.read()
-    print(data)
-    if len(data):
-        gpu = re.findall('NVIDIA-SMI (.*?) ', data)[0]
-        return gpu
-
-    print('GPU:', data)
-    print(p.returncode)
-    return False
+    if os.system('nvidia-smi |grep Driver') != 0:
+        return False
+    else:
+        return True
 
 
 def download_file(link, path):
@@ -145,7 +135,7 @@ def anaconda_install(now_path, conda='miniconda'):
         # r.wait(15)
     except:
         r.kill()
-        loger.info('')
+        loger.info('anaconda installation failed!')
 
 
 def cuda_install(now_path):
@@ -164,54 +154,9 @@ def cuda_install(now_path):
     command('sudo apt-get update && sudo apt-get -y install cuda')
 
 
-def mmlab_install(env_name, conda_name):
-    if command(f'{pip} install -r {req_path}/requirements.txt'):
-        loger.info('mmlab env install succeeded!')
-    if command(
-            '{pip} install mmcv-full  -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.10.0/index.html'):
-        loger.info('mmcv-full install succeeded!')
-
-
-def torch_install(env_name, conda_name):
-    if not command(f'{pip} list'):
-        loger.warning(f'Environment {env_name} query failed')
-        return
-
-    p = subprocess.Popen(args=f'{pip} list | grep torch', shell=True,
-                         encoding='utf8', stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-    data = p.stdout.read()
-    if len(data) and 'torch ' in data:
-        loger.warning('Torch is has installed!')
-        return
-
-    if GPU:
-        # p=subprocess.Popen(args='nvcc --version | grep release',stdout=subprocess.PIPE,encoding='utf8',shell=True)
-        p = subprocess.Popen(args='nvidia-smi | grep Driver',
-                             stdout=subprocess.PIPE, encoding='utf8', shell=True)
-        data = p.stdout.read()
-        if len(data) and 'Driver' in data:
-            version = re.findall('CUDA Version: (.*?) ', data)[0]
-            loger.info(f'CUDA VERSION:{version}')
-        else:
-            loger.info('未查询到cuda版本！')
-        command(
-            f'{pip} install torch==1.10.0+cu113 torchvision==0.11.1+cu113 torchaudio==0.10.0+cu113 --extra-index-url https://download.pytorch.org/whl/cu113')
-    else:
-        command(f'{pip} install torch torchvision torchaudio')
-
-
-def conda_acti_env(name):
-    command('conda info -e')
-    time.sleep(2)
-    if command(f'~/anaconda3/bin/conda activate {name}'):
-        loger.info(f'The virtual environment {name} is activated')
-    else:
-        loger.warning(f'Virtual environment {name} activation failed')
-
-
 def conda_create_env(name, version=3.8):
     p = subprocess.Popen(
-        f'conda info -e', stdout=subprocess.PIPE, shell=True, encoding='utf8')
+        f'conda info -e |grep {name}', stdout=subprocess.PIPE, shell=True, encoding='utf8')
     if name in p.stdout.read():
         loger.info(f'The virtual environment {name} already exists')
         return
@@ -228,7 +173,51 @@ def conda_create_env(name, version=3.8):
         loger.warning(f'Failed to create virtual environment {name}')
 
 
-g_jobs = 16
+def conda_acti_env(name):
+    command('conda info -e')
+    time.sleep(2)
+    if command(f'~/anaconda3/bin/conda activate {name}'):
+        loger.info(f'The virtual environment {name} is activated')
+    else:
+        loger.warning(f'Virtual environment {name} activation failed')
+
+
+def torch_install():
+    p = subprocess.Popen(args=f'{pip} list | grep torch', shell=True,
+                         encoding='utf8', stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+    data = p.stdout.read()
+    if len(data) and 'torch ' in data:
+        loger.warning('Torch is has installed!')
+        return
+
+    if GPU:
+        # p=subprocess.Popen(args='nvcc --version | grep release',stdout=subprocess.PIPE,encoding='utf8',shell=True)
+        p = subprocess.Popen(args='nvidia-smi | grep Driver',
+                             stdout=subprocess.PIPE, encoding='utf8', shell=True)
+        data = p.stdout.read()
+        if len(data) and 'Driver' in data:
+            version = re.findall('CUDA Version: (.*?) ', data)[0]
+            loger.info(f'CUDA VERSION:{version}')
+        else:
+            loger.warning('cuda version not found！')
+        command(
+            f'{pip} install torch==1.10.0+cu113 torchvision==0.11.1+cu113 torchaudio==0.10.0+cu113 --extra-index-url https://download.pytorch.org/whl/cu113')
+    else:
+        command(f'{pip} install torch==1.10.0 torchvision==0.11.1 torchaudio==0.10.0')
+
+
+def mmlab_install():
+    self_dir = os.path.abspath(__file__)
+    req_path = os.path.join(os.path.dirname(self_dir), '..', 'requirements')
+    if command(f'{pip} install -r {req_path}/requirements.txt'):
+        loger.info('mmlab env install succeeded!')
+    if GPU:
+        if command(
+                f'{pip} install mmcv-full  -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.10.0/index.html'):
+            loger.info('mmcv-full install succeeded!')
+    else:
+        command(f'{pip} install mmcv-full')
+        loger.info('mmcv-full install succeeded!')
 
 
 def install_protobuf(dep_dir) -> int:
@@ -318,9 +307,11 @@ def install_pyncnn(dep_dir):
     loger.info('ncnn cmake dir \t:{}'.format(ncnn_cmake_dir))
     return ncnn_cmake_dir
 
+g_jobs = 16
 
-def main():
-    """Auto install mmdeploy with ncnn. To verify this script:
+def proto_ncnn_install():
+    """https://github.com/open-mmlab/mmdeploy/blob/master/tools/scripts/build_ubuntu_x64_ncnn.py
+    Auto install mmdeploy with ncnn. To verify this script:
 
     1) use `sudo docker run -v /path/to/mmdeploy:/root/mmdeploy -v /path/to/Miniconda3-latest-Linux-x86_64.sh:/root/miniconda.sh -it ubuntu:18.04 /bin/bash` # noqa: E501
     2) install conda and setup python environment
@@ -335,7 +326,7 @@ def main():
 
     work_dir = os.path.abspath(os.path.join(__file__, '..', '..', '..'))
     dep_dir = os.path.abspath(os.path.join(work_dir, '..', 'mmdeploy-dep'))
-    dep_dir = '/home/dq/software'
+    dep_dir = now_path
     if not os.path.exists(dep_dir):
         if os.path.isfile(dep_dir):
             loger.info(
@@ -356,9 +347,9 @@ def main():
 def pare_args():
     args = argparse.ArgumentParser()
     args.add_argument('--action', default='')
-    args.add_argument('--envname', default='edgelab3',
+    args.add_argument('--envname', default='edgelab2',
                       help='conda vertual enverimen name')
-    args.add_argument('--conda', default='miniconda',
+    args.add_argument('--conda', default='anaconda',
                       help='conda vertual enverimen name')
     args.add_argument('--force', action='store_true',
                       help='wether force install')
@@ -366,21 +357,24 @@ def pare_args():
 
 
 if __name__ == '__main__':
-    now_path = '/home/dq/software'
     args = pare_args()
-    loger = log_init()
-    GPU = qure_gpu()
     pip = f'~/{args.conda}3/envs/{args.envname}/bin/pip'
-
+    home = os.environ['HOME']
+    now_path = f'{home}/software'
+    os.makedirs(now_path,exist_ok=True)
+    loger = log_init()
+    mirror = test_network()
+    GPU = qure_gpu()
+    # GPU = False
+    print(GPU)
+    
     anaconda_install(now_path, conda=args.conda)
     conda_create_env(args.envname)
 
-    # # cuda_install(now_path)
-    torch_install(args.envname, args.conda)
-    self_dir = os.path.abspath(__file__)
-    req_path = os.path.join(os.path.dirname(self_dir), '..', 'requirements')
-
-    mmlab_install(args.envname, args.conda)
-
+    # cuda_install(now_path) 
+    torch_install()
+    # mmlab
+    mmlab_install()
+    # export
     install_protobuf(now_path)
     install_pyncnn(now_path)
