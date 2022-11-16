@@ -135,7 +135,7 @@ def anaconda_install(now_path, conda='miniconda'):
     if command(f'{conda_bin} -V'):
         loger.info(
             'Your conda has been installed, skip the installation this time')
-        retur
+        return
 
     file_name = download_links[conda].split('/')[-1]
     download_file(download_links[conda], now_path)
