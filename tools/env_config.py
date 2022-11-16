@@ -9,8 +9,12 @@ import argparse
 from subprocess import Popen, PIPE
 from ubuntu_utils import cmd_result, ensure_base_env, get_job
 
-download_links = {'miniconda': 'https://repo.anaconda.com/miniconda/Miniconda3-py38_4.12.0-Linux-x86_64.sh',
-                  'anaconda': 'https://repo.anaconda.com/archive/Anaconda3-2022.10-Linux-x86_64.sh'}
+download_links = {
+    'miniconda':
+    'https://repo.anaconda.com/miniconda/Miniconda3-py38_4.12.0-Linux-x86_64.sh',
+    'anaconda':
+    'https://repo.anaconda.com/archive/Anaconda3-2022.10-Linux-x86_64.sh'
+}
 
 
 def log_init():
@@ -31,7 +35,7 @@ def command(cmd, retry_num=3):
         if os.system(cmd) != 0:
             time.sleep(1)
             loger.warning(f'COMMAND:"{cmd}"execution failed')
-            loger.info('retrying') if i != (retry_num-1) else None
+            loger.info('retrying') if i != (retry_num - 1) else None
         else:
             return True
     return False
@@ -63,13 +67,15 @@ def test_delay(name):
     p.wait(5)
     if len(data):
         delay = re.findall('time=(.*?) ms', data)
-        print((sum([float(i) for i in delay])/len(delay)).__round__(2))
-        return sum([float(i) for i in delay])/len(delay).__round__(2)
+        print((sum([float(i) for i in delay]) / len(delay)).__round__(2))
+        return sum([float(i) for i in delay]) / len(delay).__round__(2)
 
 
 def qure_ip():
     p = subprocess.Popen('curl http://myip.ipip.net',
-                         shell=True, encoding='utf8', stdout=subprocess.PIPE)
+                         shell=True,
+                         encoding='utf8',
+                         stdout=subprocess.PIPE)
     data = p.stdout.read()
     loger.info(data)
     if '中国' in data:
@@ -81,8 +87,14 @@ def test_network():
     delay = 1000
     domain = 'mirrors.aliyun.com'
     if qure_ip():
-        mirror = {'pypi.mirrors.ustc.edu.cn': 'https://pypi.mirrors.ustc.edu.cn/simple', 'pypi.douban.com': 'http://pypi.douban.com/simple/',
-                  'mirrors.aliyun.com': 'http://mirrors.aliyun.com/pypi/simple/', 'pypi.tuna.tsinghua.edu.cn': 'https://pypi.tuna.tsinghua.edu.cn/simple'}
+        mirror = {
+            'pypi.mirrors.ustc.edu.cn':
+            'https://pypi.mirrors.ustc.edu.cn/simple',
+            'pypi.douban.com': 'http://pypi.douban.com/simple/',
+            'mirrors.aliyun.com': 'http://mirrors.aliyun.com/pypi/simple/',
+            'pypi.tuna.tsinghua.edu.cn':
+            'https://pypi.tuna.tsinghua.edu.cn/simple'
+        }
         for i in mirror.keys():
             test = test_delay(i)
             if delay > test:
@@ -101,7 +113,7 @@ def qure_gpu():
         return True
 
 
-def download_file(link, path):
+def dowchmodnload_file(link, path):
     os.chdir(path)
     if os.path.exists(os.path.join(path, link.split('/')[-1])):
         loger.info(
@@ -120,16 +132,22 @@ def write_command(command, path):
 def anaconda_install(now_path, conda='miniconda'):
     os.chdir(now_path)
     os.makedirs('tmp', exist_ok=True)
-    if command('conda -V'):
+    if command(f'{conda_bin} -V'):
         loger.info(
             'Your conda has been installed, skip the installation this time')
-        return
+        retur
 
     file_name = download_links[conda].split('/')[-1]
     download_file(download_links[conda], now_path)
 
-    r = subprocess.Popen(args=f'./{file_name}', stdin=PIPE,
-                         stderr=PIPE, stdout=None, shell=True, encoding='utf8')
+    time.sleep(1)
+    command(f'chmod +x {file_name}')
+    r = subprocess.Popen(args=f'./{file_name}',
+                         stdin=PIPE,
+                         stderr=PIPE,
+                         stdout=None,
+                         shell=True,
+                         encoding='utf8')
     try:
         r.communicate('\nq\n\nyes\n\nyes\n\n')
         # r.wait(15)
@@ -142,31 +160,45 @@ def cuda_install(now_path):
     os.chdir(now_path)
     if not os.path.exists('./cuda_11.2.1_460.32.03_linux.run'):
         command(
-            'wget https://developer.download.nvidia.com/compute/cuda/11.2.1/local_installers/cuda_11.2.1_460.32.03_linux.run')
+            'wget https://developer.download.nvidia.com/compute/cuda/11.2.1/local_installers/cuda_11.2.1_460.32.03_linux.run'
+        )
 
-    command('wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin')
     command(
-        'sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600')
-    command('wget https://developer.download.nvidia.com/compute/cuda/11.2.1/local_installers/cuda-repo-ubuntu2004-11-2-local_11.2.1-460.32.03-1_amd64.deb')
+        'wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin'
+    )
     command(
-        'sudo dpkg -i cuda-repo-ubuntu2004-11-2-local_11.2.1-460.32.03-1_amd64.deb')
-    command('sudo apt-key add /var/cuda-repo-ubuntu2004-11-2-local/7fa2af80.pub')
+        'sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600'
+    )
+    command(
+        'wget https://developer.download.nvidia.com/compute/cuda/11.2.1/local_installers/cuda-repo-ubuntu2004-11-2-local_11.2.1-460.32.03-1_amd64.deb'
+    )
+    command(
+        'sudo dpkg -i cuda-repo-ubuntu2004-11-2-local_11.2.1-460.32.03-1_amd64.deb'
+    )
+    command(
+        'sudo apt-key add /var/cuda-repo-ubuntu2004-11-2-local/7fa2af80.pub')
     command('sudo apt-get update && sudo apt-get -y install cuda')
 
 
 def conda_create_env(name, version=3.8):
-    p = subprocess.Popen(
-        f'conda info -e |grep {name}', stdout=subprocess.PIPE, shell=True, encoding='utf8')
+    p = subprocess.Popen(f'{conda_bin} info -e |grep {name}',
+                         stdout=subprocess.PIPE,
+                         shell=True,
+                         encoding='utf8')
     if name in p.stdout.read():
         loger.info(f'The virtual environment {name} already exists')
         return
 
-    p = subprocess.Popen(
-        f'conda create -n {name} python=={version}', stdin=subprocess.PIPE, shell=True, encoding='utf8')
+    p = subprocess.Popen(f'{conda_bin} create -n {name} python=={version}',
+                         stdin=subprocess.PIPE,
+                         shell=True,
+                         encoding='utf8')
     p.communicate('y\n')
 
-    p = subprocess.Popen(
-        f'conda info -e', stdout=subprocess.PIPE, shell=True, encoding='utf8')
+    p = subprocess.Popen(f'{conda_bin} info -e',
+                         stdout=subprocess.PIPE,
+                         shell=True,
+                         encoding='utf8')
     if name in p.stdout.read():
         loger.info(f'The virtual environment {name} has been created')
     else:
@@ -174,17 +206,20 @@ def conda_create_env(name, version=3.8):
 
 
 def conda_acti_env(name):
-    command('conda info -e')
+    command(f'{conda_bin} info -e')
     time.sleep(2)
-    if command(f'~/anaconda3/bin/conda activate {name}'):
+    if command(f'{conda_bin} activate {name}'):
         loger.info(f'The virtual environment {name} is activated')
     else:
         loger.warning(f'Virtual environment {name} activation failed')
 
 
 def torch_install():
-    p = subprocess.Popen(args=f'{pip} list | grep torch', shell=True,
-                         encoding='utf8', stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+    p = subprocess.Popen(args=f'{pip} list | grep torch',
+                         shell=True,
+                         encoding='utf8',
+                         stdout=subprocess.PIPE,
+                         stdin=subprocess.PIPE)
     data = p.stdout.read()
     if len(data) and 'torch ' in data:
         loger.warning('Torch is has installed!')
@@ -193,7 +228,9 @@ def torch_install():
     if GPU:
         # p=subprocess.Popen(args='nvcc --version | grep release',stdout=subprocess.PIPE,encoding='utf8',shell=True)
         p = subprocess.Popen(args='nvidia-smi | grep Driver',
-                             stdout=subprocess.PIPE, encoding='utf8', shell=True)
+                             stdout=subprocess.PIPE,
+                             encoding='utf8',
+                             shell=True)
         data = p.stdout.read()
         if len(data) and 'Driver' in data:
             version = re.findall('CUDA Version: (.*?) ', data)[0]
@@ -201,9 +238,12 @@ def torch_install():
         else:
             loger.warning('cuda version not found！')
         command(
-            f'{pip} install torch==1.10.0+cu113 torchvision==0.11.1+cu113 torchaudio==0.10.0+cu113 --extra-index-url https://download.pytorch.org/whl/cu113')
+            f'{pip} install torch==1.10.0+cu113 torchvision==0.11.1+cu113 torchaudio==0.10.0+cu113 --extra-index-url https://download.pytorch.org/whl/cu113'
+        )
     else:
-        command(f'{pip} install torch==1.10.0 torchvision==0.11.1 torchaudio==0.10.0')
+        command(
+            f'{pip} install torch==1.10.0 torchvision==0.11.1 torchaudio==0.10.0'
+        )
 
 
 def mmlab_install():
@@ -213,7 +253,8 @@ def mmlab_install():
         loger.info('mmlab env install succeeded!')
     if GPU:
         if command(
-                f'{pip} install mmcv-full  -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.10.0/index.html'):
+                f'{pip} install mmcv-full  -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.10.0/index.html'
+        ):
             loger.info('mmcv-full install succeeded!')
     else:
         command(f'{pip} install mmcv-full')
@@ -307,7 +348,9 @@ def install_pyncnn(dep_dir):
     loger.info('ncnn cmake dir \t:{}'.format(ncnn_cmake_dir))
     return ncnn_cmake_dir
 
+
 g_jobs = 16
+
 
 def proto_ncnn_install():
     """https://github.com/open-mmlab/mmdeploy/blob/master/tools/scripts/build_ubuntu_x64_ncnn.py
@@ -347,11 +390,14 @@ def proto_ncnn_install():
 def pare_args():
     args = argparse.ArgumentParser()
     args.add_argument('--action', default='')
-    args.add_argument('--envname', default='edgelab2',
+    args.add_argument('--envname',
+                      default='edgelab2',
                       help='conda vertual enverimen name')
-    args.add_argument('--conda', default='anaconda',
+    args.add_argument('--conda',
+                      default='anaconda',
                       help='conda vertual enverimen name')
-    args.add_argument('--force', action='store_true',
+    args.add_argument('--force',
+                      action='store_true',
                       help='wether force install')
     return args.parse_args()
 
@@ -360,18 +406,19 @@ if __name__ == '__main__':
     args = pare_args()
     pip = f'~/{args.conda}3/envs/{args.envname}/bin/pip'
     home = os.environ['HOME']
+    conda_bin = f'{home}/{args.conda}3/bin/conda'
     now_path = f'{home}/software'
-    os.makedirs(now_path,exist_ok=True)
+    os.makedirs(now_path, exist_ok=True)
     loger = log_init()
     mirror = test_network()
     GPU = qure_gpu()
     # GPU = False
     print(GPU)
-    
+
     anaconda_install(now_path, conda=args.conda)
     conda_create_env(args.envname)
 
-    # cuda_install(now_path) 
+    # cuda_install(now_path)
     torch_install()
     # mmlab
     mmlab_install()
