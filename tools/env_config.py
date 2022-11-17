@@ -244,7 +244,7 @@ def install_protobuf() -> int:
         command(
             'wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.0/protobuf-cpp-3.20.0.tar.gz'  # noqa: E501
         )
-        command('tar xvf protobuf-cpp-3.20.0.tar.gz')
+    command('tar xvf protobuf-cpp-3.20.0.tar.gz')
 
     os.chdir(osp.join(proce_path, 'protobuf-3.20.0'))
 
@@ -328,13 +328,7 @@ def install_pyncnn():
 
 
 def proto_ncnn_install():
-    """https://github.com/open-mmlab/mmdeploy/blob/master/tools/scripts/build_ubuntu_x64_ncnn.py
-    Auto install mmdeploy with ncnn. To verify this script:
-
-    1) use `sudo docker run -v /path/to/mmdeploy:/root/mmdeploy -v /path/to/Miniconda3-latest-Linux-x86_64.sh:/root/miniconda.sh -it ubuntu:18.04 /bin/bash` # noqa: E501
-    2) install conda and setup python environment
-    3) run `python3 tools/scripts/build_ubuntu_x64_ncnn.py`
-
+    """refer:https://github.com/open-mmlab/mmdeploy/blob/master/tools/scripts/build_ubuntu_x64_ncnn.py
     Returns:
         _type_: _description_
     """
@@ -378,7 +372,7 @@ def prepare():
 
 def main():
     prepare()
-    ensure_base_env(proce_path, proce_path)
+    ensure_base_env(project_path, proce_path)
 
     anaconda_install(conda=args.conda)
     conda_create_env(args.envname)
