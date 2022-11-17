@@ -1,10 +1,10 @@
 import subprocess
 import os
 import re
-import sys
 import time
 import logging
 import argparse
+import os.path as osp
 
 from subprocess import Popen, PIPE
 from ubuntu_utils import cmd_result, ensure_base_env, get_job
@@ -243,17 +243,17 @@ def torch_install():
             loger.warning('cuda version not found！')
         command(
             f'{pip} install torch==1.10.0+cu113 torchvision==0.11.1+cu113 torchaudio==0.10.0+cu113 --extra-index-url https://download.pytorch.org/whl/cu113'
-        )
+            + pip_mirror)
     else:
         command(
             f'{pip} install torch==1.10.0 torchvision==0.11.1 torchaudio==0.10.0 '
-            + '-i {mirror[0]} --trusted-host {mirror[1]}' if mirror else '')
+            + pip_mirror)
 
 
 def mmlab_install():
     self_dir = os.path.abspath(__file__)
     req_path = os.path.join(os.path.dirname(self_dir), '..', 'requirements')
-    if command(f'{pip} install -r {req_path}/requirements.txt'):
+    if command(f'{pip} install -r {req_path}/requirements.txt' + pip_mirror):
         loger.info('mmlab env install succeeded!')
     if GPU:
         if command(
@@ -261,8 +261,7 @@ def mmlab_install():
         ):
             loger.info('mmcv-full install succeeded!')
     else:
-        command(f'{pip} install mmcv-full' +
-                f'-i {mirror[0]} --trusted-host {mirror[1]}' if mirror else '')
+        command(f'{pip} install mmcv-full' + pip_mirror)
         loger.info('mmcv-full install succeeded!')
 
 
@@ -270,7 +269,7 @@ def install_protobuf(dep_dir) -> int:
     print('-' * 10 + 'install protobuf' + '-' * 10)
 
     os.chdir(dep_dir)
-    if not os.path.exists('protobuf-3.20.0'):
+    if not os.path.exists('protobuf-cpp-3.20.0.tar.gz'):
         command(
             'wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.0/protobuf-cpp-3.20.0.tar.gz'  # noqa: E501
         )
@@ -340,7 +339,7 @@ def install_pyncnn(dep_dir):
 
     # install
     os.chdir(ncnn_dir)
-    command(f'cd python && {pip} install -e .')
+    command(f'cd python && {pip} install -e .' + pip_mirror)
     ncnn_cmake_dir = os.path.join(ncnn_dir, 'build', 'install', 'lib', 'cmake',
                                   'ncnn')
     onnx_path = os.path.join(ncnn_dir, 'build', 'tools', 'onnx')
@@ -359,51 +358,6 @@ def install_pyncnn(dep_dir):
     return ncnn_cmake_dir
 
 
-def install_mmdeploy(work_dir, dep_dir, ncnn_cmake_dir):
-    print('-' * 10 + 'build and install mmdeploy' + '-' * 10)
-    time.sleep(3)
-
-    os.chdir(work_dir)
-    command('git submodule init')
-    command('git submodule update')
-
-    if not os.path.exists('build'):
-        command('mkdir build')
-
-    pb_install = os.path.join(dep_dir, 'pbinstall')
-    pb_bin = os.path.join(pb_install, 'bin', 'protoc')
-    pb_lib = os.path.join(pb_install, 'lib', 'libprotobuf.so')
-    pb_include = os.path.join(pb_install, 'include')
-
-    command('rm -rf build/CMakeCache.txt')
-
-    cmd = 'cd build && cmake ..'
-    cmd += ' -DMMDEPLOY_BUILD_SDK=ON '
-    cmd += ' -DMMDEPLOY_BUILD_EXAMPLES=ON '
-    cmd += ' -DMMDEPLOY_BUILD_SDK_PYTHON_API=ON '
-    cmd += ' -DMMDEPLOY_TARGET_DEVICES=cpu '
-    cmd += ' -DMMDEPLOY_TARGET_BACKENDS=ncnn '
-    cmd += ' -DProtobuf_PROTOC_EXECUTABLE={} '.format(pb_bin)
-    cmd += ' -DProtobuf_LIBRARIES={} '.format(pb_lib)
-    cmd += ' -DProtobuf_INCLUDE_DIR={} '.format(pb_include)
-    cmd += ' -Dncnn_DIR={} '.format(ncnn_cmake_dir)
-    command(cmd)
-
-    command('cd build && make -j {} && make install'.format(g_jobs))
-    command('python3 -m pip install -v -e .')
-    command(""" echo 'export PATH={}:$PATH' >> ~/mmdeploy.env """.format(
-        os.path.join(work_dir, 'mmdeploy', 'backend', 'ncnn')))
-    try:
-        import mmcv
-        loger.info(mmcv.__version__)
-        command('python3 tools/check_env.py')
-    except Exception:
-        loger.info('Please install torch & mmcv later.. ╮(╯▽╰)╭')
-    return 0
-
-g_jobs = os.cpu_count() if os.cpu_count else 8
-
-
 def proto_ncnn_install():
     """https://github.com/open-mmlab/mmdeploy/blob/master/tools/scripts/build_ubuntu_x64_ncnn.py
     Auto install mmdeploy with ncnn. To verify this script:
@@ -415,20 +369,17 @@ def proto_ncnn_install():
     Returns:
         _type_: _description_
     """
-    global g_jobs
-    g_jobs = get_job(sys.argv)
-    print('g_jobs {}'.format(g_jobs))
 
-    work_dir = now_path
+
     # dep_dir = os.path.abspath(os.path.join(work_dir, '..', 'mmdeploy-dep'))
     if not os.path.exists(dep_dir):
         if os.path.isfile(dep_dir):
             loger.info(
-                '{} already exists and it is a file, exit.'.format(work_dir))
+                '{} already exists and it is a file, exit.'.format(now_path))
             return -1
         os.mkdir(dep_dir)
 
-    success = ensure_base_env(work_dir, dep_dir)
+    success = ensure_base_env(now_path, dep_dir)
     if success != 0:
         return -1
 
@@ -437,19 +388,12 @@ def proto_ncnn_install():
 
     ncnn_cmake_dir = install_pyncnn(dep_dir)
 
-    if install_mmdeploy(work_dir, dep_dir, ncnn_cmake_dir) != 0:
-        return -1
-
-    if os.path.exists('~/mmdeploy.env'):
-        loger.info('Please source ~/mmdeploy.env to setup your env !')
-        command('cat ~/mmdeploy.env')
-
 
 def pare_args():
     args = argparse.ArgumentParser()
     args.add_argument('--action', default='')
     args.add_argument('--envname',
-                      default='edgelab2',
+                      default='test1',
                       help='conda vertual enverimen name')
     args.add_argument('--conda',
                       default='anaconda',
@@ -460,18 +404,27 @@ def pare_args():
     return args.parse_args()
 
 
-if __name__ == '__main__':
+def prepare():
+    global args, project_path, pip, conda_bin, home, now_path, dep_dir, loger, pip_mirror, GPU, g_jobs
     args = pare_args()
+    g_jobs = os.cpu_count() if os.cpu_count else 8
+    project_path = osp.dirname(osp.dirname(osp.abspath(__file__)))
     pip = f'~/{args.conda}3/envs/{args.envname}/bin/pip'
     home = os.environ['HOME']
     conda_bin = f'{home}/{args.conda}3/bin/conda'
     now_path = f'{home}/software'
     dep_dir = os.path.abspath(os.path.join(now_path, '..', 'mmdeploy-dep'))
+
     os.makedirs(now_path, exist_ok=True)
     loger = log_init()
     mirror = test_network()
+    pip_mirror = f' -i {mirror[0]} --trusted-host {mirror[1]}' if mirror else ''
     GPU = qure_gpu()
-    ensure_base_env(now_path,dep_dir)
+
+
+def main():
+    prepare()
+    ensure_base_env(now_path, dep_dir)
 
     anaconda_install(now_path, conda=args.conda)
     conda_create_env(args.envname)
@@ -483,3 +436,6 @@ if __name__ == '__main__':
     # export
     proto_ncnn_install()
 
+
+if __name__ == '__main__':
+    main()
