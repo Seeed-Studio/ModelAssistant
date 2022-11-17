@@ -359,6 +359,48 @@ def install_pyncnn(dep_dir):
     return ncnn_cmake_dir
 
 
+def install_mmdeploy(work_dir, dep_dir, ncnn_cmake_dir):
+    print('-' * 10 + 'build and install mmdeploy' + '-' * 10)
+    time.sleep(3)
+
+    os.chdir(work_dir)
+    command('git submodule init')
+    command('git submodule update')
+
+    if not os.path.exists('build'):
+        command('mkdir build')
+
+    pb_install = os.path.join(dep_dir, 'pbinstall')
+    pb_bin = os.path.join(pb_install, 'bin', 'protoc')
+    pb_lib = os.path.join(pb_install, 'lib', 'libprotobuf.so')
+    pb_include = os.path.join(pb_install, 'include')
+
+    command('rm -rf build/CMakeCache.txt')
+
+    cmd = 'cd build && cmake ..'
+    cmd += ' -DMMDEPLOY_BUILD_SDK=ON '
+    cmd += ' -DMMDEPLOY_BUILD_EXAMPLES=ON '
+    cmd += ' -DMMDEPLOY_BUILD_SDK_PYTHON_API=ON '
+    cmd += ' -DMMDEPLOY_TARGET_DEVICES=cpu '
+    cmd += ' -DMMDEPLOY_TARGET_BACKENDS=ncnn '
+    cmd += ' -DProtobuf_PROTOC_EXECUTABLE={} '.format(pb_bin)
+    cmd += ' -DProtobuf_LIBRARIES={} '.format(pb_lib)
+    cmd += ' -DProtobuf_INCLUDE_DIR={} '.format(pb_include)
+    cmd += ' -Dncnn_DIR={} '.format(ncnn_cmake_dir)
+    command(cmd)
+
+    command('cd build && make -j {} && make install'.format(g_jobs))
+    command('python3 -m pip install -v -e .')
+    command(""" echo 'export PATH={}:$PATH' >> ~/mmdeploy.env """.format(
+        os.path.join(work_dir, 'mmdeploy', 'backend', 'ncnn')))
+    try:
+        import mmcv
+        loger.info(mmcv.__version__)
+        command('python3 tools/check_env.py')
+    except Exception:
+        loger.info('Please install torch & mmcv later.. ╮(╯▽╰)╭')
+    return 0
+
 g_jobs = os.cpu_count() if os.cpu_count else 8
 
 
@@ -378,7 +420,7 @@ def proto_ncnn_install():
     print('g_jobs {}'.format(g_jobs))
 
     work_dir = now_path
-    dep_dir = os.path.abspath(os.path.join(work_dir, '..', 'mmdeploy-dep'))
+    # dep_dir = os.path.abspath(os.path.join(work_dir, '..', 'mmdeploy-dep'))
     if not os.path.exists(dep_dir):
         if os.path.isfile(dep_dir):
             loger.info(
@@ -394,6 +436,13 @@ def proto_ncnn_install():
         return -1
 
     ncnn_cmake_dir = install_pyncnn(dep_dir)
+
+    if install_mmdeploy(work_dir, dep_dir, ncnn_cmake_dir) != 0:
+        return -1
+
+    if os.path.exists('~/mmdeploy.env'):
+        loger.info('Please source ~/mmdeploy.env to setup your env !')
+        command('cat ~/mmdeploy.env')
 
 
 def pare_args():
@@ -432,7 +481,5 @@ if __name__ == '__main__':
     # mmlab
     mmlab_install()
     # export
-    install_protobuf(now_path)
-    install_pyncnn(now_path)
-    # ENV
-    command(f'source')
+    proto_ncnn_install()
+
