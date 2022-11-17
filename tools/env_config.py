@@ -89,13 +89,13 @@ def qure_ip():
 
 def test_network():
     delay = 1000
-    domain = 'mirrors.aliyun.com'
+    domain = 'pypi.tuna.tsinghua.edu.cn'
     if qure_ip():
         mirror = {
             'pypi.mirrors.ustc.edu.cn':
             'https://pypi.mirrors.ustc.edu.cn/simple',
             'pypi.douban.com': 'http://pypi.douban.com/simple/',
-            'mirrors.aliyun.com': 'http://mirrors.aliyun.com/pypi/simple/',
+            'mirrors.aliyun.com': 'https://mirrors.aliyun.com/pypi/simple/',
             'pypi.tuna.tsinghua.edu.cn':
             'https://pypi.tuna.tsinghua.edu.cn/simple'
         }
@@ -117,7 +117,7 @@ def qure_gpu():
         return True
 
 
-def dowchmodnload_file(link, path):
+def download_file(link, path):
     os.chdir(path)
     if os.path.exists(os.path.join(path, link.split('/')[-1])):
         loger.info(
@@ -282,7 +282,7 @@ def install_protobuf(dep_dir) -> int:
     if os.path.exists(install_dir):
         command('rm -rf {}'.format(install_dir))
     else:
-        os.makedirs(install_dir)
+        os.makedirs(install_dir, exist_ok=True)
 
     command('make clean')
     command('./configure --prefix={}'.format(install_dir))
@@ -343,12 +343,15 @@ def install_pyncnn(dep_dir):
     command(f'cd python && {pip} install -e .')
     ncnn_cmake_dir = os.path.join(ncnn_dir, 'build', 'install', 'lib', 'cmake',
                                   'ncnn')
-    onnx_path = os.path.join(ncnn_dir, 'build', 'tools', 'bin', 'onnx')
-    quan_path = os.path.join(ncnn_dir, 'build', 'tools', 'bin', 'quantize')
-    caffe_path = os.path.join(ncnn_dir, 'build', 'tools', 'bin', 'caffe')
-    command(f'echo export PATH={onnx_path}:\$PATH >> ~/.bashrc')
-    command(f'echo export PATH={quan_path}:\$PATH >> ~/.bashrc')
-    command(f'echo export PATH={caffe_path}:\$PATH >> ~/.bashrc')
+    onnx_path = os.path.join(ncnn_dir, 'build', 'tools', 'onnx')
+    quan_path = os.path.join(ncnn_dir, 'build', 'tools', 'quantize')
+    caffe_path = os.path.join(ncnn_dir, 'build', 'tools', 'caffe')
+    command(f'echo export PATH={onnx_path}:\$PATH >> ~/.bashrc'
+            ) if os.path.exists(onnx_path) else None
+    command(f'echo export PATH={quan_path}:\$PATH >> ~/.bashrc'
+            ) if os.path.exists(quan_path) else None
+    command(f'echo export PATH={caffe_path}:\$PATH >> ~/.bashrc'
+            ) if os.path.exists(caffe_path) else None
 
     os.makedirs(ncnn_cmake_dir, exist_ok=True)
     assert (os.path.exists(ncnn_cmake_dir))
@@ -356,7 +359,7 @@ def install_pyncnn(dep_dir):
     return ncnn_cmake_dir
 
 
-g_jobs = 16
+g_jobs = os.cpu_count() if os.cpu_count else 8
 
 
 def proto_ncnn_install():
@@ -374,9 +377,8 @@ def proto_ncnn_install():
     g_jobs = get_job(sys.argv)
     print('g_jobs {}'.format(g_jobs))
 
-    work_dir = os.path.abspath(os.path.join(__file__, '..', '..', '..'))
+    work_dir = now_path
     dep_dir = os.path.abspath(os.path.join(work_dir, '..', 'mmdeploy-dep'))
-    dep_dir = now_path
     if not os.path.exists(dep_dir):
         if os.path.isfile(dep_dir):
             loger.info(
@@ -415,12 +417,12 @@ if __name__ == '__main__':
     home = os.environ['HOME']
     conda_bin = f'{home}/{args.conda}3/bin/conda'
     now_path = f'{home}/software'
+    dep_dir = os.path.abspath(os.path.join(now_path, '..', 'mmdeploy-dep'))
     os.makedirs(now_path, exist_ok=True)
     loger = log_init()
     mirror = test_network()
     GPU = qure_gpu()
-    # GPU = False
-    print(GPU)
+    ensure_base_env(now_path,dep_dir)
 
     anaconda_install(now_path, conda=args.conda)
     conda_create_env(args.envname)
