@@ -85,6 +85,11 @@ def ensure_base_env(work_dir, dep_dir):
     if 'root' in cmd_result('whoami'):
         sudo = ''
 
+    #dep
+    os.system(
+        f"{sudo} apt-get install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev"
+    )
+
     # check ubuntu
     ubuntu = cmd_result(
         """ lsb_release -a 2>/dev/null | grep "Release" | tail -n 1 | awk '{print $NF}' """  # noqa: E501
