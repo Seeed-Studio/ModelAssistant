@@ -8,14 +8,13 @@
 - [MMDetection](https://github.com/open-mmlab/mmdetection): OpenMMLab 检测工具箱和基准测试
 - [MMDPose](https://github.com/open-mmlab/mmpose): OpenMMLab 检测工具箱和基准测试
 
-如果只是使用CPU进行训练，则通过以下命令即可配置完成相关环境。
+本项目环境的配置可在ubuntu20.04上使用脚本自动完成，使用其他系统的可选择手动安装。在ubuntu上可通过以下命令即可配置完成相关环境。
 
-```bash
-pip install -r ./requirements/requirements.txt    
-mim install mmcv-full                       #todo
+```shell
+python3 tools/env_config.py
 ```
 
-- 对于上述命令若安装过程过慢可使用国内镜像，例如使用清华镜像可在后面添加`-i https://pypi.tuna.tsinghua.edu.cn/simple` 加快安装速度。
+- 对于上述命令对于国内ip会自动选择镜像，部分git仓库可能下载较慢或失败，可多次运行或者使用代理完成安装。
 
 如果需要使用GPU进行训练，可查看GPU训练相关环境[配置教程](./docs/zh_cn/get_started.md)
 
@@ -44,38 +43,10 @@ source ~/.bashrc
 
 </details>
 
-## 数据准备
-
-建议将数据集放置在与本项目同级目录下，其数据与本项目结构组织如下所示：\
-
-```text
-edgelab/
-├── ...
-│   .
-│   .
-datasets/
-├── imagenet
-│   ├── train
-│   ├── val
-│   └── meta
-│       ├── train.txt
-│       └── val.txt
-└── coco
-    ├── annotations
-    │   ├── instance_train2017.json
-    │   └── instance_val2017.json
-    ├── train2017
-    └── val2017
-```
-
-这里，我们只列举了用于训练和验证 ImageNet（分类任务）、和 COCO（检测任务）的必要文件。
-
-- **提示：** 数据集文件可根据自己习惯放置，只需要在数据集的注释文件中能够找到对应的数据文件即可。
-
 ## 开始使用
 
 1. 首先需要确定所做的任务类型，属于目标检测、分类、或回归；确定后可根据需要选择需要的模型，并确定模型的配置文件。
-2. 这里我们以YOLOv3人体检测模型为例演示如何修改配置文件中的相关参数训练自己的数据集，以及训练和导出。
+2. 这里我们以端到端的音频分类模型为例演示如何训练speechcommand数据集，以及导出onnx和ncnn。
 
 ### 1.修改配置文件中的数据集路径
 
@@ -91,12 +62,12 @@ datasets/
 - **提示：** 虚拟换环境需要启动对应的虚拟环境
 
 ```shell
-mim train mmdet $CONFIG_PATH --workdir=$WORKERDIR --gpus=1
+python tools/train.py mmcls $CONFIG_PATH --workdir=$WORKERDIR --gpus=1 #使用cpu可设置为0
 ```
 
 #### 参数解释：
 
-- `$CONFIG_PATH`需替换为你所使用的模型配置文件本示例中为[yolov3_192_node2_person.py](./configs/yolo/yolov3_192_node2_person.py)的路径。
+- `$CONFIG_PATH`需替换为你所使用的模型配置文件本示例中为[ali_classiyf_small_8k_8192.py](./configs/audio_classify/ali_classiyf_small_8k_8192.py)的路径。
 - `$WORKERDIR`为训练过程产生的日志文件和权重文件保存的文件夹名称，默认为`worke_dir`
 - `--gpus=1`表示使用一块GPU训练，若使用CPU进行训练可设置参数为`--gpus=0`
 
@@ -111,10 +82,10 @@ mim train mmdet $CONFIG_PATH --workdir=$WORKERDIR --gpus=1
 
 ```shell
 #导出onnx时不对模型进行量化
-python ./tools/torch2onnx.py  --config ./config/yolo/yolov3_192_node2_person.py --checkpoint work_dirs/yolov3_192_node2_person/latest.pth  --imgsz $IMGSZ 
+python ./tools/torch2onnx.py  --config ./configs/audio_classify/ali_classiyf_small_8k_8192.py --checkpoint work_dirs/best.pth  --imgsz $IMGSZ 
 
 #导出onnx时同时对模型进行量化(PTQ)
-python ./tools/torch2onnx.py --config ./config/yolo/yolov3_192_node2_person.py --checkpoint work_dirs/yolov3_192_node2_person/latest.pth --imgsz $IMGSZ --quantize
+python ./tools/torch2onnx.py --config ./configs/audio_classify/ali_classiyf_small_8k_8192.py --checkpoint work_dirs/best.pth --imgsz $IMGSZ --quantize
 ```
 
 ##### 参数解释:
@@ -123,6 +94,22 @@ python ./tools/torch2onnx.py --config ./config/yolo/yolov3_192_node2_person.py -
 - `--checkpoint`: 训练完成后在相应文件夹下产生的模型权重文件路径(`.pth`后缀)。
 - `$OUTPUT`:导出onnx的文件名，其路径在`$MODEL_PATH`下，与原模型同路径。
 - `$IMGSZ`:模型所输入数据大小，图片数据则为宽高，音频数据则为长度。
+
+#导出ncnn
+- 这里需要先将模型导出onnx后方可进行。
+```shell
+python ./tools/export_qiantize.py --onnx $ONNX_PATH --type $TYPE
+
+```
+##### 参数解释：
+- `--$ONNX_PARH`:为模型导出的onnx格式的权重文件。
+- `--$TYPE`:为需要将onnx模型导出到什么样的格式可选参数有(onnx_fp16, onnx_quan_st, onnx_quan_dy, ncnn, ncnn_fp16, ncnn_quan)。
+ **提示：** `--type` 参数使用`onnx_quan_st`和`ncnn_quan` 时需要指定校验数据集的文件夹路径如:
+
+ ```shell
+ python ./tools/export_qiantize.py --onnx $ONNX_PATH --type onnx_quan_st --images ./img_e
+ ```
+
 
 ## 相关教程
 

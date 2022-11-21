@@ -182,9 +182,7 @@ def args_parse():
     args.add_argument('--onnx',
                       default='./weights/best.onnx',
                       help='onnx model file path')
-    args.add_argument('--imags-path',
-                      default='./img_e',
-                      help='celacrater data file path')
+    args.add_argument('--imags', help='celacrater data file path')
     args.add_argument(
         '--type',
         nargs='+',
