@@ -48,12 +48,14 @@ source ~/.bashrc
 1. 首先需要确定所做的任务类型，属于目标检测、分类、或回归；确定后可根据需要选择需要的模型，并确定模型的配置文件。
 2. 这里我们以端到端的音频分类模型为例演示如何训练speechcommand数据集，以及导出onnx和ncnn。
 
-### 1.修改配置文件中的数据集路径
+### 1.修改配置文件和激活环境
 
-1. 在[configs](./configs)文件夹下寻找所需要修改的[配置文件](./configs/yolo/yolov3_192_node2_person.py)。
-2. 在配置文件中找到变量`data_root`，将变量值替换为自己所用数据集的根目录的路径。
-3. 检查配合文件中的`img_perfix`和`ann_file`路径是否正确。
-    - **提示：** `img_perfix` 为数据集图片的路径，`ann_file` 为数据集注释文件的路径
+1. 在[configs](./configs)文件夹下寻找所需要修改的[配置文件](./configs/audio_classify/ali_classiyf_small_8k_8192.py)。
+2. 在执行完`tools/env_config.py`的脚本后，程序已经创建了一个名为`edgelab`的虚拟环境，并安装完所有依赖。此时只需激活环境即可，如：
+
+```shell
+conda activate edgelab
+```
 
 ### 2.训练
 
