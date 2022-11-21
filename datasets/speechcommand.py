@@ -97,7 +97,6 @@ class Speechcommand(Dataset):
             torchaudio.transforms.Resample(sampling_rate, 8000, rolloff=0.5))
         if self.lower_volume:
             self.trans.append(torchaudio.transforms.Vol(0.5, gain_type='db'))
-            self.trans.
 
         audio = self.trans(audio)
         audio.squeeze_()
