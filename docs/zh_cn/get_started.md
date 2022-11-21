@@ -104,6 +104,7 @@ python ./tools/export_qiantize.py --onnx $ONNX_PATH --type $TYPE
 ##### 参数解释：
 - `--$ONNX_PARH`:为模型导出的onnx格式的权重文件。
 - `--$TYPE`:为需要将onnx模型导出到什么样的格式可选参数有(onnx_fp16, onnx_quan_st, onnx_quan_dy, ncnn, ncnn_fp16, ncnn_quan)。
+
  **提示：** `--type` 参数使用`onnx_quan_st`和`ncnn_quan` 时需要指定校验数据集的文件夹路径如:
 
  ```shell
