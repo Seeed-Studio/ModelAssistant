@@ -84,10 +84,7 @@ python tools/train.py mmcls $CONFIG_PATH --workdir=$WORKERDIR --gpus=1 #使用cp
 
 ```shell
 #导出onnx时不对模型进行量化
-python ./tools/torch2onnx.py  --config ./configs/audio_classify/ali_classiyf_small_8k_8192.py --checkpoint work_dirs/best.pth  --imgsz $IMGSZ 
-
-#导出onnx时同时对模型进行量化(PTQ)
-python ./tools/torch2onnx.py --config ./configs/audio_classify/ali_classiyf_small_8k_8192.py --checkpoint work_dirs/best.pth --imgsz $IMGSZ --quantize
+python ./tools/torch2onnx.py  --config ./configs/audio_classify/ali_classiyf_small_8k_8192.py --checkpoint work_dirs/best.pth  --shape $IMGSZ --task mmcls --audio 
 ```
 
 ##### 参数解释:
@@ -95,7 +92,7 @@ python ./tools/torch2onnx.py --config ./configs/audio_classify/ali_classiyf_smal
 - `--config`:模型训练相关配置文件的路径。
 - `--checkpoint`: 训练完成后在相应文件夹下产生的模型权重文件路径(`.pth`后缀)。
 - `$OUTPUT`:导出onnx的文件名，其路径在`$MODEL_PATH`下，与原模型同路径。
-- `$IMGSZ`:模型所输入数据大小，图片数据则为宽高，音频数据则为长度。
+- `$IMGSZ`:模型所输入数据大小，图片数据则为宽高，音频数据则为长度(使用音频时，需要添加--audio参数)。
 
 #导出ncnn
 - 这里需要先将模型导出onnx后方可进行。
