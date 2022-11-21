@@ -119,18 +119,20 @@ def anaconda_install(conda='miniconda'):
 
     time.sleep(1)
     command(f'chmod +x {file_name}')
-    r = subprocess.Popen(args=f'./{file_name}',
-                         stdin=PIPE,
-                         stderr=PIPE,
-                         stdout=None,
-                         shell=True,
-                         encoding='utf8')
-    try:
-        r.communicate('\nq\n\nyes\n\nyes\n\n')
-        # r.wait(15)
-    except:
-        r.kill()
-        loger.info('anaconda installation failed!')
+    command(f'./{file_name} -b')
+    # r = subprocess.Popen(args=f'./{file_name}',
+    #                      stdin=PIPE,
+    #                      stderr=PIPE,
+    #                      stdout=None,
+    #                      shell=True,
+    #                      encoding='utf8')
+    # os.popen('ls').writelines(['\n','q','yes\n'])
+    # try:
+    #     r.communicate('\nq\n\nyes\n\nyes\n\n')
+    #     # r.wait(15)
+    # except:
+    #     r.kill()
+    #     loger.info('anaconda installation failed!')
 
 
 def cuda_install():
