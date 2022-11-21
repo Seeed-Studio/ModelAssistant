@@ -3,10 +3,13 @@ _base_ = ['../_base_/cls_default_runtime.py']
 # model settings
 custom_imports = dict(imports=['models', 'datasets','core'], allow_failed_imports=False)
 
+
+words=["yes","no","on","off"]
+
 model = dict(
     type='Audio_classify',
     backbone=dict(type='SoundNetRaw', nf=2, clip_length=64, factors=[4, 4, 4], out_channel=36),
-    head=dict(type='Audio_head', in_channels=36, n_classes=4, drop=0.2),
+    head=dict(type='Audio_head', in_channels=36, n_classes=len(words), drop=0.2),
     loss_cls=dict(type='LabelSmoothCrossEntropyLoss', reduction='sum', smoothing=0.1)
 )
 
@@ -16,7 +19,7 @@ dataset_type = 'Speechcommand'
 transforms = ['amp', 'neg', 'tshift', 'tmask', 'ampsegment', 'cycshift', 'awgn', 'abgn', 'apgn', 'argn', 'avgn', 'aun',
               'phn', 'sine']
 
-data_root = '/home/dq/github/datasets/speech_commands_v0.02'
+data_root = 'http://download.tensorflow.org/data/speech_commands_v0.02.tar.gz'
 train_pipeline = dict(type='AudioAugs', k_augs=transforms)
 
 img_norm_cfg = dict(
@@ -48,14 +51,18 @@ data = dict(
         segment_length=8192,
         pipeline=train_pipeline,
         mode='train',
-        use_background=True),
+        use_background=True,
+        lower_volume=True,
+        words=words),
     val=dict(
         type=dataset_type,
         root=data_root,
         sampling_rate=8000,
         segment_length=8192,
         mode='val',
-        use_background=False),
+        use_background=False,
+        lower_volume=True,
+        words=words),
     test=dict(
         type=dataset_type,
         root=data_root,
@@ -63,10 +70,12 @@ data = dict(
         segment_length=8192,
         mode='test',
         # pipeline=test_pipeline,
-        use_background=False))
+        use_background=False,
+        lower_volume=True,
+        words=words))
 
 
-custom_hooks = dict(type='Audio_hooks',n_cls=4,multilabel=False,loss=dict(type='LabelSmoothCrossEntropyLoss', reduction='sum', smoothing=0.1),
+custom_hooks = dict(type='Audio_hooks',n_cls=len(words),multilabel=False,loss=dict(type='LabelSmoothCrossEntropyLoss', reduction='sum', smoothing=0.1),
         seq_len=8192,sampling_rate=8000,device='0',augs_mix=['mixup', 'timemix', 'freqmix', 'phmix'],mix_ratio=1,
         local_rank=0,epoch_mix=12,mix_loss='bce',priority=0)
 
