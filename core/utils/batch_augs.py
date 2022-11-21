@@ -48,7 +48,8 @@ class BatchAugs(AugBasic):
     def __call__(self, x, y, epoch):
         '''resample'''
         if len(self.random_resample) > 0 and random.random() < 0.5:
-            R = self.random_resample[random.randint(0, len(self.random_resample) - 1)]
+            R = self.random_resample[random.randint(
+                0, len(self.random_resample) - 1)]
             x = batch_resample(R, x, self.params['seq_len'])
         '''mix'''
         if len(self.params['augs']) > 0 and \
@@ -75,11 +76,16 @@ class BatchAugs(AugBasic):
         idx = torch.randperm(data.size(0))
         data_shuffled = data[idx, ...].clone()
         target_shuffled = target[idx].clone()
-        lam = 0.1 + 0.9 * torch.rand(data.shape[0], 1, 1, device=data.device, requires_grad=False)
-        G = 10 * torch.log10(torch.clamp((data ** 2).mean(-1, keepdims=True), min=1e-5))
+        lam = 0.1 + 0.9 * \
+            torch.rand(data.shape[0], 1, 1,
+                       device=data.device, requires_grad=False)
+        G = 10 * \
+            torch.log10(torch.clamp(
+                (data ** 2).mean(-1, keepdims=True), min=1e-5))
         G_shuffled = G[idx]
         p = 1 / (1 + 10 ** ((G - G_shuffled) / 20) * (1 - lam) / lam)
-        data = (data * p + data_shuffled * (1 - p)) / torch.sqrt(p ** 2 + (1 - p) ** 2)
+        data = (data * p + data_shuffled * (1 - p)) / \
+            torch.sqrt(p ** 2 + (1 - p) ** 2)
         targets = (target, target_shuffled, p.view(-1))
         targets = [t.to(data.device) for t in targets]
         return data, targets
@@ -89,7 +95,9 @@ class BatchAugs(AugBasic):
         data_shuffled = data[idx].clone()
         target_shuffled = target[idx].clone()
         a = 0.5
-        lam = a * torch.rand(data.shape[0], 1, 1, device=data.device, requires_grad=False) + (1 - a)
+        lam = a * \
+            torch.rand(data.shape[0], 1, 1, device=data.device,
+                       requires_grad=False) + (1 - a)
         n = data.shape[-1]
         n1 = (n * (1 - lam)).view(-1).int()
         for k, nn in enumerate(n1):
@@ -105,8 +113,10 @@ class BatchAugs(AugBasic):
     def freqmix(self, data, target):
         data.squeeze_(1)
         idx = torch.randperm(data.size(0))
-        idx_win = random.randint(0, len(self.params['fft_params']['win_len']) - 1)
-        win = torch.hann_window(self.params['fft_params']['win_len'][idx_win]).to(data.device)
+        idx_win = random.randint(
+            0, len(self.params['fft_params']['win_len']) - 1)
+        win = torch.hann_window(
+            self.params['fft_params']['win_len'][idx_win]).to(data.device)
         X = torch.stft(data,
                        win_length=self.params['fft_params']['win_len'][idx_win],
                        hop_length=self.params['fft_params']['hop_len'][idx_win],
@@ -115,7 +125,9 @@ class BatchAugs(AugBasic):
         X_shuffled = X[idx, ...].clone()
         target_shuffled = target[idx].clone()
         a = 0.5
-        lam = a * torch.rand(X.shape[0], 1, 1, device=X.device, requires_grad=False) + (1 - a)
+        lam = a * \
+            torch.rand(X.shape[0], 1, 1, device=X.device,
+                       requires_grad=False) + (1 - a)
         n = X.shape[1]
         n1 = (n * (1 - lam)).view(-1).int()
         for k in range(X.shape[0]):
@@ -139,7 +151,8 @@ class BatchAugs(AugBasic):
         data.squeeze_(1)
         b, device = data.shape[0], data.device
         idx = torch.randperm(data.size(0))
-        idx_win = random.randint(0, len(self.params['fft_params']['win_len']) - 1)
+        idx_win = random.randint(
+            0, len(self.params['fft_params']['win_len']) - 1)
         target_shuffled = target[idx].clone()
         X = torch.stft(data,
                        win_length=self.params['fft_params']['win_len'][idx_win],
@@ -171,7 +184,8 @@ class BatchAugs(AugBasic):
         elif self.params['mix_loss'] == 'bce':
             if not pred_one_hot:
                 target = F.one_hot(target, n_classes).float()
-                target_shuffled = F.one_hot(target_shuffled, n_classes).float() * (lam < 0.9)
+                target_shuffled = F.one_hot(
+                    target_shuffled, n_classes).float() * (lam < 0.9)
                 one_h_mix = torch.clamp(target + target_shuffled, max=1)
                 loss = self.loss(logits, one_h_mix)
             else:

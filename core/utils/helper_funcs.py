@@ -4,10 +4,12 @@ import torch.nn.functional as F
 import numpy as np
 import torch.distributed as dist
 import copy
+
 epsilon = 1e-8
 
 
 class AugBasic:
+
     def __init__(self, fs):
         super().__init__()
         self.fs = fs
@@ -40,7 +42,7 @@ def make_weights_for_balanced_classes(samples, nclasses):
     weight_per_class = [0.] * nclasses
     N = float(sum(count))
     for i in range(nclasses):
-        weight_per_class[i] = N/float(count[i])
+        weight_per_class[i] = N / float(count[i])
     weight = [0] * len(samples)
     for idx, val in enumerate(samples):
         weight[idx] = weight_per_class[val[1]]
@@ -49,7 +51,7 @@ def make_weights_for_balanced_classes(samples, nclasses):
 
 def measure_inference_time(model, input, repetitions=300, use_16b=False):
     device = torch.device("cuda")
-    model_= copy.deepcopy(model)
+    model_ = copy.deepcopy(model)
     model_.eval()
     starter = torch.cuda.Event(enable_timing=True)
     ender = torch.cuda.Event(enable_timing=True)
@@ -79,11 +81,13 @@ def measure_inference_time(model, input, repetitions=300, use_16b=False):
     std_syn = np.std(timings)
     return mean_syn, std_syn
 
+
 def collate_fn(batch):
     x = [item[0] for item in batch]
     y = [item[1] for item in batch]
     x = torch.stack(x, dim=0).contiguous()
     return (x, y)
+
 
 def files_to_list(filename):
     """
@@ -101,7 +105,7 @@ def find_first_nnz(t, q, dim=1):
     return mask_max_indices
 
 
-def accuracy(output, target, topk=(1,)):
+def accuracy(output, target, topk=(1, )):
     """Computes the precision@k for the specified values of k"""
     maxk = max(topk)
     batch_size = target.size(0)
@@ -109,7 +113,9 @@ def accuracy(output, target, topk=(1,)):
     pred = pred.t()
     with torch.no_grad():
         correct = pred.eq(target.view(1, -1).expand_as(pred))
-    return [correct[:k].view(-1).float().sum(0) * 100. / batch_size for k in topk]
+    return [
+        correct[:k].view(-1).float().sum(0) * 100. / batch_size for k in topk
+    ]
 
 
 def average_precision(output, target):
@@ -124,7 +130,7 @@ def average_precision(output, target):
     pos_count_[np.logical_not(ind)] = 0
     pp = pos_count_ / total_count_
     precision_at_i_ = np.sum(pp)
-    precision_at_i = precision_at_i_/(total + epsilon)
+    precision_at_i = precision_at_i_ / (total + epsilon)
     return precision_at_i
 
 
@@ -143,17 +149,16 @@ def mAP(targs, preds):
         targets = targs[:, k]
         # compute average precision
         ap[k] = average_precision(scores, targets)
-    return 100*ap.mean()
+    return 100 * ap.mean()
+
 
 def pad_sample_seq(x, n_samples):
     if x.size(-1) >= n_samples:
         max_x_start = x.size(-1) - n_samples
         x_start = random.randint(0, max_x_start)
-        x = x[x_start: x_start + n_samples]
+        x = x[x_start:x_start + n_samples]
     else:
-        x = F.pad(
-            x, (0, n_samples - x.size(-1)), "constant"
-        ).data
+        x = F.pad(x, (0, n_samples - x.size(-1)), "constant").data
     return x
 
 
@@ -161,11 +166,9 @@ def pad_sample_seq_batch(x, n_samples):
     if x.size(0) >= n_samples:
         max_x_start = x.size(0) - n_samples
         x_start = random.randint(0, max_x_start)
-        x = x[:, x_start: x_start + n_samples]
+        x = x[:, x_start:x_start + n_samples]
     else:
-        x = F.pad(
-            x, (0, n_samples - x.size(1)), "constant"
-        ).data
+        x = F.pad(x, (0, n_samples - x.size(1)), "constant").data
     return x
 
 
@@ -180,16 +183,21 @@ def add_weight_decay(model, weight_decay=1e-5, skip_list=()):
             no_decay.append(param)
         else:
             decay.append(param)
-    return [
-        {'params': no_decay, 'weight_decay': 0.},
-        {'params': decay, 'weight_decay': weight_decay}]
+    return [{
+        'params': no_decay,
+        'weight_decay': 0.
+    }, {
+        'params': decay,
+        'weight_decay': weight_decay
+    }]
 
 
 def _get_bn_param_ids(net):
     bn_ids = []
     for m in net.modules():
         print(m)
-        if isinstance(m, torch.nn.BatchNorm1d) or isinstance(m, torch.nn.LayerNorm):
+        if isinstance(m, torch.nn.BatchNorm1d) or isinstance(
+                m, torch.nn.LayerNorm):
             bn_ids.append(id(m.weight))
             bn_ids.append(id(m.bias))
         elif isinstance(m, torch.nn.Conv1d) or isinstance(m, torch.nn.Linear):
@@ -207,12 +215,15 @@ def reduce_tensor(tensor, n):
 
 def gather_tensor(tensor, n):
     rt = tensor.clone()
-    tensor_list = [torch.zeros(n, device=tensor.device, dtype=torch.cuda.float()) for _ in range(n)]
+    tensor_list = [
+        torch.zeros(n, device=tensor.device, dtype=torch.cuda.float())
+        for _ in range(n)
+    ]
     dist.all_gather(tensor_list, rt)
     return tensor_list
 
 
-def parse_gpu_ids(gpu_ids): #list of ints
+def parse_gpu_ids(gpu_ids):  # list of ints
     s = ''.join(str(x) + ',' for x in gpu_ids)
     s = s.rstrip().rstrip(',')
     return s

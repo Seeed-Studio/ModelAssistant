@@ -17,8 +17,13 @@ class Resampler(torch.nn.Module):
     """
 
     def __init__(self,
-                 input_sr, output_sr, dtype,
-                 num_zeros=64, cutoff_ratio=0.95, filter='kaiser', beta=14.0):
+                 input_sr,
+                 output_sr,
+                 dtype,
+                 num_zeros=64,
+                 cutoff_ratio=0.95,
+                 filter='kaiser',
+                 beta=14.0):
         super().__init__()  # init the base class
         """
         This creates an object that can apply a symmetric FIR filter
@@ -106,7 +111,8 @@ class Resampler(torch.nn.Module):
         # We want the weights as used by torch's conv1d code; format is
         #  (out_channels, in_channels, kernel_width)
         # https://pytorch.org/docs/stable/nn.functional.html
-        weights = torch.tensor((output_sr, input_sr, kernel_width), dtype=dtype)
+        weights = torch.tensor((output_sr, input_sr, kernel_width),
+                               dtype=dtype)
 
         # Computations involving time will be in units of 1 block.  Actually this
         # is the same as the `canonical` time axis since each block has input_sr
@@ -124,10 +130,12 @@ class Resampler(torch.nn.Module):
         # convolution or correlation, and the logic is tricky.. I will just find
         # which sign works.
 
-        times = (
-                np.arange(output_sr, dtype=np_dtype).reshape((output_sr, 1, 1)) / output_sr -
-                np.arange(input_sr, dtype=np_dtype).reshape((1, input_sr, 1)) / input_sr -
-                (np.arange(kernel_width, dtype=np_dtype).reshape((1, 1, kernel_width)) - blocks_per_side))
+        times = (np.arange(output_sr, dtype=np_dtype).reshape(
+            (output_sr, 1, 1)) / output_sr -
+                 np.arange(input_sr, dtype=np_dtype).reshape(
+                     (1, input_sr, 1)) / input_sr -
+                 (np.arange(kernel_width, dtype=np_dtype).reshape(
+                     (1, 1, kernel_width)) - blocks_per_side))
 
         def hann_window(a):
             """
@@ -137,10 +145,13 @@ class Resampler(torch.nn.Module):
 
             The heaviside function returns (a > 0 ? 1 : 0).
             """
-            return np.heaviside(1 - np.abs(a), 0.0) * (0.5 + 0.5 * np.cos(a * np.pi))
+            return np.heaviside(1 - np.abs(a),
+                                0.0) * (0.5 + 0.5 * np.cos(a * np.pi))
 
         def kaiser_window(a, beta):
-            w = special.i0(beta * np.sqrt(np.clip(1 - ((a - 0.0) / 1.0) ** 2.0, 0.0, 1.0))) / special.i0(beta)
+            w = special.i0(
+                beta * np.sqrt(np.clip(1 - (
+                    (a - 0.0) / 1.0)**2.0, 0.0, 1.0))) / special.i0(beta)
             return np.heaviside(1 - np.abs(a), 0.0) * w
 
         # The weights below are a sinc function times a Hann-window function.
@@ -153,13 +164,13 @@ class Resampler(torch.nn.Module):
         # in order to have the same magnitude as the original input function,
         # we need to divide by the number of those deltas per unit time.
         if filter == 'hann':
-            weights = (np.sinc(times * zeros_per_block)
-                       * hann_window(times / window_radius_in_blocks)
-                       * zeros_per_block / input_sr)
+            weights = (np.sinc(times * zeros_per_block) *
+                       hann_window(times / window_radius_in_blocks) *
+                       zeros_per_block / input_sr)
         else:
-            weights = (np.sinc(times * zeros_per_block)
-                       * kaiser_window(times / window_radius_in_blocks, beta)
-                       * zeros_per_block / input_sr)
+            weights = (np.sinc(times * zeros_per_block) *
+                       kaiser_window(times / window_radius_in_blocks, beta) *
+                       zeros_per_block / input_sr)
 
         self.input_sr = input_sr
         self.output_sr = output_sr
@@ -174,7 +185,8 @@ class Resampler(torch.nn.Module):
             self.resample_type = 'integer_downsample'
             self.padding = input_sr * blocks_per_side
             weights = torch.tensor(weights, dtype=dtype, requires_grad=False)
-            self.weights = weights.transpose(1, 2).contiguous().view(1, 1, input_sr * kernel_width)
+            self.weights = weights.transpose(1, 2).contiguous().view(
+                1, 1, input_sr * kernel_width)
 
         elif input_sr == 1:
             # In this case we'll be doing conv_transpose, so we want the same weights that
@@ -183,12 +195,15 @@ class Resampler(torch.nn.Module):
             self.resample_type = 'integer_upsample'
             self.padding = output_sr * blocks_per_side
             weights = torch.tensor(weights, dtype=dtype, requires_grad=False)
-            self.weights = weights.flip(2).transpose(0, 2).contiguous().view(1, 1, output_sr * kernel_width)
+            self.weights = weights.flip(2).transpose(0, 2).contiguous().view(
+                1, 1, output_sr * kernel_width)
         else:
             self.resample_type = 'general'
             self.reshaped = False
             self.padding = blocks_per_side
-            self.weights = torch.tensor(weights, dtype=dtype, requires_grad=False)
+            self.weights = torch.tensor(weights,
+                                        dtype=dtype,
+                                        requires_grad=False)
 
         self.weights = torch.nn.Parameter(self.weights, requires_grad=False)
 
@@ -238,16 +253,19 @@ class Resampler(torch.nn.Module):
                 # TODO: pad with zeros.
                 raise RuntimeError("Signal is too short to resample")
             # data = data[:, 0:(num_blocks*self.input_sr)]  # Truncate input
-            data = data[:, 0:(num_blocks * self.input_sr)].view(minibatch_size, num_blocks, self.input_sr)
+            data = data[:, 0:(num_blocks * self.input_sr)].view(
+                minibatch_size, num_blocks, self.input_sr)
 
             # Torch's conv1d expects input data with shape (minibatch, in_channels, time_steps), so transpose
             data.transpose_(1, 2)
 
-            data = torch.nn.functional.conv1d(data, self.weights,
+            data = torch.nn.functional.conv1d(data,
+                                              self.weights,
                                               padding=self.padding)
 
             assert data.shape == (minibatch_size, self.output_sr, num_blocks)
-            return data.transpose(1, 2).contiguous().view(minibatch_size, num_blocks * self.output_sr)
+            return data.transpose(1, 2).contiguous().view(
+                minibatch_size, num_blocks * self.output_sr)
 
 
 if __name__ == '__main__':
@@ -255,15 +273,15 @@ if __name__ == '__main__':
     fs_ = 128
     R = Resampler(fs, fs_, dtype=torch.float32)
     f = 10
-    t = torch.arange(-1/2, 1/2, 1/fs)
-    x = torch.sin(2*np.pi*f*t) / (2*np.pi*f*t)
-    x[x.shape[0]//2] = 1
-    t_ = torch.arange(-1/2, 1/2, 1/fs_)
+    t = torch.arange(-1 / 2, 1 / 2, 1 / fs)
+    x = torch.sin(2 * np.pi * f * t) / (2 * np.pi * f * t)
+    x[x.shape[0] // 2] = 1
+    t_ = torch.arange(-1 / 2, 1 / 2, 1 / fs_)
     x = x.view(1, -1)
     y = R(x)
-    #plt.subplot(2,1,1)
-    plt.plot(t, x.view(-1),'.-')
-    #plt.subplot(2,1,2)
+    # plt.subplot(2,1,1)
+    plt.plot(t, x.view(-1), '.-')
+    # plt.subplot(2,1,2)
     plt.plot(t_, y.view(-1))
     plt.grid()
     plt.show()
