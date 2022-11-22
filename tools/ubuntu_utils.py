@@ -87,7 +87,7 @@ def ensure_base_env(work_dir, dep_dir):
 
     #dep
     os.system(
-        f"{sudo} apt-get install cmake curl wget git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev"
+        f"{sudo} apt-get install cmake curl wget git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev -y"
     )
 
     # check ubuntu
