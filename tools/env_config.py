@@ -120,6 +120,7 @@ def anaconda_install(conda='miniconda'):
     time.sleep(1)
     command(f'chmod +x {file_name}')
     command(f'./{file_name} -b')
+
     # r = subprocess.Popen(args=f'./{file_name}',
     #                      stdin=PIPE,
     #                      stderr=PIPE,
@@ -160,6 +161,7 @@ def cuda_install():
 
 
 def conda_create_env(name, version=3.8):
+    command(f"{conda_bin} init")
     p = subprocess.Popen(f'{conda_bin} info -e |grep {name}',
                          stdout=subprocess.PIPE,
                          shell=True,
@@ -325,8 +327,7 @@ def install_pyncnn():
     for p in path_ls:
         if p in PATH: continue
         else:
-            command(f'echo export PATH={p}:\$PATH >> ~/.bashrc') if osp.exists(
-                p) else None
+            command(f'echo export PATH={p}:\$PATH >> ~/.bashrc') if osp.exists(p) else None
 
 
 def proto_ncnn_install():
@@ -385,6 +386,7 @@ def main():
     mmlab_install()
     # export
     proto_ncnn_install()
+    command('source ~/.bashrc')
 
 
 if __name__ == '__main__':
