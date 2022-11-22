@@ -363,7 +363,7 @@ def prepare():
     project_path = osp.dirname(osp.dirname(osp.abspath(__file__)))
     pip = f'~/{args.conda}3/envs/{args.envname}/bin/pip'
     home = os.environ['HOME']
-    PATH = os.environ['PATH']
+    PATH = os.environ['PYTHONPATH']
     conda_bin = f'{home}/{args.conda}3/bin/conda'
     proce_path = f'{home}/software'
     if proce_path not in PATH:
