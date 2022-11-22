@@ -38,7 +38,6 @@ class Speechcommand(Dataset):
         self.segment_length = segment_length
         self.lower_volume = True
         self.words = words
-
         root = check_file(root, data_name='speech_command')
         self._get_labels(root)
 
@@ -96,7 +95,7 @@ class Speechcommand(Dataset):
         self.trans = torch.nn.Sequential(
             torchaudio.transforms.Resample(sampling_rate, 8000, rolloff=0.5))
         if self.lower_volume:
-            self.trans.append(torchaudio.transforms.Vol(0.5, gain_type='db'))
+            self.trans.add_module('Vol',torchaudio.transforms.Vol(0.5, gain_type='db'))
 
         audio = self.trans(audio)
         audio.squeeze_()
