@@ -36,7 +36,7 @@ class Speechcommand(Dataset):
                  words=['yes', 'off', 'on', 'no']):
         self.sampling_rate = sampling_rate
         self.segment_length = segment_length
-        self.lower_volume = True
+        self.lower_volume = lower_volume
         self.words = words
         root = check_file(root, data_name='speech_command')
         self._get_labels(root)
