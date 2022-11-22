@@ -335,7 +335,6 @@ def proto_ncnn_install():
     Returns:
         _type_: _description_
     """
-    success = ensure_base_env(project_path, proce_path)
     if success != 0:
         return -1
 
@@ -357,7 +356,7 @@ def pare_args():
 
 
 def prepare():
-    global args, project_path, pip, conda_bin, home, proce_path, loger, pip_mirror, GPU, g_jobs
+    global args, project_path, pip, conda_bin, home, proce_path, loger, pip_mirror, GPU, g_jobs, success
     args = pare_args()
     g_jobs = os.cpu_count() if os.cpu_count else 8
     project_path = osp.dirname(osp.dirname(osp.abspath(__file__)))
@@ -374,6 +373,7 @@ def prepare():
         if proce_path not in PATH:
             command(f'echo export PYTHONPATH={home}:\$PYTHONPATH >> ~/.bashrc')
 
+    success = ensure_base_env(project_path, proce_path)
     os.makedirs(proce_path, exist_ok=True)
     loger = log_init()
     mirror = test_network()
@@ -383,7 +383,6 @@ def prepare():
 
 def main():
     prepare()
-    ensure_base_env(project_path, proce_path)
 
     anaconda_install(conda=args.conda)
     conda_create_env(args.envname)
