@@ -19,8 +19,8 @@ python ./tools/torch2onnx.py  --config $CONFIG_PATH --checkpoint $PTH_PATH  --sh
 
 - `$CONFIG_PATH` 模型的配置文件路径。
 - `$PTH_PATH` 模型权重文件路径。
-- `$IMGSZ` 模型输入数据形状。
-- `$TASK` 模型所属任务。
+- `$IMGSZ` 模型输入数据形状，例如 `112`或者`128,96`。
+- `$TASK` 模型所属任务,可在`mmdet`、`mmcls`、`mmpose`中选一个，分别表示目标检测、分类、关键点检测任务。
 
 ## 示例
 
