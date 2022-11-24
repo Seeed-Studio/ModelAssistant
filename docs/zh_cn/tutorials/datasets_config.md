@@ -13,7 +13,7 @@
 1. 假设用户使用图像数据集，可通过将数据集上传值[roboflow](https://app.roboflow.com/)。同时可做适当修改等操作。此时下载数据可选择coco格式。
 2. 用户也可写相关转换脚本，将自己的数据集转换值COCO格式，COCO格式的数据集的必要字段如下所示：
 
-```json
+```python
 'images': [
     {
         'file_name': 'COCO_val2014_000000001268.jpg',
@@ -53,6 +53,66 @@
 - `categories`: 包含多个类别名字和 ID 的数组。
 
 ### 2.分类
+
+对于分类数据集的格式相对目标检测来说会简单很多，分类数据集主要有两种格式，用户可自行选择。
+
+1. 第一种是用户提供数据图片或音频，和注释文件。
+
+    其数据集结构可如下所示：
+
+```shell
+train/
+├── folder_1
+│   ├── xxx.png
+│   ├── xxy.png
+│   └── ...
+├── 123.png
+├── nsdf3.png
+└── ...
+```
+
+注释文件内容如下所示，其中每一个数据占据一行，一共有两列，第一列为数据的路径，第二列为数据的类别id
+
+```shell
+folder_1/xxx.png 0
+folder_1/xxy.png 1
+123.png 1
+nsdf3.png 2
+...
+```
+
+2. 第二种是用户只需提供数据图片或音频，但需要将训练数据和验证数据放置在同文件夹下。
+
+在这种格式下不需要提供注释文件，但是数据中每个类别需要在同一个文件夹下，例如cat类的训练数据需在train/cat/目录下，cat类的验证数据需要在val/cat/目录下。程序会自动对数据排序设置类别id。其格式如下所示：
+
+```shell
+data_root/
+        |  
+        ├──train/
+        │     ├── cat
+        │     │   ├── xxx.png
+        │     │   └── ...
+        │     │       └── xxz.png
+        │     ├── bird
+        │     │   ├── bird1.png
+        │     │   └── ...
+        │     └── dog
+        │         ├── 123.png
+        │         ├── ...
+        │         └── asd932_.png
+        ├──val/
+        │     ├── cat
+        │     │   ├── xxy.png
+        │     │   └── ...
+        │     │       └── xxz.png
+        │     ├── bird
+        │     │   ├── bird2.png
+        │     │   └── ...
+        │     └── dog
+        │         ├── 456.png
+        │         ├── ...
+        │         └── asd999_.png
+```
 
 ### 3.关键点检测
 
@@ -150,6 +210,65 @@ data = dict(
               img_prefix='val2017/',    <<------ 这里需要修改为你的验证训练数据集图片路径
               pipeline=test_pipeline))
 
+```
+
+### 2. 分类
+
+对于训练分类模型，模型的配置文件修改和目标检测一样，同样需要修改模型类别数量和数据路径的配置项，本示例以resnet50的配置为例修改相应的配置：
+
+```python
+...
+# 这里是模型的配置，需要修改的是模型头的类别数量，即num_classes的值
+model = dict(
+    type='ImageClassifier',
+    backbone=dict(
+        type='ResNeSt',
+        depth=50,
+        num_stages=4,
+        out_indices=(3, ),
+        style='pytorch'),
+    neck=dict(type='GlobalAveragePooling'),
+    head=dict(
+        type='LinearClsHead',
+        num_classes=1000,       <<------ 需要将这里修改为你数据集的类别数量
+        in_channels=2048,
+        loss=dict(
+            type='LabelSmoothLoss',
+            label_smooth_val=0.1,
+            num_classes=1000,
+            reduction='mean',
+            loss_weight=1.0),
+        topk=(1, 5),
+        cal_acc=False))
+train_cfg = dict(mixup=dict(alpha=0.2, num_classes=1000))
+
+dataset_type = 'CustomDataset'
+classes = ['cat', 'bird', 'dog']  # 数据集中各类别的名称
+
+data = dict(
+    train=dict(
+        type=dataset_type,
+        data_prefix='data/my_dataset/train',    <<------ 需要将这里修改为你训练数据集的根目录
+        ann_file='data/my_dataset/meta/train.txt',  <<------ 需要将这里修改为你数据集的注释文件的路径(数据结构为第二种可省略)
+        classes=('cat','dog' ...),    <<------ 需要将这里修改为你数据集的类别数量
+        pipeline=train_pipeline
+    ),
+    val=dict(
+        type=dataset_type,
+        data_prefix='data/my_dataset/val',  <<------ 需要将这里修改为你验证数据集的根目录
+        ann_file='data/my_dataset/meta/val.txt',    <<------ 需要将这里修改为你验证数据集的注释文件的路径(数据结构为第二种可省略)
+        classes=('cat','dog' ...),    <<------ 需要将这里修改为你数据集的类别数量
+        pipeline=test_pipeline
+    ),
+    test=dict(
+        type=dataset_type,
+        data_prefix='data/my_dataset/test',     <<------ 需要将这里修改为你验证数据集的根目录
+        ann_file='data/my_dataset/meta/test.txt',   <<------ 需要将这里修改为你验证数据集的注释文件的路径(数据结构为第二种可省略)
+        classes=('cat','dog' ...),    <<------ 需要将这里修改为你数据集的类别数量
+        pipeline=test_pipeline
+    )
+)
+...
 ```
 
 ## 开始训练
