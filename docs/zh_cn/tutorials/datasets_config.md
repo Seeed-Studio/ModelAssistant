@@ -116,6 +116,26 @@ data_root/
 
 ### 3.关键点检测
 
+对于关键点的数据集准备，可参考以下内容：
+
+- [2D 人体关键点检测](https://mmpose.readthedocs.io/zh_CN/latest/tasks/2d_body_keypoint.html)
+
+- [3D 人体关键点检测](https://mmpose.readthedocs.io/zh_CN/latest/tasks/3d_body_keypoint.html)
+
+- [3D 人体形状恢复](https://mmpose.readthedocs.io/zh_CN/latest/tasks/3d_body_mesh.html)
+
+- [2D 人手关键点检测](https://mmpose.readthedocs.io/zh_CN/latest/tasks/2d_hand_keypoint.html)
+
+- [3D 人手关键点检测](https://mmpose.readthedocs.io/zh_CN/latest/tasks/3d_hand_keypoint.html)
+
+- [2D 人脸关键点检测](https://mmpose.readthedocs.io/zh_CN/latest/tasks/2d_face_keypoint.html)
+
+- [2D 全身人体关键点检测](https://mmpose.readthedocs.io/zh_CN/latest/tasks/2d_wholebody_keypoint.html)
+
+- [2D 服饰关键点检测](https://mmpose.readthedocs.io/zh_CN/latest/tasks/2d_fashion_landmark.html)
+
+- [2D 动物关键点检测](https://mmpose.readthedocs.io/zh_CN/latest/tasks/2d_animal_keypoint.html)
+
 ## 修改模型配置文件
 
 ### 1.目标检测
