@@ -20,7 +20,7 @@ class CustomCocoDataset(CocoDataset):
                  filter_empty_gt=True,
                  file_client_args=dict(backend='disk')):
 
-        data_root = eval(data_root) if '[' in data_root else data_root
+        data_root = eval(data_root) if (data_root is None or '[' in data_root )else data_root
         data_root = check_file(data_root,
                                data_name="coco") if data_root else data_root
         super().__init__(ann_file, pipeline, classes, data_root, img_prefix,
