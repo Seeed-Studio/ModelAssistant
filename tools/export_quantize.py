@@ -162,7 +162,7 @@ def main(args):
     }
     onnx_path = onnx_path = osp.abspath(args.onnx)
     export_type = args.type
-    imags_dir = args.imags_path
+    imags_dir = args.images
 
     assert len(export_type), "At least one export type needs to be selected"
 
