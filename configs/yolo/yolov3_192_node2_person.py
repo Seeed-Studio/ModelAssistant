@@ -32,11 +32,11 @@ model = dict(
                                  loss_weight=1,
                                  reduction='sum'),
                    loss_conf=dict(type='CrossEntropyLoss',
-                                  use_sigmoid=False,
+                                  use_sigmoid=True,
                                   loss_weight=1.0,
                                   reduction='sum'),
                    loss_xy=dict(type='CrossEntropyLoss',
-                                use_sigmoid=False,
+                                use_sigmoid=True,
                                 loss_weight=2.0,
                                 reduction='sum'),
                    loss_wh=dict(type='MSELoss',
@@ -94,8 +94,8 @@ test_pipeline = [
          ])
 ]
 data = dict(
-    samples_per_gpu=32,
-    workers_per_gpu=4,
+    samples_per_gpu=48,
+    workers_per_gpu=8,
     train=dict(
         type='RepeatDataset',  # use RepeatDataset to speed up training
         times=10,
@@ -107,12 +107,12 @@ data = dict(
     val=dict(type=dataset_type,
              data_root=data_root,
              ann_file='annotations/instances_val2017.json',
-             img_prefix='valid2017/',
+             img_prefix='val2017/',
              pipeline=test_pipeline),
     test=dict(type=dataset_type,
               data_root=data_root,
               ann_file='annotations/instances_val2017.json',
-              img_prefix='valid2017/',
+              img_prefix='val2017/',
               pipeline=test_pipeline))
 # optimizer
 optimizer = dict(type='SGD', lr=0.003, momentum=0.9, weight_decay=0.0005)
@@ -124,7 +124,7 @@ lr_config = dict(policy='step',
                  warmup_ratio=0.0001,
                  step=[24, 28])
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=30)
+runner = dict(type='EpochBasedRunner', max_epochs=1)
 evaluation = dict(interval=1, metric=['bbox'])
 find_unused_parameters = True
 

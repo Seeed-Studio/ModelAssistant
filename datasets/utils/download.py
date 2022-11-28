@@ -22,7 +22,7 @@ def check_compress(file):
 
 def defile(files, store_dir):
     res = []
-    for f in file:
+    for f in files:
         cmd = check_compress(f)
         res.append(cmd)
 

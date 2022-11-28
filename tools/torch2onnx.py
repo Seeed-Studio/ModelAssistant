@@ -181,7 +181,7 @@ def parse_args():
     parser.add_argument('--simplify', action='store_true', default=False, help='Whether to simplify onnx model.')
     parser.add_argument('--shape', type=int, nargs='+', default=[192], help='input data size')
     parser.add_argument('--audio', action='store_true', default=False, help='Whether the input data is audio data')
-    parser.add_argument('--dynamic-export', action='store_true', default=True, help='Whether to export ONNX with dynamic input shape. \
+    parser.add_argument('--dynamic-export', action='store_true', default=False, help='Whether to export ONNX with dynamic input shape. \
             Defaults to False.')
     args = parser.parse_args()
     return args
