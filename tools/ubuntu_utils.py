@@ -87,7 +87,7 @@ def ensure_base_env(work_dir, dep_dir):
 
     #dep
     os.system(
-        f"{sudo} apt-get install cmake curl wget git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev -y"
+        f"{sudo} apt-get install cmake curl wget git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python3-dev -y"
     )
 
     # check ubuntu
@@ -155,20 +155,20 @@ def ensure_base_env(work_dir, dep_dir):
     # check torch and mmcv, we try to install mmcv, it is not compulsory
     mmcv_version = None
     torch_version = None
-    try:
-        import torch
-        torch_version = torch.__version__
+    # try:
+    #     import torch
+    #     torch_version = torch.__version__
 
-        try:
-            import mmcv
-            mmcv_version = mmcv.__version__
-        except Exception:
-            # install mmcv
-            print('mmcv not found, try install mmcv ..', end='')
-            os.system('python3 -m pip install -U openmim')
-            os.system('mim install mmcv-full==1.5.1')
-    except Exception:
-        pass
+    #     try:
+    #         import mmcv
+    #         mmcv_version = mmcv.__version__
+    #     except Exception:
+    #         # install mmcv
+    #         print('mmcv not found, try install mmcv ..', end='')
+    #         os.system('python3 -m pip install -U openmim')
+    #         os.system('mim install mmcv-full==1.5.1')
+    # except Exception:
+    #     pass
 
     # git
     git = simple_check_install('git', sudo)

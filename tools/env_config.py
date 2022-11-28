@@ -310,7 +310,7 @@ def install_pyncnn():
 
     # install
     os.chdir(ncnn_dir)
-    command(f'cd python && {pip} install -e .' + pip_mirror)
+    command(f'cd python && {pip} install ncnn' + pip_mirror)
 
     path_ls = []
     path_ls.append(osp.join(ncnn_dir, 'build', 'tools', 'onnx'))
