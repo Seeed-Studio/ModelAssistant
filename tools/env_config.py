@@ -313,8 +313,8 @@ def install_pyncnn():
     command(cmd)
 
     # install
-    os.chdir(ncnn_dir)
-    command(f'cd python && {pip} install ncnn' + pip_mirror)
+    os.chdir(project_path)
+    command(f'{pip} install ncnn' + pip_mirror)
 
     path_ls = []
     path_ls.append(osp.join(ncnn_dir, 'build', 'tools', 'onnx'))
@@ -358,9 +358,9 @@ def check_env():
 
     check_list['torch'] = 'OK' if command(f"{python_bin} -c 'import torch'",
                                           1) else 'faile'
-    check_list['torch'] = 'OK' if command(
+    check_list['torchvision'] = 'OK' if command(
         f"{python_bin} -c 'import torchvision'", 1) else 'faile'
-    check_list['torch'] = 'OK' if command(
+    check_list['torchaudio'] = 'OK' if command(
         f"{python_bin} -c 'import torchaudio'", 1) else 'faile'
 
     check_list['mmcv'] = 'OK' if command(f"{python_bin} -c 'import mmcv'",
