@@ -88,10 +88,14 @@ def test_network():
 
 
 def qure_gpu():
-    if os.system('nvidia-smi |grep Driver') != 0:
-        return False
-    else:
+    p = subprocess.Popen(args='lspci |grep -i nvidia',
+                         stdout=subprocess.PIPE,
+                         encoding='utf8',
+                         shell=True)
+    data = p.stdout.read()
+    if 'NVIDIA' in data.upper():
         return True
+    return False
 
 
 def download_file(link, path):
