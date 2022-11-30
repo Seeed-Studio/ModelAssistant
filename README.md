@@ -85,7 +85,7 @@ We also provide a model zoo for the tasks that are mentioned above
 
 ## Meter Reading Detection in Action!
 
-https://user-images.githubusercontent.com/20147381/204771564-d3520a63-300c-4469-b027-61538913bff1.mp4
+https://user-images.githubusercontent.com/20147381/204771903-0fa55e6c-2eab-4e9d-be10-665b24bd293e.mp4
 
 ## Quick Getting Started 
 
