@@ -58,11 +58,11 @@ Now we have finished configuring the host environment
 
 Here we will choose the profile according to the task that we want to implement. We have prepared preconfigured files inside the the [configs](https://github.com/Seeed-Studio/edgelab/tree/master/configs) folder.
 
-For our object detection example, we will use [yolov3_192_node2_person.py](https://github.com/Seeed-Studio/edgelab/blob/master/configs/yolo/yolov3_192_node2_person.py) config file. This file will be used to configure the dataset for training including the dataset location, number of classes and the label names.
+For our object detection example, we will use [yolov3_mbv2_416_coco.py](https://github.com/Seeed-Studio/edgelab/blob/master/configs/yolo/yolov3_mbv2_416_coco.py) config file. This file will be used to configure the dataset for training including the dataset location, number of classes and the label names.
 
 #### Use COCO dataset
 
-Here we will first use the COCO dataset which is a public dataset. We have already configured **yolov3_192_node2_person.py** file out-of-the-box to download and include the COCO dataset. So you do not need to do any further configuration here.
+Here we will first use the COCO dataset which is a public dataset. We have already configured **yolov3_mbv2_416_coco.py** file out-of-the-box to download and include the COCO dataset. So you do not need to do any further configuration here.
 
 #### Use other public datasets
 
@@ -94,7 +94,7 @@ unzip **file_name.zip**
 unzip Apple\ Detection.v1i.coco.zip
 ```
 
-- **Step 5.** Open the file **yolov3_192_node2_person.py** which is available inside **~/edgelab/configs/yolo** directory using any text editor and change the following
+- **Step 5.** Open the file **yolov3_mbv2_416_coco.py** which is available inside **~/edgelab/configs/yolo** directory using any text editor and change the following
 
 1. num_classes=<number_of_classes>
 2. data_root = '<root_location_of_dataset>'
@@ -230,7 +230,7 @@ This will place a **.zip file** in the **Downloads** folder on your PC
 Execute the following command inside the activated conda virtual environment terminal to start training an end-to-end object detection model.
 
 ```sh
-python tools/train.py mmdet configs/yolo/yolov3_192_node2_person.py --gpus=0 --cfg-options runner.max_epochs=100
+python tools/train.py mmdet configs/yolo/yolov3_mbv2_416_coco.py --gpus=0 --cfg-options runner.max_epochs=100
 ```
 
 The format of the above command looks like below
@@ -259,7 +259,7 @@ After the model training is completed, you will see the below output
 
 <div align=center><img width=1000 src="https://files.seeedstudio.com/wiki/Edgelab/3.png"/></div>
 
-If you navigate to **~/edgelab/work_dirs/yolov3_192_node2_person/exp1** folder, you will see the trained PyTorch model file as **best.pt**
+If you navigate to **~/edgelab/work_dirs/yolov3_mbv2_416_coco/exp1** folder, you will see the trained PyTorch model file as **best.pt**
 
 <div align=center><img width=1000 src="https://files.seeedstudio.com/wiki/Edgelab/4.jpg"/></div>
 
@@ -268,7 +268,7 @@ If you navigate to **~/edgelab/work_dirs/yolov3_192_node2_person/exp1** folder, 
 After the model training is completed, you can export the **.pth file** to the **ONNX file** format and convert it to other formats you want to use through ONNX. Assuming that the environment is in this project path, you can export the object detection model you just trained to the ONNX format by running the following command:
 
 ```sh
-python tools/torch2onnx.py --config configs/yolo/yolov3_192_node2_person.py --checkpoint work_dirs/yolov3_192_node2_person/exp1/latest.pth --task mmdet
+python tools/torch2onnx.py --config configs/yolo/yolov3_mbv2_416_coco.py --checkpoint work_dirs/yolov3_mbv2_416_coco/exp1/latest.pth --task mmdet
 ```
 
 The format of the above command looks like below
@@ -291,7 +291,7 @@ Make sure you have already followed the previous step to conevert the .pth model
 Start the conversion process to NCNN by:
 
 ```sh
-python tools/export_qiantize.py --onnx work_dirs/yolov3_192_node2_person/exp1 --type ncnn
+python tools/export_qiantize.py --onnx work_dirs/yolov3_mbv2_416_coco/exp1 --type ncnn
 ```
 
 The format of the above command looks like below
