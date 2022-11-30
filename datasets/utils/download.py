@@ -30,6 +30,8 @@ def defile(files, store_dir):
 def download(links: List or AnyStr,
              store_path: AnyStr or __path__,
              unzip_dir=None):
+    if isinstance(links,str):
+        links=[links]
     os.chdir(store_path)
     if not os.path.exists('download'):
         os.mkdir('download')
