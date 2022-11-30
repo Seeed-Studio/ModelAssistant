@@ -34,7 +34,8 @@ class Audio_hooks(Hook):
         epoch = runner.epoch
         x, targets, is_mixed = self.batch_augs(
             x.to(self.device), y.to(self.device), epoch)
-        runner.data_batch = {x_k: x.to(self.device), y_k: y.float()}
+            
+        runner.data_batch = {x_k: x, y_k: y.float()}
         runner.targets = targets
         runner.is_mixed = is_mixed
 

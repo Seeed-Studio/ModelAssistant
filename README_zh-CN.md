@@ -13,7 +13,7 @@
 可查看[快速使用文档](./docs/zh_cn/get_started.md)学习本项目的基本使用，同时也可使用我们提供的[colab教程]()。\
 对于更多教程可以查看以下内容：
 
-1. [基础环境配置](./docs/zh_cn/tutorials/env_config.md)
+1. [基础环境配置](./docs/zh_cn/get_started.md)
 2. [自定义数据集配置](./docs/zh_cn/tutorials/datasets_config.md)
 3. [Pytorch模型转至ONNX](./docs/zh_cn/tutorials/pytorch2onnx.md)
 4. [ONNX转NCNN及量化](./docs/zh_cn/tutorials/onnx2xxx.md)
@@ -26,6 +26,16 @@
 [PFLD](./configs/pfld/README.md)\
 [EAT](./configs/audio_classify/README.md)
 
+## 致谢
+
+edgelab有关内容参考借鉴了以下项目：
+
+- [YOLOv5](https://github.com/ultralytics/yolov5)
+- [mmdetection](https://github.com/open-mmlab/mmdetection)
+- [mmclassification](https://github.com/open-mmlab/mmclassification)
+- [mmpose](https://github.com/open-mmlab/mmpose)
+- [mmdeploy](https://github.com/open-mmlab/mmdeploy)
+
 ## FAQ
 
 对于在环境配置与训练过程中可能出现的问题可先查看[相关问题解决文档](./docs/zh_cn/faq.md)
@@ -36,4 +46,3 @@
 
 edgelab 目前以 Apache 2.0 的许可证发布，但是其中有一部分功能并不是使用的 Apache2.0 许可证，我们在[许可证](./LICENSES.md)
 中详细地列出了这些功能以及他们对应的许可证，如果您正在从事盈利性活动，请谨慎参考此文档。
-

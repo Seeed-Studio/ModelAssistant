@@ -33,3 +33,12 @@ class Audio_classify(BaseClassifier):
                      'acc': (kwargs['labels'] == torch.max(result, dim=1)[1]).float().mean()}]
         else:
             return {r'result': result}
+    
+    def forward_dummy(self,img,**kwargs):
+        features = self.backbone(img)
+        result = self.sm(self.cls_head(features))
+        if 'labels' in kwargs.keys():
+            return [{'loss': self.cls_loss(result, kwargs['labels']),
+                     'acc': (kwargs['labels'] == torch.max(result, dim=1)[1]).float().mean()}]
+        else:
+            return {r'result': result}

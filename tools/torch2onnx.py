@@ -219,11 +219,11 @@ def parse_args():
     parser.add_argument('--shape',
                         type=int,
                         nargs='+',
-                        default=[8192],
+                        default=[112],
                         help='input data size')
     parser.add_argument('--audio',
                         action='store_true',
-                        default=True,
+                        default=False,
                         help='Whether the input data is audio data')
     parser.add_argument(
         '--dynamic-export',

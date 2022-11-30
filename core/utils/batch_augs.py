@@ -111,7 +111,7 @@ class BatchAugs(AugBasic):
         return data, targets
 
     def freqmix(self, data, target):
-        data.squeeze_(1)
+        data=data.squeeze(1)
         idx = torch.randperm(data.size(0))
         idx_win = random.randint(
             0, len(self.params['fft_params']['win_len']) - 1)
@@ -143,12 +143,12 @@ class BatchAugs(AugBasic):
                            n_fft=self.params['fft_params']['n_fft'][idx_win],
                            window=win)
         targets = (target, target_shuffled, lam.view(-1))
-        data.unsqueeze_(1)
+        data=data.unsqueeze(1)
         targets = [t.to(data.device) for t in targets]
         return data, targets
 
     def phmix(self, data, target):
-        data.squeeze_(1)
+        data=data.squeeze(1)
         b, device = data.shape[0], data.device
         idx = torch.randperm(data.size(0))
         idx_win = random.randint(
@@ -169,7 +169,7 @@ class BatchAugs(AugBasic):
                            hop_length=self.params['fft_params']['hop_len'][idx_win],
                            n_fft=self.params['fft_params']['n_fft'][idx_win])
         targets = (target, target_shuffled, lam.view(-1) * 0.5 + 0.5)
-        data.unsqueeze_(1)
+        data=data.unsqueeze(1)
         targets = [t.to(data.device) for t in targets]
         return data, targets
 

@@ -62,7 +62,7 @@ class Inter():
         elif isinstance(self.inter, ncnn.Net):  # ncnn
             self.inter.opt.use_vulkan_compute = False
             extra = self.inter.create_extractor()
-            extra.input(input_name, ncnn.Mat(img))
+            extra.input(input_name, ncnn.Mat(img[0]))
             result = extra.extract(output_name)[1]
             result = [result[i]for i in range(len(result))]
         else:  # tf

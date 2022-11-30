@@ -20,7 +20,7 @@ class PFLD(BasePose):
     def forward_test(self, img, img_metas, **kwargs):
         pass
 
-    def forward(self, img, img_metas, return_loss=True, **kwargs):
+    def forward(self, img, img_metas, return_loss=False, **kwargs):
         x = self.backbone(img)
         if return_loss:
             return {'loss': self.computer_loss(x, img_metas)}
