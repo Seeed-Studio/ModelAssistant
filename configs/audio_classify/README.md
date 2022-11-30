@@ -11,7 +11,7 @@ large datasets. By utilizing the inherited lightweight nature of audio and novel
 we were able to present an efficient end-to-end (e2e) network with strong generalization ability.
 Experiments on a variety of sound classification sets demonstrate the effectiveness and robustness
 of our approach, by achieving state-of-the-art results in various settings. Public code is available at:
-https://github.com/Alibaba-MIIL/AudioClassification.
+<https://github.com/Alibaba-MIIL/AudioClassification>.
 
 <div align=center>
 <img src="../../demo/EAT.png" width="250" height="280">
@@ -19,7 +19,17 @@ https://github.com/Alibaba-MIIL/AudioClassification.
 
 ## Results and Models
 
-    TODO
+### speechcommand(35)
+
+|    Model   | Scale | Lr schd | Param(K) | Flops(M) | Top-1(%) | config | pth | onnx | ncnn |
+| :--------: | :---: | :-----: | :------: | :------: | :------: | :----: | :-: | :--: | :--: |
+|  ETA-tiny  |  8192 |  Poliy  |  23.95   |   0.53   |    86.2    | [config](./ali_classiyf_small_8k_8192.py)| [model](https://github.com/Seeed-Studio/edgelab/releases/download/model_zoo/ali_classiyf_small_8k_35_8192.pth) | [onnx](https://github.com/Seeed-Studio/edgelab/releases/download/model_zoo/ali_classiyf_small_8k_35_8192.onnx) | [ncnn](https://github.com/Seeed-Studio/edgelab/releases/download/model_zoo/ali_classiyf_small_8k_35_8192.zip) |
+
+### speechcommand(4)
+
+|    Model   | Scale | Lr schd | Param(K) | Flops(M) | Top-1(%) | config | pth | onnx | ncnn |
+| :--------: | :---: | :-----: | :------: | :------: | :------: | :----: | :-: | :--: | :--: |
+|  ETA-tiny  |  8192 |  Poliy  |  22.81   |   0.53   |    97    | [config](./ali_classiyf_small_8k_8192.py)| [model](https://github.com/Seeed-Studio/edgelab/releases/download/model_zoo/ali_classiyf_small_8k_4_8192.pth) | [onnx](https://github.com/Seeed-Studio/edgelab/releases/download/model_zoo/ali_classiyf_small_8k_4_8192.onnx) | [ncnn](https://github.com/Seeed-Studio/edgelab/releases/download/model_zoo/ali_classiyf_small_8k_4_8192.ncnn.zip) |
 
 ## Citation
 
