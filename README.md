@@ -1,184 +1,204 @@
-# Backbone example on OpenMMLab framework
-
-English | [简体中文](/README_zh-CN.md)
+# Seeed Studio Edgelab
 
 ## Introduction
 
-This is an template repo about how to use OpenMMLab framework to develop a new backbone for multiple vision tasks.
+This is a tool to develop audio and vision AI applications in a much easier and faster way using the OpenMMLab framework. 
 
-With OpenMMLab framework, you can easily develop a new backbone and use MMClassification, MMDetection and MMSegmentation to benchmark your backbone on classification, detection and segmentation tasks.
+By using OpenMMLab framework combined with [MMCV](https://github.com/open-mmlab/mmcv)(OpenMMLab foundational library for computer vision), you can easily develop a new backbone and use [MMClassification](https://github.com/open-mmlab/mmclassification), [MMDetection](https://github.com/open-mmlab/mmdetection), [MMPose](https://github.com/open-mmlab/mmpose) to benchmark your backbone on image/ audio classification, object detection and pose estimation.
 
-## Setup environment
+## Audio and Vision AI Tasks Supported
 
-It requires [PyTorch](https://pytorch.org/get-started/locally/) and the following OpenMMLab packages:
+Currently we support the following tasks:
 
-- [MIM](https://github.com/open-mmlab/mim): A command-line tool to manage OpenMMLab packages and experiments.
-- [MMCV](https://github.com/open-mmlab/mmcv): OpenMMLab foundational library for computer vision.
-- [MMClassification](https://github.com/open-mmlab/mmclassification): OpenMMLab image classification toolbox and benchmark. Besides classification, it's also a repository to store various backbones.
-- [MMDetection](https://github.com/open-mmlab/mmdetection): OpenMMLab detection toolbox and benchmark.
-- [MMSegmentation](https://github.com/open-mmlab/mmsegmentation): OpenMMLab semantic segmentation toolbox and benchmark.
+- Object detection 
+- Meter reading using landmark detection
+- Audio classification
 
-Assume you have prepared your Python and PyTorch environment, just use the following command to setup the environment.
+We will keep adding more tasks in the future.
 
-```bash
-pip install openmim mmcls mmdet mmsegmentation
-mim install mmcv-full
+## Model Zoo
+
+We also provide a model zoo for the tasks that are mentioned above
+
+<table>
+<thead>
+  <tr>
+    <th>Task</th>
+    <th>Model Name</th>
+    <th>Model Format</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td rowspan="6">Audio classification</td>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/ali_classiyf_small_8k_35_8192.pth" target="_blank" rel="noopener noreferrer">ali_classiyf_small_8k_35_8192.pth</a></td>
+    <td>pth</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/ali_classiyf_small_8k_35_8192.onnx" target="_blank" rel="noopener noreferrer">ali_classiyf_small_8k_35_8192.onnx</a></td>
+    <td>onnx</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/ali_classiyf_small_8k_35_8192.zip" target="_blank" rel="noopener noreferrer">ali_classiyf_small_8k_35_8192.zip</a></td>
+    <td>zip</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/ali_classiyf_small_8k_4_8192.pth" target="_blank" rel="noopener noreferrer">ali_classiyf_small_8k_4_8192.pth</a></td>
+    <td>pth</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/ali_classiyf_small_8k_4_8192.onnx" target="_blank" rel="noopener noreferrer">ali_classiyf_small_8k_4_8192.onnx</a></td>
+    <td>onnx</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/ali_classiyf_small_8k_4_8192.ncnn.zip" target="_blank" rel="noopener noreferrer">ali_classiyf_small_8k_4_8192.ncnn.zip</a></td>
+    <td>zip</td>
+  </tr>
+  <tr>
+    <td rowspan="3">Meter reading using <br>landmark detection</td>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/pfld_mv2n_112.pth" target="_blank" rel="noopener noreferrer">pfld_mv2n_112.pth</a></td>
+    <td>pth</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/pfld_mv2n_112.onnx" target="_blank" rel="noopener noreferrer">pfld_mv2n_112.onnx</a></td>
+    <td>onnx</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/pfld_mv2n_112.ncnn.zip" target="_blank" rel="noopener noreferrer">pfld_mv2n_112.ncnn.zip</a></td>
+    <td>zip</td>
+  </tr>
+  <tr>
+    <td rowspan="3">Object detection</td>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/yolov3_mbv2_416_coco.pth" target="_blank" rel="noopener noreferrer">yolov3_mbv2_416_coco.pth</a></td>
+    <td>pth</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/yolov3_mbv2_416_coco.onnx" target="_blank" rel="noopener noreferrer">yolov3_mbv2_416_coco.onnx</a></td>
+    <td>onnx</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/yolov3_mbv2_416_coco.ncnn.zip" target="_blank" rel="noopener noreferrer">yolov3_mbv2_416_coco.ncnn.zip</a></td>
+    <td>zip</td>
+  </tr>
+</tbody>
+</table>
+
+## Meter Reading Detection in Action!
+
+## Quick Getting Started 
+
+The following is a quick getting started guide to train an audio classification model.
+
+- First you will start with configuring the host environment 
+- Then you need to determine the type of task you are doing, whether it is object detection, image/ audio classification
+- After deciding, you can select the desired model according to your needs and determine the profile of the model
+- Finally we export the trained PyTorch model to ONNX and NCNN formats  
+
+### Prerequisites 
+
+- PC with Ubuntu installed 
+- Internet connection
+
+### Configure host environment 
+
+- **Step 1.** Clone the repo and access it
+
+```
+https://github.com/Seeed-Studio/edgelab
+cd edgelab
 ```
 
-## Data preparation
+- **Step 2.** Configure the host environment by running the following script which will download and install the relevant dependencies 
 
-The data structure looks like below:
-
-```text
-data/
-├── imagenet
-│   ├── train
-│   ├── val
-│   └── meta
-│       ├── train.txt
-│       └── val.txt
-├── ade
-│   └── ADEChallengeData2016
-│       ├── annotations
-│       └── images
-└── coco
-    ├── annotations
-    │   ├── instance_train2017.json
-    │   └── instance_val2017.json
-    ├── train2017
-    └── val2017
+```sh
+python3 tools/env_config.py
 ```
 
-Here, we only list the minimal files for training and validation on ImageNet (classification), ADE20K (segmentation) and COCO (object detection).
+The above script will mainly install **PyTorch, MMCV, MMClassification, MMDetection and MMPose**.
 
-If you want benchmark on more datasets or tasks, for example, panoptic segmentation with MMDetection,
-just organize your dataset according to MMDetection's requirements. For semantic segmentation task,
-you can organize your dataset according to this [tutorial](https://mmsegmentation.readthedocs.io/en/latest/dataset_prepare.html)
+**Note:** The above script will add various environment variables to the file ~/.bashrc, establish a conda virtual environment called edgelab, install relevant dependencies inside the virual environment. Eventhough everything is initialized, they are not activated.
 
-## Usage
+- **Step 3.** Activate conda, virtual environments, and other related environment variables
 
-### Implement your backbone
-
-In this example repository, we use the ConvNeXt as an example to show how to implement a backbone quickly.
-
-1. Create your backbone file and put it in the `models` folder. In this example, [`models/convnext.py`](models/convnext.py).
-
-   In this file, just implement your backbone with PyTorch with two modifications:
-
-   1. The backbone and modules should inherits `mmcv.runner.BaseModule`. The
-      `BaseModule` is almost the same as the `torch.nn.Module`, and supports using
-      `init_cfg` to specify the initizalization method includes pre-trained model.
-
-   2. Use one-line decorator as below to register the backbone class to the `mmcls.models.BACKBONES` registry.
-      ```python
-      @BACKBONES.register_module(force=True)
-      ```
-      > :question: What is registry? Have a look at [here](https://mmcv.readthedocs.io/en/latest/understand_mmcv/registry.html)!
-
-2. **[Optional]** If you want to add some extra components for specific task, you
-   can also add it refers to [`models/det/layer_decay_optimizer_constructor.py`](models/det/layer_decay_optimizer_constructor.py).
-
-3. Add your backbone class and custom components to [`models/__init__.py`](models/__init__.py).
-
-### Create config files
-
-Add your config files for each task to [`configs/`](./configs). If your are not familiar with config files,
-the [tutorial](https://mmclassification.readthedocs.io/en/latest/tutorials/config.html#config-file-structure) can help you.
-
-In a word, use base config files of model, dataset, schedule and runtime to
-compose your config files. Of course, you can also override some settings of
-base config in your config files, even write all settings in one file.
-
-In this template, we provide a suit of popular base config files, you can also
-find more useful base configs from [mmcls](https://github.com/open-mmlab/mmclassification/tree/master/configs/_base_),
-[mmdet](https://github.com/open-mmlab/mmdetection/tree/master/configs/_base_) and
-[mmseg](https://github.com/open-mmlab/mmsegmentation/tree/master/configs/_base_).
-
-### Training and testing
-
-For training and testing, you can directly use mim to train and test the model
-
-At first, you need to add the current folder the the `PYTHONPATH`, so that Python can find your model files.
-
-```shell
-export PYTHONPATH=`pwd`:$PYTHONPATH 
+```sh
+source ~/.bashrc
+conda activate edgelab
 ```
 
-#### On local single GPU:
+Now we have finished configuring the host environment 
 
-```bash
-# train classification models
-mim train mmcls $CONFIG --work-dir $WORK_DIR
+### Configure the profile
 
-# test classification models
-mim test mmcls $CONFIG -C $CHECKPOINT --metrics accuracy --metric-options "topk=(1, 5)"
+Here we will choose the profile according to the task that we want to implement. We have prepared preconfigured files inside the the [configs](https://github.com/Seeed-Studio/edgelab/tree/master/configs) folder.
 
-# train object detection / instance segmentation models
-mim train mmdet $CONFIG --work-dir $WORK_DIR
+For example, we will choose an **audio classfication** example and use [ali_classiyf_small_8k_8192.py](https://github.com/Seeed-Studio/Edgelab/blob/master/configs/audio_classify/ali_classiyf_small_8k_8192.py) config file.
 
-# test object detection / instance segmentation models
-mim test mmdet $CONFIG -C $CHECKPOINT --eval bbox segm
+### Start training 
 
-# train semantic segmentation models
-mim train mmseg $CONFIG --work-dir $WORK_DIR
+Execute the following command inside the activated conda virtual environment terminal to start training an end-to-end speech classification model.
 
-# test semantic segmentation models
-mim test mmseg $CONFIG -C $CHECKPOINT --eval mIoU
+```
+python tools/train.py mmcls configs/audio_classify/ali_classiyf_small_8k_8192.py --gpus=0
 ```
 
-- CONFIG: the config files under the directory `configs/`
-- WORK_DIR: the working directory to save configs, logs, and checkpoints
-- CHECKPOINT: the path of the checkpoint downloaded from our model zoo or trained by yourself
+The format of the above command looks like below
 
-#### On multiple GPUs (4 GPUs here):
-
-```bash
-# train classification models
-mim train mmcls $CONFIG --work-dir $WORK_DIR --launcher pytorch --gpus 4
-
-# test classification models
-mim test mmcls $CONFIG -C $CHECKPOINT --metrics accuracy --metric-options "topk=(1, 5)" --launcher pytorch --gpus 4
-
-# train object detection / instance segmentation models
-mim train mmdet $CONFIG --work-dir $WORK_DIR --launcher pytorch --gpus 4
-
-# test object detection / instance segmentation models
-mim test mmdet $CONFIG -C $CHECKPOINT --eval bbox segm --launcher pytorch --gpus 4
-
-# train semantic segmentation models
-mim train mmseg $CONFIG --work-dir $WORK_DIR --launcher pytorch --gpus 4 
-
-# test semantic segmentation models
-mim test mmseg $CONFIG -C $CHECKPOINT --eval mIoU --launcher pytorch --gpus 4
+```
+python tools/train.py <task_type> <config_file_location> --gpus=<cpu_or_gpu>
 ```
 
-- CONFIG: the config files under the directory `configs/`
-- WORK_DIR: the working directory to save configs, logs, and checkpoints
-- CHECKPOINT: the path of the checkpoint downloaded from our model zoo or trained by yourself
+where:
 
-#### On multiple GPUs in multiple nodes with Slurm (total 16 GPUs here):
+- <task_type> refers to either **mmcls** for classfication, **mmdet** for detection and **mmpose** for pose estimation
+- <config_file_location> refers to the path where the model configuration is located 
+- <cpu_or_gpu> refers to specifying whether you want to train on CPU or GPU. Type **0** CPU and **1** for GPU
 
-```bash
-# train classification models
-mim train mmcls $CONFIG --work-dir $WORK_DIR --launcher slurm --gpus 16 --gpus-per-node 8 --partition $PARTITION
+### Export to ONNX 
 
-# test classification models
-mim test mmcls $CONFIG -C $CHECKPOINT --metrics accuracy --metric-options "topk=(1, 5)" --launcher slurm --gpus 16 --gpus-per-node 8 --partition $PARTITION
+After the model training is completed, you can export the **.pth file** to the **ONNX file** format and convert it to other formats you want to use through ONNX. Assuming that the environment is in this project path, you can export the audio classfication model you just trained to the ONNX format by running the following command:
 
-# train object detection / instance segmentation models
-mim train mmdet $CONFIG --work-dir $WORK_DIR --launcher slurm --gpus 16 --gpus-per-node 8 --partition $PARTITION
-
-# test object detection / instance segmentation models
-mim test mmdet $CONFIG -C $CHECKPOINT --eval bbox segm --launcher slurm --gpus 16 --gpus-per-node 8 --partition $PARTITION
-
-# train semantic segmentation models
-mim train mmseg $CONFIG --work-dir $WORK_DIR --launcher slurm --gpus 16 --gpus-per-node 8 --partition $PARTITION
-
-# test semantic segmentation models
-mim test mmseg $CONFIG -C $CHECKPOINT --eval mIoU --launcher slurm --gpus 16 --gpus-per-node 8 --partition $PARTITION
+```sh
+python tools/torch2onnx.py --config configs/audio_classify/ali_classiyf_small_8k_8192.py --checkpoint work_dirs/yolov3_192_node2_person/exp1/latest.pth --task mmcls --audio
 ```
 
-- CONFIG: the config files under the directory `configs/`
-- WORK_DIR: the working directory to save configs, logs, and checkpoints
-- CHECKPOINT: the path of the checkpoint downloaded from our model zoo or trained by yourself
-- PARTITION: the slurm partition you are using
+The format of the above command looks like below
+
+```
+python tools/torch2onnx.py --config <config_file_location> --checkpoint <checkpoint_location> --task <task_type> --audio
+```
+
+where:
+
+- <config_file_location> refers to the path where the model configuration is located 
+- <checkpoint_location> refers to the .pth  model weight file generated after the training
+- <task_type> refers to either **mmcls** for classfication, **mmdet** for detection and **mmpose** for pose estimation
+- **--audio** parameter is added only when doing speech classfication
+
+### Export to NCNN
+
+Make sure you have already followed the previous step to conevert the .pth model file into ONNX 
+
+Start the conversion process to NCNN by:
+
+```sh
+python tools/export_qiantize.py --onnx work_dirs/yolov3_192_node2_person/exp1 --type ncnn
+```
+
+The format of the above command looks like below
+
+```sh
+python tools/export_qiantize.py --onnx $ONNX_PATH --type $TYPE
+```
+
+where:
+
+- **--$ONNX_PATH:** refers to the location of the weight file in ONNX format exported for the model before
+- **--$TYPE:** refers to the optional parameters for what format you want to export the ONNX model to. You can choose from **onnx_fp16, onnx_quan_st, onnx_quan_dy, ncnn, ncnn_fp16, ncnn_quan**
+
+## Further Guides 
+
+- [Train an object detection model wth public datasets]()
+- [Train an object detection model wth your own dataset]()
+- [Train a meter reading detection model with your own dataset]()
+- [Train an audio classfication model with your own dataset]()
+- [Detailed guide on exporting ONNX to NCNN in quantized format]()
