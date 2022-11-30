@@ -74,6 +74,17 @@ def check_file(path, store_dir=None, data_name=None):
         if path.startswith('~'):
             path = path.replace('~', os.environ['HOME'])
         download_dir = path
+        if 'https://' in path or 'http://' in path:
+            download_dir = f"{os.environ['HOME']}/datasets" if platform.system(
+            ) == 'Linux' and not store_dir else 'D:\datasets' if not store_dir else store_dir
+            download_dir = os.path.join(
+                download_dir, data_name) if data_name else download_dir
+            if not os.path.exists(download_dir):
+                os.makedirs(download_dir,
+                            exist_ok=True)  # makedir the datasets
+
+            download(path, download_dir, data_name)
+
     else:
         raise TypeError(
             'The download link must be a list or a string, but got {} type'.
