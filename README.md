@@ -85,6 +85,8 @@ We also provide a model zoo for the tasks that are mentioned above
 
 ## Meter Reading Detection in Action!
 
+https://user-images.githubusercontent.com/20147381/204771564-d3520a63-300c-4469-b027-61538913bff1.mp4
+
 ## Quick Getting Started 
 
 The following is a quick getting started guide to train an audio classification model.
