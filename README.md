@@ -2,9 +2,9 @@
 
 ## Introduction
 
-This is a tool to develop audio and vision AI applications in a much easier and faster way using the OpenMMLab framework. 
+Seeed Studio Edgelab is an open-source project focused on embedded AI (audio and vision). We have optimized excellent algorithms from [OpenMMLab](https://github.com/open-mmlab) for real-world scenarios and made implemention more user-friendly, achieving faster and more accurate inference on embedded devices.
 
-By using OpenMMLab framework combined with [MMCV](https://github.com/open-mmlab/mmcv)(OpenMMLab foundational library for computer vision), you can easily develop a new backbone and use [MMClassification](https://github.com/open-mmlab/mmclassification), [MMDetection](https://github.com/open-mmlab/mmdetection), [MMPose](https://github.com/open-mmlab/mmpose) to benchmark your backbone on image/ audio classification, object detection and pose estimation.
+By using OpenMMLab framework combined with [MMCV](https://github.com/open-mmlab/mmcv)(OpenMMLab foundational library for computer vision), you can easily use [MMClassification](https://github.com/open-mmlab/mmclassification), [MMDetection](https://github.com/open-mmlab/mmdetection), [MMPose](https://github.com/open-mmlab/mmpose) for image/ audio classification, object detection and pose estimation tasks.
 
 ## Audio and Vision AI Tasks Supported
 
@@ -18,7 +18,7 @@ We will keep adding more tasks in the future.
 
 ## Model Zoo
 
-We also provide a model zoo for the tasks that are mentioned above
+We also provide a [model zoo](https://github.com/Seeed-Studio/Edgelab/releases/tag/model_zoo) for the tasks that are mentioned above
 
 <table>
 <thead>
@@ -30,55 +30,39 @@ We also provide a model zoo for the tasks that are mentioned above
 </thead>
 <tbody>
   <tr>
-    <td rowspan="6">Audio classification</td>
-    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/ali_classiyf_small_8k_35_8192.pth" target="_blank" rel="noopener noreferrer">ali_classiyf_small_8k_35_8192.pth</a></td>
+    <td rowspan="4">Audio classification</td>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/ali_classiyf_small_8k_35_8192.pth">ali_classiyf_small_8k_35_8192.pth</a></td>
     <td>pth</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/ali_classiyf_small_8k_35_8192.onnx" target="_blank" rel="noopener noreferrer">ali_classiyf_small_8k_35_8192.onnx</a></td>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/ali_classiyf_small_8k_35_8192.onnx">ali_classiyf_small_8k_35_8192.onnx</a></td>
     <td>onnx</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/ali_classiyf_small_8k_35_8192.zip" target="_blank" rel="noopener noreferrer">ali_classiyf_small_8k_35_8192.zip</a></td>
-    <td>zip</td>
-  </tr>
-  <tr>
-    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/ali_classiyf_small_8k_4_8192.pth" target="_blank" rel="noopener noreferrer">ali_classiyf_small_8k_4_8192.pth</a></td>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/ali_classiyf_small_8k_4_8192.pth">ali_classiyf_small_8k_4_8192.pth</a></td>
     <td>pth</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/ali_classiyf_small_8k_4_8192.onnx" target="_blank" rel="noopener noreferrer">ali_classiyf_small_8k_4_8192.onnx</a></td>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/ali_classiyf_small_8k_4_8192.onnx">ali_classiyf_small_8k_4_8192.onnx</a></td>
     <td>onnx</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/ali_classiyf_small_8k_4_8192.ncnn.zip" target="_blank" rel="noopener noreferrer">ali_classiyf_small_8k_4_8192.ncnn.zip</a></td>
-    <td>zip</td>
-  </tr>
-  <tr>
-    <td rowspan="3">Meter reading using <br>landmark detection</td>
-    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/pfld_mv2n_112.pth" target="_blank" rel="noopener noreferrer">pfld_mv2n_112.pth</a></td>
+    <td rowspan="2">Meter reading using <br>landmark detection</td>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/pfld_mv2n_112.pth">pfld_mv2n_112.pth</a></td>
     <td>pth</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/pfld_mv2n_112.onnx" target="_blank" rel="noopener noreferrer">pfld_mv2n_112.onnx</a></td>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/pfld_mv2n_112.onnx">pfld_mv2n_112.onnx</a></td>
     <td>onnx</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/pfld_mv2n_112.ncnn.zip" target="_blank" rel="noopener noreferrer">pfld_mv2n_112.ncnn.zip</a></td>
-    <td>zip</td>
-  </tr>
-  <tr>
-    <td rowspan="3">Object detection</td>
-    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/yolov3_mbv2_416_coco.pth" target="_blank" rel="noopener noreferrer">yolov3_mbv2_416_coco.pth</a></td>
+    <td rowspan="2">Object detection</td>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/yolov3_mbv2_416_coco.pth">yolov3_mbv2_416_coco.pth</a></td>
     <td>pth</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/yolov3_mbv2_416_coco.onnx" target="_blank" rel="noopener noreferrer">yolov3_mbv2_416_coco.onnx</a></td>
+    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/yolov3_mbv2_416_coco.onnx">yolov3_mbv2_416_coco.onnx</a></td>
     <td>onnx</td>
-  </tr>
-  <tr>
-    <td><a href="https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/yolov3_mbv2_416_coco.ncnn.zip" target="_blank" rel="noopener noreferrer">yolov3_mbv2_416_coco.ncnn.zip</a></td>
-    <td>zip</td>
   </tr>
 </tbody>
 </table>
@@ -199,8 +183,8 @@ where:
 
 ## Further Guides 
 
-- [Train an object detection model wth public datasets]()
-- [Train an object detection model wth your own dataset]()
-- [Train a meter reading detection model with your own dataset]()
+- [Train an object detection model with public datasets](https://github.com/Seeed-Studio/Edgelab/blob/master/docs/Object-detection-public-dataset.md)
+- [Train an object detection model with your own dataset](https://github.com/Seeed-Studio/Edgelab/blob/master/docs/Object-detection-own-dataset.md)
+- [Train a meter reading detection model with existing dataset](https://github.com/Seeed-Studio/Edgelab/blob/master/docs/Meter-reading-detection-existing-dataset.md)
 - [Train an audio classfication model with your own dataset]()
 - [Detailed guide on exporting ONNX to NCNN in quantized format]()
