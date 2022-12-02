@@ -60,7 +60,8 @@ def qure_ip():
     data = p.stdout.read()
     loger.info(data)
     if '中国' in data:
-        return True
+        if any(i in data for i in ['台湾', '香港', '澳门']): return False
+        else: return True
     return False
 
 
@@ -232,11 +233,13 @@ def mmlab_install():
         loger.info('mmlab env install succeeded!')
     if GPU:
         if command(
-                f'{pip} install mmcv-full  -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.10.0/index.html'
+                f'{pip} install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.10.0/index.html'
         ):
             loger.info('mmcv-full install succeeded!')
     else:
-        command(f'{pip} install mmcv-full' + pip_mirror)
+        command(
+            f'{pip} install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cpu/torch1.10.0/index.html'
+            + pip_mirror)
         loger.info('mmcv-full install succeeded!')
 
 
