@@ -15,14 +15,22 @@ class PFLD(BasePose):
         pass
 
     def forward_train(self, img, img_metas, **kwargs):
-        pass
+        x = self.backbone(img)
+        if img_metas is not None:
+            return {'loss': self.computer_loss(x, img_metas)}
+        return {'result': x}
 
     def forward_test(self, img, img_metas, **kwargs):
-        pass
-
-    def forward(self, img, img_metas, return_loss=False, **kwargs):
         x = self.backbone(img)
-        if return_loss:
+        if img_metas is not None:
+            return {'loss': self.computer_loss(x, img_metas)}
+        return {'result': x}
+
+    def forward(self, img, img_metas, return_loss=False,**kwargs):
+        x = self.backbone(img)
+        if img_metas is not None:
+            if len(img_metas)==0:
+                return {'result': x}
             return {'loss': self.computer_loss(x, img_metas)}
         return {'result': x}
 
