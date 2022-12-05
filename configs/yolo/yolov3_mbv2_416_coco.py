@@ -14,7 +14,7 @@ model = dict(
               in_channels=[320, 96, 32],
               out_channels=[96, 96, 96]),
     bbox_head=dict(type='YOLOV3Head',
-                   num_classes=80,
+                   num_classes=20,
                    in_channels=[96, 96, 96],
                    out_channels=[96, 96, 96],
                    anchor_generator=dict(type='YOLOAnchorGenerator',
@@ -52,8 +52,10 @@ model = dict(
                   nms=dict(type='nms', iou_threshold=0.45),
                   max_per_img=100))
 # dataset settings
-dataset_type = 'CustomCocoDataset'
-data_root = '["http://images.cocodataset.org/zips/train2017.zip", "http://images.cocodataset.org/zips/val2017.zip", "http://images.cocodataset.org/zips/test2017.zip", "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"]'
+# dataset_type = 'CustomCocoDataset'
+dataset_type = 'CustomVocdataset'
+# data_root = '["http://images.cocodataset.org/zips/train2017.zip", "http://images.cocodataset.org/zips/val2017.zip", "http://images.cocodataset.org/zips/test2017.zip", "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"]'
+data_root = 'http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar'
 
 img_norm_cfg = dict(mean=[123.675, 116.28, 103.53],
                     std=[58.395, 57.12, 57.375],
@@ -94,25 +96,25 @@ test_pipeline = [
          ])
 ]
 data = dict(
-    samples_per_gpu=32,
-    workers_per_gpu=4,
+    samples_per_gpu=128,
+    workers_per_gpu=10,
     train=dict(
         type='RepeatDataset',  # use RepeatDataset to speed up training
         times=10,
         dataset=dict(type=dataset_type,
                      data_root=data_root,
-                     ann_file='annotations/instances_train2017.json',
-                     img_prefix='train2017/',
+                     ann_file='ImageSets/Main/train.txt',
+                    #  img_prefix=None,
                      pipeline=train_pipeline)),
     val=dict(type=dataset_type,
              data_root=data_root,
-             ann_file='annotations/instances_val2017.json',
-             img_prefix='valid2017/',
+             ann_file='ImageSets/Main/val.txt',
+            #  img_prefix=None,
              pipeline=test_pipeline),
     test=dict(type=dataset_type,
               data_root=data_root,
-              ann_file='annotations/instances_val2017.json',
-              img_prefix='valid2017/',
+              ann_file='ImageSets/Main/val.txt',
+            #   img_prefix=None,
               pipeline=test_pipeline))
 # optimizer
 optimizer = dict(type='SGD', lr=0.003, momentum=0.9, weight_decay=0.0005)
@@ -124,8 +126,8 @@ lr_config = dict(policy='step',
                  warmup_ratio=0.0001,
                  step=[24, 28])
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=30)
-evaluation = dict(interval=1, metric=['bbox'])
+runner = dict(type='EpochBasedRunner', max_epochs=300)
+evaluation = dict(interval=1, metric=['mAP'])
 find_unused_parameters = True
 
 # NOTE: `auto_scale_lr` is for automatically scaling LR,
