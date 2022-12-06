@@ -1,45 +1,20 @@
-from mmpose.models.builder import MESH_MODELS, build_backbone
-from mmpose.models.detectors.base import BasePose
+import cv2
+import mmcv
+import os.path as osp
+
 from mmpose.models.builder import build_loss
+from mmpose.models.detectors.base import BasePose
+from mmpose.models.builder import MESH_MODELS, build_backbone
 
 
 @MESH_MODELS.register_module()
 class PFLD(BasePose):
+
     def __init__(self, backbone, loss_cfg, pretrained=None):
         super(PFLD, self).__init__()
         self.backbone = build_backbone(backbone)
         self.computer_loss = build_loss(loss_cfg)
         self.pretrained = pretrained
-
-    def init_weights(self):
-        pass
-
-    def forward_train(self, img, img_metas, **kwargs):
-        x = self.backbone(img)
-        if img_metas is not None:
-            return {'loss': self.computer_loss(x, img_metas)}
-        return {'result': x}
-
-    def forward_test(self, img, img_metas, **kwargs):
-        x = self.backbone(img)
-        if img_metas is not None:
-            return {'loss': self.computer_loss(x, img_metas)}
-        return {'result': x}
-
-    def forward(self, img, img_metas, return_loss=False,**kwargs):
-        x = self.backbone(img)
-        if img_metas is not None:
-            if len(img_metas)==0:
-                return {'result': x}
-            return {'loss': self.computer_loss(x, img_metas)}
-        return {'result': x}
-
-    def show_result(self, **kwargs):
-        pass
-
-    def forward_dummy(self, img_metas, **kwargs):
-        x = self.backbone(img_metas)
-        return x
 
     def init_weights(self, pretrained=None):
         """Weight initialization for model."""
@@ -50,3 +25,52 @@ class PFLD(BasePose):
             self.neck.init_weights()
         if self.with_keypoint:
             self.keypoint_head.init_weights()
+
+    def forward(self, img, keypoints=None, return_loss=True, **kwargs):
+        if return_loss:
+            return self.forward_train(img, keypoints, **kwargs)
+        else:
+            return self.forward_test(img, keypoints, **kwargs)
+
+    def forward_train(self, img, keypoints, **kwargs):
+        x = self.backbone(img)
+        return {'loss': self.computer_loss(x, keypoints)}
+
+    def forward_test(self, img, keypoints, **kwargs):
+        x = self.backbone(img)
+        result = {}
+        if keypoints is not None:
+            loss = self.computer_loss(x, keypoints)
+            result['loss'] = loss
+        result.update({'result': x, **kwargs})
+        return result
+
+    def forward_dummy(self, img, **kwargs):
+        x = self.backbone(img)
+        return x
+
+    def show_result(self,
+                    img_file,
+                    keypoints,
+                    show=False,
+                    win_name='img',
+                    save_path=None,
+                    **kwargs):
+        img = mmcv.imread(img_file, channel_order='bgr').copy()
+        h, w = img.shape[:-1]
+        keypoints[::2] = keypoints[::2] * w
+        keypoints[1::2] = keypoints[1::2] * h
+        keypoints = keypoints.cpu().numpy()
+
+        # img=imshow_keypoints(img, [keypoints.cpu()])
+        for point in keypoints:
+            if not isinstance(point, (float, int)):
+                img = cv2.circle(img, (int(point[0]), int(point[1])), 2,
+                                 (255, 0, 0), -1)
+        if show:
+            cv2.imshow(win_name,img)
+            cv2.waitKey(500)
+
+        if save_path:
+            img_name = osp.basename(img_file)
+            cv2.imwrite(osp.join(save_path, img_name),img)
