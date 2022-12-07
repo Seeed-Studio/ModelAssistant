@@ -195,9 +195,10 @@ def main():
         if args.out:
             print(f'\nwriting results to {args.out}')
             mmcv.dump(outputs, args.out)
-        results = dataset.evaluate(outputs, **eval_config)
-        for k, v in sorted(results.items()):
-            print(f'{k}: {v}')
+        if not args.img_path:
+            results = dataset.evaluate(outputs, **eval_config)
+            for k, v in sorted(results.items()):
+                print(f'{k}: {v}')
 
 
 if __name__ == '__main__':

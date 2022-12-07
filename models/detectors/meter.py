@@ -68,9 +68,9 @@ class PFLD(BasePose):
                 img = cv2.circle(img, (int(point[0]), int(point[1])), 2,
                                  (255, 0, 0), -1)
         if show:
-            cv2.imshow(win_name,img)
+            cv2.imshow(win_name, img)
             cv2.waitKey(500)
 
         if save_path:
             img_name = osp.basename(img_file)
-            cv2.imwrite(osp.join(save_path, img_name),img)
+            cv2.imwrite(osp.join(save_path, img_name), img)

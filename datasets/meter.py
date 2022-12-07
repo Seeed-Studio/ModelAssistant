@@ -45,7 +45,6 @@ class MeterData(Dataset, metaclass=ABCMeta):
         super(MeterData, self).__init__()
 
         self.data_root = check_file(data_root)
-
         self.transforms = Pose_Compose(
             pipeline, keypoint_params=A.KeypointParams(format))
         self.totensor = transforms.Compose([transforms.ToTensor()])
@@ -59,20 +58,19 @@ class MeterData(Dataset, metaclass=ABCMeta):
         img_file = ann['image_file']
         self.img = cv2.imread(img_file)
         self.img = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
-        h, w = self.img.shape[:-1]
         points = ann['keypoints']
         point_num = ann['point_num']
         landmark = []
         for i in range(point_num):
             landmark.append([points[i * 2], points[i * 2 + 1]])
 
-        # if not self.test:
         while True:
             result = self.transforms(image=self.img, keypoints=landmark)
             if len(result['keypoints']) == point_num:
                 break
         img, keypoints = self.totensor(result['image']), np.asarray(
             result['keypoints']).flatten()
+        h, w = img.shape[1:]
         keypoints[::2] = keypoints[::2] / w
         keypoints[1::2] = keypoints[1::2] / h
 
