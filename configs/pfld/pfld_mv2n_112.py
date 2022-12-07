@@ -1,5 +1,5 @@
 _base_ = '../_base_/pose_default_runtime.py'
-custom_imports = dict(imports=['models', 'datasets'],
+custom_imports = dict(imports=['models', 'datasets','core'],
                       allow_failed_imports=False)
 model = dict(type='PFLD',
              backbone=dict(type='PFLDInference', ),
@@ -26,13 +26,14 @@ dataset_type = 'MeterData'
 data_root='~/datasets/meter'
 
 data = dict(
-    samples_per_gpu=16,
-    workers_per_gpu=2,
+    samples_per_gpu=32,
+    workers_per_gpu=4,
     train=dict(
         type=dataset_type,
         data_root=data_root,
         index_file=r'train/annotations.txt',
-        pipeline=train_pipeline),
+        pipeline=train_pipeline,
+        test_mode=False),
     val=dict(type=dataset_type,
              data_root=data_root,
              index_file=r'val/annotations.txt',
@@ -55,7 +56,7 @@ lr_config = dict(policy='step',
                  warmup='linear',
                  warmup_iters=400,
                  warmup_ratio=0.0001,
-                 step=[440, 490])
+                 step=[150, 300, 450])
 # lr_config = dict(
 #     policy='OneCycle',
 #     max_lr=0.0001,

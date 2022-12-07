@@ -1,5 +1,5 @@
 _base_ = '../_base_/pose_default_runtime.py'
-custom_imports = dict(imports=['models', 'datasets'],
+custom_imports = dict(imports=['models', 'datasets','core'],
                       allow_failed_imports=False)
 # model settings
 model = dict(
@@ -54,7 +54,7 @@ model = dict(
 # dataset settings
 # dataset_type = 'CustomCocoDataset'
 dataset_type = 'CustomVocdataset'
-# data_root = '["http://images.cocodataset.org/zips/train2017.zip", "http://images.cocodataset.org/zips/val2017.zip", "http://images.cocodataset.org/zips/test2017.zip", "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"]'
+# data_root = ("http://images.cocodataset.org/zips/train2017.zip", "http://images.cocodataset.org/zips/val2017.zip", "http://images.cocodataset.org/zips/test2017.zip", "http://images.cocodataset.org/annotations/annotations_trainval2017.zip")
 data_root = 'http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar'
 
 img_norm_cfg = dict(mean=[123.675, 116.28, 103.53],
@@ -134,3 +134,11 @@ find_unused_parameters = True
 # USER SHOULD NOT CHANGE ITS VALUES.
 # base_batch_size = (8 GPUs) x (24 samples per GPU)
 auto_scale_lr = dict(base_batch_size=192)
+
+log_config = dict(
+    interval=5,
+    hooks=[
+        dict(type='TextLoggerHook', ndigits=2),
+        # dict(type='TensorboardLoggerHook')
+        # dict(type='PaviLoggerHook') # for internal services
+    ])
