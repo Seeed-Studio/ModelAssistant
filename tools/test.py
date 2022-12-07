@@ -126,8 +126,7 @@ def main():
         distributed = True
         init_dist(args.launcher, **cfg.dist_params)
 
-    # build the dataloader
-    dataset = build_dataset(cfg.data.test, dict(test_mode=True))
+
     # step 1: give default values and override (if exist) from cfg.data
     loader_cfg = {
         **dict(seed=cfg.get('seed'), drop_last=False, dist=distributed),
@@ -153,6 +152,8 @@ def main():
     if args.img_path:
         data_loader = test_load(args.img_path, cfg.val_pipeline)
     else:
+        # build the dataloader
+        dataset = build_dataset(cfg.data.test, dict(test_mode=True))
         data_loader = build_dataloader(dataset, **test_loader_cfg)
 
     # build the model and load checkpoint
