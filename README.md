@@ -10,11 +10,7 @@ Currently we support the following tasks:
 - Meter reading using landmark detection
 - Audio classification
 
-We will keep adding more tasks in the future.
-
-Here is a quick demo of a meter reading detection running on an embedded device in action!
-
-https://user-images.githubusercontent.com/20147381/204963180-dcdf8ef2-14ac-433c-95ce-41fc60347db2.mp4
+We will keep adding more tasks in the future. Stay tuned!
 
 <details>
 <summary>Explore more guides!</summary>
