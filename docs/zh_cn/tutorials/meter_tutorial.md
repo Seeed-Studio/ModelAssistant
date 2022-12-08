@@ -7,6 +7,7 @@
 3. 模型训练
 4. 模型推理测试
 5. 模型导出
+6. 使用自定义数据集
 
 ## 1. 数据集准备
 
@@ -57,3 +58,35 @@ python tools/torch2onnx.py mmpose --config configs/pfld/pfld_mv2n_112.py --check
 - `--config` :模型配置文件
 - `--checkpoint` :模型训练后的权重文件
 - `--shape` :模型输入数据的大小
+
+## 6.使用自定义数据集
+
+如果你想使用自定义数据集当然也可以，我们建议你使用[labelme](https://github.com/wkentaro/labelme)标注工具。如果你使用了我们的自动环境配置脚本，现在不需要你下载他或者安装它。现在你只需要激活你的虚拟环境和打开`labelme`即可，如下：
+
+```shell
+conda activate edgelab
+labelme
+```
+
+此时你只需要标注你的数据集即可，同时数据集的结构需要按照我们提供数据数据的结构那样即可,如下：
+
+```shell
+data_root/
+        |  
+        ├──train/
+        │     ├── images
+        │     │   ├── xxx0.png
+        │     │   └── xxx1.jpg
+        │     ├── annotations
+        │     │   ├── xxx0.json
+        │     │   └── xxx1.json
+        ├──val/
+        │     ├── images
+        │     │   ├── ***0.png
+        │     │   └── ***1.jpg
+        │     ├── annotations
+        │     │   ├── ***0.json
+        │     │   └── ***1.json
+```
+
+之后将配置文件的`data_root`的值修改为你的数据集根目录的绝对路径即可开始训练。
