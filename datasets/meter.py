@@ -77,6 +77,7 @@ class MeterData(Dataset, metaclass=ABCMeta):
         ann['img'] = img
         ann['keypoints'] = keypoints
         ann['image_file'] = DC(img_file, cpu_only=True)
+        ann['hw']=[h,w]
 
         return ann
 
