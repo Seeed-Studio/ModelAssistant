@@ -4,6 +4,7 @@ from collections import OrderedDict
 from typing import Optional, Union, Dict
 
 import torch
+import torch.distributed as dist
 from tqdm import tqdm
 from mmcv.runner import HOOKS
 from mmcv.runner.base_runner import BaseRunner
@@ -32,13 +33,14 @@ class TextLoggerHook(TextLoggerHook):
         self.bar = None
         self.reset = True
         self.log_dict = None
+        self.head = None
 
     def before_train_epoch(self, runner):
         super().before_train_epoch(runner)
         self.reset = True
 
-    def before_train_iter(self, runner):
-        super().before_train_iter(runner)
+    def after_train_iter(self, runner) -> None:
+        super().after_train_iter(runner)
         if self.log_dict:
             self._progress_log(self.log_dict, runner)
 
@@ -50,12 +52,27 @@ class TextLoggerHook(TextLoggerHook):
         head = '\n'
         end = ''
         for key, value in log_dict.items():
-            if 'time' in key or 'grad_norm' in key: continue
+            if 'grad_norm' in key or 'iter' in key or 'data_time' in key:
+                continue
+            if 'time' == key:
+                self.time_sec_tot += (value * self.interval)
+                time_sec_avg = self.time_sec_tot / (runner.iter -
+                                                    self.start_iter + 1)
+                eta_sec = time_sec_avg * (runner.max_iters - runner.iter - 1)
+                eta_str = str(datetime.timedelta(seconds=int(eta_sec)))
+                head += f'{"eta":^10}'
+                end += f'{eta_str:^10}'
+                continue
+            if 'epoch' in key:
+                value = f'{value}/{runner._max_epochs}'
             head += f'{key:^10}'
             end += f'{self._round_float(value):^10}' if isinstance(
-                value, float) else f'{str(value):^10}'
+                value, float) else f'{value:^10}'
+
+        if not self.head:
+            self.head = head
         if self.reset:
-            print(head)
+            print(self.head)
             self.bar = tqdm(total=len(runner.data_loader),
                             ncols=120,
                             leave=True)
@@ -159,7 +176,6 @@ class TextLoggerHook(TextLoggerHook):
         # statistic memory
         if torch.cuda.is_available():
             log_dict['memory'] = self._get_max_memory(runner)
-
         log_dict = dict(log_dict, **runner.log_buffer.output)  # type: ignore
         self.log_dict = log_dict
         self._log_info(log_dict, runner)
@@ -184,3 +200,13 @@ class TextLoggerHook(TextLoggerHook):
             return round(items, self.ndigits)
         else:
             return items
+
+    def _get_max_memory(self, runner) -> int:
+        device = getattr(runner.model, 'output_device', None)
+        mem = torch.cuda.max_memory_allocated(device=device)
+        mem_mb = torch.tensor([int(mem) // (1048576)],
+                              dtype=torch.int,
+                              device=device)
+        if runner.world_size > 1:
+            dist.reduce(mem_mb, 0, op=dist.ReduceOp.MAX)
+        return f'{mem_mb.item()}MB'
