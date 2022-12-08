@@ -1,13 +1,19 @@
+import os
 import math
-import numpy as np
-import cv2
-import albumentations as A
-import torch
+import copy
+from abc import ABCMeta
 
-from mmpose.datasets.builder import DATASETS
-from torch.utils.data import Dataset
+import cv2
+import torch
+import numpy as np
+import albumentations as A
 from torchvision import transforms
-from torchvision.transforms.functional import InterpolationMode
+from torch.utils.data import Dataset
+from mmpose.datasets.builder import DATASETS
+from mmcv.parallel import DataContainer as DC
+
+from datasets.utils.download import check_file
+from datasets.pipelines.pose_transform import Pose_Compose
 
 
 def calc_angle(x1, y1, x2, y2):
@@ -15,7 +21,8 @@ def calc_angle(x1, y1, x2, y2):
     y = (y1 - y2)
     z = math.sqrt(x * x + y * y)
     try:
-        angle = math.acos((z ** 2 + 1 - (x - 1) ** 2 - y ** 2) / (2 * z * 1)) / math.pi * 180
+        angle = math.acos(
+            (z**2 + 1 - (x - 1)**2 - y**2) / (2 * z * 1)) / math.pi * 180
     except:
         angle = 0
 
@@ -26,74 +33,75 @@ def calc_angle(x1, y1, x2, y2):
 
 
 @DATASETS.register_module()
-class MeterData(Dataset):
+class MeterData(Dataset, metaclass=ABCMeta):
     CLASSES = ('meter')
 
-    def __init__(self, index_file, test_mode=None, transform=None):
+    def __init__(self,
+                 data_root,
+                 index_file,
+                 pipeline,
+                 format='xy',
+                 test_mode=None):
         super(MeterData, self).__init__()
 
-        self.train = transform
-        self.test_trans = transforms.Compose(
-            [transforms.ToTensor(), transforms.Resize(size=(112, 112), interpolation=InterpolationMode.NEAREST)])
-        self.transforms = A.Compose([
-            A.ColorJitter(brightness=0.3, p=0.5),
-            A.OneOf([
-                A.IAAAdditiveGaussianNoise(),
-                A.GaussNoise(),
-            ], p=0.5),
-            A.OneOf([
-                A.MotionBlur(p=0.3),
-                A.MedianBlur(blur_limit=3, p=0.3),
-                A.Blur(blur_limit=3, p=0.3),
-            ], p=0.5),
-            A.HorizontalFlip(),
-            A.VerticalFlip(),
-            A.Rotate(border_mode=cv2.BORDER_REPLICATE, interpolation=cv2.INTER_NEAREST,),
-            # A.ChannelShuffle(),
-            # A.SafeRotate(border_mode=cv2.BORDER_REPLICATE, interpolation=cv2.INTER_NEAREST, p=0.5),
-            # A.CoarseDropout(max_holes=4,max_height=32,max_width=32,p=0.5),
-            # A.RandomCrop(height=160,width=160,p=0.5),
-            A.Affine(translate_percent=[0.05, 0.1], mode=cv2.BORDER_CONSTANT, interpolation=cv2.INTER_NEAREST, p=0.6),
-            # A.CoarseDropout(max_holes=4,max_height=32,max_width=32,p=0.5),
-        ], keypoint_params=A.KeypointParams(format='xy'))
+        self.data_root = check_file(data_root)
+        self.transforms = Pose_Compose(
+            pipeline, keypoint_params=A.KeypointParams(format))
+        self.totensor = transforms.Compose([transforms.ToTensor()])
 
-        self.point_num = 1
-
-        with open(index_file, 'r') as f:
+        with open(os.path.join(self.data_root, index_file), 'r') as f:
             self.lines = f.readlines()
-        self.flag = np.zeros(self.__len__(), dtype=np.uint8)
+        self.parse_ann()
 
     def __getitem__(self, item):
-        self.line = self.lines[item].strip().split()
-        img_file = './datasets/' + self.line[0].replace('\\', '/')          #todo
-        img_file = str(img_file)
+        ann = copy.deepcopy(self.ann_ls[item])
+        img_file = ann['image_file']
         self.img = cv2.imread(img_file)
         self.img = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
-        self.landmark = np.asarray(self.line[1:5], dtype=np.float32)
-
-        self.landmark = np.asarray(self.line[1:], dtype=np.float32)
-        point = []
-        point.append(self.landmark[0])
-        point.append(self.landmark[1])
+        points = ann['keypoints']
+        point_num = ann['point_num']
         landmark = []
-        for i in range(self.point_num):
-            landmark.append([point[i * 2], point[i * 2 + 1]])
+        for i in range(point_num):
+            landmark.append([points[i * 2], points[i * 2 + 1]])
 
-        if self.train:
-            while True:
-                result = self.transforms(image=self.img, keypoints=landmark)
-                if len(result['keypoints']) < self.point_num:
-                    continue
-                else:
-                    break
-            img, label = self.test_trans(result['image']), np.asarray(result['keypoints']).flatten() / 240
-        else:
-            img, label = self.test_trans(self.img), np.asarray(landmark).flatten() / 240
+        while True:
+            result = self.transforms(image=self.img, keypoints=landmark)
+            if len(result['keypoints']) == point_num:
+                break
+        img, keypoints = self.totensor(result['image']), np.asarray(
+            result['keypoints']).flatten()
+        h, w = img.shape[1:]
+        keypoints[::2] = keypoints[::2] / w
+        keypoints[1::2] = keypoints[1::2] / h
 
-        return {'img': img, 'img_metas': label}
+        ann['img'] = img
+        ann['keypoints'] = keypoints
+        ann['image_file'] = DC(img_file, cpu_only=True)
+
+        return ann
 
     def __len__(self):
-        return len(self.lines)
+        return len(self.ann_ls)
 
     def evaluate(self, results, **kwargs):
-        return {'loss': torch.mean(torch.tensor([i['loss'] for i in results])).cpu().item()}
+        return {
+            'loss':
+            torch.mean(
+                torch.tensor([
+                    i['loss'] for i in results if 'loss' in i.keys()
+                ])).cpu().item()
+        }
+
+    def parse_ann(self):
+        self.ann_ls = []
+        for ann in self.lines:
+            line = ann.strip().split()
+            img_file = os.path.join(self.data_root, line[0])
+            points = np.asarray(line[1:], dtype=np.float32)
+            point_num = len(points) // 2
+
+            self.ann_ls.append({
+                'image_file': img_file,
+                'keypoints': points,
+                'point_num': point_num
+            })

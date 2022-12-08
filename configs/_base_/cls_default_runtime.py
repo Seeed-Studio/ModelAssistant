@@ -9,7 +9,7 @@ log_config = dict(
     ])
 # yapf:enable
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=1000)
+runner = dict(type='EpochBasedRunner', max_epochs=1500)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
 work_dir = './work_dirs'

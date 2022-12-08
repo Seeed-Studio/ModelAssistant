@@ -60,7 +60,8 @@ def qure_ip():
     data = p.stdout.read()
     loger.info(data)
     if '中国' in data:
-        return True
+        if any(i in data for i in ['台湾', '香港', '澳门']): return False
+        else: return True
     return False
 
 
@@ -88,10 +89,14 @@ def test_network():
 
 
 def qure_gpu():
-    if os.system('nvidia-smi |grep Driver') != 0:
-        return False
-    else:
+    p = subprocess.Popen(args='lspci |grep -i nvidia',
+                         stdout=subprocess.PIPE,
+                         encoding='utf8',
+                         shell=True)
+    data = p.stdout.read()
+    if 'NVIDIA' in data.upper():
         return True
+    return False
 
 
 def download_file(link, path):
@@ -108,7 +113,7 @@ def download_file(link, path):
 
 def anaconda_install(conda='miniconda'):
     os.chdir(proce_path)
-    if command(f'{conda_bin} -V'):
+    if command(f'{conda_bin} -V', 1):
         loger.info(
             'Your conda has been installed, skip the installation this time')
         return
@@ -162,11 +167,7 @@ def cuda_install():
 
 def conda_create_env(name, version=3.8):
     command(f"{conda_bin} init")
-    p = subprocess.Popen(f'{conda_bin} info -e |grep {name}',
-                         stdout=subprocess.PIPE,
-                         shell=True,
-                         encoding='utf8')
-    if name in p.stdout.read():
+    if command(f"{pip} -V", 1):
         loger.info(f'The virtual environment {name} already exists')
         return
 
@@ -232,11 +233,13 @@ def mmlab_install():
         loger.info('mmlab env install succeeded!')
     if GPU:
         if command(
-                f'{pip} install mmcv-full  -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.10.0/index.html'
+                f'{pip} install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.10.0/index.html'
         ):
             loger.info('mmcv-full install succeeded!')
     else:
-        command(f'{pip} install mmcv-full' + pip_mirror)
+        command(
+            f'{pip} install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cpu/torch1.10.0/index.html'
+            + pip_mirror)
         loger.info('mmcv-full install succeeded!')
 
 
@@ -313,8 +316,8 @@ def install_pyncnn():
     command(cmd)
 
     # install
-    os.chdir(ncnn_dir)
-    command(f'cd python && {pip} install -e .' + pip_mirror)
+    os.chdir(project_path)
+    command(f'{pip} install ncnn' + pip_mirror)
 
     path_ls = []
     path_ls.append(osp.join(ncnn_dir, 'build', 'tools', 'onnx'))
@@ -327,7 +330,8 @@ def install_pyncnn():
     for p in path_ls:
         if p in PATH: continue
         else:
-            command(f'echo export PATH={p}:\$PATH >> ~/.bashrc') if osp.exists(p) else None
+            command(f'echo export PATH={p}:\$PATH >> ~/.bashrc') if osp.exists(
+                p) else None
 
 
 def proto_ncnn_install():
@@ -344,6 +348,39 @@ def proto_ncnn_install():
     install_pyncnn()
 
 
+def check_env():
+    check_list = {}
+    ncnn_dir = osp.join(proce_path, 'ncnn')
+    ncnn = osp.join(ncnn_dir, 'build', 'install', 'bin', 'onnx2ncnn')
+    check_list['anaconda'] = 'OK' if command(f"{conda_bin} -V", 1) else 'faile'
+    check_list["virtual env"] = 'OK' if command(f"{pip} -V", 1) else 'faile'
+    check_list['python ncnn'] = 'OK' if command(
+        f"{python_bin} -c 'import ncnn'", 1) else 'faile'
+
+    check_list['ncnn'] = 'OK' if osp.exists(ncnn) else 'faile'
+
+    check_list['torch'] = 'OK' if command(f"{python_bin} -c 'import torch'",
+                                          1) else 'faile'
+    check_list['torchvision'] = 'OK' if command(
+        f"{python_bin} -c 'import torchvision'", 1) else 'faile'
+    check_list['torchaudio'] = 'OK' if command(
+        f"{python_bin} -c 'import torchaudio'", 1) else 'faile'
+
+    check_list['mmcv'] = 'OK' if command(f"{python_bin} -c 'import mmcv'",
+                                         1) else 'faile'
+    check_list['mmdet'] = 'OK' if command(f"{python_bin} -c 'import mmdet'",
+                                          1) else 'faile'
+    check_list['mmcls'] = 'OK' if command(f"{python_bin} -c 'import mmcls'",
+                                          1) else 'faile'
+    check_list['mmpose'] = 'OK' if command(f"{python_bin} -c 'import mmpose'",
+                                           1) else 'faile'
+
+    w, h = os.get_terminal_size()
+    w0 = w - 10
+    for key, value in check_list.items():
+        print(f"{key:30s}:{value:10s}")
+
+
 def pare_args():
     args = argparse.ArgumentParser()
     args.add_argument('--envname',
@@ -356,19 +393,20 @@ def pare_args():
 
 
 def prepare():
-    global args, project_path, pip, conda_bin, home, proce_path, loger, pip_mirror, GPU, g_jobs, success
+    global args, project_path, pip, python_bin, conda_bin, home, proce_path, loger, pip_mirror, GPU, g_jobs, success
     args = pare_args()
     g_jobs = os.cpu_count() if os.cpu_count else 8
     project_path = osp.dirname(osp.dirname(osp.abspath(__file__)))
     pip = f'~/{args.conda}3/envs/{args.envname}/bin/pip'
     home = os.environ['HOME']
-    
+    python_bin = f'~/{args.conda}3/envs/{args.envname}/bin/python'
+
     conda_bin = f'{home}/{args.conda}3/bin/conda'
     proce_path = f'{home}/software'
     try:
         PATH = os.environ['PYTHONPATH']
     except:
-        PATH=''
+        PATH = ''
     finally:
         if proce_path not in PATH:
             command(f'echo export PYTHONPATH={home}:\$PYTHONPATH >> ~/.bashrc')
@@ -393,7 +431,9 @@ def main():
     mmlab_install()
     # export
     proto_ncnn_install()
-    command('source ~/.bashrc')
+
+    check_env()
+    # command('source ~/.bashrc')
 
 
 if __name__ == '__main__':

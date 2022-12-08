@@ -1,6 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import argparse
 import os
+import os.path as osp
 from functools import partial
 
 import mmcv
@@ -45,8 +46,8 @@ def _demo_mm_inputs(input_shape, num_classes):
     input_shape = (1, 1, 16384)
     rng = np.random.RandomState(0)
     imgs = rng.rand(*input_shape)
-    gt_labels = rng.randint(
-        low=0, high=num_classes, size=(1, 1)).astype(np.uint8)
+    gt_labels = rng.randint(low=0, high=num_classes,
+                            size=(1, 1)).astype(np.uint8)
     mm_inputs = {
         'imgs': torch.FloatTensor(imgs).requires_grad_(True),
         'gt_labels': torch.LongTensor(gt_labels),
@@ -90,7 +91,10 @@ def pytorch2onnx(model,
         input_img, one_meta = preprocess_example_input(input_config)
         img_list, img_meta_list = [input_img], [[one_meta]]
         # replace original forward function
-        model.forward = partial(model.forward, img_metas=img_meta_list, return_loss=False, rescale=False)
+        model.forward = partial(model.forward,
+                                img_metas=img_meta_list,
+                                return_loss=False,
+                                rescale=False)
         model.forward = model.forward_dummy
     else:
         model.forward = partial(model.forward, img_metas={}, return_loss=False)
@@ -100,24 +104,41 @@ def pytorch2onnx(model,
 
     # support dynamic shape export
     if dynamic_export:
-        dynamic_axes = {'input': {0: 'batch', 2: 'width'}, 'output': {0: 'batch'}} if len(
-            input_shape) == 3 else {'input': {0: 'batch', 2: 'width', 3: 'height'}, 'output': {0: 'batch'}}
+        dynamic_axes = {
+            'input': {
+                0: 'batch',
+                2: 'width'
+            },
+            'output': {
+                0: 'batch'
+            }
+        } if len(input_shape) == 3 else {
+            'input': {
+                0: 'batch',
+                2: 'width',
+                3: 'height'
+            },
+            'output': {
+                0: 'batch'
+            }
+        }
     else:
         dynamic_axes = {}
 
     # export onnx
     with torch.no_grad():
 
-        torch.onnx.export(
-            model, input_img, output_file,
-            input_names=['input'],
-            output_names=['output'],
-            export_params=True,
-            keep_initializers_as_inputs=True,
-            dynamic_axes=dynamic_axes,
-            do_constant_folding=True,
-            verbose=show,
-            opset_version=opset_version)
+        torch.onnx.export(model,
+                          input_img,
+                          output_file,
+                          input_names=['input'],
+                          output_names=['output'],
+                          export_params=True,
+                          keep_initializers_as_inputs=True,
+                          dynamic_axes=dynamic_axes,
+                          do_constant_folding=True,
+                          verbose=show,
+                          opset_version=opset_version)
         print(f'Successfully exported ONNX model: {output_file}')
     model.forward = origin_forward
 
@@ -155,7 +176,9 @@ def pytorch2onnx(model,
 
         # get onnx output
         input_all = [node.name for node in onnx_model.graph.input]
-        input_initializer = [node.name for node in onnx_model.graph.initializer]
+        input_initializer = [
+            node.name for node in onnx_model.graph.initializer
+        ]
 
         net_feed_input = list(set(input_all) - set(input_initializer))
         assert (len(net_feed_input) == 1)
@@ -170,18 +193,43 @@ def pytorch2onnx(model,
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Convert Pytorch to ONNX')
-    parser.add_argument('--config', help='test config file path')
-    parser.add_argument('--checkpoint', help='checkpoint file')
-    parser.add_argument('--task', type=str, default='mmpose', help='The task type of the exported model')
+    parser.add_argument('--config', type=str, help='test config file path')
+    parser.add_argument('--checkpoint', type=str, help='checkpoint file')
+    parser.add_argument('--task',
+                        type=str,
+                        default='mmcls',
+                        help='The task type of the exported model')
     parser.add_argument('--input-img', type=str, help='Images for input')
     parser.add_argument('--show', action='store_true', help='show onnx graph')
-    parser.add_argument('--verify', action='store_true', default=False, help='verify the onnx model')
-    parser.add_argument('--output-file', type=str, default='tmp.onnx', help='Exported onnx file name')
-    parser.add_argument('--opset-version', type=int, default=10, help='Exported version of onnx operator set')
-    parser.add_argument('--simplify', action='store_true', default=False, help='Whether to simplify onnx model.')
-    parser.add_argument('--shape', type=int, nargs='+', default=[192], help='input data size')
-    parser.add_argument('--audio', action='store_true', default=False, help='Whether the input data is audio data')
-    parser.add_argument('--dynamic-export', action='store_true', default=False, help='Whether to export ONNX with dynamic input shape. \
+    parser.add_argument('--verify',
+                        action='store_true',
+                        default=False,
+                        help='verify the onnx model')
+    parser.add_argument('--output-file',
+                        type=str,
+                        help='Exported onnx file name')
+    parser.add_argument('--opset-version',
+                        type=int,
+                        default=10,
+                        help='Exported version of onnx operator set')
+    parser.add_argument('--simplify',
+                        action='store_true',
+                        default=False,
+                        help='Whether to simplify onnx model.')
+    parser.add_argument('--shape',
+                        type=int,
+                        nargs='+',
+                        default=[112],
+                        help='input data size')
+    parser.add_argument('--audio',
+                        action='store_true',
+                        default=False,
+                        help='Whether the input data is audio data')
+    parser.add_argument(
+        '--dynamic-export',
+        action='store_true',
+        default=False,
+        help='Whether to export ONNX with dynamic input shape. \
             Defaults to False.')
     args = parser.parse_args()
     return args
@@ -200,7 +248,10 @@ if __name__ == '__main__':
     elif len(args.shape) == 1:
         input_shape = (1, 3, args.shape[0], args.shape[0])
     elif len(args.shape) == 2:
-        input_shape = (1, 1,) + tuple(args.shape)
+        input_shape = (
+            1,
+            1,
+        ) + tuple(args.shape)
     else:
         raise ValueError('invalid input shape')
 
@@ -219,22 +270,31 @@ if __name__ == '__main__':
 
     # load checkpoint
     if args.checkpoint:
-        load_checkpoint(model=model, filename=args.checkpoint, map_location='cpu')
+        load_checkpoint(model=model,
+                        filename=args.checkpoint,
+                        map_location='cpu')
 
     if not args.input_img:
-        args.input_img = os.path.join(os.path.dirname(__file__), '../demo/demo.jpg')
+        args.input_img = os.path.join(os.path.dirname(__file__),
+                                      '../demo/demo.jpg')
 
-    output_file = os.path.join(os.path.dirname(args.checkpoint), args.output_file)
+    if args.output_file:
+        output_file = os.path.join(os.path.dirname(args.checkpoint),
+                                   args.output_file)
+    else:
+        output_file = osp.abspath(args.checkpoint)
+        bn = osp.basename(output_file)
+        dn = osp.dirname(output_file)
+        output_file = osp.join(dn, bn.replace('.pth', '.onnx'))
 
     # convert model to onnx file
-    pytorch2onnx(
-        model,
-        input_shape,
-        normalize=normalize_cfg,
-        input_img=args.input_img,
-        opset_version=args.opset_version,
-        show=args.show,
-        dynamic_export=args.dynamic_export,
-        output_file=output_file,
-        do_simplify=args.simplify,
-        verify=args.verify)
+    pytorch2onnx(model,
+                 input_shape,
+                 normalize=normalize_cfg,
+                 input_img=args.input_img,
+                 opset_version=args.opset_version,
+                 show=args.show,
+                 dynamic_export=args.dynamic_export,
+                 output_file=output_file,
+                 do_simplify=args.simplify,
+                 verify=args.verify)

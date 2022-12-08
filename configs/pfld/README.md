@@ -16,7 +16,7 @@ demonstrate the efficacy of our design and reveal its superior performance over 
 widely-adopted challenging benchmarks, i.e., 300W (including iBUG, LFPW, AFW, HELEN, and XM2VTS) and AFLW. Our model can
 be merely 2.1Mb of size and reach over 140 fps per face on a mobile phone(Qualcomm ARM 845 processor) with high
 precision, making it attractive for large-scale or real-time applications. We have made our practical system based on
-PFLD 0.25X model publicly available at http://sites.google. com/view/xjguo/fld for encouraging comparisons and
+PFLD 0.25X model publicly available at <http://sites.google>. com/view/xjguo/fld for encouraging comparisons and
 improvements from the community.
 <div align=center>
 <img alt="PFLD" height="320" src="../../demo/PFLD.png" width="640"/>
@@ -24,7 +24,9 @@ improvements from the community.
 
 ## Results and Models
 
-    TODO
+| Backbone | Scale | param(K) | flop(G) | loss | config |  pth  | onnx | ncnn |
+| :------: | :---: | :------: | :-----: | :--: | :----: | :------: | :----:| :----:|
+| MoboNetv2|  112  |  140.55  |  0.0593 |3.5e-5| [config](./pfld_mv2n_112.py)| [model](https://github.com/Seeed-Studio/edgelab/releases/download/model_zoom/pfld_mv2n_112.pth) |[onnx](https://github.com/Seeed-Studio/edgelab/releases/download/model_zoom/pfld_mv2n_112.onnx)|[ncnn](https://github.com/Seeed-Studio/edgelab/releases/download/model_zoom/pfld_mv2n_112.ncnn.zip)|
 
 ## Citation
 

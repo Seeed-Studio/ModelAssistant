@@ -91,6 +91,7 @@ def parse_args():
         '--autoscale-lr',                       #TODO
         action='store_true',
         help='enable automatically scaling LR.')
+    parser.add_argument('--data', help='point data root manually')
     args = parser.parse_args()
     if 'LOCAL_RANK' not in os.environ:
         os.environ['LOCAL_RANK'] = str(args.local_rank)
@@ -164,6 +165,15 @@ def main():
 
     # set multi-process settings
     setup_multi_processes(cfg)
+
+
+
+    if args.data is not None:
+        args.data = os.path.abspath(args.data)
+        cfg.data_root = args.data
+        cfg.data.train.data_root = args.data
+        cfg.data.val.data_root = args.data
+        cfg.data.test.data_root = args.data
 
     # set cudnn_benchmark
     if cfg.get('cudnn_benchmark', False):

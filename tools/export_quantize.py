@@ -68,7 +68,7 @@ def export_ncnn(onnx_path):
     onnx_name = osp.basename(onnx_path)
     ncnn_param = osp.join(onnx_dir, onnx_name.replace('.onnx', '.param'))
     ncnn_bin = osp.join(onnx_dir, onnx_name.replace('.onnx', '.bin'))
-    if command(f'onnx2ncnn {onnx_path} {ncnn_param} {ncnn_bin}'):
+    if command(f'{onnx2ncnn} {onnx_path} {ncnn_param} {ncnn_bin}'):
         loger.info('ncnn export succeeded!')
 
 
@@ -91,7 +91,7 @@ def ncnn_quant(onnx_path, image_dir='./img_e', img_size=[112, 112, 3]):
 
     # optimizer model
     if command(
-            f"ncnnoptimize {ncnn_param} {ncnn_bin} {ncnn_param_opt} {ncnn_bin_opt} 0"
+            f"{ncnnoptimize} {ncnn_param} {ncnn_bin} {ncnn_param_opt} {ncnn_bin_opt} 0"
     ):
         loger.info('export optimizer ncnn succeeded!')
     else:
@@ -100,7 +100,7 @@ def ncnn_quant(onnx_path, image_dir='./img_e', img_size=[112, 112, 3]):
 
     # gener calibration datasets
     command(f"find {image_dir} -type f > imagelist.txt")
-    cmd = f"ncnn2table {ncnn_param_opt} {ncnn_bin_opt} imagelist.txt {ncnn_table} mean=[104,117,123] norm=[0.017,0.017,0.017] shape={img_size} pixel=BGR thread=8 method=kl"
+    cmd = f"{ncnn2table} {ncnn_param_opt} {ncnn_bin_opt} imagelist.txt {ncnn_table} mean=[104,117,123] norm=[0.017,0.017,0.017] shape={img_size} pixel=BGR thread=8 method=kl"
 
     # gener calibration table
     if command(cmd):
@@ -110,7 +110,7 @@ def ncnn_quant(onnx_path, image_dir='./img_e', img_size=[112, 112, 3]):
         return
 
     if command(
-            f"ncnn2int8 {ncnn_param_opt} {ncnn_bin_opt} {ncnn_param_int8} {ncnn_bin_int8} {ncnn_table}"
+            f"{ncnn2int8} {ncnn_param_opt} {ncnn_bin_opt} {ncnn_param_int8} {ncnn_bin_int8} {ncnn_table}"
     ):  # quantize model
         loger.info('ncnn quantize succeeded!')
 
@@ -143,7 +143,7 @@ def ncnn_fp16(onnx_path):
         export_ncnn(onnx_path)
 
     if command(
-            f"ncnnoptimize {ncnn_param} {ncnn_bin} {ncnn_param_opt} {ncnn_bin_opt} 65536"
+            f"{ncnnoptimize} {ncnn_param} {ncnn_bin} {ncnn_param_opt} {ncnn_bin_opt} 65536"
     ):
         loger.info('export ncnn fp16 format succeeded!')
     else:
@@ -152,6 +152,7 @@ def ncnn_fp16(onnx_path):
 
 
 def main(args):
+    global onnx2ncnn, ncnnoptimize, ncnn2table,ncnn2int8,ncnnmerge,ncnn
     func_dict = {
         'onnx_fp16': onnx_fp16,
         'onnx_quan_st': onnx_quant_static,
@@ -160,9 +161,18 @@ def main(args):
         'ncnn_fp16': ncnn_fp16,
         'ncnn_quan': ncnn_quant
     }
+    home=os.environ['HOME']
+    ncnn_dir = f"{home}/software/ncnn/build"
+    onnx2ncnn = osp.join(ncnn_dir,'tools','onnx','onnx2ncnn')
+    ncnnoptimize = osp.join(ncnn_dir,'tools','ncnnoptimize')
+    ncnn2table = osp.join(ncnn_dir,'tools','quantize','ncnn2table')
+    ncnn2int8 = osp.join(ncnn_dir,'tools','quantize','ncnn2int8')
+    ncnnmerge = osp.join(ncnn_dir,'tools','ncnnmerge')
+    
+
     onnx_path = onnx_path = osp.abspath(args.onnx)
     export_type = args.type
-    imags_dir = args.imags_path
+    imags_dir = args.images
 
     assert len(export_type), "At least one export type needs to be selected"
 

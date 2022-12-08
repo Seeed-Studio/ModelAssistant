@@ -1,1 +1,1 @@
-from .hook import Audio_hooks
+from .hook import Audio_hooks, TextLoggerHook
