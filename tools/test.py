@@ -30,7 +30,7 @@ def parse_args():
     parser.add_argument('checkpoint', help='checkpoint file')
     parser.add_argument('--out', help='output result file')
     parser.add_argument('--data', help='point data root manually')
-    parser.add_argument('--show',
+    parser.add_argument('--no-show',
                         action='store_true',
                         help='Whether to display the results after inference')
     parser.add_argument('--save-dir',
@@ -124,14 +124,12 @@ def main():
         distributed = True
         init_dist(args.launcher, **cfg.dist_params)
 
-
     if args.data is not None:
         args.data = os.path.abspath(args.data)
         cfg.data_root = args.data
         cfg.data.train.data_root = args.data
         cfg.data.val.data_root = args.data
         cfg.data.test.data_root = args.data
-
 
     # step 1: give default values and override (if exist) from cfg.data
     loader_cfg = {
@@ -185,12 +183,12 @@ def main():
     eval_config = cfg.get('evaluation', {})
     eval_config = merge_configs(eval_config, dict(metric=args.eval))
 
-    if args.show or args.save_dir:
+    if not args.no_show or args.save_dir:
         for out in outputs:
             model.module.show_result(
                 out['image_file'][0],
                 out['result'],
-                show=args.show if args.show else False,
+                show=False if args.no_show else True,
                 win_name='test',
                 save_path=args.save_dir if args.save_dir else None,
                 **out)
@@ -200,8 +198,10 @@ def main():
             print(f'\nwriting results to {args.out}')
             mmcv.dump(outputs, args.out)
         results = dataset.evaluate(outputs, **eval_config)
+        print('\n', '=' * 30)
         for k, v in sorted(results.items()):
             print(f'{k}: {v}')
+        print('=' * 30)
 
 
 if __name__ == '__main__':

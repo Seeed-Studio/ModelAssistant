@@ -77,7 +77,7 @@ class MeterData(Dataset, metaclass=ABCMeta):
         ann['img'] = img
         ann['keypoints'] = keypoints
         ann['image_file'] = DC(img_file, cpu_only=True)
-        ann['hw']=[h,w]
+        ann['hw'] = [h, w]
 
         return ann
 
@@ -90,7 +90,11 @@ class MeterData(Dataset, metaclass=ABCMeta):
             torch.mean(
                 torch.tensor([
                     i['loss'] for i in results if 'loss' in i.keys()
-                ])).cpu().item()
+                ])).cpu().item(),
+            'Acc':
+            torch.mean(
+                torch.tensor([i['Acc'] for i in results
+                              if 'Acc' in i.keys()])).cpu().item()
         }
 
     def parse_ann(self):
