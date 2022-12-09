@@ -6,4 +6,4 @@ from .losses import *
 from datasets import *
 
 __all__ = ['SoundNetRaw', 'Speechcommand', 'PFLD', 'Audio_head', 'Audio_classify', 'LabelSmoothCrossEntropyLoss',
-           'PFLDLoss']
+           'PFLDLoss','PFLDhead']

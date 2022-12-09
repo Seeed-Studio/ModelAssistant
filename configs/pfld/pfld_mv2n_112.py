@@ -1,12 +1,21 @@
 _base_ = '../_base_/pose_default_runtime.py'
-custom_imports = dict(imports=['models', 'datasets','core'],
+custom_imports = dict(imports=['models', 'datasets', 'core'],
                       allow_failed_imports=False)
 model = dict(type='PFLD',
-             backbone=dict(type='PFLDInference', ),
+             backbone=dict(type='PfldMobileNetV2',
+                           inchannel=3,
+                           layer1=[16, 16, 16, 16],
+                           layer2=[32, 32, 32, 32, 32],
+                           out_channel=16),
+             head=dict(
+                 type='PFLDhead',
+                 num_point=1,
+                 input_channel=16,
+             ),
              loss_cfg=dict(type='PFLDLoss'))
 
 train_pipeline = [
-    dict(type="Resize", height=112, width=112,interpolation=0),
+    dict(type="Resize", height=112, width=112, interpolation=0),
     dict(type='ColorJitter', brightness=0.3, p=0.5),
     # dict(type='GaussNoise'),
     dict(type='MedianBlur', blur_limit=3, p=0.3),
@@ -16,37 +25,33 @@ train_pipeline = [
     dict(type='Affine', translate_percent=[0.05, 0.1], p=0.6)
 ]
 
-val_pipeline=[
-    dict(type="Resize", height=112, width=112)
-]
+val_pipeline = [dict(type="Resize", height=112, width=112)]
 
 # dataset settings
 dataset_type = 'MeterData'
 
-data_root='~/datasets/meter'
+data_root = '~/datasets/meter'
 
 data = dict(
     samples_per_gpu=32,
     workers_per_gpu=4,
-    train=dict(
-        type=dataset_type,
-        data_root=data_root,
-        index_file=r'train/annotations.txt',
-        pipeline=train_pipeline,
-        test_mode=False),
+    train=dict(type=dataset_type,
+               data_root=data_root,
+               index_file=r'train/annotations.txt',
+               pipeline=train_pipeline,
+               test_mode=False),
     val=dict(type=dataset_type,
              data_root=data_root,
              index_file=r'val/annotations.txt',
              pipeline=val_pipeline,
              test_mode=True),
-    test=dict(
-        type=dataset_type,
-        data_root=data_root,
-        index_file=r'val/annotations.txt',
-        pipeline=val_pipeline,
-        test_mode=True
-        # dataset_info={{_base_.dataset_info}}
-    ))
+    test=dict(type=dataset_type,
+              data_root=data_root,
+              index_file=r'val/annotations.txt',
+              pipeline=val_pipeline,
+              test_mode=True
+              # dataset_info={{_base_.dataset_info}}
+              ))
 
 evaluation = dict(save_best='loss')
 optimizer = dict(type='Adam', lr=0.0001, betas=(0.9, 0.99), weight_decay=1e-6)
@@ -56,7 +61,7 @@ lr_config = dict(policy='step',
                  warmup='linear',
                  warmup_iters=400,
                  warmup_ratio=0.0001,
-                 step=[150, 300, 450])
+                 step=[400, 440, 490])
 # lr_config = dict(
 #     policy='OneCycle',
 #     max_lr=0.0001,
