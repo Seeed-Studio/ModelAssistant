@@ -16,8 +16,6 @@ from mmpose.datasets import build_dataloader, build_dataset
 from mmpose.models import build_posenet
 from mmpose.utils import setup_multi_processes
 
-from tools.utils.load_data import test_load
-
 try:
     from mmcv.runner import wrap_fp16_model
 except ImportError:
@@ -31,8 +29,8 @@ def parse_args():
     parser.add_argument('config', help='test config file path')
     parser.add_argument('checkpoint', help='checkpoint file')
     parser.add_argument('--out', help='output result file')
-    parser.add_argument('--img-path', help='Test without profile data')
-    parser.add_argument('--show',
+    parser.add_argument('--data', help='point data root manually')
+    parser.add_argument('--no-show',
                         action='store_true',
                         help='Whether to display the results after inference')
     parser.add_argument('--save-dir',
@@ -126,6 +124,12 @@ def main():
         distributed = True
         init_dist(args.launcher, **cfg.dist_params)
 
+    if args.data is not None:
+        args.data = os.path.abspath(args.data)
+        cfg.data_root = args.data
+        cfg.data.train.data_root = args.data
+        cfg.data.val.data_root = args.data
+        cfg.data.test.data_root = args.data
 
     # step 1: give default values and override (if exist) from cfg.data
     loader_cfg = {
@@ -149,12 +153,10 @@ def main():
         **dict(samples_per_gpu=1),
         **cfg.data.get('test_dataloader', {})
     }
-    if args.img_path:
-        data_loader = test_load(args.img_path, cfg.val_pipeline)
-    else:
-        # build the dataloader
-        dataset = build_dataset(cfg.data.test, dict(test_mode=True))
-        data_loader = build_dataloader(dataset, **test_loader_cfg)
+
+    # build the dataloader
+    dataset = build_dataset(cfg.data.test, dict(test_mode=True))
+    data_loader = build_dataloader(dataset, **test_loader_cfg)
 
     # build the model and load checkpoint
     model = build_posenet(cfg.model)
@@ -181,12 +183,12 @@ def main():
     eval_config = cfg.get('evaluation', {})
     eval_config = merge_configs(eval_config, dict(metric=args.eval))
 
-    if args.show or args.save_dir:
+    if not args.no_show or args.save_dir:
         for out in outputs:
             model.module.show_result(
                 out['image_file'][0],
                 out['result'],
-                show=args.show if args.show else False,
+                show=False if args.no_show else True,
                 win_name='test',
                 save_path=args.save_dir if args.save_dir else None,
                 **out)
@@ -195,10 +197,11 @@ def main():
         if args.out:
             print(f'\nwriting results to {args.out}')
             mmcv.dump(outputs, args.out)
-        if not args.img_path:
-            results = dataset.evaluate(outputs, **eval_config)
-            for k, v in sorted(results.items()):
-                print(f'{k}: {v}')
+        results = dataset.evaluate(outputs, **eval_config)
+        print('\n', '=' * 30)
+        for k, v in sorted(results.items()):
+            print(f'{k}: {v}')
+        print('=' * 30)
 
 
 if __name__ == '__main__':
