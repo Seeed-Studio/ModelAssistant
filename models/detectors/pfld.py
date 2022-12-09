@@ -4,7 +4,7 @@ import os.path as osp
 
 from mmpose.models.builder import build_loss
 from mmpose.models.detectors.base import BasePose
-from mmpose.models.builder import MESH_MODELS, build_backbone
+from mmpose.models.builder import MESH_MODELS, build_backbone, build_head
 
 from models.utils.computer_acc import pose_acc
 
@@ -12,9 +12,10 @@ from models.utils.computer_acc import pose_acc
 @MESH_MODELS.register_module()
 class PFLD(BasePose):
 
-    def __init__(self, backbone, loss_cfg, pretrained=None):
+    def __init__(self, backbone, head, loss_cfg, pretrained=None):
         super(PFLD, self).__init__()
         self.backbone = build_backbone(backbone)
+        self.head = build_head(head)
         self.computer_loss = build_loss(loss_cfg)
         self.pretrained = pretrained
 
@@ -36,12 +37,14 @@ class PFLD(BasePose):
 
     def forward_train(self, img, keypoints, **kwargs):
         x = self.backbone(img)
+        x = self.head(x)
         acc = pose_acc(x.cpu().detach().numpy(),
                        keypoints.cpu().detach().numpy(), kwargs['hw'])
         return {'loss': self.computer_loss(x, keypoints), 'Acc': acc}
 
     def forward_test(self, img, keypoints, **kwargs):
         x = self.backbone(img)
+        x = self.head(x)
         result = {}
         if keypoints is not None:
             loss = self.computer_loss(x, keypoints)
@@ -53,6 +56,7 @@ class PFLD(BasePose):
 
     def forward_dummy(self, img, **kwargs):
         x = self.backbone(img)
+        x = self.head(x)
         return x
 
     def show_result(self,
