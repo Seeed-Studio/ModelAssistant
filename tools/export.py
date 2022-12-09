@@ -23,6 +23,7 @@ def parse_args():
 
 
 def representative_dataset_gen(img_root, img_size):
+    assert os.path.exists(img_root), f'{img_root} not exists, please check out!'
     format = ['jpg', 'png', 'jpeg']
     for i, fn in enumerate(os.listdir(img_root)):
         if fn.split(".")[-1].lower() not in format:
@@ -93,6 +94,7 @@ def main(args):
     name = args.name
     shape = args.shape
 
+    weights = os.path.abspath(weights)
     f = str(weights).replace('.pth', '_int8.tflite')
     # save_dir = Path(args.save)
     # save_dir.mkdir(parents=True, exist_ok=True)
@@ -104,7 +106,7 @@ def main(args):
     keras_out = pfld_keras(model, shape)
     tflite_model = pfld_tflite(keras_out, int8=True, image_root=data_root)
     open(f, "wb").write(tflite_model)
-    print(f'TFlite export sucess, saved as {f}.')
+    print(f'TFlite export sucess, saved as {f}')
 
 
 if __name__ == '__main__':

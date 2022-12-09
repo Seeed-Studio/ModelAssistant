@@ -4,7 +4,7 @@ from tensorflow import keras
 
 class TFBN(keras.layers.Layer):
     def __init__(self, w=None, name=None):
-        super(TFBN, self).__init__()
+        super().__init__()
         self.n = [f'{name}.bias',
                   f'{name}.weight',
                   f'{name}.running_mean',
@@ -135,7 +135,7 @@ class TFDense(keras.layers.Layer):
 
 class PFLDInference(keras.layers.Layer):
     def __init__(self, names=None, w=None):
-        super(PFLDInference, self).__init__()
+        super().__init__()
 
         self.conv1 = TFBaseConv2d(3, 32, kernel=3, stride=2, padding=1, bias=False,
                                   act='relu', bn=True, names=names[0], w=w)
