@@ -1,6 +1,6 @@
 # Seeed Studio Edgelab
 
-![EdgeLab-logo](https://user-images.githubusercontent.com/20147381/206450696-66aca04f-81a7-40c7-aa31-79f8b7b2b522.png)
+![EdgeLab-logo-2](https://user-images.githubusercontent.com/20147381/206665275-feceede2-c68c-4259-a4db-541b3bd25b2f.png)
 
 ## Introduction
 
