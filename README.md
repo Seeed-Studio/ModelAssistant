@@ -1,11 +1,10 @@
 # Seeed Studio Edgelab
 
-![EdgeLab-logo](https://user-images.githubusercontent.com/20147381/206450696-66aca04f-81a7-40c7-aa31-79f8b7b2b522.png)
+![EdgeLab-logo-2](https://user-images.githubusercontent.com/20147381/206665275-feceede2-c68c-4259-a4db-541b3bd25b2f.png)
 
 ## Introduction
 
 Seeed Studio Edgelab is an open-source project focused on embedded AI. We have optimized excellent algorithms from [OpenMMLab](https://github.com/open-mmlab) for real-world scenarios and made implemention more user-friendly, achieving faster and more accurate inference on embedded devices.
-
 
 ## What's included
 
@@ -17,13 +16,13 @@ In the real world, anomalous data is often difficult to identify, and even if it
 </details>
 
 <details>
-<summary>Object Detection</summary>
-YOLO-based object detection algorithms have achieved more than 0.75 on the COCO dataset for mAP. However, these object detection algorithms cannot run on low-cost hardware. EdgeLab optimizes YOLO algorithms to achieve good running speed and accuracy in low-end devices.
+<summary>Computer Vision</summary>
+Here we provide a number of computer vision algorithms such as object detection, image classification, image segmentation and pose estimation. However, these algorithms cannot run on low-cost hardware. EdgeLab optimizes these computer vision algorithms to achieve good running speed and accuracy in low-end devices.
 </details>
 
 <details>
-<summary>Scenario-specific</summary>
-Specific scenarios, such as the recognition of analog meters, or traditional digital meters.
+<summary>Scenario-Specific</summary>
+Specific scenarios, such as the recognition of analog meters, traditional digital meters and audio classfication.
 </details>
 
 <br>
@@ -39,12 +38,13 @@ EdgeLab provides a user-friendly platform that allows users to easily perform tr
 
 <details>
 <summary>Models with low computing power and high performance</summary>
-EdgeLab focuses on end-side AI algorithm research, and the algorithm models can be deployed on microprocessors, similar to ESP32, some Arduino development boards, and even in embedded SBCs such as Raspberry Pi.
+EdgeLab focuses on end-side AI algorithm research, and the algorithm models can be deployed on microprocessors, similar to <a href="https://www.espressif.com/en/products/socs/esp32">ESP32</a>, some <a href="https://arduino.cc">Arduino</a> development boards, and even in embedded SBCs such as <a href="https://www.raspberrypi.org">Raspberry Pi</a>.
 </details>
 
 <details>
-<summary>Supports mutiple formats for model export</summary> 
-At present, TensorFlow Lite is mainly used in microcontrollers, while ONNX is mainly used in devices with embedded Linux. There are some special formats such as TensorRT, OpenVINO, which are already well supported by OpenMMlab. EdgeLab has added TFLite model export for microcontrollers, which can be directly converted to uf2 format and drag-and-drop into the device for deployment.
+<summary>Supports mutiple formats for model export</summary>
+<a href="https://www.tensorflow.org/lite">TensorFlow Lite</a>
+is mainly used in microcontrollers, while <a href="https://onnx.ai">ONNX</a> is mainly used in devices with Embedded Linux. There are some special formats such as <a href="https://developer.nvidia.com/tensorrt">TensorRT</a>, <a href="https://docs.openvino.ai">OpenVINO</a> which are already well supported by OpenMMlab. EdgeLab has added TFLite model export for microcontrollers, which can be directly converted to uf2 format and drag-and-drop into the device for deployment.
 </details>
 
 ## Explore more guides!
