@@ -1,6 +1,6 @@
 from .backbones import *
 from .detectors import *
-from .calssifiers import *
+from .classifiers import *
 from .heads import *
 from .losses import *
 from datasets import *
