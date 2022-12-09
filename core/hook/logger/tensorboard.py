@@ -1,9 +1,7 @@
 import os.path as osp
-from typing import Optional, OrderedDict, Dict, Union
+from typing import Optional, Dict, Union
 
-import torch
 from mmcv.runner import HOOKS
-from mmcv.fileio.file_client import FileClient
 from mmcv.runner.dist_utils import master_only
 from mmcv.utils import TORCH_VERSION, digit_version
 from mmcv.runner.hooks.logger.text import TextLoggerHook
@@ -54,23 +52,6 @@ class TensorboardLoggerHook(TextLoggerHook):
             self.log_dir = osp.join(runner.work_dir, 'tf_logs')
         self.writer = SummaryWriter(self.log_dir)
 
-        if self.out_dir is not None:
-            self.file_client = FileClient.infer_client(self.file_client_args,
-                                                       self.out_dir)
-            # The final `self.out_dir` is the concatenation of `self.out_dir`
-            # and the last level directory of `runner.work_dir`
-            basename = osp.basename(runner.work_dir.rstrip(osp.sep))
-            self.out_dir = self.file_client.join_path(self.out_dir, basename)
-            runner.logger.info(
-                f'Text logs will be saved to {self.out_dir} by '
-                f'{self.file_client.name} after the training process.')
-
-        self.start_iter = runner.iter
-        self.json_log_path = osp.join(runner.work_dir,
-                                      f'{runner.timestamp}.log.json')
-        if runner.meta is not None:
-            self._dump_log(runner.meta, runner)
-
     @master_only
     def log(self, runner) -> None:
         tags = self.get_loggable_tags(runner, allow_text=True)
@@ -79,38 +60,9 @@ class TensorboardLoggerHook(TextLoggerHook):
                 self.writer.add_text(tag, val, self.get_iter(runner))
             else:
                 self.writer.add_scalar(tag, val, self.get_iter(runner))
-
-        if 'eval_iter_num' in runner.log_buffer.output:
-            # this doesn't modify runner.iter and is regardless of by_epoch
-            cur_iter = runner.log_buffer.output.pop('eval_iter_num')
-        else:
-            cur_iter = self.get_iter(runner, inner_iter=True)
-
-        log_dict = OrderedDict(mode=self.get_mode(runner),
-                               epoch=self.get_epoch(runner),
-                               iter=cur_iter)
-
-        # only record lr of the first param group
-        cur_lr = runner.current_lr()
-        if isinstance(cur_lr, list):
-            log_dict['lr'] = cur_lr[0]
-        else:
-            assert isinstance(cur_lr, dict)
-            log_dict['lr'] = {}
-            for k, lr_ in cur_lr.items():
-                assert isinstance(lr_, list)
-                log_dict['lr'].update({k: lr_[0]})
-
-        # if 'time' in runner.log_buffer.output:
-        # statistic memory
-        if torch.cuda.is_available():
-            log_dict['memory'] = self._get_max_memory(runner)
-        log_dict = dict(log_dict, **runner.log_buffer.output)  # type: ignore
-        self.log_dict = log_dict
-        self._log_info(log_dict, runner)
-        self._dump_log(log_dict, runner)
-        return log_dict
+        return super().log(runner)
 
     @master_only
     def after_run(self, runner) -> None:
+        super().after_run(runner)
         self.writer.close()
