@@ -6,9 +6,8 @@
 
 Seeed Studio Edgelab is an open-source project focused on embedded AI. We have optimized excellent algorithms from [OpenMMLab](https://github.com/open-mmlab) for real-world scenarios and made implemention more user-friendly, achieving faster and more accurate inference on embedded devices.
 
-OpenMMLab currently has 15 algorithm libraries covering many directions such as classification, object detection, segmentation, pose estimation, etc. There are more than 250 algorithm implementations, but like most algorithms on the market today, not many of these algorithms can be implemented in real products or limited to high-performance GPUs. Based on OpenMMLab, EdgeLab selects algorithms that meet the hardware performance and optimizes the algorithm implementation according to the required  scenarios, so that the algorithms can run faster, with less power consumption and more accurately in the devices. 
 
-## What's included?
+## What's included
 
 Currently we support the following directions of algorithms:
 
@@ -20,11 +19,6 @@ In the real world, anomalous data is often difficult to identify, and even if it
 <details>
 <summary>Object Detection</summary>
 YOLO-based object detection algorithms have achieved more than 0.75 on the COCO dataset for mAP. However, these object detection algorithms cannot run on low-cost hardware. EdgeLab optimizes YOLO algorithms to achieve good running speed and accuracy in low-end devices.
-</details>
-
-<details>
-<summary>Discrete Classification</summary>
-Except for sound and visual, most of the data in the real world are discrete, and the data can only produce results after classification.
 </details>
 
 <details>
