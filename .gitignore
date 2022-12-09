@@ -247,3 +247,10 @@ fabric.properties
 
 #default work dir
 work_dirs/
+
+#example work dir
+examples/grove_ai/himax_we1_sdk/
+examples/grove_ai/tensorflow/
+examples/grove_ai/obj_socket_24/
+examples/grove_ai/third_party/
+examples/grove_ai/tools/
