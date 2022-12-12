@@ -118,6 +118,11 @@ def mkdir_work(work_dir):
 
 
 def main():
+    PWD = os.environ['PWD']
+    #check PWD in os.environ['PYTHONPATH']
+    if PWD not in os.environ['PYTHONPATH']:
+        os.environ['PYTHONPATH'] += ':' + PWD
+        
     args = parse_args()
     train_type = args.type
     cfg = Config.fromfile(args.config)

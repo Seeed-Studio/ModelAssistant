@@ -91,7 +91,11 @@ def merge_configs(cfg1, cfg2):
 
 def main():
     args = parse_args()
-
+    PWD = os.environ['PWD']
+    #check PWD in os.environ['PYTHONPATH']
+    if PWD not in os.environ['PYTHONPATH']:
+        os.environ['PYTHONPATH'] += ':' + PWD
+    
     cfg = Config.fromfile(args.config)
 
     if args.cfg_options is not None:
