@@ -17,7 +17,7 @@ openmim
 
 # vision
 opencv-python
-albumentations
+albumentations>=1.2.1
 pyyaml
 pillow
 pandas
