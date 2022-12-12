@@ -28,3 +28,4 @@ onnx
 onnxruntime
 onnxsim
 onnxmltools
+tensorflow
