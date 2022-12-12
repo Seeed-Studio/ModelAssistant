@@ -1,9 +1,9 @@
-checkpoint_config = dict(interval=50)
+checkpoint_config = dict(interval=10)
 
 log_config = dict(
     interval=5,
     hooks=[
-        dict(type='TextLoggerHook'),
+        dict(type='TextLoggerHook', ndigits=6),
         # dict(type='TensorboardLoggerHook')
         # dict(type='PaviLoggerHook') # for internal services
     ])
