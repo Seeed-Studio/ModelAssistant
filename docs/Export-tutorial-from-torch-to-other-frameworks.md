@@ -6,7 +6,7 @@
 
 Quantize the weight of the model trained by torch from float32 to int8, thereby reducing memory and computing power requirements, 
 so the model can be applied to low-power embedded devices. The current mainstream 
-quantization method is TFLite, we provides the conversion method flow as below.
+quantization method is TFLite, we provides the conversion method flow for model supported in the repository as below.
 
 ### Preparation
 1. Make sure the torch model is ready.
@@ -16,13 +16,14 @@ It is important to ensure that the representative dataset used is similar to the
 
 #### Python command
 ```shell
-python .\tool\export.py --weights $WEIGHTS_PATH --data_root $REPRESENTATIVE_DATASET --name $MODEL_TYPE --shape $INPUT_SHAPE
+python .\tool\export.py --weights $WEIGHTS_PATH --data_root $REPRESENTATIVE_DATASET --name $MODEL_TYPE --shape $INPUT_SHAPE --classes $AUDIO_CLASSES
 ```
 ##### Parameters description
-- `$WEIGHTS_PATH` Path of torch model
-- `$REPRESENTATIVE_DATASET` Path to representative dataset
-- `$MODEL_TYPE` Type of model needs to be converted.
-- `$INPUT_SHAPE` Shape of input
+- `$WEIGHTS_PATH` Path of torch model.
+- `$REPRESENTATIVE_DATASET` Path to representative dataset.
+- `$MODEL_TYPE` Type of model needs to be converted, ['pfld', 'audoo'].
+- `$INPUT_SHAPE` Shape of input, default: pfld model: '112' or '112, 112', audio model: '8192'.
+- `$AUDIO_CLASSES` Output numbers only for audio models, default: '4'.
 
 ### Example
 - Converting the pfld model (pfld.pth) from torch to tflite, 
@@ -30,7 +31,8 @@ the representative dataset (pfld_data) is located in the root
 directory, the weights of torch model is also located in the root directory, 
 and the input image size is set to 112.
 
-**Note：** TFLite model is saved in same path as torch model.
+**Note：** TFLite model is saved in same path as torch model. For audio model,
+`--classes` parameter needed if audio model outputs number is unequal to 4.
 
 ### Command
 ```shell
