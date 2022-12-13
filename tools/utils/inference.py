@@ -4,6 +4,7 @@ import cv2
 import mmcv
 import ncnn
 import onnx
+import torch
 import numpy as np
 import onnxruntime
 import os.path as osp
@@ -21,6 +22,7 @@ class Inter():
                 if p.endswith('bin'): bin = p
             net.load_param(param)
             net.load_model(bin)
+            # net.opt.use_vulkan_compute = True
         elif model.endswith('onnx'):
             try:
                 net = onnx.load(model)
@@ -28,7 +30,10 @@ class Inter():
             except:
                 raise ValueError(
                     'onnx file have error,please check your onnx export code!')
-            net = onnxruntime.InferenceSession(model)
+            providers = [
+                'CUDAExecutionProvider', 'CPUExecutionProvider'
+            ] if torch.cuda.is_available() else ['CPUExecutionProvider']
+            net = onnxruntime.InferenceSession(model, providers=providers)
         elif model.endswith('tflite'):
             import tensorflow as tf
             inter = tf.lite.Interpreter
@@ -53,7 +58,9 @@ class Inter():
             img = np.array([img])
 
         if isinstance(self.inter, onnxruntime.InferenceSession):  # onnx
-            result = self.inter.run([output_name], {input_name: img})[0][0]
+            result = self.inter.run(
+                [self.inter.get_outputs()[0].name],
+                {self.inter.get_inputs()[0].name: img})[0][0]
         elif isinstance(self.inter, ncnn.Net):  # ncnn
             self.inter.opt.use_vulkan_compute = False
             extra = self.inter.create_extractor()
@@ -115,8 +122,8 @@ def show_point(keypoints,
     pass
     img = mmcv.imread(img_file, channel_order='bgr').copy()
     h, w = img.shape[:-1]
-    keypoints[:, ::2] = keypoints[:, ::2] * w 
-    keypoints[:, 1::2] = keypoints[:, 1::2] * h 
+    keypoints[:, ::2] = keypoints[:, ::2] * w
+    keypoints[:, 1::2] = keypoints[:, 1::2] * h
 
     for point in keypoints:
         if not isinstance(point, (float, int)):
