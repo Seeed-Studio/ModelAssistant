@@ -1,20 +1,22 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import argparse
 import os
-import os.path as osp
+import argparse
 import warnings
+import os.path as osp
 
 import mmcv
 import torch
-from mmcv import Config, DictAction
 from mmcv.cnn import fuse_conv_bn
-from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
+from mmcv import Config, DictAction
 from mmcv.runner import get_dist_info, init_dist, load_checkpoint
+from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
 
-from mmpose.apis import multi_gpu_test, single_gpu_test
-from mmpose.datasets import build_dataloader, build_dataset
 from mmpose.models import build_posenet
 from mmpose.utils import setup_multi_processes
+from mmpose.apis import multi_gpu_test, single_gpu_test
+from mmpose.datasets import build_dataloader, build_dataset
+
+from tools.utils.inference import Inter, inference_test, show_point
 
 try:
     from mmcv.runner import wrap_fp16_model
@@ -22,6 +24,30 @@ except ImportError:
     warnings.warn('auto_fp16 from mmpose will be deprecated from v0.15.0'
                   'Please install mmcv>=1.1.4')
     from mmpose.core import wrap_fp16_model
+
+
+def load_model(cfg, checkpoint, fuse=False):
+    if checkpoint.endswith(('pt', 'pth')):
+        model = build_posenet(cfg.model)
+        fp16_cfg = cfg.get('fp16', None)
+        if fp16_cfg is not None:
+            wrap_fp16_model(model)
+        load_checkpoint(model, checkpoint, map_location='cpu')
+        if fuse:
+            model = fuse_conv_bn(model)
+        model.eval()
+        pt = True
+    else:
+        if checkpoint.endswith(('.bin', '.param')):
+            name = osp.basename(checkpoint)
+            dir = osp.dirname(checkpoint)
+            base = osp.splitext(name)[0]
+            checkpoint = [
+                osp.join(dir, i) for i in [base + '.bin', base + '.param']
+            ]
+        model = Inter(checkpoint)
+        pt = False
+    return model, pt
 
 
 def parse_args():
@@ -91,11 +117,7 @@ def merge_configs(cfg1, cfg2):
 
 def main():
     args = parse_args()
-    PWD = os.environ['PWD']
-    #check PWD in os.environ['PYTHONPATH']
-    if PWD not in os.environ['PYTHONPATH']:
-        os.environ['PYTHONPATH'] += ':' + PWD
-    
+
     cfg = Config.fromfile(args.config)
 
     if args.cfg_options is not None:
@@ -163,25 +185,21 @@ def main():
     data_loader = build_dataloader(dataset, **test_loader_cfg)
 
     # build the model and load checkpoint
-    model = build_posenet(cfg.model)
-    fp16_cfg = cfg.get('fp16', None)
-    if fp16_cfg is not None:
-        wrap_fp16_model(model)
-    load_checkpoint(model, args.checkpoint, map_location='cpu')
+    model, pt = load_model(cfg, args.checkpoint, args.fuse_conv_bn)
 
-    if args.fuse_conv_bn:
-        model = fuse_conv_bn(model)
-
-    if not distributed:
-        model = MMDataParallel(model, device_ids=[args.gpu_id])
-        outputs = single_gpu_test(model, data_loader)
+    if pt:
+        if not distributed:
+            model = MMDataParallel(model, device_ids=[args.gpu_id])
+            outputs = single_gpu_test(model, data_loader)
+        else:
+            model = MMDistributedDataParallel(
+                model.cuda(),
+                device_ids=[torch.cuda.current_device()],
+                broadcast_buffers=False)
+            outputs = multi_gpu_test(model, data_loader, args.tmpdir,
+                                     args.gpu_collect)
     else:
-        model = MMDistributedDataParallel(
-            model.cuda(),
-            device_ids=[torch.cuda.current_device()],
-            broadcast_buffers=False)
-        outputs = multi_gpu_test(model, data_loader, args.tmpdir,
-                                 args.gpu_collect)
+        outputs = inference_test(model, data_loader)
 
     rank, _ = get_dist_info()
     eval_config = cfg.get('evaluation', {})
@@ -189,20 +207,27 @@ def main():
 
     if not args.no_show or args.save_dir:
         for out in outputs:
-            model.module.show_result(
-                out['image_file'][0],
-                out['result'],
-                show=False if args.no_show else True,
-                win_name='test',
-                save_path=args.save_dir if args.save_dir else None,
-                **out)
+            if pt:
+                model.module.show_result(
+                    out['image_file'][0],
+                    out['result'],
+                    show=False if args.no_show else True,
+                    win_name='test',
+                    save_path=args.save_dir if args.save_dir else None,
+                    **out)
+            else:
+                show_point(out['pred'],
+                           out['image_file'],
+                           save_path=args.save_dir if args.save_dir else None,
+                           not_show=args.no_show)
 
     if rank == 0:
         if args.out:
             print(f'\nwriting results to {args.out}')
             mmcv.dump(outputs, args.out)
         results = dataset.evaluate(outputs, **eval_config)
-        print('\n', '=' * 30)
+        print('\n')
+        print('=' * 30)
         for k, v in sorted(results.items()):
             print(f'{k}: {v}')
         print('=' * 30)
