@@ -1,3 +1,4 @@
+import os.path as osp
 from typing import List, AnyStr, Tuple
 
 import cv2
@@ -6,8 +7,6 @@ import ncnn
 import onnx
 import torch
 import numpy as np
-import onnxruntime
-import os.path as osp
 
 from models.utils.computer_acc import pose_acc
 
@@ -16,6 +15,12 @@ class Inter():
 
     def __init__(self, model: List or AnyStr or Tuple):
         if isinstance(model, list):
+            try:
+                import ncnn
+            except:
+                raise ImportError(
+                    'You have not installed ncnn yet, please execute the "pip install ncnn" command to install and run again'
+                )
             net = ncnn.Net()
             for p in model:
                 if p.endswith('param'): param = p
@@ -23,7 +28,14 @@ class Inter():
             net.load_param(param)
             net.load_model(bin)
             # net.opt.use_vulkan_compute = True
+            self.engine = 'ncnn'
         elif model.endswith('onnx'):
+            try:
+                import onnxruntime
+            except:
+                raise ImportError(
+                    'You have not installed onnxruntime yet, please execute the "pip install onnxruntime" command to install and run again'
+                )
             try:
                 net = onnx.load(model)
                 onnx.checker.check_model(net)
@@ -34,11 +46,18 @@ class Inter():
                 'CUDAExecutionProvider', 'CPUExecutionProvider'
             ] if torch.cuda.is_available() else ['CPUExecutionProvider']
             net = onnxruntime.InferenceSession(model, providers=providers)
+            self.engine = 'onnx'
         elif model.endswith('tflite'):
-            import tensorflow as tf
+            try:
+                import tensorflow as tf
+            except:
+                raise ImportError(
+                    'You have not installed tensorflow yet, please execute the "pip install tensorflow" command to install and run again'
+                )
             inter = tf.lite.Interpreter
             net = inter(model)
             net.allocate_tensors()
+            self.engine = 'tf'
         else:
             raise 'model file input error'
         self.inter = net
@@ -57,11 +76,11 @@ class Inter():
                 img = img.transpose(2, 1, 0)
             img = np.array([img])
 
-        if isinstance(self.inter, onnxruntime.InferenceSession):  # onnx
+        if self.engine == 'onnx':  # onnx
             result = self.inter.run(
                 [self.inter.get_outputs()[0].name],
                 {self.inter.get_inputs()[0].name: img})[0][0]
-        elif isinstance(self.inter, ncnn.Net):  # ncnn
+        elif self.engine == 'ncnn':  # ncnn
             self.inter.opt.use_vulkan_compute = False
             extra = self.inter.create_extractor()
             extra.input(input_name, ncnn.Mat(img[0]))
