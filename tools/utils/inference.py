@@ -3,7 +3,6 @@ from typing import List, AnyStr, Tuple
 
 import cv2
 import mmcv
-import ncnn
 import onnx
 import torch
 import numpy as np
