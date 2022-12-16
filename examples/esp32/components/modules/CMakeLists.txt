@@ -2,13 +2,15 @@ set(src_dirs
                 camera
                 lcd
                 model
-                algorithm)
+                algorithm
+                utils)
 
 set(include_dirs    
                     camera
                     lcd
                     model
-                    algorithm)
+                    algorithm
+                    utils)
 
 set(requires    esp32-camera
                 bus

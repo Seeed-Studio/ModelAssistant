@@ -5,6 +5,9 @@
 #include "algo_meter.hpp"
 #include "pfld_meter_model_data.h"
 
+#include "fb_gfx.h"
+#include "isp.h"
+
 #include "esp_log.h"
 #include "esp_camera.h"
 #include "esp_heap_caps.h"
@@ -67,9 +70,11 @@ static void task_process_handler(void *arg)
                 // run inference
                 long long start_time = esp_timer_get_time();
 
+                rgb565_to_rgb888(input->data.uint8, frame->buf, frame->width, frame->height, input->dims->data[1], input->dims->data[2], ROTATION_UP);
+
                 for (int i = 0; i < input->bytes; i++)
                 {
-                    input->data.int8[i] = frame->buf[i] - 128;
+                    input->data.int8[i] = input->data.uint8[i] - 128;
                 }
                 // Run the model on this input and make sure it succeeds.
 
@@ -80,11 +85,17 @@ static void task_process_handler(void *arg)
 
                 TfLiteTensor *output = interpreter->output(0);
 
-                obj.x = (uint16_t)output->data.int8[0];
-                obj.y = (uint16_t)output->data.int8[1];
+                obj.x = (uint16_t)(float(float(output->data.int8[0] - output->params.zero_point) * output->params.scale) * frame->width);
+                obj.y = (uint16_t)(float(float(output->data.int8[1] - output->params.zero_point) * output->params.scale) * frame->height);
+
+                ESP_LOGI(TAG, "(%d, %d)", obj.x, obj.y);
 
                 long long end_time = esp_timer_get_time();
                 ESP_LOGI(TAG, "Inference took %lld us", end_time - start_time);
+
+                fb_gfx_fillRect(frame, obj.x - 2, obj.y - 2, 4, 4, 0x0000FF);
+
+                vTaskDelay(10 / portTICK_PERIOD_MS);
             }
 
             if (xQueueFrameO)
@@ -178,6 +189,10 @@ int register_pfld_meter(const QueueHandle_t frame_i,
 
     // Get information about the memory area to use for the model's input.
     input = interpreter->input(0);
+
+    xTaskCreatePinnedToCore(task_process_handler, TAG, 4 * 1024, NULL, 5, NULL, 0);
+    if (xQueueEvent)
+        xTaskCreatePinnedToCore(task_event_handler, TAG, 4 * 1024, NULL, 5, NULL, 1);
 
     return 0;
 }
