@@ -12,10 +12,11 @@
 
 ### Python
 ```shell
-python .\tool\export.py --weights $WEIGHTS_PATH --data_root $REPRESENTATIVE_DATASET --name $MODEL_TYPE --shape $INPUT_SHAPE --classes $AUDIO_CLASSES
+python ./tool/export.py $CONFIGS --weights $WEIGHTS_PATH --data_root $REPRESENTATIVE_DATASET --name $MODEL_TYPE --shape $INPUT_SHAPE --classes $AUDIO_CLASSES
 ```
 
 ##### 参数说明
+- `$CONFIGS` 模型对应配置文件(configs目录下)。
 - `$WEIGHTS_PATH` torch模型权重的文件路径。
 - `$REPRESENTATIVE_DATASET` 代表数据集文件目录的路径。
 - `$MODEL_TYPE` 需要转换的模型类型, ['pfld', 'audio']。
@@ -31,6 +32,6 @@ torch模型权重位于根目录下，输入图片大小设置为112。
 
 ### Python
 ```shell
-python .\tool\export.py --weights pfld.pth --data_root pfld_data --name pfld --shape 112
+python ./tool/export.py configs/pfld/pfld_mv2n_112.py --weights pfld.pth --data_root pfld_data --name pfld --shape 112
 ```
 导出成功会显示相应的tflite保存路径。

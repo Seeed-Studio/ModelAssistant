@@ -29,11 +29,14 @@ class PFLD(BasePose):
         if self.with_keypoint:
             self.keypoint_head.init_weights()
 
-    def forward(self, img, keypoints=None, return_loss=True, **kwargs):
-        if return_loss:
-            return self.forward_train(img, keypoints, **kwargs)
+    def forward(self, img, flag=False, keypoints=None, return_loss=True, **kwargs):
+        if flag:
+            return self.forward_dummy(img)
         else:
-            return self.forward_test(img, keypoints, **kwargs)
+            if return_loss:
+                return self.forward_train(img, keypoints, **kwargs)
+            else:
+                return self.forward_test(img, keypoints, **kwargs)
 
     def forward_train(self, img, keypoints, **kwargs):
         x = self.backbone(img)

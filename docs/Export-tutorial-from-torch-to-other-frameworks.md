@@ -16,9 +16,10 @@ It is important to ensure that the representative dataset used is similar to the
 
 #### Python command
 ```shell
-python .\tool\export.py --weights $WEIGHTS_PATH --data_root $REPRESENTATIVE_DATASET --name $MODEL_TYPE --shape $INPUT_SHAPE --classes $AUDIO_CLASSES
+python ./tool/export.py $CONFIGS --weights $WEIGHTS_PATH --data_root $REPRESENTATIVE_DATASET --name $MODEL_TYPE --shape $INPUT_SHAPE --classes $AUDIO_CLASSES
 ```
 ##### Parameters description
+- `$CONFIGS` Configuration file for model(under the configs directory).
 - `$WEIGHTS_PATH` Path of torch model.
 - `$REPRESENTATIVE_DATASET` Path to representative dataset.
 - `$MODEL_TYPE` Type of model needs to be converted, ['pfld', 'audoo'].
@@ -36,7 +37,7 @@ and the input image size is set to 112.
 
 ### Command
 ```shell
-python .\tool\export.py --weights pfld.pth --data_root pfld_data --name pfld --shape 112
+python ./tool/export.py configs/pfld/pfld_mv2n_112.py --weights pfld.pth --data_root pfld_data --name pfld --shape 112
 ```
 
 If the export is successful, the corresponding tflite save path will be displayed.
