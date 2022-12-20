@@ -21,9 +21,10 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Convert PyTorch to TFLite')
     parser.add_argument('config', type=str, help='test config file path')
     parser.add_argument('--weights', type=str, help='torch model file path')
+    parser.add_argument('--fp16', action='store_true', help='FP16 quantization for tflite')
     parser.add_argument('--data_root', type=str, help='Representative dataset path, need at least 100 images')
-    parser.add_argument('--name', type=str, help='model name that needs to be converted to tflite, '
-                                                 'supported: pfld, audio, yolo')
+    parser.add_argument('--types', type=int, default=2, help='Type of representative dataset, '
+                                                             '1: 1D data(audio), 2: 2D data(image)')
     parser.add_argument('--shape', type=int, nargs='+', default=[112], help='input data size')
     parser.add_argument('--classes', type=int, default=4, help='output numbers only for audio model')
     # parser.add_argument('--save', type=str, help='Tflite model path')
@@ -33,14 +34,14 @@ def parse_args():
     return args
 
 
-def representative_dataset_pfld(img_root, img_size):
-    assert os.path.exists(img_root), f'{img_root} not exists, please check out!'
+def representative_dataset_2d(root, size):
+    assert os.path.exists(root), f'{root} not exists, please check out!'
     format = ['jpg', 'png', 'jpeg']
-    for i, fn in enumerate(os.listdir(img_root)):
+    for i, fn in enumerate(os.listdir(root)):
         if fn.split(".")[-1].lower() not in format:
             continue
-        img = cv2.imread(os.path.join(img_root, fn))
-        img = cv2.resize(img, (img_size[1], img_size[0]))[:, :, ::-1]
+        img = cv2.imread(os.path.join(root, fn))
+        img = cv2.resize(img, (size[1], size[0]))[:, :, ::-1]
         img = np.expand_dims(img, axis=0).astype(np.float32)
         img /= 255.0
 
@@ -49,7 +50,7 @@ def representative_dataset_pfld(img_root, img_size):
             break
 
 
-def representative_dataset_audio(root, size):
+def representative_dataset_1d(root, size):
     assert os.path.exists(root), f'{root} not exists, please check out!'
     format = ['wav']
     for i, fn in enumerate(os.listdir(root)):
@@ -59,7 +60,7 @@ def representative_dataset_audio(root, size):
         wave = torchaudio.transforms.Resample(sr, 8000)(wave)
         wave.squeeze_()
         wave = (wave / wave.__abs__().max()).float()
-        if wave.shape[0] >= 8192:
+        if wave.shape[0] >= size:
             max_audio_start = wave.size(0) - size
             audio_start = random.randint(0, max_audio_start)
             wave = wave[audio_start:audio_start + size]
@@ -142,21 +143,21 @@ def audio_keras(model, n_classes=4, size=8192):
     return keras_model
 
 
-def tflite(keras_model, int8, data_root, name):
+def tflite(keras_model, fp16, data_root, types):
     converter = tf.lite.TFLiteConverter.from_keras_model(keras_model)
     converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS]
     converter.target_spec.supported_types = [tf.float16]
     converter.optimizations = [tf.lite.Optimize.DEFAULT]
 
-    if int8:
-        if name == 'pfld':
+    if not fp16:
+        if types == 2:
             input_shape = (keras_model.inputs[0].shape[1], keras_model.inputs[0].shape[2])
-            converter.representative_dataset = lambda: representative_dataset_pfld(data_root, input_shape)
-        elif name == 'audio':
+            converter.representative_dataset = lambda: representative_dataset_2d(data_root, input_shape)
+        elif types == 1:
             input_shape = keras_model.inputs[0].shape[1]
-            converter.representative_dataset = lambda: representative_dataset_audio(data_root, input_shape)
+            converter.representative_dataset = lambda: representative_dataset_1d(data_root, input_shape)
         else:
-            raise Exception(f'{name} must in ["pfld", "audio"]')
+            raise Exception(f'{types} must be 1 or 2')
         converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
         converter.target_spec.supported_types = []
         converter.inference_input_type = tf.int8
@@ -168,11 +169,6 @@ def tflite(keras_model, int8, data_root, name):
 
 
 def main(args):
-    data_root = args.data_root
-    name = args.name
-    shape = args.shape
-    n_classes = args.classes
-
     weights = os.path.abspath(args.weights)
     f = str(weights).replace('.pth', '_int8.tflite')
     cfg = Config.fromfile(args.config)
@@ -181,18 +177,18 @@ def main(args):
     load_checkpoint(model, weights, map_location='cpu')
     model.cpu().eval()
 
-    if name == 'pfld':
+    if args.types == 2:
         tf_dict, gm = graph2dict(model)
         mm = ModelParser(tf_dict, gm)
-        imgsz = shape if len(shape) == 2 else [shape[0], shape[0]]
+        imgsz = args.shape if len(args.shape) == 2 else [args.shape[0], args.shape[0]]
         inputs = tf.keras.Input(shape=(*imgsz, 3))
         outputs = mm(inputs)
         keras_model = tf.keras.Model(inputs=inputs, outputs=outputs)
         keras_model.trainable = False
         # keras_model.summary()
-    elif name == 'audio':
-        keras_model = audio_keras(model, n_classes=n_classes)
-    tflite_model = tflite(keras_model, int8=True, data_root=data_root, name=name)
+    elif args.types == 1:
+        keras_model = audio_keras(model, args.n_classes)
+    tflite_model = tflite(keras_model, args.fp16, args.data_root, args.types)
     open(f, "wb").write(tflite_model)
     print(f'TFlite export sucess, saved as {f}')
 
