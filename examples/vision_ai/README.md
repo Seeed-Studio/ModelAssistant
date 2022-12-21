@@ -37,7 +37,7 @@ export PATH="$HOME/arc_gnu_2020.09_prebuilt_elf32_le_linux_install/bin:$PATH"
 
 ```sh
 git clone https://github.com/Seeed-Studio/Edgelab
-cd Edgelab/examples/grove_ai
+cd Edgelab/examples/vision_ai
 ```
 
 - **Step 6:** Download related third party, tflite model and library data (only need to download once)
@@ -94,10 +94,10 @@ Once the copying is finished **GROVEAI** drive will disapper. This is how we can
 
 - **Step 2:** Click **Connect** button. Then you will see a pop up on the browser. Select **Grove AI - Paired** and click **Connect**
   
-<div align=center><img width=1000 src="./asserts/meter_p1.png"/></div>
+<div align=center><img width=1000 src="./assets/meter_p1.png"/></div>
 
 - **Step 2:** Setup **config** 
 
 After that, you can see the real-time video stream on the web UI.
 
-<div align=center><img width=1000 src="./asserts/meter_p2.png"/></div>
+<div align=center><img width=1000 src="./assets/meter_p2.png"/></div>

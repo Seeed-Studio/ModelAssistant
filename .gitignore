@@ -7,7 +7,7 @@
 *.tiff
 *.heic
 *.JPG
-*.JPEG
+//*.JPEG
 *.PNG
 *.BMP
 *.TIF
@@ -255,3 +255,4 @@ work_dirs/
 *obj_socket_24/
 *third_party/
 *tools/
+!/examples/vision_ai/assets/*.*
