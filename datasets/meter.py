@@ -92,7 +92,7 @@ class MeterData(Dataset, metaclass=ABCMeta):
         keypoints[::2] = keypoints[::2] / w
         keypoints[1::2] = keypoints[1::2] / h
 
-        ann['img'] = img[:1]
+        ann['img'] = img
         ann['keypoints'] = keypoints
         ann['image_file'] = DC(img_file, cpu_only=True)
         ann['hw'] = [h, w]
