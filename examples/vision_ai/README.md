@@ -1,4 +1,4 @@
-# Grove - Vision AI Module
+# Edgelab For Vision AI Module
 This guide shows how to deploy your own tflite model to **Seeed Grove Vision AI Module**.
 
 ## How to build the firmware?
@@ -49,7 +49,7 @@ make download
 - **Step 7:** Compile the firmware
 
 ```sh
-make APP=meter
+make HW=grove_vision_ai APP=meter or make HW=sensecap_vision_ai APP=meter 
 make flash
 ```
 
@@ -65,8 +65,8 @@ python3 tools/ufconv/uf2conv.py -t 0 -c tools/image_gen_cstm/output/output.img -
 - **Step 9:** Convert pre-trained model meter.tflite to **model.uf2** file
 
 ```sh
-wget https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/pfld_meter_int8.tflite t
-python3 tools/ufconv/uf2conv.py -f GROVEAI -t 1 -c pfld_meter_int8.tflite -o model.uf2
+wget https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/pfld_meter_int8.tflite 
+python3 tools/ufconv/uf2conv.py -t 1 -c pfld_meter_int8.tflite -o model.uf2
 ```
 ## How to flash the firmware?
 

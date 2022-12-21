@@ -78,11 +78,14 @@ extern "C" int tflitemicro_algo_init()
         return -1;
     }
 
-    static tflite::MicroMutableOpResolver<12> micro_op_resolver;
+    static tflite::MicroMutableOpResolver<15> micro_op_resolver;
     micro_op_resolver.AddPad();
     micro_op_resolver.AddAdd();
     micro_op_resolver.AddRelu();
     micro_op_resolver.AddMean();
+    micro_op_resolver.AddPack();
+    micro_op_resolver.AddShape();
+    micro_op_resolver.AddReshape();
     micro_op_resolver.AddConv2D();
     micro_op_resolver.AddQuantize();
     micro_op_resolver.AddMaxPool2D();

@@ -34,7 +34,12 @@
 #define LOGGER_LEVEL 3
 
 
+#ifdef SENSECAP_VISION_AI
+#include "./boards/sensecap_vision_ai_config.h"
+#elif defined GROVE_VISION_AI
 #include "./boards/grove_vision_ai_config.h"
+#endif
+
 
 #define IGNORE_FIRST_X_PICS 0
 
