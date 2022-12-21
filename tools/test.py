@@ -210,13 +210,13 @@ def main():
             if pt:
                 model.module.show_result(
                     out['image_file'][0],
-                    out['result'],
+                    out['result'][0],
                     show=False if args.no_show else True,
                     win_name='test',
                     save_path=args.save_dir if args.save_dir else None,
                     **out)
             else:
-                show_point(out['pred'],
+                show_point(out['pred'][0],
                            out['image_file'],
                            save_path=args.save_dir if args.save_dir else None,
                            not_show=args.no_show)
