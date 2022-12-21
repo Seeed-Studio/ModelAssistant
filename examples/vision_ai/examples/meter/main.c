@@ -87,11 +87,14 @@ void main(void)
         volatile uint32_t jpeg_size;
         datapath_get_jpeg_img(&jpeg_addr, &jpeg_size);
         hx_drv_webusb_write_vision(jpeg_addr, jpeg_size);
-        tflitemicro_algo_get_preview(preview, 1024);
-        if (strlen(preview) > 0)
+        if (ercode == 0)
         {
-            LOGGER_INFO("%s\r", preview);
-            hx_drv_webusb_write_text(preview, strlen(preview));
+            tflitemicro_algo_get_preview(preview, 1024);
+            if (strlen(preview) > 0)
+            {
+                LOGGER_INFO("%s\r", preview);
+                hx_drv_webusb_write_text(preview, strlen(preview));
+            }
         }
     }
 

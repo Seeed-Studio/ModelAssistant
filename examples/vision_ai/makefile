@@ -7,13 +7,13 @@ RM = rm -rf
 DL = curl -Ls -f
 UNZIP = unzip 
 
-SDK_LINK = https://files.seeedstudio.com/grove_ai_vision/grove_ai_sdk_v01.zip
+SDK_LINK = https://files.seeedstudio.com/grove_ai_vision/vision_ai_sdk_v01.zip
 SDK_LOC = .
-SDK_NAME = grove_ai_sdk_v01.zip
+SDK_NAME = vision_ai_sdk_v01.zip
 
 
 APP?=meter
-HW?=grove_ai
+HW?=grove_vision_ai
 ##
 # root dir of embARC
 ##
@@ -38,6 +38,8 @@ include $(APP_ROOT)/app.mk
 
 
 COMMON_COMPILE_PREREQUISITES += makefile
+
+APPL_DEFINES += -D$(shell echo $(HW) | tr a-z A-z)	
 
 
 override EMBARC_ROOT := $(strip $(subst \,/,$(EMBARC_ROOT)))

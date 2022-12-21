@@ -20,6 +20,7 @@
 *.data
 *.json
 *.cfg
+*.uf2
 !setup.cfg
 
 storage.googleapis.com
@@ -249,8 +250,8 @@ fabric.properties
 work_dirs/
 
 #example work dir
-examples/grove_ai/himax_we1_sdk/
-examples/grove_ai/tensorflow/
-examples/grove_ai/obj_socket_24/
-examples/grove_ai/third_party/
-examples/grove_ai/tools/
+*himax_we1_sdk/
+*tensorflow/
+*obj_socket_24/
+*third_party/
+*tools/
