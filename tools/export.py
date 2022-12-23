@@ -13,18 +13,21 @@ from mmcv import Config
 
 
 gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
-tf.config.experimental.set_virtual_device_configuration(gpus[0],
-                                                        [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4096)])
+if len(gpus) != 0:
+    tf.config.experimental.set_virtual_device_configuration(gpus[0],
+                                                            [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4096)])
+else:
+    tf.config.experimental.set_visible_devices([], 'GPU')
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Convert PyTorch to TFLite')
     parser.add_argument('config', type=str, help='test config file path')
     parser.add_argument('--weights', type=str, help='torch model file path')
-    parser.add_argument('--fp16', action='store_true', help='FP16 quantization for tflite')
-    parser.add_argument('--data_root', type=str, help='Representative dataset path, need at least 100 images')
-    parser.add_argument('--types', type=int, default=2, help='Type of representative dataset, '
-                                                             '1: 1D data(audio), 2: 2D data(image)')
+    parser.add_argument('--type', type=str, default='int8', help='Quantization type for tflite, '
+                                                                 '(int8, fp16, fp32)')
+    parser.add_argument('--data', type=str, help='Representative dataset path, need at least 100 images')
+    parser.add_argument('--audio', action='store_true', help='Choose audio dataset load code if given')
     parser.add_argument('--shape', type=int, nargs='+', default=[112], help='input data size')
     parser.add_argument('--classes', type=int, default=4, help='output numbers only for audio model')
     # parser.add_argument('--save', type=str, help='Tflite model path')
@@ -143,21 +146,20 @@ def audio_keras(model, n_classes=4, size=8192):
     return keras_model
 
 
-def tflite(keras_model, fp16, data_root, types):
+def tflite(keras_model, type, data_root, audio):
     converter = tf.lite.TFLiteConverter.from_keras_model(keras_model)
-    converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS]
-    converter.target_spec.supported_types = [tf.float16]
     converter.optimizations = [tf.lite.Optimize.DEFAULT]
+    if type == 'fp16':
+        converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS]
+        converter.target_spec.supported_types = [tf.float16]
 
-    if not fp16:
-        if types == 2:
+    if type == 'int8':
+        if not audio:
             input_shape = (keras_model.inputs[0].shape[1], keras_model.inputs[0].shape[2])
             converter.representative_dataset = lambda: representative_dataset_2d(data_root, input_shape)
-        elif types == 1:
+        else:
             input_shape = keras_model.inputs[0].shape[1]
             converter.representative_dataset = lambda: representative_dataset_1d(data_root, input_shape)
-        else:
-            raise Exception(f'{types} must be 1 or 2')
         converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
         converter.target_spec.supported_types = []
         converter.inference_input_type = tf.int8
@@ -170,14 +172,14 @@ def tflite(keras_model, fp16, data_root, types):
 
 def main(args):
     weights = os.path.abspath(args.weights)
-    f = str(weights).replace('.pth', '_int8.tflite')
+    f = str(weights).replace('.pth', f'_{args.type}.tflite')
     cfg = Config.fromfile(args.config)
     cfg.model.pretrained = None
     model = build_posenet(cfg.model)
     load_checkpoint(model, weights, map_location='cpu')
     model.cpu().eval()
 
-    if args.types == 2:
+    if not args.audio:
         tf_dict, gm = graph2dict(model)
         mm = ModelParser(tf_dict, gm)
         imgsz = args.shape if len(args.shape) == 2 else [args.shape[0], args.shape[0]]
@@ -186,9 +188,9 @@ def main(args):
         keras_model = tf.keras.Model(inputs=inputs, outputs=outputs)
         keras_model.trainable = False
         # keras_model.summary()
-    elif args.types == 1:
+    else:
         keras_model = audio_keras(model, args.n_classes)
-    tflite_model = tflite(keras_model, args.fp16, args.data_root, args.types)
+    tflite_model = tflite(keras_model, args.type, args.data, args.audio)
     open(f, "wb").write(tflite_model)
     print(f'TFlite export sucess, saved as {f}')
 
