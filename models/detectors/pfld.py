@@ -29,7 +29,12 @@ class PFLD(BasePose):
         if self.with_keypoint:
             self.keypoint_head.init_weights()
 
-    def forward(self, img, flag=False, keypoints=None, return_loss=True, **kwargs):
+    def forward(self,
+                img,
+                flag=False,
+                keypoints=None,
+                return_loss=True,
+                **kwargs):
         if flag:
             return self.forward_dummy(img)
         else:
@@ -75,10 +80,10 @@ class PFLD(BasePose):
         keypoints[1::2] = keypoints[1::2] * h
         keypoints = keypoints.cpu().numpy()
 
-        # img=imshow_keypoints(img, [keypoints.cpu()])
-        for point in keypoints:
+        for idx, point in enumerate(keypoints[::2]):
             if not isinstance(point, (float, int)):
-                img = cv2.circle(img, (int(point[0]), int(point[1])), 2,
+                img = cv2.circle(img,
+                                 (int(point), int(keypoints[idx * 2 + 1])), 2,
                                  (255, 0, 0), -1)
         if show:
             cv2.imshow(win_name, img)

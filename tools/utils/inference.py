@@ -139,12 +139,12 @@ def show_point(keypoints,
     pass
     img = mmcv.imread(img_file, channel_order='bgr').copy()
     h, w = img.shape[:-1]
-    keypoints[:, ::2] = keypoints[:, ::2] * w
-    keypoints[:, 1::2] = keypoints[:, 1::2] * h
+    keypoints[::2] = keypoints[::2] * w
+    keypoints[1::2] = keypoints[1::2] * h
 
-    for point in keypoints:
+    for idx,point in enumerate(keypoints[::2]):
         if not isinstance(point, (float, int)):
-            img = cv2.circle(img, (int(point[0]), int(point[1])), 2,
+            img = cv2.circle(img, (int(point), int(keypoints[idx*2+1])), 2,
                              (255, 0, 0), -1)
     if not not_show:
         cv2.imshow(win_name, img)
