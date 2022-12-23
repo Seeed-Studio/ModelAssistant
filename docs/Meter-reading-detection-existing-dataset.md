@@ -1,6 +1,6 @@
 # Train and deploy an analog meter reading detection model with existing dataset
 
-This guide will explain how you can train an analog meter detection model using an existing dataset and deploy on the Grove - Vision AI Module. This will only be accurate for the dataset that we provide. However, if you want to generate a more accurate model with your own dataset for your own application, please follow this tutorial.
+This guide will explain how you can train an analog meter detection model using an existing dataset and deploy on the Grove - Vision AI Module. This will only be accurate for the dataset that we provide. However, if you want to generate a more accurate model with your own dataset for your own application, please follow [this tutorial](https://github.com/Seeed-Studio/Edgelab/blob/master/docs/Meter-reading-detection-own-dataset.md).
 
 ### Prerequisites
 
