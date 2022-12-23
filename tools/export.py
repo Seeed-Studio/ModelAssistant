@@ -26,7 +26,7 @@ def parse_args():
     parser.add_argument('--weights', type=str, help='torch model file path')
     parser.add_argument('--type', type=str, default='int8', help='Quantization type for tflite, '
                                                                  '(int8, fp16, fp32)')
-    parser.add_argument('--data_root', type=str, help='Representative dataset path, need at least 100 images')
+    parser.add_argument('--data', type=str, help='Representative dataset path, need at least 100 images')
     parser.add_argument('--audio', action='store_true', help='Choose audio dataset load code if given')
     parser.add_argument('--shape', type=int, nargs='+', default=[112], help='input data size')
     parser.add_argument('--classes', type=int, default=4, help='output numbers only for audio model')
@@ -190,7 +190,7 @@ def main(args):
         # keras_model.summary()
     else:
         keras_model = audio_keras(model, args.n_classes)
-    tflite_model = tflite(keras_model, args.type, args.data_root, args.audio)
+    tflite_model = tflite(keras_model, args.type, args.data, args.audio)
     open(f, "wb").write(tflite_model)
     print(f'TFlite export sucess, saved as {f}')
 

@@ -16,7 +16,7 @@ It is important to ensure that the representative dataset used is similar to the
 
 #### Python command
 ```shell
-python ./tools/export.py $CONFIGS --weights $WEIGHTS_PATH --data_root $REPRESENTATIVE_DATASET --type $QUANTIZATION_TYPE --shape $INPUT_SHAPE --classes $AUDIO_CLASSES --audio $AUDIO
+python ./tools/export.py $CONFIGS --weights $WEIGHTS_PATH --data $REPRESENTATIVE_DATASET --type $QUANTIZATION_TYPE --shape $INPUT_SHAPE --classes $AUDIO_CLASSES --audio $AUDIO
 ```
 ##### Parameters description
 - `$CONFIGS` Configuration file for model(under the configs directory).
