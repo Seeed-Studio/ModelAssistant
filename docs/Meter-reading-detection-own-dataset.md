@@ -1,6 +1,6 @@
-# Train and deploy an analog meter reading detection model with existing dataset
+# Collect, train and deploy an analog meter reading detection model with your own dataset
 
-This guide will explain how you can train an analog meter detection model using an existing dataset and deploy on the Grove - Vision AI Module. This will only be accurate for the dataset that we provide. However, if you want to generate a more accurate model with your own dataset for your own application, please follow this tutorial.
+This guide will explain how you can prepare your own analog meter reading detection dataset, annotate them, train and then finally deploy on the Grove - Vision AI Module. If you want to experience the meter detection application in the fastest way, follow this tutorial.
 
 ### Prerequisites
 
@@ -92,42 +92,120 @@ This will generate **output.img** inside **tools/image_gen_cstm/output/** direct
 python3 tools/ufconv/uf2conv.py -t 0 -c tools/image_gen_cstm/output/output.img -o firmware.uf2
 ```
 
-### Download pre-trained model 
+### Collect dataset
 
-To get started and experience the analog meter detection in the fastest way, we have prepared a pre-trained model for you to use. If you use this model, you can directly jump to the section "Convert TFLite to UF2". Otherwise, follow the next steps.
+If you want to train your own analog meter detection model for a specific application, you need to spend sometime to collect images to prepare a dataset. Here you can take several photos (start with 200 and go higher to improve accuracy) of the analog meter that you want to detect with the meter pointer at different points and also take photos at different lighting conditions and different environments as follows
+
+#### Pointer reading at dark environment 
+
+<div align=center><img width=350 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/9.jpg"/></div>
+
+#### Pointer reading at light environment 
+
+<div align=center><img width=350 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/10.jpg"/></div>
+
+### Annotate dataset
+
+Next we need to annotate all the images that we have collected. Here we will use an application called **labelme** which is an open source image annotation tool.
+
+- **Step 1.** Visit [this page](https://github.com/wkentaro/labelme#installation) and install labelme according to your operating system
+
+- **Step 2.** On the command-line, type the following to open **labelme**
 
 ```sh
-wget https://github.com/Seeed-Studio/Edgelab/releases/download/model_zoo/pfld_meter_int8.tflite
+labelme
 ```
 
-The above will download the model file as **pfld_meter_int8.tflite**
+- **Step 3.** Once labelme opens, click on **OpenDir**, select the folder that you have put all the collected images and click **Select Folder**
 
-### Prepare dataset
+<div align=center><img width=350 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/1.jpg"/></div>
 
-We have already prepared a ready-to-use dataset
+<div align=center><img width=550 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/2.png"/></div>
 
-- **Step 1.** Click [here](https://1drv.ms/u/s!AqG2uRmVUhlShtIhyd_7APHXEhpeXg?e=WwGx5m) to download the dataset
+- **Step 4.** Later, when we annotate images, labelme will generate a **json file** for each image and this file will contain the annotation information for the corresponsing image. Here we need to specify a directory to store these image annotations because we recommend to store these json files and image files in 2 different folders. Go to `File > Change Output Dir`
 
-- **Step 2.** Unzip the downloaded dataset and remember this file path, which will be used when passing parameters to the training command later
+<div align=center><img width=250 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/3.jpg"/></div>
+
+- **Step 5.** Create a new folder, select the folder and click **Select Folder** 
+
+<div align=center><img width=550 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/4.jpg"/></div>
+
+- **Step 6.** Go to `File > Save Automatically` to save time when annotating all the images. Otherwise it will pop up a prompt to save each image.
+
+<div align=center><img width=250 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/5.png"/></div>
+
+- **Step 7.** Right click on the first opened image and select **Create Point**
+
+<div align=center><img width=550 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/6.jpg"/></div>
+
+- **Step 8.** Draw a point at the tip of the pointer, set any label name and click **OK**
+
+<div align=center><img width=350 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/25.png"/></div>
+
+<div align=center><img width=550 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/26.png"/></div>
+
+After the point, there will be a new **json file** created automatically for each image file under "annotations" folder as mentioned before.
+
+### Organize dataset
+
+Now you need to manually organize the dataset by splitting all the images and annotations into **train, val, test** directories as follows
+
+Here we recommend you to split in the following percentages
+
+- train = 80%
+- val = 10%
+- test = 10%
+
+So for example, if you have 200 images, the split would be
+
+- train = 160 images
+- val = 20 images
+- test = 20 images
+
+```
+meter_data
+    |train
+        |images
+            |a.jpg
+            |b.jpg
+        |annotations
+            |a.json
+            |b.json
+    |val
+        |images
+            |c.jpg
+            |d.jpg
+        |annotations
+            |c.json
+            |d.json
+    |test
+        |images
+            |e.jpg
+            |f.jpg
+        |annotations
+            |e.json
+            |f.json
+```
 
 ### Configuration file
 
 Here we will choose the profile according to the task that we want to implement. We have prepared preconfigured files inside the the [configs](https://github.com/Seeed-Studio/edgelab/tree/master/configs) folder.
 
-For our meter reading detection example, we will use [pfld_mv2n_112.py](https://github.com/Seeed-Studio/Edgelab/blob/master/configs/pfld/pfld_mv2n_112.py) config file. This file will be mainly used to configure the dataset for training including the dataset location.
+For our meter reading detection example, we will use [pfld_mv2n_112.py](https://github.com/Seeed-Studio/Edgelab/blob/master/configs/pfld/pfld_mv2n_112.py) config file. This file will be mainly used to configure the dataset for training including the dataset location. In the training step we will pass parameters to the command that we use to start the training and change the settings of the config file.
 
 ### Start training 
 
-Execute the following command inside the activated conda virtual environment terminal to start training an end-to-end analog meter reading detection model.
+Execute the following command inside the activated conda virtual environment terminal to start training an end-to-end meter reading detection model.
 
 ```sh
-python tools/train.py mmpose configs/pfld/pfld_mv2n_112.py --gpus=1 --cfg-options runner.max_epochs=100 data.train.index_file=/meter/train/annotations data.train.img_dir=/meter/train/images data.val.index_file=/meter/val/annotations data.val.img_dir=/meter/val/images data.test.index_file=/meter/test/annotations data.test.img_dir=/meter/test/images
+# for example
+python tools/train.py mmpose configs/pfld/pfld_mv2n_112.py --gpus=1 --cfg-options total_epochs=100 data.train.index_file=/meter/train/annotations data.train.img_dir=/meter/train/images data.val.index_file=/meter/val/annotations data.val.img_dir=/meter/val/images data.test.index_file=/meter/test/annotations data.test.img_dir=/meter/test/images
 ```
 
 The format of the above command looks like below
 
 ```sh
-python tools/train.py <task_type> <config_file_location> --gpus=<cpu_or_gpu> --cfg-options runner.max_epochs=<number_of_epochs> data.train.index_file=<absolute_path_to_annotations_in_train> data.train.img_dir=<absolute_path_to_images_in_train> data.val.index_file=<absolute_path_to_annotations_in_val> data.val.img_dir=<absolute_path_to_images_in_val> data.test.index_file=<absolute_path_to_annotations_in_test> data.test.img_dir=<absolute_path_to_images_in_test>
+python tools/train.py <task_type> <config_file_location> --gpus=<cpu_or_gpu> --cfg-options total_epochs=<number_of_epochs> data.train.index_file=<absolute_path_to_annotations_in_train> data.train.img_dir=<absolute_path_to_images_in_train> data.val.index_file=<absolute_path_to_annotations_in_val> data.val.img_dir=<absolute_path_to_images_in_val> data.test.index_file=<absolute_path_to_annotations_in_test> data.test.img_dir=<absolute_path_to_images_in_test>
 ```
 
 where:
@@ -172,15 +250,9 @@ This will generate a **best_loss_epoch_int8.tflite** file
 Now we will convert the generated TFLite file to a UF2 file so that we can directly flash the UF2 file into Grove - Vision AI Module
 
 ```sh
-python3 examples/vision_ai/tools/ufconv/uf2conv.py -f GROVEAI -t 1 -c ~/Edgelab/work_dirs/pfld_mv2n_112/exp1/best_loss_epoch_int8.tflite -o model.uf2
+python3 tools/ufconv/uf2conv.py -f GROVEAI -t 1 -c ~/Edgelab/work_dirs/pfld_mv2n_112/exp1/best_loss_epoch_int8.tflite -o model.uf2
 ```
 This will generate a **model.uf2** file 
-
-Alternatively, you can convert the pre-trained pfld_meter_int8.tflite from before to UF2 as well
-
-```sh
-python3 examples/vision_ai/tools/ufconv/uf2conv.py -f GROVEAI -t 1 -c ~/pfld_meter_int8.tflite -o model.uf2
-```
 
 ### Flash firmware and model
 
@@ -198,7 +270,7 @@ This explains how you can flash the previously generated firmware and the model 
 
 <div align=center><img width=250 src="https://files.seeedstudio.com/wiki/SenseCAP-A1101/19.jpg"/></div>
 
-- **Step 4:** Drag and drop the previous **firmware.uf2** at first, and then the **model.uf2** file to GROVEAI drive
+- **Step 4:** Drag and drop the prevous **firmware.uf2** and **model.uf2** file to GROVEAI drive
 
 Once the copying is finished **GROVEAI** drive will disapper. This is how we can check whether the copying is successful or not.
 
