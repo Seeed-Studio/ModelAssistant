@@ -128,7 +128,6 @@ def inference_test(model, data_loader):
         batch_size = len(next(iter(data.values())))
         for _ in range(batch_size):
             prog_bar.update()
-    print(results)
     return results
 
 
