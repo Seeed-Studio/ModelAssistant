@@ -159,5 +159,5 @@ The advantage of using Gogole Colab is that you can use any device having a web 
 - [Getting Started with EdgeLab on Local PC](docs/Edgelab-getting-started.md)
 - Getting Started with EdgeLab on Google Colab
 
-    - Analog meter reading detection with existing dataset 
-    - Analog meter reading detection with own dataset 
+    - [Analog meter reading detection with existing dataset](docs/Analog_meter_detection_existing_dataset.ipynb) 
+    - [Analog meter reading detection with own dataset](docs/Analog_meter_detection_own_dataset.ipynb)
