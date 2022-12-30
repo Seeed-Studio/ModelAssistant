@@ -154,7 +154,7 @@ Here we introduce 2 different platforms to run the commands.
 - Linux PC with a powerful GPU 
 - Google Colab workspace 
 
-The advantage of using Gogole Colab is that you can use any device having a web browser. In addition, it already comes with high performance GPUs for training. Use the below links to access the tutorials. 
+The advantage of using Google Colab is that you can use any device having a web browser. In addition, it already comes with high performance GPUs for training. Use the below links to access the tutorials. 
 
 - [Getting Started with EdgeLab on Local PC](docs/Edgelab-getting-started.md)
 - Getting Started with EdgeLab on Google Colab
