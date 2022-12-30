@@ -441,7 +441,7 @@ where:
 
 <br>
 
-After the training is completed, a model weight file will be generated under **~/edgelab/work_dirs/pfld_mv2n_112/exp1/latest.pth**. Here "x" could be any number within the epochs you have defined. Remember the path to this file, which will be used when exporting the model.
+After the training is completed, a model weight file will be generated under **~/edgelab/work_dirs/pfld_mv2n_112/exp1/latest.pth**. Remember the path to this file, which will be used when exporting the model.
 
 ### Object Detection
 
@@ -516,10 +516,10 @@ After the model training is completed, you can export the **.pth file** to the *
 <summary>Export the previously trained model for analog meter reading detection</summary>
 
 ```sh
-python tools/export.py configs/pfld/pfld_mv2n_112.py --weights work_dirs/pfld_mv2n_112/exp1/best_loss_epoch_x.pth --data ~/datasets/meter/train/images
+python tools/export.py configs/pfld/pfld_mv2n_112.py --weights work_dirs/pfld_mv2n_112/exp1/latest.pth --data ~/datasets/meter/train/images
 ```
 
-This will generate a **best_loss_epoch_x_int8.tflite** file inside **~/Edgelab/work_dirs/pfld_mv2n_112/exp1** directory
+This will generate a **latest_int8.tflite** file inside **~/Edgelab/work_dirs/pfld_mv2n_112/exp1** directory
 
 </details>
 
@@ -554,7 +554,7 @@ Now we will convert the generated TFLite file to a UF2 file so that we can direc
 <summary>Export TFLite model to a uf2 file for analog meter reading detection</summary>
 
 ```sh
-python Edgelab/examples/vision_ai/tools/ufconv/uf2conv.py -f GROVEAI -t 1 -c ~/Edgelab/work_dirs/pfld_mv2n_112/exp1/best_loss_epoch_int8.tflite -o model.uf2
+python Edgelab/examples/vision_ai/tools/ufconv/uf2conv.py -f GROVEAI -t 1 -c ~/Edgelab/work_dirs/pfld_mv2n_112/exp1/latest_int8.tflite -o model.uf2
 ```
 
 This will generate a **model.uf2** file inside **~/Edgelab/examples/vision_ai** directory
