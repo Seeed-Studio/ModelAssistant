@@ -6,19 +6,23 @@ import os.path as osp
 import time
 import warnings
 
-import mmcv
 import torch
 import torch.distributed as dist
 from mmcv import Config, DictAction
 from mmcv.runner import get_dist_info, init_dist, set_random_seed
 from mmcv.utils import get_git_hash
+from mmdet.models.utils.misc import interpolate_as
+
+os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
+torch.multiprocessing.set_start_method('spawn')
+print(torch.multiprocessing.get_start_method())
 
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
-    parser.add_argument('type', help='Choose training type')
-    parser.add_argument('config', help='train config file path')
+    parser.add_argument('type',default='mmdet', help='Choose training type')
+    parser.add_argument('config',default='configs/yolo/yolov3_mbv2_416_coco.py', help='train config file path')
     parser.add_argument('--work-dir', help='the dir to save logs and models')
     parser.add_argument(
         '--resume-from', help='the checkpoint file to resume from')
@@ -128,12 +132,13 @@ def main():
     cfg = Config.fromfile(args.config)
     if train_type == 'mmdet':
         from mmdet import __version__
-        from mmdet.apis import init_random_seed, set_random_seed, train_detector as train_model
+        from mmdet.apis import init_random_seed, set_random_seed
         from mmdet.datasets import build_dataset
         from mmdet.models import build_detector as build_model
         from mmdet.utils import (collect_env, get_device, get_root_logger,
                                 replace_cfg_vals, setup_multi_processes,
                                 update_data_root)
+        from core.apis.mmdet.train import train_detector as train_model
         # replace the ${key} with the value of cfg.key
         cfg = replace_cfg_vals(cfg)
         # update data root according to MMDET_DATASETS
@@ -294,7 +299,6 @@ def main():
                 mmcls_version=__version__,
                 config=cfg.pretty_text,
                 CLASSES=datasets[0].CLASSES))
-    
 
     train_model(
         model,
