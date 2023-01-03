@@ -9,5 +9,6 @@ from .necks import *
 __all__ = [
     'SoundNetRaw', 'Speechcommand', 'PFLD', 'Audio_head', 'Audio_classify',
     'LabelSmoothCrossEntropyLoss', 'PFLDLoss', 'PFLDhead', 'FastestDet', 'SPP',
-    'NLLLoss', 'BCEWithLogitsLoss', 'Fomo_Head', 'CustomShuffleNetV2'
+    'NLLLoss', 'BCEWithLogitsLoss', 'Fomo_Head', 'CustomShuffleNetV2',
+    'FomoLoss'
 ]
