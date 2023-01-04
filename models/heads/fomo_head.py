@@ -1,6 +1,7 @@
 from typing import Optional
 
 import torch
+import numpy as np
 import torch.nn as nn
 from mmdet.models.builder import HEADS, build_loss
 from mmcv.runner.base_module import BaseModule
@@ -65,8 +66,9 @@ class Fomo_Head(BaseModule):
                                gt_labels=gt_labels,
                                img_metas=img_metas)
         preds = pred_maps.permute(0, 2, 3, 1)
+        C = preds.shape[-1]
 
-        weight = torch.zeros(21, device=preds.device)
+        weight = torch.zeros(C, device=preds.device)
         weight[0] = 1
 
         data = self.build_target(preds, target)
@@ -90,18 +92,17 @@ class Fomo_Head(BaseModule):
 
         mask = torch.softmax(preds, dim=-1)
         values, indices = torch.max(mask, dim=-1)
-        values_mask = torch.argwhere(values < 0.5)
+        values_mask = np.argwhere(values.cpu().numpy() < 0.5)
         res = torch.argmax(mask, dim=-1)
 
         for i in values_mask:
-            b, h, w = int(i[0].cpu().item()), int(i[1].cpu().item()), int(
-                i[2].cpu().item())
+            b, h, w = int(i[0].item()), int(i[1].item()), int(i[2].item())
             res[b, h, w] = 0
         return res
 
     def build_target(self, preds, targets):
         B, H, W, C = preds.shape
-        target_data = torch.zeros(size=(B, H, W, 21), device=preds.device)
+        target_data = torch.zeros(size=(B, H, W, C), device=preds.device)
         target_data[..., 0] = 1
         for i in targets:
             h, w = round(i[3].item() * (H - 1)), round(i[2].item() * (W - 1))
