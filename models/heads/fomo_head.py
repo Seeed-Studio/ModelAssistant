@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 import torch
 import numpy as np
@@ -16,27 +16,56 @@ class Fomo_Head(BaseModule):
     def __init__(
         self,
         input_channels: int,
-        middle_channels: int = 32,
+        middle_channels: List[int] = [96, 32],
         num_classes: int = 20,
+        act_cfg: str = 'ReLU6',
+        cls_weight: int = 1,
+        loss_weight: List[int] = None,
         train_cfg: dict = None,
         test_cfg: dict = None,
         loss_cls: dict = dict(type='BCEWithLogitsLoss', reduction='mean'),
-        loss_cls_no: dict = dict(type='BCEWithLogitsLoss', reduction='mean'),
+        loss_bg: dict = dict(type='BCEWithLogitsLoss', reduction='mean'),
         init_cfg: Optional[dict] = dict(type='Normal', std=0.01)
     ) -> None:
         super(Fomo_Head, self).__init__(init_cfg)
-
-        self.loss_cls = build_loss(loss_cls)
-        self.loss_cls_no = build_loss(loss_cls_no)
-
         self.num_classes = num_classes
-        self.conv1 = CBR(input_channels, middle_channels, 1, 1, padding=0)
+        self.loss_cls = build_loss(loss_cls)
+        self.loss_bg = build_loss(loss_bg)
 
-        self.conv2 = nn.Conv2d(middle_channels, num_classes + 1, 1, 1)
+        self.cls_weight = cls_weight
+        weight = torch.zeros(self.num_attrib)
+        weight[0] = 1
+        self.weight_bg = weight
+        self.weight_cls = 1 - weight
+        if loss_weight:
+            for idx, w in enumerate(loss_weight):
+                self.weight_cls[idx + 1] = w
+
+        self.conv1 = CBR(input_channels,
+                         middle_channels[0],
+                         1,
+                         1,
+                         padding=0,
+                         act=act_cfg)
+        self.conv2 = CBR(middle_channels[0],
+                         middle_channels[1],
+                         1,
+                         1,
+                         padding=0,
+                         act=act_cfg)
+
+        self.conv3 = nn.Conv2d(middle_channels[1],
+                               num_classes + 1,
+                               1,
+                               1,
+                               padding=0)
 
     def forward(self, x):
+        if isinstance(x, tuple) and len(x):
+            x = x[-1]
         x = self.conv1(x)
-        result = self.conv2(x)
+        x = self.conv2(x)
+        result = self.conv3(x)
         return result
 
     def forward_train(self,
@@ -66,22 +95,19 @@ class Fomo_Head(BaseModule):
                                gt_labels=gt_labels,
                                img_metas=img_metas)
         preds = pred_maps.permute(0, 2, 3, 1)
-        C = preds.shape[-1]
-
-        weight = torch.zeros(C, device=preds.device)
-        weight[0] = 1
+        B, H, W, C = preds.shape
 
         data = self.build_target(preds, target)
 
-        cls_loss = self.loss_cls(preds, data)
+        cls_loss = self.loss_cls(preds,
+                                 data,
+                                 weight=self.weight_cls.to(preds.device))
 
-        cls_no_loss = self.loss_cls_no(preds, data)
+        cls_no_loss = self.loss_bg(preds,
+                                       data,
+                                       weight=self.weight_bg.to(preds.device))
 
-        loss = cls_loss * 100 + cls_no_loss
-        loss_dict = {}
-        loss_dict['loss'] = loss
-        loss_dict['cls_no_loss'] = cls_no_loss
-        loss_dict['cls_loss'] = cls_loss
+        loss = cls_loss * self.cls_weight + cls_no_loss
 
         return dict(loss=loss, cls_loss=cls_loss, cls_no_loss=cls_no_loss)
 
@@ -92,7 +118,7 @@ class Fomo_Head(BaseModule):
 
         mask = torch.softmax(preds, dim=-1)
         values, indices = torch.max(mask, dim=-1)
-        values_mask = np.argwhere(values.cpu().numpy() < 0.5)
+        values_mask = np.argwhere(values.cpu().numpy() < 0.25)
         res = torch.argmax(mask, dim=-1)
 
         for i in values_mask:
