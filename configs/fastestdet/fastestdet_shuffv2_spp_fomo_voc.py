@@ -15,7 +15,7 @@ model = dict(
     bbox_head=dict(type='Fomo_Head',
                    input_channels=96,
                    num_classes=20,
-                   loss_cls_no=dict(type='BCEWithLogitsLoss',
+                   loss_bg=dict(type='BCEWithLogitsLoss',
                                     reduction='mean'),
                    loss_cls=dict(type='BCEWithLogitsLoss', reduction='mean')),
 )
