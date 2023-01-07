@@ -6,6 +6,7 @@ soundfile
 tensorboard
 scikit-image
 scikit-learn
+tqdm==4.64.1
 
 # mmlab
 # mmcv-full==1.6.2
@@ -28,5 +29,5 @@ onnx
 onnxruntime-gpu
 onnxsim
 onnxmltools
-tensorflow=2.9.0
-protobuf=3.20.3
+tensorflow==2.9.0
+protobuf==3.20.3
