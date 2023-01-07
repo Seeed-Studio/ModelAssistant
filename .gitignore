@@ -21,6 +21,7 @@
 *.json
 *.cfg
 *.uf2
+.ei-block-config
 !setup.cfg
 
 storage.googleapis.com
