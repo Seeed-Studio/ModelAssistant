@@ -193,9 +193,6 @@ def tflite(keras_model, type, data, audio):
     converter = tf.lite.TFLiteConverter.from_keras_model(keras_model)
     converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS]
     converter.optimizations = [tf.lite.Optimize.DEFAULT]
-    if type == 'fp16':
-        converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS]
-        converter.target_spec.supported_types = [tf.float16]
 
     if type == 'fp16':
         converter.target_spec.supported_types = [tf.float16]
