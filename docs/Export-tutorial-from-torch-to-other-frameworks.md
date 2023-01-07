@@ -16,31 +16,36 @@ It is important to ensure that the representative dataset used is similar to the
 
 #### Python command
 ```shell
-python ./tools/export.py $CONFIGS --weights $WEIGHTS_PATH --data $REPRESENTATIVE_DATASET --type $QUANTIZATION_TYPE --shape $INPUT_SHAPE --classes $AUDIO_CLASSES --audio $AUDIO
+python ./tool/export.py $TYPE $CONFIG --weights $WEIGHTS_PATH --data $REPRESENTATIVE_DATASET --tflite_type $TFLITE_TYPE --shape $INPUT_SHAPE --audio $AUDIO
 ```
 ##### Parameters description
-- `$CONFIGS` Configuration file for model(under the configs directory).
+- `$TYPE` Type for training model，['mmdet', 'mmcls', 'mmpose']。
+- `$CONFIG` Configuration file for model(under the configs directory).
 - `$WEIGHTS_PATH` Path of torch model.
 - `$REPRESENTATIVE_DATASET` Path to representative dataset, it is recommended to use the training dataset, only for `int8`.
-- `QUANTIZATION_TYPE` Quantization type for tflite, `int8`, `fp16`, `fp32`, default: `int8`.
+- `TFLITE_TYPE` Quantization type for tflite, `int8`, `fp16`, `fp32`, default: `int8`.
 - `$INPUT_SHAPE` Shape of input, default: pfld model: '112' or '112 112', audio model: '8192'.
-- `$AUDIO_CLASSES` Output numbers only for audio models, default: '4'.
 - `AUDIO` Choose audio dataset load code if given.
 
-### Example
+## Example
+### pfld model
 - Converting the pfld model (pfld.pth) from torch to tflite of int8,
 the representative dataset (pfld_data) is located in the root 
 directory, the weights of torch model is also located in the root directory, 
 and the input image size is set to 112.
 
-**Note：** TFLite model is saved in same path as torch model. If you want to export the tflite model of fp16 or fp32,
-you need to add the `--type` parameter. The audio model needs to judge whether to add the `--classes` 
-parameter according to the number of output categories, and needs to add the `--audio` parameter.
+**Note：** TFLite model is saved in the same path as torch model. If you want to export the tflite model of fp16 or fp32,
+you need to add the `--tflite_type` parameter. The audio model needs to add the `--audio` parameter.
 
-### Command
+#### Command
 ```shell
-python ./tools/export.py configs/pfld/pfld_mv2n_112.py --weights pfld.pth --data_root pfld_data --shape 112
+python ./tools/export.py mmpose configs/pfld/pfld_mv2n_112.py --weights pfld.pth --data pfld_data --shape 112
 ```
 
 If the export is successful, the corresponding tflite save path will be displayed.
 
+### fomo model
+#### Command
+```shell
+python ./tools/export.py mmdet configs/fomo/fomo_mobnetv2_x8_voc.py --weights ./fomo.pth --data fomo_data --shape 92
+```

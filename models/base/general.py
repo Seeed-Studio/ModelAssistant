@@ -1,10 +1,11 @@
 import torch.nn as nn
 
 
-def CBR(inp, oup, kernel, stride, bias=False, padding=1, groups=1):
+def CBR(inp, oup, kernel, stride, bias=False, padding=1, groups=1, act='ReLU'):
     return nn.Sequential(
         nn.Conv2d(inp, oup, kernel, stride, padding, groups=groups, bias=bias),
-        nn.BatchNorm2d(oup), nn.ReLU(inplace=True))
+        nn.BatchNorm2d(oup),
+        nn.Identity() if not act else getattr(nn, act)(inplace=True))
 
 
 class InvertedResidual(nn.Module):
