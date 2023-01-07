@@ -43,11 +43,14 @@ class FastestDet(SingleStageDetector):
             return x
         return s1, s2, s3
 
-    def forward(self, img, img_metas, return_loss=True, **kwargs):
-        if return_loss:
-            return self.forward_train(img, img_metas, **kwargs)
+    def forward(self, img, img_metas, flag=False, return_loss=True, **kwargs):
+        if flag:
+            return self.forward_dummy(img)
         else:
-            return self.forward_test(img, img_metas, **kwargs)
+            if return_loss:
+                return self.forward_train(img, img_metas, **kwargs)
+            else:
+                return self.forward_test(img, img_metas, **kwargs)
 
     def forward_test(self, img, img_metas, **kwargs):
         for imgs, img_meta in zip(img, img_metas):
