@@ -89,10 +89,10 @@ class Inter():
             input_, output = self.inter.get_input_details(
             )[0], self.inter.get_output_details()[0]
             int8 = input_['dtype'] == np.int8 or input_['dtype'] == np.uint8
+            img = img.transpose(0, 2, 3, 1)
             if int8:
                 scale, zero_point = input_['quantization']
-                img = (img.transpose(0, 2, 3, 1) / scale + zero_point).astype(
-                    np.int8)
+                img = (img / scale + zero_point).astype(np.int8)
             self.inter.set_tensor(input_['index'], img)
             self.inter.invoke()
             result = self.inter.get_tensor(output['index'])
@@ -128,7 +128,6 @@ def inference_test(model, data_loader):
         batch_size = len(next(iter(data.values())))
         for _ in range(batch_size):
             prog_bar.update()
-    print(results)
     return results
 
 
