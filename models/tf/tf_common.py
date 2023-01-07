@@ -34,6 +34,36 @@ class TFPad(keras.layers.Layer):
         return tf.pad(inputs, self.pad, mode='constant', constant_values=0)
 
 
+class TFMaxPool2d(keras.layers.Layer):
+    def __init__(self, w=None):
+        super().__init__()
+        pad = True if (w.stride == 1 and w.padding == w.kernel_size // 2) else False
+        maxpool = keras.layers.MaxPool2D(
+            w.kernel_size,
+            w.stride,
+            'SAME' if pad else 'VALID',
+        )
+        self.maxpool = maxpool if pad else keras.Sequential([TFPad(autopad(w.kernel_size, w.padding)), maxpool])
+
+    def call(self, inputs):
+        return self.maxpool(inputs)
+
+
+class TFAvgPool2d(keras.layers.Layer):
+    def __init__(self, w=None):
+        super().__init__()
+        pad = True if (w.stride == 1 and w.padding == w.kernel_size // 2) else False
+        avgpool = keras.layers.AveragePooling2D(
+            w.kernel_size,
+            w.stride,
+            'SAME' if pad else 'VALID',
+        )
+        self.maxpool = avgpool if pad else keras.Sequential([TFPad(autopad(w.kernel_size, w.padding)), avgpool])
+
+    def call(self, inputs):
+        return self.maxpool(inputs)
+
+
 class TFBaseConv2d(keras.layers.Layer):
     # Standard convolution2d or depthwiseconv2d depends on 'g' argument.
     def __init__(self, w=None):
