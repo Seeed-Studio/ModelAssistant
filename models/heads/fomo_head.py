@@ -3,6 +3,7 @@ from typing import Optional, List
 import torch
 import numpy as np
 import torch.nn as nn
+from sklearn.metrics import confusion_matrix
 from mmdet.models.builder import HEADS, build_loss
 from mmcv.runner.base_module import BaseModule
 from mmcv.cnn import normal_init, constant_init, is_norm
@@ -104,12 +105,40 @@ class Fomo_Head(BaseModule):
                                  weight=self.weight_cls.to(preds.device))
 
         cls_no_loss = self.loss_bg(preds,
-                                       data,
-                                       weight=self.weight_bg.to(preds.device))
+                                   data,
+                                   weight=self.weight_bg.to(preds.device))
 
         loss = cls_loss * self.cls_weight + cls_no_loss
 
-        return dict(loss=loss, cls_loss=cls_loss, cls_no_loss=cls_no_loss)
+        P, R, F1 = self.compute_prf(preds, data)
+
+        return dict(loss=loss,
+                    cls_loss=cls_loss,
+                    cls_no_loss=cls_no_loss,
+                    P=torch.Tensor([P]),
+                    R=torch.Tensor([R]),
+                    F1=torch.Tensor([F1]))
+
+    def compute_prf(self, preds, target):
+        preds = torch.argmax(preds, dim=1)
+        target = torch.argmax(target, dim=1)
+        preds, target = preds.flatten().cpu().numpy(), target.flatten().cpu(
+        ).numpy()
+        confusion = confusion_matrix(target,
+                                     preds,
+                                     labels=range(self.num_attrib))
+        tn = confusion[0, 0]
+        tp = np.diagonal(confusion).sum() - tn
+        fn = np.tril(confusion, k=-1).sum()
+        fp = np.triu(confusion, k=1).sum()
+
+        if tp == 0 and fn == 0 and fp == 0:
+            return 1.0, 1.0, 1.0
+
+        p = 0.0 if (tp + fp == 0) else tp / (tp + fp)
+        r = 0.0 if (tp + fn == 0) else tp / (tp + fn)
+        f1 = 0.0 if (p + r == 0) else 2 * (p * r) / (p + r)
+        return float(p), float(r), float(f1)
 
     def post_handle(self, preds):
         preds = preds.permute(0, 2, 3, 1)
@@ -131,7 +160,7 @@ class Fomo_Head(BaseModule):
         target_data = torch.zeros(size=(B, H, W, C), device=preds.device)
         target_data[..., 0] = 1
         for i in targets:
-            h, w = round(i[3].item() * (H - 1)), round(i[2].item() * (W - 1))
+            h, w = int(i[3].item() * (H - 1)), int(i[2].item() * (W - 1))
             target_data[int(i[0]), h, w, 0] = 0  #confnes
             target_data[int(i[0]), h, w, int(i[1]) + 1] = 1  #label
 
