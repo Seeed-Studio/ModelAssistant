@@ -191,10 +191,10 @@ def audio_keras(model, n_classes=4, size=8192):
 
 def tflite(keras_model, type, data, audio):
     converter = tf.lite.TFLiteConverter.from_keras_model(keras_model)
-    converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS]
-    converter.optimizations = [tf.lite.Optimize.DEFAULT]
 
     if type == 'fp16':
+        converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS]
+        converter.optimizations = [tf.lite.Optimize.DEFAULT]
         converter.target_spec.supported_types = [tf.float16]
 
     if type == 'int8':
@@ -205,6 +205,7 @@ def tflite(keras_model, type, data, audio):
             input_shape = keras_model.inputs[0].shape[1]
             converter.representative_dataset = lambda: representative_dataset_1d(data, input_shape)
 
+        converter.optimizations = [tf.lite.Optimize.DEFAULT]
         converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
         converter.target_spec.supported_types = []
         converter.inference_input_type = tf.int8
