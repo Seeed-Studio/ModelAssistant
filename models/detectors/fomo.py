@@ -42,3 +42,12 @@ class Fomo(SingleStageDetector):
         result = self.bbox_head(x)
 
         return self.bbox_head.post_handle(result,kwargs['label'])
+
+    def train_step(self, data, optimizer):
+        losses = self(**data)
+        loss, log_vars = self._parse_losses(losses)
+
+        outputs = dict(
+            loss=loss, log_vars=log_vars, num_samples=len(data['img']))
+
+        return outputs

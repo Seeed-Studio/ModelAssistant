@@ -15,8 +15,6 @@ from mmdet.models.utils.misc import interpolate_as
 
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 torch.multiprocessing.set_start_method('spawn')
-print(torch.multiprocessing.get_start_method())
-
 
 
 def parse_args():
@@ -122,10 +120,10 @@ def mkdir_work(work_dir):
 
 
 def main():
-    PWD = os.environ['PWD']
-    #check PWD in os.environ['PYTHONPATH']
-    if PWD not in os.environ['PYTHONPATH']:
-        os.environ['PYTHONPATH'] += ':' + PWD
+    # PWD = os.environ['PWD']
+    # #check PWD in os.environ['PYTHONPATH']
+    # if PWD not in os.environ['PYTHONPATH']:
+    #     os.environ['PYTHONPATH'] += ':' + PWD
         
     args = parse_args()
     train_type = args.type
