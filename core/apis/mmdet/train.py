@@ -9,15 +9,15 @@ from mmcv.runner import (DistSamplerSeedHook, EpochBasedRunner,
                          Fp16OptimizerHook, OptimizerHook, build_runner,builder,
                          get_dist_info)
 
+from mmdet.datasets.utils import replace_ImageToTensor
 from mmdet.core import DistEvalHook,  build_optimizer
-from mmdet.datasets import (build_dataloader, build_dataset,
-                            replace_ImageToTensor)
+from mmdet.datasets import build_dataset
 from mmdet.utils import (build_ddp, build_dp, compat_cfg,
                          find_latest_checkpoint, get_root_logger)
 
 from core.hook.evalhook import Feval
+from datasets.builder import build_dataloader
                          
-
 
 def init_random_seed(seed=None, device='cuda'):
     """Initialize random seed.
