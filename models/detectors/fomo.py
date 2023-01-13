@@ -37,7 +37,7 @@ class Fomo(SingleStageDetector):
 
     def forward_test(self, imgs,  **kwargs):
 
-        x = self.extract_feat(imgs[0])
+        x = self.extract_feat(imgs)
 
         result = self.bbox_head(x)
 
