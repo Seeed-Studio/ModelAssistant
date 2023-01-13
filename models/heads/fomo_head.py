@@ -10,7 +10,6 @@ from mmcv.cnn import normal_init, constant_init, is_norm
 
 from models.base.general import CBR
 
-
 @HEADS.register_module()
 class Fomo_Head(BaseModule):
 
@@ -30,17 +29,12 @@ class Fomo_Head(BaseModule):
     ) -> None:
         super(Fomo_Head, self).__init__(init_cfg)
         self.num_classes = num_classes
-        self.loss_cls = build_loss(loss_cls)
-        self.loss_bg = build_loss(loss_bg)
 
-        self.cls_weight = cls_weight
-        weight = torch.zeros(self.num_attrib)
-        weight[0] = 1
-        self.weight_bg = weight
-        self.weight_cls = 1 - weight
         if loss_weight:
             for idx, w in enumerate(loss_weight):
                 self.weight_cls[idx + 1] = w
+        self.loss_cls = nn.BCEWithLogitsLoss(reduction='none',pos_weight=torch.Tensor([cls_weight]))
+        self.loss_bg = nn.BCEWithLogitsLoss(reduction='none')
 
         self.conv1 = CBR(input_channels,
                          middle_channels[0],
@@ -53,7 +47,7 @@ class Fomo_Head(BaseModule):
                          1,
                          1,
                          padding=0,
-                         act=act_cfg)
+                         act='ReLU')
 
         self.conv3 = nn.Conv2d(middle_channels[1],
                                num_classes + 1,
@@ -84,8 +78,38 @@ class Fomo_Head(BaseModule):
                          gt_bbox_ignore=gt_bboxes_ignore,
                          img_metas=img_metas)
         return loss
-
     def loss(self,
+             pred_maps,
+             target):
+
+        preds = pred_maps.permute(0, 2, 3, 1)
+        B, H, W, C = preds.shape
+        weight = torch.zeros(self.num_attrib,device=preds.device)
+        weight[0] = 1
+        self.weight_mask=torch.tile(weight,(H,W,1))
+
+        data = self.build_target(preds, target)
+        cls_no_loss = self.loss_bg(preds,
+                                   data,
+                                   )
+        cls_no_loss *=self.weight_mask
+
+        cls_loss = self.loss_cls(preds,
+                                 data,
+                                 )
+        cls_loss *= 1-self.weight_mask
+
+        loss = torch.mean(cls_loss + cls_no_loss)
+
+        P, R, F1 = self.compute_prf(preds, data)
+        return dict(loss=loss,
+            cls_loss=cls_loss,
+            cls_no_loss=cls_no_loss,
+            P=torch.Tensor([P]),
+            R=torch.Tensor([R]),
+            F1=torch.Tensor([F1]))
+
+    def loss_test(self,
              pred_maps,
              gt_bboxes,
              gt_labels,
@@ -97,18 +121,25 @@ class Fomo_Head(BaseModule):
                                img_metas=img_metas)
         preds = pred_maps.permute(0, 2, 3, 1)
         B, H, W, C = preds.shape
+        weight = torch.zeros(self.num_attrib,device=preds.device)
+        weight[0] = 1
+        self.weight_mask=torch.tile(weight,(H,W,1))
 
         data = self.build_target(preds, target)
 
-        cls_loss = self.loss_cls(preds,
-                                 data,
-                                 weight=self.weight_cls.to(preds.device))
+
 
         cls_no_loss = self.loss_bg(preds,
                                    data,
-                                   weight=self.weight_bg.to(preds.device))
+                                   )
+        cls_no_loss *=self.weight_mask
 
-        loss = cls_loss * self.cls_weight + cls_no_loss
+        cls_loss = self.loss_cls(preds,
+                                 data,
+                                 )
+        cls_loss *= 1-self.weight_mask
+
+        loss = torch.mean(cls_loss + cls_no_loss)
 
         P, R, F1 = self.compute_prf(preds, data)
 
@@ -120,8 +151,8 @@ class Fomo_Head(BaseModule):
                     F1=torch.Tensor([F1]))
 
     def compute_prf(self, preds, target):
-        preds = torch.argmax(preds, dim=1)
-        target = torch.argmax(target, dim=1)
+        preds = torch.argmax(preds, dim=-1)
+        target = torch.argmax(target, dim=-1)
         preds, target = preds.flatten().cpu().numpy(), target.flatten().cpu(
         ).numpy()
         confusion = confusion_matrix(target,
@@ -140,7 +171,7 @@ class Fomo_Head(BaseModule):
         f1 = 0.0 if (p + r == 0) else 2 * (p * r) / (p + r)
         return float(p), float(r), float(f1)
 
-    def post_handle(self, preds):
+    def post_handle(self, preds,target):
         preds = preds.permute(0, 2, 3, 1)
         B, H, W, C = preds.shape
         assert self.num_attrib == C
@@ -153,16 +184,17 @@ class Fomo_Head(BaseModule):
         for i in values_mask:
             b, h, w = int(i[0].item()), int(i[1].item()), int(i[2].item())
             res[b, h, w] = 0
-        return res
+
+        return res,torch.argmax(self.build_target(preds,target),dim=-1)
 
     def build_target(self, preds, targets):
         B, H, W, C = preds.shape
         target_data = torch.zeros(size=(B, H, W, C), device=preds.device)
         target_data[..., 0] = 1
         for i in targets:
-            h, w = int(i[3].item() * (H - 1)), int(i[2].item() * (W - 1))
+            h, w = int(i[3].item()* H), int(i[2].item() * W )
             target_data[int(i[0]), h, w, 0] = 0  #confnes
-            target_data[int(i[0]), h, w, int(i[1]) + 1] = 1  #label
+            target_data[int(i[0]), h, w, int(i[1]) ] = 1  #label
 
         return target_data
 
@@ -172,9 +204,10 @@ class Fomo_Head(BaseModule):
         max_size = max(img_metas[0]['img_shape'])
         for idx, (labels, bboxes) in enumerate(zip(gt_labels, gt_bboxes)):
             bboxes = bboxes / max_size
+            
             bb = torch.zeros_like(bboxes, device=bboxes.device)
             bb[..., 0] = (bboxes[..., 0] + bboxes[..., 2]) / 2
-            bb[..., 1] = (bboxes[..., 1] + bboxes[..., 3]) / 2
+            bb[..., 1] = (bboxes[..., 1] + bboxes[..., 3] )/ 2
             bb[..., 2] = bboxes[..., 2] - bboxes[..., 0]
             bb[..., 3] = bboxes[..., 3] - bboxes[..., 1]
 

@@ -24,23 +24,21 @@ class Fomo(SingleStageDetector):
         if neck:
             self.neck = build_neck(neck)
 
-    def forward(self, img, img_metas, flag=False, return_loss=True, **kwargs):
+    def forward(self, img, target, flag=False, return_loss=True, **kwargs):
         if flag:
             return self.forward_dummy(img)
         else:
             if return_loss:
-                return self.forward_train(img, img_metas, **kwargs)
+                x=self.extract_feat(img)
+                result = self.bbox_head(x)
+                return self.bbox_head.loss(result,target)
             else:
-                return self.forward_test(img, img_metas, **kwargs)
+                return self.forward_test(img,label=target)
 
-    def forward_test(self, imgs, img_metas, **kwargs):
-        for img, img_meta in zip(imgs, img_metas):
-            batch_size = len(img_meta)
-            for img_id in range(batch_size):
-                img_meta[img_id]['batch_input_shape'] = tuple(img.size()[-2:])
+    def forward_test(self, imgs,  **kwargs):
 
         x = self.extract_feat(imgs[0])
 
         result = self.bbox_head(x)
 
-        return self.bbox_head.post_handle(result)
+        return self.bbox_head.post_handle(result,kwargs['label'])

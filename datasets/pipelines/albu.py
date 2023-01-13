@@ -220,3 +220,33 @@ class CoraseDropout(A.CoarseDropout):
         super().__init__(max_holes, max_height, max_width, min_holes,
                          min_height, min_width, fill_value, mask_fill_value,
                          always_apply, p)
+
+
+@PIPELINES.register_module()
+class RandomResizedCrop(A.RandomResizedCrop):
+
+    def __init__(
+        self,
+        height,
+        width,
+        scale=(0.08, 1.0),
+        ratio=(0.75, 1.3333333333333333),
+        interpolation=cv2.INTER_LINEAR,
+        always_apply=False,
+        p=1.0,
+    ):
+        super().__init__(height, width, scale, ratio, interpolation,
+                         always_apply, p)
+
+
+@PIPELINES.register_module()
+class RandomBrightnessContrast(A.RandomBrightnessContrast):
+
+    def __init__(self,
+                 brightness_limit=0.2,
+                 contrast_limit=0.2,
+                 brightness_by_max=True,
+                 always_apply=False,
+                 p=0.5):
+        super().__init__(brightness_limit, contrast_limit, brightness_by_max,
+                         always_apply, p)
