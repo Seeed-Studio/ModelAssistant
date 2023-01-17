@@ -2,14 +2,14 @@ _base_ = '../_base_/pose_default_runtime.py'
 
 custom_imports = dict(imports=['models', 'datasets', 'core'],
                       allow_failed_imports=False)
-
+num_classes=2
 model = dict(
     type='Fomo',
     backbone=dict(type='MobileNetV2', widen_factor=0.35, out_indices=(2, )),
     head=dict(
         type='Fomo_Head',
         input_channels=16,
-        num_classes=2,
+        num_classes=num_classes,
         middle_channels=[96, 32],
         act_cfg='ReLU6',
         loss_cls=dict(type='BCEWithLogitsLoss',
@@ -22,10 +22,15 @@ model = dict(
 
 # dataset settings
 dataset_type = 'FomoDatasets'
-data_root = ''
+data_root = '132'
+height=96
+width=96
+batch_size=32
+workers=4
+
 
 train_pipeline = [
-    dict(type='RandomResizedCrop', height=96, width=96, scale=(0.90, 1.1),
+    dict(type='RandomResizedCrop', height=height, width=width, scale=(0.90, 1.1),
          p=1),
     dict(type='Rotate', limit=20),
     dict(type='RandomBrightnessContrast',
@@ -34,35 +39,34 @@ train_pipeline = [
          p=0.5),
     dict(type='HorizontalFlip', p=0.5),
 ]
-test_pipeline = [dict(type='Resize', height=96, width=96, p=1)]
+test_pipeline = [dict(type='Resize', height=height, width=width, p=1)]
 
-classes = ('mask', 'no-mask')
-data = dict(samples_per_gpu=16,
-            workers_per_gpu=2,
+data = dict(samples_per_gpu=batch_size,
+            workers_per_gpu=workers,
+            train_dataloader=dict(collate=True),
+            val_dataloader=dict(collate=True),
             train=dict(type=dataset_type,
                        data_root=data_root,
-                       classes=classes,
                        ann_file='train/_annotations.coco.json',
                        img_prefix='train',
                        pipeline=train_pipeline),
             val=dict(type=dataset_type,
                      data_root=data_root,
-                     classes=classes,
                      test_mode=True,
                      ann_file='valid/_annotations.coco.json',
                      img_prefix='valid',
                      pipeline=test_pipeline),
             test=dict(type=dataset_type,
                       data_root=data_root,
-                      classes=classes,
                       test_mode=True,
                       ann_file='valid/_annotations.coco.json',
                       img_prefix='valid',
                       pipeline=test_pipeline))
 
 # optimizer
-
-optimizer = dict(type='Adam', lr=0.001, weight_decay=0.0005)
+lr=0.001
+epochs=300
+optimizer = dict(type='Adam', lr=lr, weight_decay=0.0005)
 
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 # learning policy
@@ -72,7 +76,7 @@ lr_config = dict(policy='step',
                  warmup_ratio=0.000001,
                  step=[100, 200, 250])
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=300)
+runner = dict(type='EpochBasedRunner', max_epochs=epochs)
 evaluation = dict(interval=1, metric=['mAP'], fomo=True)
 find_unused_parameters = True
 
