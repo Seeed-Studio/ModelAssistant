@@ -13,28 +13,30 @@ from mmcv.runner import get_dist_info, init_dist, set_random_seed
 from mmcv.utils import get_git_hash
 from mmdet.models.utils.misc import interpolate_as
 
+from tools.utils.config import load_config
+
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
-torch.multiprocessing.set_start_method('spawn')
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
-    parser.add_argument('type',default='mmdet', help='Choose training type')
-    parser.add_argument('config',default='configs/yolo/yolov3_mbv2_416_coco.py', help='train config file path')
+    parser.add_argument('type', default='mmdet', help='Choose training type')
+    parser.add_argument('config',
+                        default='configs/yolo/yolov3_mbv2_416_coco.py',
+                        help='train config file path')
     parser.add_argument('--work-dir', help='the dir to save logs and models')
-    parser.add_argument(
-        '--resume-from', help='the checkpoint file to resume from')
-    parser.add_argument(
-        '--auto-resume',
-        action='store_true',
-        help='resume from the latest checkpoint automatically')
+    parser.add_argument('--resume-from',
+                        help='the checkpoint file to resume from')
+    parser.add_argument('--auto-resume',
+                        action='store_true',
+                        help='resume from the latest checkpoint automatically')
     parser.add_argument(
         '--no-validate',
         action='store_true',
         help='whether not to evaluate the checkpoint during training')
     group_gpus = parser.add_mutually_exclusive_group()
-    group_gpus.add_argument(
-        '--device', help='device used for training. (Deprecated)')
+    group_gpus.add_argument('--device',
+                            help='device used for training. (Deprecated)')
     group_gpus.add_argument(
         '--gpus',
         type=int,
@@ -46,17 +48,15 @@ def parse_args():
         nargs='+',
         help='(Deprecated, please use --gpu-id) ids of gpus to use '
         '(only applicable to non-distributed training)')
-    group_gpus.add_argument(
-        '--gpu-id',
-        type=int,
-        default=0,
-        help='id of gpu to use '
-        '(only applicable to non-distributed training)')
-    parser.add_argument(
-        '--ipu-replicas',
-        type=int,
-        default=None,
-        help='num of ipu replicas to use')
+    group_gpus.add_argument('--gpu-id',
+                            type=int,
+                            default=0,
+                            help='id of gpu to use '
+                            '(only applicable to non-distributed training)')
+    parser.add_argument('--ipu-replicas',
+                        type=int,
+                        default=None,
+                        help='num of ipu replicas to use')
     parser.add_argument('--seed', type=int, default=None, help='random seed')
     parser.add_argument(
         '--diff-seed',
@@ -83,14 +83,13 @@ def parse_args():
         'It also allows nested list/tuple values, e.g. key="[(a,b),(c,d)]" '
         'Note that the quotation marks are necessary and that no white space '
         'is allowed.')
-    parser.add_argument(
-        '--launcher',
-        choices=['none', 'pytorch', 'slurm', 'mpi'],
-        default='none',
-        help='job launcher')
+    parser.add_argument('--launcher',
+                        choices=['none', 'pytorch', 'slurm', 'mpi'],
+                        default='none',
+                        help='job launcher')
     parser.add_argument('--local_rank', type=int, default=0)
     parser.add_argument(
-        '--autoscale-lr',                       #TODO
+        '--autoscale-lr',  #TODO
         action='store_true',
         help='enable automatically scaling LR.')
     parser.add_argument('--data', help='point data root manually')
@@ -111,12 +110,12 @@ def parse_args():
 
 def mkdir_work(work_dir):
     work_dir = osp.abspath(work_dir)
-    os.makedirs(work_dir,exist_ok=True)
+    os.makedirs(work_dir, exist_ok=True)
     os.chdir(work_dir)
     fl = os.listdir(work_dir)
-    num = max([int(i.replace('exp','')) for i in fl if 'exp' in i]+[0])+1
-    os.makedirs(f'exp{num}',exist_ok=True)
-    return osp.join(work_dir,f'exp{num}')
+    num = max([int(i.replace('exp', '')) for i in fl if 'exp' in i] + [0]) + 1
+    os.makedirs(f'exp{num}', exist_ok=True)
+    return osp.join(work_dir, f'exp{num}')
 
 
 def main():
@@ -124,18 +123,20 @@ def main():
     # #check PWD in os.environ['PYTHONPATH']
     # if PWD not in os.environ['PYTHONPATH']:
     #     os.environ['PYTHONPATH'] += ':' + PWD
-        
+
     args = parse_args()
     train_type = args.type
-    cfg = Config.fromfile(args.config)
+    config_data = load_config(args.config, args.cfg_options)
+    cfg = Config.fromstring(config_data,
+                            file_format=osp.splitext(args.config)[-1])
     if train_type == 'mmdet':
         from mmdet import __version__
         from mmdet.apis import init_random_seed, set_random_seed
         from mmdet.datasets import build_dataset
         from mmdet.models import build_detector as build_model
         from mmdet.utils import (collect_env, get_device, get_root_logger,
-                                replace_cfg_vals, setup_multi_processes,
-                                update_data_root)
+                                 setup_multi_processes, update_data_root)
+        from tools.utils.config import replace_cfg_vals
         from core.apis.mmdet.train import train_detector as train_model
         # replace the ${key} with the value of cfg.key
         cfg = replace_cfg_vals(cfg)
@@ -144,10 +145,10 @@ def main():
     elif train_type == 'mmcls':
         from mmcls import __version__
         from mmcls.apis import init_random_seed, set_random_seed, train_model
-        from mmcls.datasets import build_dataset 
+        from mmcls.datasets import build_dataset
         from mmcls.models import build_classifier as build_model
-        from mmcls.utils import (auto_select_device, collect_env, get_root_logger,
-                                setup_multi_processes)
+        from mmcls.utils import (auto_select_device, collect_env,
+                                 get_root_logger, setup_multi_processes)
     else:
         from mmcv.runner import set_random_seed
         from mmpose import __version__
@@ -173,8 +174,6 @@ def main():
 
     # set multi-process settings
     setup_multi_processes(cfg)
-
-
 
     if args.data is not None:
         args.data = os.path.abspath(args.data)
@@ -252,7 +251,8 @@ def main():
     logger.info(f'Distributed training: {distributed}')
     logger.info(f'Config:\n{cfg.pretty_text}')
 
-    cfg.device = get_device() if train_type=='mmdet' else (auto_select_device() if train_type=='mmcls' else None)
+    cfg.device = get_device() if train_type == 'mmdet' else (
+        auto_select_device() if train_type == 'mmcls' else None)
     # set random seeds
     seed = init_random_seed(args.seed, device=cfg.device)
     seed = seed + dist.get_rank() if args.diff_seed else seed
@@ -263,12 +263,10 @@ def main():
     meta['seed'] = seed
     meta['exp_name'] = osp.basename(args.config)
 
-
     if train_type == 'mmdet':
-        model = build_model(
-            cfg.model,
-            train_cfg=cfg.get('train_cfg'),
-            test_cfg=cfg.get('test_cfg'))
+        model = build_model(cfg.model,
+                            train_cfg=cfg.get('train_cfg'),
+                            test_cfg=cfg.get('test_cfg'))
         model.init_weights()
     else:
         model = build_model(cfg.model)
@@ -284,28 +282,26 @@ def main():
     if cfg.checkpoint_config is not None and train_type == 'mmdet':
         # save mmdet version, config file content and class names in
         # checkpoints as meta data
-        cfg.checkpoint_config.meta = dict(
-            mmdet_version=__version__ + get_git_hash()[:7],
-            CLASSES=datasets[0].CLASSES)
+        cfg.checkpoint_config.meta = dict(mmdet_version=__version__ +
+                                          get_git_hash()[:7],
+                                          CLASSES=datasets[0].CLASSES)
         # add an attribute for visualization convenience
         model.CLASSES = datasets[0].CLASSES
     # save mmcls version, config file content and class names in
     # runner as meta data
     if train_type == 'mmcls':
         meta.update(
-            dict(
-                mmcls_version=__version__,
-                config=cfg.pretty_text,
-                CLASSES=datasets[0].CLASSES))
+            dict(mmcls_version=__version__,
+                 config=cfg.pretty_text,
+                 CLASSES=datasets[0].CLASSES))
 
-    train_model(
-        model,
-        datasets,
-        cfg,
-        distributed=distributed,
-        validate=(not args.no_validate),
-        timestamp=timestamp,
-        meta=meta)
+    train_model(model,
+                datasets,
+                cfg,
+                distributed=distributed,
+                validate=(not args.no_validate),
+                timestamp=timestamp,
+                meta=meta)
 
 
 if __name__ == '__main__':
