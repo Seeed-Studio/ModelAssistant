@@ -138,14 +138,19 @@ def build_dataloader(dataset,
         warnings.warn('persistent_workers is invalid because your pytorch '
                       'version is lower than 1.7.0')
 
-    data_loader = DataLoader(dataset,
-                             batch_size=batch_size,
-                             sampler=sampler,
-                             num_workers=num_workers,
-                             batch_sampler=batch_sampler,
-                             collate_fn=collate_fn,
-                             pin_memory=kwargs.pop('pin_memory', False),
-                             worker_init_fn=init_fn,
-                             **kwargs)
+    collate_=collate_fn if 'collate' in kwargs else partial(collate, samples_per_gpu=samples_per_gpu)
+    kwargs.pop('collate') if 'collate' in kwargs else None
+    data_loader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        sampler=sampler,
+        num_workers=num_workers,
+        batch_sampler=batch_sampler,
+        collate_fn=collate_,
+        pin_memory=kwargs.pop('pin_memory', False),
+        worker_init_fn=init_fn,
+        **kwargs)
+
+    return data_loader
 
     return data_loader
