@@ -21,14 +21,13 @@ class FomoDatasets(Dataset):
     def __init__(self,
                  data_root,
                  pipeline,
-                 classes,
+                 classes=None,
                  bbox_params: dict = dict(format='coco',
                                           label_fields=['class_labels']),
                  ann_file: str = None,
                  img_prefix: str = None,
                  test_mode=None) -> None:
         super().__init__()
-        self.CLASSES = classes
         if not osp.isabs(img_prefix):
             img_dir = os.path.join(data_root, img_prefix)
         if not osp.isabs(ann_file):
@@ -40,10 +39,21 @@ class FomoDatasets(Dataset):
             img_dir,
             ann_file,
         )
-        self.totensor = ToTensor()
+        self.parse_cats()
         self.flag = np.zeros(len(self), dtype=np.uint8)
         for i in range(len(self)):
             self.flag[i] = 1
+
+    def parse_cats(self):
+        self.roboflow = False
+        self.CLASSES = []
+        for key, value in self.data.coco.dataset['info'].items():
+            if isinstance(value, str) and 'roboflow' in value:
+                self.roboflow = True
+        for key, value in self.data.coco.cats.items():
+            if key == 0 and self.roboflow:
+                continue
+            self.CLASSES.append(value['name'])
 
     def __len__(self):
         return len(self.data)
