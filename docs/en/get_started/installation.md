@@ -32,7 +32,7 @@ pip3 install -r requirements/requirements.txt
 ```bash
 pip3 install torch==1.10.0 torchvision==0.11.1 torchaudio==0.10.0
 ```
-### Install MMCY
+### Install MMCV
 ```bash
 pip3 install mmcv-full==1.7.0 -f https://download.openmmlab.com/mmcv/dist/cpu/torch1.10.0/index.html
 ```

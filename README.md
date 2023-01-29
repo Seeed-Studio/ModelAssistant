@@ -64,15 +64,15 @@ Now let's experience EdgeLab in the fastest way by deploying it on [Grove - Visi
 
 - **Step 1.** We provide 2 different models for object detection and analog meter reading detection. Click on the model that you want to use to download it.
 
-    - [Analog meter reading detection model](https://files.seeedstudio.com/wiki/EdgeLab/uf2/analog-meter-model.uf2)
+    - [Analog meter reading detection model](https://files.seeedstudio.com/wiki/Edgelab/uf2/analog-meter-model.uf2)
     - Object detection model (coming soon!)
     
 - **Step 2.** We provide 2 different firmware for Grove - Vision AI and SenseCAP A1101. Click on the firmware that you want to use to download it.
 
     - Analog meter reading detection
     
-        - [Grove - Vision AI](https://files.seeedstudio.com/wiki/EdgeLab/uf2/grove-vision-ai-firmware.uf2)
-        - [SenseCAP A1101](https://files.seeedstudio.com/wiki/EdgeLab/uf2/sensecap-A1101-firmware.uf2)
+        - [Grove - Vision AI](https://files.seeedstudio.com/wiki/Edgelab/uf2/grove-vision-ai-firmware.uf2)
+        - [SenseCAP A1101](https://files.seeedstudio.com/wiki/Edgelab/uf2/sensecap-A1101-firmware.uf2)
     - Object detection
 
         - Coming soon!
@@ -106,51 +106,51 @@ Once the copying is finished **GROVEAI** or **VISIONAI** drive will disapper. Th
 
 - **Step 2:** Click **Connect** button. Then you will see a pop up on the browser. Select **Grove AI - Paired** and click **Connect**
   
-<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/EdgeLab/meter-own-github/13.jpg"/></div>
+<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/13.jpg"/></div>
 
-<div align=center><img width=400 src="https://files.seeedstudio.com/wiki/EdgeLab/meter-own-github/12.png"/></div>
+<div align=center><img width=400 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/12.png"/></div>
 
 Upon successful connection, you will see a live preview from the camera. Here the camera is pointed at an analog meter.
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/EdgeLab/meter-own-github/14.png"/></div>
+<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/14.png"/></div>
 
 Now we need to set 3 points which is the center point, start point and the end point. 
 
 - **Step 3:** Click on **Set Center Point** and click on the center of the meter. you will see a pop up confirm the location and press **OK**
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/EdgeLab/meter-own-github/15.png"/></div>
+<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/15.png"/></div>
 
 You will see the center point is already recorded
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/EdgeLab/meter-own-github/16.png"/></div>
+<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/16.png"/></div>
 
 - **Step 4:** Click on **Set Start Point** and click on the first indicator point. you will see a pop up confirm the location and press **OK**
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/EdgeLab/meter-own-github/17.png"/></div>
+<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/17.png"/></div>
 
 You will see the first indicator point is already recorded
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/EdgeLab/meter-own-github/18.png"/></div>
+<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/18.png"/></div>
 
 - **Step 5:** Click on **Set End Point** and click on the last indicator point. you will see a pop up confirm the location and press **OK**
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/EdgeLab/meter-own-github/19.png"/></div>
+<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/19.png"/></div>
 
 You will see the last indicator point is already recorded
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/EdgeLab/meter-own-github/20.png"/></div>
+<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/20.png"/></div>
 
 - **Step 6:** Set the measuring range according to the first digit and last digit of the meter. For example, he we set as **From:0 To 0.16**
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/EdgeLab/meter-own-github/21.png"/></div>
+<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/21.png"/></div>
 
 - **Step 7:** Set the number of decimal places that you want the result to display. Here we set as 2
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/EdgeLab/meter-own-github/22.png"/></div>
+<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/22.png"/></div>
 
 Finally you can see the live meter reading results as follows
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/EdgeLab/meter-own-github/meter.gif"/></div>
+<div align=center><img width=800 src="https://files.seeedstudio.com/wiki/Edgelab/meter-own-github/meter.gif"/></div>
 </details>
 
 ## Getting Started with EdgeLab
