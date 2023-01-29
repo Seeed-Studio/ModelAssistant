@@ -1,6 +1,0 @@
-[submodule "examples/esp32/components/esp-nn"]
-	path = examples/esp32/components/esp-nn
-	url = https://github.com/espressif/esp-nn.git
-[submodule "examples/esp32/components/esp32-camera"]
-	path = examples/esp32/components/esp32-camera
-	url = https://github.com/espressif/esp32-camera.git

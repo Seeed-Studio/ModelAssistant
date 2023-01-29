@@ -257,3 +257,6 @@ work_dirs/
 *third_party/
 *tools/
 !/examples/vision_ai/assets/*.*
+
+# docs
+!docs/_static/*.*

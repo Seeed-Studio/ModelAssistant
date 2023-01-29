@@ -1,0 +1,7 @@
+docutils
+markdown
+myst-parser
+sphinx-rtd-theme
+sphinx
+sphinx-copybutton
+sphinx_markdown_tables
