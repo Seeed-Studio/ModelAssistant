@@ -1,0 +1,34 @@
+name: build
+
+on:
+  push:
+    paths-ignore:
+      - 'README.md'
+      - 'README_zh-CN.md'
+      - 'docs/**'
+      - 'examples/**'
+      - 'docker/**'
+
+  pull_request:
+    paths-ignore:
+      - 'README.md'
+      - 'README_zh-CN.md'
+      - 'docs/**'
+      - 'examples/**'
+      - 'docker/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+     - name: Checkout
+        uses: actions/checkout@master
+      # - name: Install system dependencies
+      #   run: sudo apt-get update && sudo apt-get install -y 
+      - name: Environment Setup
+        run: tools/env_config.py
+  
