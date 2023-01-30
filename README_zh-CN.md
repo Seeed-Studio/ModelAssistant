@@ -1,48 +1,65 @@
-# 基于 OpenMMLab 框架的多任务网络模型库
+# Seeed Studio EdgeLab
 
-[English](./README.md) | 简体中文
+
+<div align="center">
+  <img width="100%" src="https://user-images.githubusercontent.com/20147381/206665275-feceede2-c68c-4259-a4db-541b3bd25b2f.png">
+  <h3> <a href="https://edgelab.readthedocs.io/en/latest/"> Documentation </a> | <a href="https://edgelab.readthedocs.io/zh_CN/latest/"> 中文文档 </a>  </h3>
+</div>
+
+[![Documentation Status](https://readthedocs.org/projects/edgelab/badge/?version=latest)](https://edgelab.readthedocs.io/en/latest/?badge=latest)
+
+[English](README.md) | 简体中文
 
 ## 简介
 
-这是一个基于 [OpenMMLab]() 框架开发的一个适用于多种视觉任务主干网络的模型训练库。\
-同时可以使用[MMDetection]()、[MMClassification]()、[MMPose]()等工具箱的模型并训练、测试和导出。\
-通过融合后的训练脚本我们可以很轻松地训练一个以上工具箱中已有的模型，只需要修改配置文件的数据集路径即可训练自定义数据集。、
+Seeed Studio EdgeLab是一个专注于嵌入式人工智能的开源项目。我们对[OpenMMLab](https://github.com/open-mmlab)的优秀算法进行了优化，使其适用于现实世界的场景，并使实施更加人性化，在嵌入式设备上实现更快和更准确的推理。
 
-## 相关教程和文档
+## 包括什么
 
-可查看[快速使用文档](./docs/zh_cn/get_started.md)学习本项目的基本使用，同时也可使用我们提供的[colab教程]()。\
-对于更多教程可以查看以下内容：
+目前我们支持以下的算法方向。
 
-1. [基础环境配置](./docs/zh_cn/get_started.md)
-2. [自定义数据集配置](./docs/zh_cn/tutorials/datasets_config.md)
-3. [Pytorch模型转至ONNX](./docs/zh_cn/tutorials/pytorch2onnx.md)
-4. [ONNX转NCNN及量化](./docs/zh_cn/tutorials/onnx2xxx.md)
-5. [相关工具的使用](./docs/zh_cn/tutorials/use_tools.md)
+<details>
+<summary> 异常检测（即将推出）</summary>
+在现实世界中，异常数据往往很难被识别，即使能被识别，也需要很高的成本。异常检测算法以低成本的方式收集正常数据，任何超出正常数据的东西都被认为是异常的。
+</details>
 
-## 模型库
+<details>
+<summary>计算机视觉</summary>
+这里我们提供了一些计算机视觉算法，如物体检测、图像分类、图像分割和姿态估计。然而，这些算法不能在低成本的硬件上运行。EdgeLab对这些计算机视觉算法进行了优化，以便在低端设备中实现良好的运行速度和准确性。
+</details>
 
-对于mmdetection、mmpos、mmclassify所支持的模型均可使用。
-本项目直接实现的算法有以下：\
-[PFLD](./configs/pfld/README.md)\
-[EAT](./configs/audio_classify/README.md)
+<details>
+<summary>特定场景</summary>
+特定场景，如模拟仪表、传统数字仪表和音频分类的识别。
+</details>
+
+<br>
+我们将在未来不断增加更多的算法。敬请关注!
+
+## 特点介绍
+
+<details>
+<summary>用户友好</summary>
+EdgeLab提供了一个用户友好的平台，使用户能够轻松地对收集的数据进行训练，并通过训练过程中产生的可视化效果更好地了解算法的性能。
+</details>
+
+<details>
+<summary>高性能模型，低算力开销</summary>
+EdgeLab专注于终端人工智能算法研究，算法模型可以部署在微处理器上，类似于<a href="https://www.espressif.com/en/products/socs/esp32">ESP32</a>，一些<a href="https://arduino.cc">Arduino</a>开发板，甚至是嵌入式SBC，如<a href="https://www.raspberrypi.org">Raspberry Pi</a>
+</details>
+
+<details>
+<summary>多模型格式导出</summary>
+<a href="https://www.tensorflow.org/lite">TensorFlow Lite</a>主要用于微控制器，而<a href="https://onnx.ai">ONNX</a>主要用于嵌入式Linux的设备。有一些特殊的格式，如 <a href="https://developer.nvidia.com/tensorrt">TensorRT</a>、<a href="https://docs.openvino.ai">OpenVINO</a>，已经被OpenMMlab很好地支持.
+</details>
 
 ## 致谢
 
-edgelab有关内容参考借鉴了以下项目：
+Edgelab参考了以下项目：
 
-- [YOLOv5](https://github.com/ultralytics/yolov5)
-- [mmdetection](https://github.com/open-mmlab/mmdetection)
-- [mmclassification](https://github.com/open-mmlab/mmclassification)
-- [mmpose](https://github.com/open-mmlab/mmpose)
-- [mmdeploy](https://github.com/open-mmlab/mmdeploy)
+- [OpenMMLab](https://openmmlab.com)
+- [ONNX](https://github.com/onnx/onnx)
+- [NCNN](https://github.com/Tencent/ncnn)
 
-## FAQ
-
-对于在环境配置与训练过程中可能出现的问题可先查看[相关问题解决文档](./docs/zh_cn/faq.md)
-查看。若没能解决您的问题可提出[issue](https://github.com/Seeed-Studio/edgelab/issues)，
-我们会尽快为您解决。
-
-## 许可证
-
-edgelab 目前以 Apache 2.0 的许可证发布，但是其中有一部分功能并不是使用的 Apache2.0 许可证，我们在[许可证](./LICENSES.md)
-中详细地列出了这些功能以及他们对应的许可证，如果您正在从事盈利性活动，请谨慎参考此文档。
+## 开源许可证
+该项目采用 [Apache 2.0 开源许可证](LICENSES)。
