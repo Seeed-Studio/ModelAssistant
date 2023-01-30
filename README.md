@@ -65,4 +65,4 @@ Edgelab referenced the following projects：
 
 ## License
 
-This project is released under the [Apache 2.0 license](LICENSES).
+This project is released under the [MIT license](LICENSES).

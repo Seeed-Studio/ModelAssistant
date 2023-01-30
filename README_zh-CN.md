@@ -62,4 +62,4 @@ Edgelab参考了以下项目：
 - [NCNN](https://github.com/Tencent/ncnn)
 
 ## 开源许可证
-该项目采用 [Apache 2.0 开源许可证](LICENSES)。
+该项目采用 [MIT 开源许可证](LICENSES)。
