@@ -14,6 +14,7 @@ from mmcv.utils import get_git_hash
 from mmdet.models.utils.misc import interpolate_as
 
 from tools.utils.config import load_config
+from edgelab.models.backbones.shufflenetv2 import CustomShuffleNetV2
 
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 
@@ -137,7 +138,7 @@ def main():
         from mmdet.utils import (collect_env, get_device, get_root_logger,
                                  setup_multi_processes, update_data_root)
         from tools.utils.config import replace_cfg_vals
-        from core.apis.mmdet.train import train_detector as train_model
+        from edgelab.core.apis.mmdet.train import train_detector as train_model
         # replace the ${key} with the value of cfg.key
         cfg = replace_cfg_vals(cfg)
         # update data root according to MMDET_DATASETS

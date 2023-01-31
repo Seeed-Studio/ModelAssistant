@@ -3,7 +3,6 @@ from .detectors import *
 from .classifiers import *
 from .heads import *
 from .losses import *
-from datasets import *
 from .necks import *
 
 __all__ = [

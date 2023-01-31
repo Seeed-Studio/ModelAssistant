@@ -9,7 +9,7 @@ from torch.utils.data import Dataset
 from mmcls.datasets.builder import DATASETS
 from mmcls.datasets.builder import build_from_cfg, PIPELINES
 
-from datasets.utils.download import check_file
+from .utils.download import check_file
 
 sep = os.path.sep
 

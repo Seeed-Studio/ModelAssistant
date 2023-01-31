@@ -1,7 +1,7 @@
 import torch.nn as nn
 from mmpose.models.builder import BACKBONES
 
-from models.base.general import InvertedResidual, CBR
+from ..base.general import InvertedResidual, CBR
 
 
 @BACKBONES.register_module()

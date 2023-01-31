@@ -8,7 +8,7 @@ from mmdet.models.builder import HEADS, build_loss
 from mmcv.runner.base_module import BaseModule
 from mmcv.cnn import normal_init, constant_init, is_norm
 
-from models.base.general import CBR
+from ..base.general import CBR
 
 @HEADS.register_module()
 class Fomo_Head(BaseModule):

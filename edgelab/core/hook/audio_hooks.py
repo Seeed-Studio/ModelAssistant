@@ -1,6 +1,6 @@
 import torch
 from mmcls.models.builder import build_loss
-from core.utils.batch_augs import BatchAugs
+from ..utils.batch_augs import BatchAugs
 from mmcv.runner import Hook, HOOKS, EpochBasedRunner
 
 

@@ -12,7 +12,8 @@ from torch.utils.data import Dataset
 from torchvision.transforms import ToTensor
 from mmdet.datasets.builder import DATASETS
 from sklearn.metrics import confusion_matrix
-from datasets.pipelines.pose_transform import Pose_Compose
+
+from .pipelines.pose_transform import Pose_Compose
 
 
 @DATASETS.register_module()

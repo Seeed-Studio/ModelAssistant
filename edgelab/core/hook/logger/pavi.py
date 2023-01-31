@@ -13,7 +13,7 @@ from mmcv.runner.dist_utils import master_only
 from mmcv.parallel.scatter_gather import scatter
 from mmcv.parallel.utils import is_module_wrapper
 
-from core.hook.logger.text import TextLoggerHook
+from .text import TextLoggerHook
 
 
 @HOOKS.register_module(force=True)

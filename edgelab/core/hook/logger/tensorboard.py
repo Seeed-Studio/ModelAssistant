@@ -6,7 +6,7 @@ from mmcv.runner.dist_utils import master_only
 from mmcv.utils import TORCH_VERSION, digit_version
 from mmcv.runner.hooks.logger.text import TextLoggerHook
 
-from core.hook.logger.text import TextLoggerHook
+from .text import TextLoggerHook
 
 
 @HOOKS.register_module(force=True)

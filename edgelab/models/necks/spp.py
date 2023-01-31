@@ -3,7 +3,7 @@ import torch.nn as nn
 
 from mmdet.models.builder import NECKS
 
-from models.base.general import CBR
+from ..base.general import CBR
 
 
 @NECKS.register_module()

@@ -15,8 +15,8 @@ from mmdet.datasets import build_dataset
 from mmdet.utils import (build_ddp, build_dp, compat_cfg,
                          find_latest_checkpoint, get_root_logger)
 
-from core.hook.evalhook import Feval
-from datasets.builder import build_dataloader
+from edgelab.core.hook.evalhook import Feval
+from edgelab.datasets.builder import build_dataloader
                          
 
 def init_random_seed(seed=None, device='cuda'):

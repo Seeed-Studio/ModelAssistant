@@ -5,10 +5,10 @@ import torchvision
 import torch.nn as nn
 from mmcv.runner.base_module import BaseModule
 from mmcv.cnn import normal_init, is_norm, constant_init
-
-from models.base.general import CBR
-from models.utils.metrics import bbox_iou
 from mmdet.models.builder import HEADS, build_loss
+
+from ..base.general import CBR
+from ..utils.metrics import bbox_iou
 
 
 @HEADS.register_module()

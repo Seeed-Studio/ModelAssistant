@@ -1,6 +1,6 @@
 _base_ = '../_base_/pose_default_runtime.py'
 
-custom_imports = dict(imports=['models', 'datasets', 'core'],
+custom_imports = dict(imports=['edgelab'],
                       allow_failed_imports=False)
 num_classes=2
 model = dict(

@@ -6,7 +6,7 @@ from mmpose.models.builder import build_loss
 from mmpose.models.detectors.base import BasePose
 from mmpose.models.builder import MESH_MODELS, build_backbone, build_head
 
-from models.utils.computer_acc import pose_acc
+from ..utils.computer_acc import pose_acc
 
 
 @MESH_MODELS.register_module()

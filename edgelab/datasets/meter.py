@@ -14,8 +14,8 @@ from torch.utils.data import Dataset
 from mmpose.datasets.builder import DATASETS
 from mmcv.parallel import DataContainer as DC
 
-from datasets.utils.download import check_file
-from datasets.pipelines.pose_transform import Pose_Compose
+from .utils.download import check_file
+from .pipelines.pose_transform import Pose_Compose
 
 
 def calc_angle(x1, y1, x2, y2):

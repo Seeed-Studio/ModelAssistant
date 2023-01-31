@@ -7,7 +7,7 @@ from sklearn.metrics import confusion_matrix
 from mmdet.datasets.voc import VOCDataset
 from mmdet.datasets.builder import DATASETS
 
-from datasets.utils.download import check_file
+from .utils.download import check_file
 
 
 @DATASETS.register_module()

@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from mmpose.models.builder import HEADS
 
-from models.base.general import CBR
+from ..base.general import CBR
 
 
 @HEADS.register_module()

@@ -4,7 +4,7 @@ from typing import Optional, Union, Dict
 from mmcv.utils import scandir
 from mmcv.runner import HOOKS
 from mmcv.runner.dist_utils import master_only
-from core.hook.logger.text import TextLoggerHook
+from .text import TextLoggerHook
 
 
 @HOOKS.register_module(force=True)

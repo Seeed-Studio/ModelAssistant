@@ -6,7 +6,7 @@ from mmcv.runner.hooks import HOOKS
 from mmcv.runner.hooks.evaluation import EvalHook
 from torch.utils.data import DataLoader
 
-from core.apis.mmdet.test import sigle_gpu_test_fomo
+from edgelab.core.apis.mmdet.test import sigle_gpu_test_fomo
 
 
 def show_result(result, img_path, classes):
