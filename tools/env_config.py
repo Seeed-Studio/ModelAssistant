@@ -375,8 +375,6 @@ def check_env():
     check_list['mmpose'] = 'OK' if command(f"{python_bin} -c 'import mmpose'",
                                            1) else 'faile'
 
-    w, h = os.get_terminal_size()
-    w0 = w - 10
     for key, value in check_list.items():
         print(f"{key:30s}:{value:10s}")
 
