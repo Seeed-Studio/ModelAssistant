@@ -7,7 +7,7 @@ import onnx
 import torch
 import numpy as np
 
-from models.utils.computer_acc import pose_acc
+from edgelab.models.utils.computer_acc import pose_acc
 
 
 class Inter():
