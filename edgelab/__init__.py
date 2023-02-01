@@ -1,3 +1,3 @@
-import edgelab.core
-import edgelab.models
-import edgelab.datasets
+from .version import __version__, short_version
+
+__all__ = ['__version__', 'short_version']
