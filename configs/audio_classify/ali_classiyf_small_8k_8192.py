@@ -1,8 +1,4 @@
-_base_ = ['../_base_/cls_default_runtime.py']
-
-# model settings
-custom_imports = dict(imports=['models', 'datasets', 'core'],
-                      allow_failed_imports=False)
+_base_ = ['../_base_/default_runtime.py']
 
 words = [
     "no",
@@ -16,6 +12,8 @@ words = [
     'nine', 'no', 'off', 'on', 'one', 'right', 'seven', 'sheila', 'six',
     'stop', 'three', 'tree', 'two', 'up', 'visual', 'wow', 'yes', 'zero'
 ]
+# model settings
+num_classes=35
 model = dict(type='Audio_classify',
              backbone=dict(type='SoundNetRaw',
                            nf=2,
@@ -24,7 +22,7 @@ model = dict(type='Audio_classify',
                            out_channel=36),
              head=dict(type='Audio_head',
                        in_channels=36,
-                       n_classes=len(words),
+                       n_classes=num_classes,
                        drop=0.2),
              loss_cls=dict(type='LabelSmoothCrossEntropyLoss',
                            reduction='sum',
@@ -39,6 +37,10 @@ transforms = [
 ]
 
 data_root = 'http://download.tensorflow.org/data/speech_commands_v0.02.tar.gz'
+width=8192
+batch_size=128
+workers=8
+
 train_pipeline = dict(type='AudioAugs', k_augs=transforms)
 
 img_norm_cfg = dict(mean=[123.675, 116.28, 103.53],
@@ -60,12 +62,12 @@ test_pipeline = [
 ]
 
 data = dict(
-    samples_per_gpu=128,
-    workers_per_gpu=10,
+    samples_per_gpu=batch_size,
+    workers_per_gpu=workers,
     train=dict(type=dataset_type,
                root=data_root,
                sampling_rate=8000,
-               segment_length=8192,
+               segment_length=width,
                pipeline=train_pipeline,
                mode='train',
                use_background=True,
@@ -74,7 +76,7 @@ data = dict(
     val=dict(type=dataset_type,
              root=data_root,
              sampling_rate=8000,
-             segment_length=8192,
+             segment_length=width,
              mode='val',
              use_background=False,
              lower_volume=True,
@@ -83,9 +85,8 @@ data = dict(
         type=dataset_type,
         root=data_root,
         sampling_rate=8000,
-        segment_length=8192,
+        segment_length=width,
         mode='test',
-        # pipeline=test_pipeline,
         use_background=False,
         lower_volume=True,
         words=words))
@@ -96,7 +97,7 @@ custom_hooks = dict(type='Audio_hooks',
                     loss=dict(type='LabelSmoothCrossEntropyLoss',
                               reduction='sum',
                               smoothing=0.1),
-                    seq_len=8192,
+                    seq_len=width,
                     sampling_rate=8000,
                     device='0',
                     augs_mix=['mixup', 'timemix', 'freqmix', 'phmix'],
@@ -112,8 +113,10 @@ evaluation = dict(save_best='acc',
                   metric_options={'topk': (1, )})
 
 # optimizer
+lr=0.0003
+epochs=1500
 optimizer = dict(type='AdamW',
-                 lr=0.0003,
+                 lr=lr,
                  betas=[0.9, 0.99],
                  weight_decay=0,
                  eps=1e-8)
@@ -123,7 +126,7 @@ optimizer_config = dict(grad_clip=None)
 # lr_config = dict(policy='step', step=[50,200])
 lr_config = dict(
     policy='OneCycle',
-    max_lr=0.0003,
+    max_lr=lr,
     # steps_per_epoch=388,
     # epoch=1500,
     pct_start=0.1)
