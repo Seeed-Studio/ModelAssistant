@@ -1,4 +1,3 @@
-# Copyright (c) OpenMMLab. All rights reserved.
 import argparse
 import copy
 import os
@@ -14,7 +13,6 @@ from mmcv.utils import get_git_hash
 from mmdet.models.utils.misc import interpolate_as
 
 from tools.utils.config import load_config
-from edgelab.models.backbones.shufflenetv2 import CustomShuffleNetV2
 
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 
