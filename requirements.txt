@@ -1,4 +1,3 @@
 -r requirements/audio.txt
 -r requirements/base.txt
--r requirements/docs.txt
 -r requirements/inference.txt
