@@ -4,31 +4,50 @@ import random
 import argparse
 import torchaudio
 import torch.nn.functional as F
-from models.tf.tf_common import *
 import torch
 import torch.nn as nn
 from mmcv.runner import load_checkpoint
 from mmcv import Config
 
+from edgelab.models.tf.tf_common import *
+
 gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
 if len(gpus) != 0:
-    tf.config.experimental.set_virtual_device_configuration(gpus[0],
-                                                            [tf.config.experimental.VirtualDeviceConfiguration(
-                                                                memory_limit=4096)])
+    tf.config.experimental.set_virtual_device_configuration(
+        gpus[0],
+        [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4096)])
 else:
     tf.config.experimental.set_visible_devices([], 'GPU')
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Convert PyTorch to TFLite')
-    parser.add_argument('type', default='mmdet', help='Choose training type')
-    parser.add_argument('config', type=str, help='test config file path')
+    parser.add_argument('task',
+                        default='mmdet',
+                        choices=['mmcls', 'mmdet', 'mmpose'],
+                        help='Choose training task type')
+    parser.add_argument('config',
+                        type=str,
+                        default='',
+                        help='test config file path')
     parser.add_argument('--weights', type=str, help='torch model file path')
-    parser.add_argument('--tflite_type', type=str, default='int8', help='Quantization type for tflite, '
-                                                                        '(int8, fp16, fp32)')
-    parser.add_argument('--data', type=str, help='Representative dataset path, need at least 100 images')
-    parser.add_argument('--audio', action='store_true', help='Choose audio dataset load code if given')
-    parser.add_argument('--shape', type=int, nargs='+', default=[112], help='input data size')
+    parser.add_argument('--tflite_type',
+                        type=str,
+                        default='int8',
+                        help='Quantization type for tflite, '
+                        '(int8, fp16, fp32)')
+    parser.add_argument(
+        '--data',
+        type=str,
+        help='Representative dataset path, need at least 100 images')
+    parser.add_argument('--audio',
+                        action='store_true',
+                        help='Choose audio dataset load code if given')
+    parser.add_argument('--shape',
+                        type=int,
+                        nargs='+',
+                        default=[112],
+                        help='input data size')
     # parser.add_argument('--save', type=str, help='Tflite model path')
 
     args = parser.parse_args()
@@ -67,8 +86,7 @@ def representative_dataset_1d(root, size):
             audio_start = random.randint(0, max_audio_start)
             wave = wave[audio_start:audio_start + size]
         else:
-            wave = F.pad(wave, (0, size - wave.size(0)),
-                         "constant").data
+            wave = F.pad(wave, (0, size - wave.size(0)), "constant").data
 
         yield [wave[None, :, None]]
         if i > 100:
@@ -78,7 +96,8 @@ def representative_dataset_1d(root, size):
 def graph2dict(model):
     """Generating tf dictionary from torch graph."""
 
-    gm: torch.fx.GraphModule = torch.fx.symbolic_trace(model, concrete_args={'flag': True})
+    gm: torch.fx.GraphModule = torch.fx.symbolic_trace(
+        model, concrete_args={'flag': True})
     # gm.graph.print_tabular()
     modules = dict(model.named_modules())
 
@@ -112,12 +131,14 @@ def graph2dict(model):
             if isinstance(op, nn.Softmax):
                 tf_dict[node.name] = keras.layers.Softmax(axis=-1)
             if isinstance(op, nn.Upsample):
-                tf_dict[node.name] = keras.layers.UpSampling2D(size=int(op.scale_factor), interpolation=op.mode)
+                tf_dict[node.name] = keras.layers.UpSampling2D(
+                    size=int(op.scale_factor), interpolation=op.mode)
         if node.op == 'call_function':
             if 'add' in node.name:
                 tf_dict[node.name] = keras.layers.Add()
             if 'cat' in node.name:
-                dim = node.args[1] if len(node.args) == 2 else node.kwargs['dim']
+                dim = node.args[1] if len(
+                    node.args) == 2 else node.kwargs['dim']
                 dim = -1 if dim == 1 else dim - 1
                 tf_dict[node.name] = keras.layers.Concatenate(axis=dim)
 
@@ -125,6 +146,7 @@ def graph2dict(model):
 
 
 class ModelParser(keras.layers.Layer):
+
     def __init__(self, tf_dict, gm):
         super().__init__()
         self.nodes = gm.graph.nodes
@@ -136,11 +158,14 @@ class ModelParser(keras.layers.Layer):
                 globals()[node.name] = inputs
             if node.name in self.tf.keys():
                 if 'add' in node.name:
-                    globals()[node.name] = self.tf[node.name]([eval(str(x)) for x in node.args])
+                    globals()[node.name] = self.tf[node.name](
+                        [eval(str(x)) for x in node.args])
                 elif 'cat' in node.name:
-                    globals()[node.name] = self.tf[node.name]([eval(str(x)) for x in node.args[0]])
+                    globals()[node.name] = self.tf[node.name](
+                        [eval(str(x)) for x in node.args[0]])
                 else:
-                    globals()[node.name] = self.tf[node.name](eval(str(node.args[0])))
+                    globals()[node.name] = self.tf[node.name](eval(
+                        str(node.args[0])))
             if 'size' in node.name:
                 if len(node.args) == 2:
                     # dim = -1 if node.args[1] == 1 else node.args[1]
@@ -155,28 +180,41 @@ class ModelParser(keras.layers.Layer):
             if 'view' in node.name:
                 if len(node.args[1:]) == 2:
                     s = eval(str(node.args[1]))
-                    globals()[node.name] = tf.reshape(eval(str(node.args[0])), [-1, s])
+                    globals()[node.name] = tf.reshape(eval(str(node.args[0])),
+                                                      [-1, s])
                 else:
                     if 'contiguous' in str(node.args[0]):
                         n, c, h, w = [eval(str(a)) for a in node.args[1:]]
-                        globals()[node.name] = tf.reshape((eval(str(node.args[0]))), [-1, h, w, c])
+                        globals()[node.name] = tf.reshape(
+                            (eval(str(node.args[0]))), [-1, h, w, c])
                     else:
-                        n, group, f, h, w = [a if isinstance(a, int) else eval(str(a)) for a in node.args[1:]]
-                        globals()[node.name] = tf.reshape((eval(str(node.args[0]))), [-1, h, w, group, f])
+                        n, group, f, h, w = [
+                            a if isinstance(a, int) else eval(str(a))
+                            for a in node.args[1:]
+                        ]
+                        globals()[node.name] = tf.reshape(
+                            (eval(str(node.args[0]))), [-1, h, w, group, f])
             if 'transpose' in node.name:
-                globals()[node.name] = tf.transpose(eval(str(node.args[0])), perm=[0, 1, 2, 4, 3])
+                globals()[node.name] = tf.transpose(eval(str(node.args[0])),
+                                                    perm=[0, 1, 2, 4, 3])
             if 'contiguous' in node.name:
                 globals()[node.name] = eval(str(node.args[0]))
             if 'mul' in node.name:
                 globals()[node.name] = node.args[0] * eval(str(node.args[1]))
             if 'chunk' in node.name:
-                globals()[node.name] = tf.split(eval(str(node.args[0])), node.args[1], axis=-1)
+                globals()[node.name] = tf.split(eval(str(node.args[0])),
+                                                node.args[1],
+                                                axis=-1)
             if node.name == 'output':
                 return eval(str(node.args[0]))
 
 
 def audio_keras(model, n_classes=4, size=8192):
-    backbone = Audio_Backbone(nf=2, clip_length=64, factors=[4, 4, 4], out_channel=36, w=model)
+    backbone = Audio_Backbone(nf=2,
+                              clip_length=64,
+                              factors=[4, 4, 4],
+                              out_channel=36,
+                              w=model)
     head = Audio_head(in_channels=36, n_classes=n_classes, w=model)
     tfout = keras.Sequential([backbone, head])
 
@@ -199,14 +237,19 @@ def tflite(keras_model, type, data, audio):
 
     if type == 'int8':
         if not audio:
-            input_shape = (keras_model.inputs[0].shape[1], keras_model.inputs[0].shape[2])
-            converter.representative_dataset = lambda: representative_dataset_2d(data, input_shape)
+            input_shape = (keras_model.inputs[0].shape[1],
+                           keras_model.inputs[0].shape[2])
+            converter.representative_dataset = lambda: representative_dataset_2d(
+                data, input_shape)
         else:
             input_shape = keras_model.inputs[0].shape[1]
-            converter.representative_dataset = lambda: representative_dataset_1d(data, input_shape)
+            converter.representative_dataset = lambda: representative_dataset_1d(
+                data, input_shape)
 
         converter.optimizations = [tf.lite.Optimize.DEFAULT]
-        converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
+        converter.target_spec.supported_ops = [
+            tf.lite.OpsSet.TFLITE_BUILTINS_INT8
+        ]
         converter.target_spec.supported_types = []
         converter.inference_input_type = tf.int8
         converter.inference_output_type = tf.int8
@@ -216,15 +259,16 @@ def tflite(keras_model, type, data, audio):
     return tflite_model
 
 
-def main(args):
+def main():
+    args = parse_args()
     weights = os.path.abspath(args.weights)
     f = str(weights).replace('.pth', f'_{args.tflite_type}.tflite')
     cfg = Config.fromfile(args.config)
     cfg.model.pretrained = None
-    if args.type == 'mmdet':
+    if args.task == 'mmdet':
         from mmdet.models import build_detector
         model = build_detector(cfg.model)
-    elif args.type == 'mmcls':
+    elif args.task == 'mmcls':
         from mmcls.models import build_classifier
         model = build_classifier(cfg.model)
     else:
@@ -237,7 +281,8 @@ def main(args):
     if not args.audio:
         tf_dict, gm = graph2dict(model)
         mm = ModelParser(tf_dict, gm)
-        imgsz = args.shape if len(args.shape) == 2 else [args.shape[0], args.shape[0]]
+        imgsz = args.shape if len(
+            args.shape) == 2 else [args.shape[0], args.shape[0]]
         inputs = tf.keras.Input(shape=(*imgsz, 3))
         outputs = mm(inputs)
         keras_model = tf.keras.Model(inputs=inputs, outputs=outputs)
@@ -252,5 +297,4 @@ def main(args):
 
 
 if __name__ == '__main__':
-    args = parse_args()
-    main(args)
+    main()

@@ -63,7 +63,8 @@ def pytorch2onnx(model,
                  show=False,
                  output_file='tmp.onnx',
                  do_simplify=False,
-                 verify=False):
+                 verify=False,
+                 task='mmcls'):
     """Export Pytorch model to ONNX model and verify the outputs are same
     between Pytorch and ONNX.
 
@@ -80,7 +81,7 @@ def pytorch2onnx(model,
     """
     model.cpu().eval()
     origin_forward = model.forward
-    if args.task == 'mmdet':
+    if task == 'mmdet':
         input_config = {
             'input_shape': input_shape,
             'input_path': input_img,
@@ -191,13 +192,18 @@ def pytorch2onnx(model,
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Convert Pytorch to ONNX')
-    parser.add_argument('--config', type=str, help='test config file path')
-    parser.add_argument('--checkpoint', type=str, help='checkpoint file')
-    parser.add_argument('--task',
+    parser = argparse.ArgumentParser(description='Convert Pytorch model to ONNX')
+    parser.add_argument('task',
                         type=str,
                         default='mmcls',
+                        choices=['mmcls', 'mmdet', 'mmpose'],
                         help='The task type of the exported model')
+    parser.add_argument('config',
+                        type=str,
+                        default='./configs/audio_classify/ali_classiyf_small_8k_8192.py',
+                        help='test config file path')
+    parser.add_argument('--checkpoint', type=str, help='checkpoint file')
+
     parser.add_argument('--input-img', type=str, help='Images for input')
     parser.add_argument('--show', action='store_true', help='show onnx graph')
     parser.add_argument('--verify',
@@ -234,7 +240,7 @@ def parse_args():
     return args
 
 
-if __name__ == '__main__':
+def main():
     args = parse_args()
     shape = args.shape
     audio = args.audio
@@ -296,4 +302,9 @@ if __name__ == '__main__':
                  dynamic_export=args.dynamic_export,
                  output_file=output_file,
                  do_simplify=args.simplify,
-                 verify=args.verify)
+                 verify=args.verify,
+                 task=args.task)
+
+
+if __name__ == '__main__':
+    main()
