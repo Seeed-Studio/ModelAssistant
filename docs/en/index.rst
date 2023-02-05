@@ -31,6 +31,8 @@ Seeed Studio EdgeLab is an open-source project focused on embedded AI. We have o
    tutorials/deployment.md
    tutorials/pytorch2onnx.md
    tutorials/pytorch2tflite.md
+   tutorials/ei_ml_blocks.md
+
 
 .. toctree::
    :maxdepth: 2
