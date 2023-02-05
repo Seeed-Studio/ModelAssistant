@@ -18,12 +18,19 @@ sys.path.insert(0, os.path.abspath('.'))
 
 # -- Project information -----------------------------------------------------
 
+version_file = '../../edgelab/version.py'
+with open(version_file) as f:
+    exec(compile(f.read(), version_file, 'exec'))
+__version__ = locals()['__version__']
+
 project = 'Edgelab'
 copyright = '2023, Seeed Studio'
 author = 'Seeed Studio'
 
+# The short X.Y version
+version = __version__
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
