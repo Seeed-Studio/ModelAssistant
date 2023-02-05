@@ -31,6 +31,7 @@ Seeed Studio EdgeLab是一个专注于嵌入式人工智能的开源项目。我
    tutorials/deployment.md
    tutorials/pytorch2onnx.md
    tutorials/pytorch2tflite.md
+   tutorials/ei_ml_blocks.md
 
 .. toctree::
    :maxdepth: 2
