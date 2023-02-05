@@ -1,4 +1,3 @@
-# Copyright (c) OpenMMLab. All rights reserved.
 import argparse
 import copy
 import os
@@ -20,7 +19,10 @@ os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
-    parser.add_argument('type', default='mmdet', help='Choose training type')
+    parser.add_argument('task',
+                        default='mmdet',
+                        choices=['mmcls', 'mmdet', 'mmpose'],
+                        help='Choose training type')
     parser.add_argument('config',
                         default='configs/yolo/yolov3_mbv2_416_coco.py',
                         help='train config file path')
@@ -125,7 +127,7 @@ def main():
     #     os.environ['PYTHONPATH'] += ':' + PWD
 
     args = parse_args()
-    train_type = args.type
+    train_type = args.task
     config_data = load_config(args.config, args.cfg_options)
     cfg = Config.fromstring(config_data,
                             file_format=osp.splitext(args.config)[-1])
@@ -137,7 +139,7 @@ def main():
         from mmdet.utils import (collect_env, get_device, get_root_logger,
                                  setup_multi_processes, update_data_root)
         from tools.utils.config import replace_cfg_vals
-        from core.apis.mmdet.train import train_detector as train_model
+        from edgelab.core.apis.mmdet.train import train_detector as train_model
         # replace the ${key} with the value of cfg.key
         cfg = replace_cfg_vals(cfg)
         # update data root according to MMDET_DATASETS

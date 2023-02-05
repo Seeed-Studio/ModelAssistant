@@ -1,5 +1,6 @@
 _base_ = './fastestdet_shuffv2_spp_voc.py'
 
+num_classes=20,
 model = dict(
     type='FastestDet',
     backbone=dict(
@@ -14,7 +15,7 @@ model = dict(
               layers=[1, 2, 3]),
     bbox_head=dict(type='Fomo_Head',
                    input_channels=96,
-                   num_classes=20,
+                   num_classes=num_classes,
                    loss_bg=dict(type='BCEWithLogitsLoss',
                                     reduction='mean'),
                    loss_cls=dict(type='BCEWithLogitsLoss', reduction='mean')),

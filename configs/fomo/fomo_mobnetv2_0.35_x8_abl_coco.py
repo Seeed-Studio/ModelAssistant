@@ -1,7 +1,5 @@
-_base_ = '../_base_/pose_default_runtime.py'
+_base_ = '../_base_/default_runtime.py'
 
-custom_imports = dict(imports=['models', 'datasets', 'core'],
-                      allow_failed_imports=False)
 num_classes=2
 model = dict(
     type='Fomo',
@@ -22,10 +20,10 @@ model = dict(
 
 # dataset settings
 dataset_type = 'FomoDatasets'
-data_root = '132'
+data_root = ''
 height=96
 width=96
-batch_size=32
+batch_size=16
 workers=4
 
 
@@ -76,9 +74,6 @@ lr_config = dict(policy='step',
                  warmup_ratio=0.000001,
                  step=[100, 200, 250])
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=epochs)
 evaluation = dict(interval=1, metric=['mAP'], fomo=True)
 find_unused_parameters = True
 
-log_config = dict(interval=5,
-                  hooks=[dict(type='TensorboardLoggerHook', ndigits=4)])

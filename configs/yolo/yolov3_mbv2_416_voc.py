@@ -1,7 +1,7 @@
-_base_ = '../_base_/pose_default_runtime.py'
-custom_imports = dict(imports=['models', 'datasets','core'],
-                      allow_failed_imports=False)
+_base_ = '../_base_/default_runtime.py'
+
 # model settings
+num_classes=20
 model = dict(
     type='YOLOV3',
     backbone=dict(type='MobileNetV2',
@@ -14,7 +14,7 @@ model = dict(
               in_channels=[320, 96, 32],
               out_channels=[96, 96, 96]),
     bbox_head=dict(type='YOLOV3Head',
-                   num_classes=20,
+                   num_classes=num_classes,
                    in_channels=[96, 96, 96],
                    out_channels=[96, 96, 96],
                    anchor_generator=dict(type='YOLOAnchorGenerator',
@@ -56,6 +56,10 @@ model = dict(
 dataset_type = 'CustomVocdataset'
 # data_root = ("http://images.cocodataset.org/zips/train2017.zip", "http://images.cocodataset.org/zips/val2017.zip", "http://images.cocodataset.org/zips/test2017.zip", "http://images.cocodataset.org/annotations/annotations_trainval2017.zip")
 data_root = 'http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar'
+height=416
+width=416
+batch_size=16
+workers=4
 
 img_norm_cfg = dict(mean=[123.675, 116.28, 103.53],
                     std=[58.395, 57.12, 57.375],
@@ -71,7 +75,7 @@ train_pipeline = [
          min_ious=(0.4, 0.5, 0.6, 0.7, 0.8, 0.9),
          min_crop_size=0.3),
     dict(type='Resize',
-         img_scale=[(320, 320), (416, 416)],
+         img_scale=[(320, 320), (height, width)],
          multiscale_mode='range',
          keep_ratio=True),
     dict(type='RandomFlip', flip_ratio=0.5),
@@ -84,7 +88,7 @@ train_pipeline = [
 test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='MultiScaleFlipAug',
-         img_scale=(416, 416),
+         img_scale=(height, width),
          flip=False,
          transforms=[
              dict(type='Resize', keep_ratio=True),
@@ -96,8 +100,8 @@ test_pipeline = [
          ])
 ]
 data = dict(
-    samples_per_gpu=128,
-    workers_per_gpu=10,
+    samples_per_gpu=batch_size,
+    workers_per_gpu=workers,
     train=dict(
         type='RepeatDataset',  # use RepeatDataset to speed up training
         times=10,
@@ -117,7 +121,9 @@ data = dict(
             #   img_prefix=None,
               pipeline=test_pipeline))
 # optimizer
-optimizer = dict(type='SGD', lr=0.003, momentum=0.9, weight_decay=0.0005)
+lr=0.001
+epochs=300
+optimizer = dict(type='SGD', lr=lr, momentum=0.9, weight_decay=0.0005)
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 # learning policy
 lr_config = dict(policy='step',
@@ -126,7 +132,6 @@ lr_config = dict(policy='step',
                  warmup_ratio=0.0001,
                  step=[24, 28])
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=300)
 evaluation = dict(interval=1, metric=['mAP'])
 find_unused_parameters = True
 
@@ -135,10 +140,3 @@ find_unused_parameters = True
 # base_batch_size = (8 GPUs) x (24 samples per GPU)
 auto_scale_lr = dict(base_batch_size=192)
 
-log_config = dict(
-    interval=5,
-    hooks=[
-        dict(type='TextLoggerHook', ndigits=2),
-        # dict(type='TensorboardLoggerHook')
-        # dict(type='PaviLoggerHook') # for internal services
-    ])

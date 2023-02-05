@@ -1,6 +1,6 @@
-_base_ = '../_base_/pose_default_runtime.py'
-custom_imports = dict(imports=['models', 'datasets', 'core'],
-                      allow_failed_imports=False)
+_base_ = '../_base_/default_runtime.py'
+
+num_classes=1
 model = dict(type='PFLD',
              backbone=dict(type='PfldMobileNetV2',
                            inchannel=3,
@@ -9,13 +9,23 @@ model = dict(type='PFLD',
                            out_channel=16),
              head=dict(
                  type='PFLDhead',
-                 num_point=1,
+                 num_point=num_classes,
                  input_channel=16,
              ),
              loss_cfg=dict(type='PFLDLoss'))
 
+
+# dataset settings
+dataset_type = 'MeterData'
+
+data_root = '~/datasets/meter'
+height=112
+width=112
+batch_size=32
+workers=4
+
 train_pipeline = [
-    dict(type="Resize", height=112, width=112, interpolation=0),
+    dict(type="Resize", height=height, width=width, interpolation=0),
     dict(type='ColorJitter', brightness=0.3, p=0.5),
     # dict(type='GaussNoise'),
     dict(type='MedianBlur', blur_limit=3, p=0.3),
@@ -25,16 +35,13 @@ train_pipeline = [
     dict(type='Affine', translate_percent=[0.05, 0.1], p=0.6)
 ]
 
-val_pipeline = [dict(type="Resize", height=112, width=112)]
+val_pipeline = [dict(type="Resize", height=height, width=width)]
 
-# dataset settings
-dataset_type = 'MeterData'
 
-data_root = '~/datasets/meter'
 
 data = dict(
-    samples_per_gpu=32,
-    workers_per_gpu=4,
+    samples_per_gpu=batch_size,
+    workers_per_gpu=workers,
     train=dict(type=dataset_type,
                data_root=data_root,
                index_file=r'train/annotations.txt',
@@ -53,8 +60,11 @@ data = dict(
               # dataset_info={{_base_.dataset_info}}
               ))
 
+
+lr=0.0001
+epochs=300
 evaluation = dict(save_best='loss')
-optimizer = dict(type='Adam', lr=0.0001, betas=(0.9, 0.99), weight_decay=1e-6)
+optimizer = dict(type='Adam', lr=lr, betas=(0.9, 0.99), weight_decay=1e-6)
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 # learning policy
 lr_config = dict(policy='step',
@@ -71,5 +81,5 @@ lr_config = dict(policy='step',
 # runtime settings
 # runner = dict(type='EpochBasedRunner', max_epochs=30)
 # evaluation = dict(interval=1, metric=['bbox'])
-total_epochs = 500
+total_epochs = epochs
 find_unused_parameters = True
