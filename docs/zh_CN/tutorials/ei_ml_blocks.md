@@ -21,15 +21,15 @@ EdgeLab中的模型支持在Edge Impulse上运行，具体信息可在[edgelab-e
 4. 创建一个新的Edge Impulse项目，并确保标签方法被设置为 'Bounding boxes'.
     - 点击 `Create New Project`
 
-    ![create-project-1](../../_static/imgs/ei-ml-blocks-create-project.png)
+    ![create-project-1](../../_static/images/ei-ml-blocks-create-project.png)
     - 键入项目基本信息.
 
-    ![create-project-2](../../_static/imgs/ei-ml-blocks-create-project2.png)
+    ![create-project-2](../../_static/images/ei-ml-blocks-create-project2.png)
 
 5. 添加并标注一些数据.
-![dataset](../../_static/imgs/ei-ml-blocks-dataset.png)
+![dataset](../../_static/images/ei-ml-blocks-dataset.png)
 6. 在 **Create impulse** 将图像大小设置为例如160x160、320x320或640x640，添加一个 "图像 "DSP块和一个 "物体检测 "学习块。
-![dataset](../../_static/imgs/ei-ml-blocks-design.png)
+![dataset](../../_static/images/ei-ml-blocks-design.png)
 7. 打开一个命令提示符或终端窗口。.
 8. 初始化ei-ml-blocks:
 
@@ -84,7 +84,7 @@ EdgeLab中的模型支持在Edge Impulse上运行，具体信息可在[edgelab-e
     ```
 
 2. 该block现在可以在你的任何项目下使用，通过  **Create impulse > Add learning block > Object Detection (Images)**.
-![object-detection](../../_static/imgs/ei-ml-blocks-obj-det.png)
+![object-detection](../../_static/images/ei-ml-blocks-obj-det.png)
 
 3. 下载 block 输出
-![dl](../../_static/imgs/ei-ml-blocks-dl.png)
+![dl](../../_static/images/ei-ml-blocks-dl.png)

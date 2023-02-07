@@ -21,15 +21,15 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
 4. Create a new Edge Impulse project, and make sure the labeling method is set to 'Bounding boxes'.
     - Click `Create New Project`
 
-    ![create-project-1](../../_static/imgs/ei-ml-blocks-create-project.png)
+    ![create-project-1](../../_static/images/ei-ml-blocks-create-project.png)
     - Enter basic project information.
 
-    ![create-project-2](../../_static/imgs/ei-ml-blocks-create-project2.png)
+    ![create-project-2](../../_static/images/ei-ml-blocks-create-project2.png)
 
 5. Add and label some data.
-![dataset](../../_static/imgs/ei-ml-blocks-dataset.png)
+![dataset](../../_static/images/ei-ml-blocks-dataset.png)
 6. Under **Create impulse** set the image size to e.g. 160x160, 320x320 or 640x640, add an 'Image' DSP block and an 'Object Detection' learn block.
-![dataset](../../_static/imgs/ei-ml-blocks-design.png)
+![dataset](../../_static/images/ei-ml-blocks-design.png)
 7. Open a command prompt or terminal window.
 8. Initialize the block:
 
@@ -85,7 +85,7 @@ You can also push this block back to Edge Impulse, that makes it available like 
     ```
 
 2. The block is now available under any of your projects, via  **Create impulse > Add learning block > Object Detection (Images)**.
-![object-detection](../../_static/imgs/ei-ml-blocks-obj-det.png)
+![object-detection](../../_static/images/ei-ml-blocks-obj-det.png)
 
 3. Download block output
-![dl](../../_static/imgs/ei-ml-blocks-dl.png)
+![dl](../../_static/images/ei-ml-blocks-dl.png)

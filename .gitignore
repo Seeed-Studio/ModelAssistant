@@ -260,3 +260,4 @@ work_dirs/
 
 # docs
 !docs/_static/*.*
+!docs/_static/images/*.*
