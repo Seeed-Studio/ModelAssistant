@@ -7,7 +7,7 @@ import subprocess
 import os.path as osp
 
 from subprocess import Popen, PIPE
-from ubuntu_utils import cmd_result, ensure_base_env
+from .ubuntu_utils import cmd_result, ensure_base_env
 
 download_links = {
     'miniconda':

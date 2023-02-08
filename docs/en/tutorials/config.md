@@ -1,1 +1,1 @@
-# Tutorial 1: Configuration parameters
+# Edgelab Configure

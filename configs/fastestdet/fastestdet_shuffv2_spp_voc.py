@@ -1,8 +1,6 @@
-_base_ = '../_base_/pose_default_runtime.py'
+_base_ = '../_base_/default_runtime.py'
 
-custom_imports = dict(imports=['models', 'datasets', 'core'],
-                      allow_failed_imports=False)
-
+num_classes=20
 model = dict(
     type='FastestDet',
     backbone=dict(
@@ -18,7 +16,7 @@ model = dict(
     bbox_head=dict(
         type='Fastest_Head',
         input_channels=96,
-        num_classes=20,
+        num_classes=num_classes,
     ),
     # training and testing settings
     train_cfg=dict(assigner=dict(
@@ -33,6 +31,10 @@ model = dict(
 # dataset settings
 dataset_type = 'CustomVocdataset'
 data_root = 'http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar'
+height=352
+width=352
+batch_size=32
+workers=4
 
 img_norm_cfg = dict(mean=[123.675, 116.28, 103.53],
                     std=[58.395, 57.12, 57.375],
@@ -48,7 +50,7 @@ train_pipeline = [
          min_ious=(0.4, 0.5, 0.6, 0.7, 0.8, 0.9),
          min_crop_size=0.3),
     dict(type='Resize',
-         img_scale=[(352, 352)],
+         img_scale=[(height, width)],
          multiscale_mode='range',
          keep_ratio=True),
     dict(type='RandomFlip', flip_ratio=0.5),
@@ -61,7 +63,7 @@ train_pipeline = [
 test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='MultiScaleFlipAug',
-         img_scale=(352, 352),
+         img_scale=(height, height),
          flip=False,
          transforms=[
              dict(type='Resize', keep_ratio=True),
@@ -74,8 +76,8 @@ test_pipeline = [
          ])
 ]
 data = dict(
-    samples_per_gpu=32,
-    workers_per_gpu=4,
+    samples_per_gpu=batch_size,
+    workers_per_gpu=workers,
     train=dict(
         type='RepeatDataset',  # use RepeatDataset to speed up training
         times=10,
@@ -99,7 +101,9 @@ data = dict(
         pipeline=test_pipeline))
 
 # optimizer
-optimizer = dict(type='SGD', lr=0.001, momentum=0.949, weight_decay=0.0005)
+lr=0.001
+epochs=300
+optimizer = dict(type='SGD', lr=lr, momentum=0.949, weight_decay=0.0005)
 
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 # learning policy
@@ -109,7 +113,6 @@ lr_config = dict(policy='step',
                  warmup_ratio=0.000001,
                  step=[100, 200, 250])
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=300)
 evaluation = dict(interval=1, metric=['mAP'])
 find_unused_parameters = True
 
@@ -117,6 +120,3 @@ find_unused_parameters = True
 # USER SHOULD NOT CHANGE ITS VALUES.
 # base_batch_size = (8 GPUs) x (24 samples per GPU)
 auto_scale_lr = dict(base_batch_size=192)
-
-log_config = dict(interval=5,
-                  hooks=[dict(type='TensorboardLoggerHook', ndigits=4)])

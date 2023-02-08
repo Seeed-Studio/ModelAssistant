@@ -1,1 +1,1 @@
-# Tutorial 1: 配置参数
+# EdgeLab 参数配置

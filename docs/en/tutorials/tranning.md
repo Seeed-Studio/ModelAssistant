@@ -1,1 +1,1 @@
-# Tutorial 2: Model Tranning
+# Model Tranning
