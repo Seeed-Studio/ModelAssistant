@@ -13,6 +13,10 @@ from mmcv.runner import get_dist_info, init_dist, set_random_seed
 from mmcv.utils import get_git_hash
 from mmdet.models.utils.misc import interpolate_as
 
+import edgelab.core
+import edgelab.models
+import edgelab.datasets
+
 from tools.utils.config import load_config
 
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
