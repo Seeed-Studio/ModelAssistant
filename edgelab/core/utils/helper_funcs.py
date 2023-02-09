@@ -4,6 +4,8 @@ import torch.nn.functional as F
 import numpy as np
 import torch.distributed as dist
 import copy
+import cv2
+import os
 
 epsilon = 1e-8
 
@@ -227,3 +229,41 @@ def parse_gpu_ids(gpu_ids):  # list of ints
     s = ''.join(str(x) + ',' for x in gpu_ids)
     s = s.rstrip().rstrip(',')
     return s
+
+
+def representative_dataset(dataset):
+    # load data from dataset in cfg.
+    for i, fn in enumerate(dataset):
+        if 'img' in fn.keys():
+            data = fn['img']
+            if not isinstance(data, torch.Tensor): # for yolov3
+                data = data[0].data
+            data = data.permute(1, 2, 0)
+        else:
+            data = fn['audio']
+            data = data.permute(1, 0)
+
+        data = data.cpu().numpy()
+        data = np.expand_dims(data, axis=0)
+        yield [data]
+        if i >= 100:
+            break
+
+
+def check_type(type):
+    if type == 'mmdet':
+        from mmdet.utils import setup_multi_processes
+        from mmdet.models import build_detector as build_model
+        from mmdet.datasets import build_dataset, build_dataloader
+
+    elif type == 'mmcls':
+        from mmcls.utils import setup_multi_processes
+        from mmcls.models import build_classifier as build_model
+        from mmcls.datasets import build_dataset, build_dataloader
+
+    else:
+        from mmpose.utils import setup_multi_processes
+        from mmpose.models import build_posenet as build_model
+        from mmpose.datasets import build_dataset, build_dataloader
+
+    return setup_multi_processes, build_model, build_dataset, build_dataloader

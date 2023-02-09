@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras
 import numpy as np
+import torch.nn as nn
 
 
 class TFBN(keras.layers.Layer):
@@ -28,10 +29,14 @@ def autopad(k, p=None):  # kernel, padding
 class TFPad(keras.layers.Layer):
     def __init__(self, pad):
         super().__init__()
+        self._padding = pad
         self.pad = tf.constant([[0, 0], [pad, pad], [pad, pad], [0, 0]])
 
     def call(self, inputs):
-        return tf.pad(inputs, self.pad, mode='constant', constant_values=0)
+        if self._padding == 0:
+            return tf.identity(inputs)
+        else:
+            return tf.pad(inputs, self.pad, mode='constant', constant_values=0)
 
 
 class TFMaxPool2d(keras.layers.Layer):
@@ -68,7 +73,7 @@ class TFBaseConv2d(keras.layers.Layer):
     # Standard convolution2d or depthwiseconv2d depends on 'g' argument.
     def __init__(self, w=None):
         super().__init__()
-        assert w.groups in [1, w.in_channels], "Argument(g) only be 1 for conv2d, or be inp for depthwise conv2d"
+        assert w.groups in [1, w.in_channels], "Argument(g) only be 1 for conv2d, or be in_channels for depthwise conv2d"
 
         bias = True if w.bias is not None else False
         pad = True if (w.stride[0] == 1 and w.padding[0] == w.kernel_size[0] // 2) else False
@@ -80,6 +85,7 @@ class TFBaseConv2d(keras.layers.Layer):
                 'SAME' if pad else 'VALID',
                 dilation_rate=w.dilation,
                 use_bias=bias,
+                # torch[out, in, h, w] to TF[h, w, in, out]
                 kernel_initializer=keras.initializers.Constant(w.weight.permute(2, 3, 1, 0).detach().numpy()),
                 bias_initializer=keras.initializers.Constant(w.bias.detach().numpy()) if bias else 'zeros'
             )
@@ -116,178 +122,130 @@ class TFDense(keras.layers.Layer):
 
 
 class TFBaseConv1d(keras.layers.Layer):
-    # Standard convolution1d or depthwiseconv1d depends on 'g' argument.
-    def __init__(self, inp, oup, kernel, stride, padding, g=1, bias=False, dilation=1,
-                 act=None, bn=False, name=None, w=None):
-        super(TFBaseConv1d, self).__init__()
-        assert g in [1, inp], "Argument(g) only be 1 for conv1d, or be inp for depthwise conv1d"
-        assert not (dilation != 1 and stride != 1), "dilation_rate value != 1 is " \
-                                                    "incompatible with specifying any stride value != 1!"
-        self.n = [[f'{name}.0.weight', f'{name}.0.bias'], f'{name}.1'] if bn \
-            else [[f'{name}.weight', f'{name}.bias']]
+    """Standard convolution1d or depthwiseconv1d depends on 'g' argument"""
+    def __init__(self, w=None):
+        super().__init__()
+        assert w.groups in [1, w.in_channels], "Argument(g) only be 1 for conv1d, or be inp for depthwise conv1d"
 
-        if g == 1:
+        bias = True if w.bias is not None else False
+        pad = True if (w.stride[0] == 1 and w.padding[0] == w.kernel_size[0] // 2) else False
+        if w.groups == 1:
             conv = keras.layers.Conv1D(
-                oup,
-                kernel,
-                stride,
-                'SAME' if stride == 1 and padding == kernel // 2 else 'VALID',
+                w.out_channels,
+                w.kernel_size,
+                w.stride,
+                'SAME' if pad else 'VALID',
+                dilation_rate=w.dilation,
                 use_bias=bias,
-                kernel_initializer=keras.initializers.Constant(w[self.n[0][0]].permute(2, 1, 0).numpy()),
-                bias_initializer=keras.initializers.Constant(w[self.n[0][1]].numpy()) if bias else 'zeros'
+                kernel_initializer=keras.initializers.Constant(w.weight.permute(2, 1, 0).detach().numpy()),
+                bias_initializer=keras.initializers.Constant(w.bias.detach().numpy()) if bias else 'zeros'
             )
         else:
             conv = keras.layers.DepthwiseConv1D(
-                kernel,
-                stride,
-                'SAME' if stride == 1 and padding == kernel // 2 else 'VALID',
-                dilation_rate=dilation,
+                w.kernel_size,
+                w.stride,
+                'SAME' if pad else 'VALID',
+                dilation_rate=w.dilation,
                 use_bias=bias,
-                depthwise_initializer=keras.initializers.Constant(w[self.n[0][0]].permute(2, 0, 1).numpy()),
-                bias_initializer=keras.initializers.Constant(w[self.n[0][1]].numpy()) if bias else 'zeros'
+                depthwise_initializer=keras.initializers.Constant(w.weight.permute(2, 0, 1).detach().numpy()),
+                bias_initializer=keras.initializers.Constant(w.bias.detach().numpy()) if bias else 'zeros'
             )
-        pad = keras.layers.ZeroPadding1D(padding=autopad(kernel, padding))
-        self.conv = conv if stride == 1 and padding == kernel // 2 else keras.Sequential([pad, conv])
-        self.bn = TFBN(w=w, name=self.n[1]) if bn else tf.identity
-
-        if act == "silu":
-            self.act = lambda x: keras.activations.swish(x)
-        elif act == "relu":
-            self.act = lambda x: keras.activations.relu(x)
-        elif act == "lrelu":
-            self.act = lambda x: keras.activations.relu(x, alpha=0.2)
-        elif act is None:
-            self.act = None
-        else:
-            raise AttributeError("Unsupported act type: {}".format(act))
+        padding = keras.layers.ZeroPadding1D(padding=autopad(w.kernel_size[0], w.padding[0]))
+        self.conv = conv if pad else keras.Sequential([padding, conv])
 
     def call(self, inputs):
-        return self.act(self.bn(self.conv(inputs))) if self.act else self.bn(self.conv(inputs))
+        return self.conv(inputs)
 
 
 class TFAADownsample(keras.layers.Layer):
-    def __init__(self, filt_size=3, stride=2, channels=None):
+    """DepthwiseConv1D with fixed weights only for audio model."""
+    def __init__(self, w=None):
         super().__init__()
-        self.filt_size = filt_size
-        self.stride = stride
-
-        ha = np.arange(1, filt_size // 2 + 2, 1)
-        a = np.concatenate([ha, np.flip(ha, axis=-1)[1:]], axis=-1).astype(float)
-        a = np.tile(a[None, None, :] / np.sum(a, axis=-1), (channels, 1, 1))
-        a = a.transpose((2, 0, 1))
+        pad = True if w.stride == 1 else False
 
         filt = keras.layers.DepthwiseConv1D(
-            a.shape[0],
-            stride,
-            'SAME' if stride == 1 else 'VALID',
+            w.filt_size,
+            w.stride,
+            'SAME' if pad else 'VALID',
             use_bias=False,
-            depthwise_initializer=keras.initializers.Constant(a)
+            depthwise_initializer=keras.initializers.Constant(w.filt.permute(2, 0, 1).detach().numpy())
         )
-        pad = keras.layers.ZeroPadding1D(padding=autopad(filt_size, None))
-        self.filt = filt if stride == 1 else keras.Sequential([pad, filt])
+        padding = keras.layers.ZeroPadding1D(padding=autopad(w.filt_size, None))
+        self.filt = filt if pad else keras.Sequential([padding, filt])
 
     def call(self, inputs):
         return self.filt(inputs)
 
 
-class TFDown(keras.layers.Layer):
-    def __init__(self, channels, d=2, k=3, name=None, w=None):
+class TFActivation(keras.layers.Layer):
+    """Activation functions"""
+    def __init__(self, w=None):
         super().__init__()
-        kk = d + 1
-        self.n = f'{name}.down'
 
-        self.down = keras.Sequential([
-            TFBaseConv1d(channels,
-                         channels * 2,
-                         kernel=kk,
-                         stride=1,
-                         padding=kk // 2,
-                         bias=False,
-                         act='lrelu',
-                         bn=True,
-                         name=self.n,
-                         w=w),
-            TFAADownsample(channels=channels * 2, stride=d, filt_size=k)
-        ])
+        if isinstance(w, nn.ReLU):
+            act = keras.layers.ReLU()
+        elif isinstance(w, nn.ReLU6):
+            act = keras.layers.ReLU(max_value=6)
+        elif isinstance(w, nn.LeakyReLU):
+            act = keras.layers.LeakyReLU(w.negative_slope)
+        elif isinstance(w, nn.Sigmoid):
+            act = lambda x: keras.activations.sigmoid(x)
+        else:
+            raise Exception(f'no matching TensorFlow activation found for PyTorch activation {w}')
+        self.act = act
 
     def call(self, inputs):
-        return self.down(inputs)
+        return self.act(inputs)
 
 
-class TFResBlock1d(keras.layers.Layer):
-    def __init__(self, dim, dilation=1, kernel_size=3, name=None, w=None):
+def tf_pool(w=None):
+    """Pooling functions"""
+    if isinstance(w, nn.MaxPool2d):
+        return TFMaxPool2d(w)
+    elif isinstance(w, nn.AvgPool2d):
+        return TFAvgPool2d(w)
+    elif isinstance(w, nn.AdaptiveAvgPool2d):
+        return keras.layers.GlobalAveragePooling2D()
+    elif isinstance(w, nn.AdaptiveAvgPool1d):
+        return keras.layers.GlobalAveragePooling1D()
+    else:
+        raise Exception(f'no matching pool function found for {w}')
+
+
+class TFUpsample(keras.layers.Layer):
+    # TF version of torch.nn.Upsample()
+    def __init__(self, w=None):
         super().__init__()
-        self.n = [f'{name}.block_t', f'{name}.block_f', f'{name}.shortcut']
-        self.block_t = TFBaseConv1d(
-            dim,
-            dim,
-            kernel=kernel_size,
-            stride=1,
-            padding=dilation * (kernel_size // 2),
-            g=dim,
-            dilation=dilation,
-            bias=False,
-            act='lrelu',
-            bn=True,
-            name=self.n[0],
-            w=w,
-        )
-        self.block_f = TFBaseConv1d(dim, dim, 1, 1, 0, bias=False, act='lrelu', bn=True, name=self.n[1], w=w)
-        self.shortcut = TFBaseConv1d(dim, dim, 1, 1, 0, bias=True, name=self.n[2], w=w)
+        scale_factor, mode = (int(w.scale_factor), w.mode) if isinstance(w, nn.Upsample) \
+                                                           else (int(w.kwargs["scale_factor"]), w.kwargs["mode"])
+        assert scale_factor % 2 == 0, "scale_factor must be multiple of 2"
+        self.upsample = lambda x: tf.image.resize(x, (x.shape[1] * scale_factor, x.shape[2] * scale_factor), mode)
+        # self.upsample = keras.layers.UpSampling2D(size=scale_factor, interpolation=mode)
+        # with default arguments: align_corners=False, half_pixel_centers=False
+        # self.upsample = lambda x: tf.raw_ops.ResizeNearestNeighbor(images=x,
+        #                                                            size=(x.shape[1] * 2, x.shape[2] * 2))
 
     def call(self, inputs):
-        return self.shortcut(inputs) + self.block_f(inputs) + self.block_t(inputs)
+        return self.upsample(inputs)
 
 
-class Audio_Backbone(keras.layers.Layer):
-    def __init__(self, nf=2, clip_length=None, factors=[4, 4, 4], out_channel=32, name='backbone', w=None):
-        super().__init__()
-        base_ = 4
-        self.start = TFBaseConv1d(1, nf, 11, 6, 5, bias=False, act='lrelu', bn=True, name=f'{name}.start', w=w)
+def tf_method(node):
+    """Tensorflow version for bulid-in method."""
+    if 'size' in node.name:
+        if len(node.args) == 2:
+            # dim = -1 if node.args[1] == 1 else node.args[1]
+            return eval(str(node.args[0])).shape[-1]
+        else:
+            n, h, w, c = eval(str(node.args[0])).shape.as_list()
+            return [n, c, h, w]
 
-        model = []
-        n = 0
-        for i, f in enumerate(factors):
-            model.append(TFDown(channels=nf, d=f, k=f * 2 + 1, name=f'{name}.down.{n}', w=w))
-            nf *= 2
-            if i % 2 == 0:
-                n += 1
-                model.append(TFResBlock1d(dim=nf, dilation=1, kernel_size=7, name=f'{name}.down.{n}', w=w))
-            n += 1
-        self.down = keras.Sequential(model)
-
-        factors = [2, 2]
-        model = []
-        n = 0
-        for _, f in enumerate(factors):
-            for i in range(1):
-                for j in range(3):
-                    model.append(TFResBlock1d(dim=nf, dilation=3**j, kernel_size=7, name=f'{name}.down2.{n}', w=w))
-                    n += 1
-            model.append(TFDown(channels=nf, d=f, k=f * 2 + 1, name=f'{name}.down2.{n}', w=w))
-            n += 1
-            nf *= 2
-        self.down2 = keras.Sequential(model)
-        self.project = TFBaseConv1d(nf, out_channel, 1, 1, 0, bias=True, name=f'{name}.project', w=w)
-        self.clip_length = clip_length
-
-    def call(self, inputs):
-        x = self.start(inputs)
-        x = self.down(x)
-        x = self.down2(x)
-        feature = self.project(x)
-
-        return feature
-
-
-class Audio_head(keras.layers.Layer):
-    def __init__(self, in_channels, n_classes, drop=0.5, name='cls_head', w=None):
-        super().__init__()
-        self.avg = keras.layers.GlobalAveragePooling1D()
-        self.fc = TFDense(in_channels, bias=True, name=f'{name}.fc', w=w)
-        self.fc1 = TFDense(n_classes, bias=True, name=f'{name}.fc1', w=w)
-        self.softmax = keras.layers.Softmax(axis=-1)
-        # # self.dp = keras.layers.Dropout(rate=0.5, training=True)
-
-    def call(self, inputs):
-        return self.softmax(self.fc1(self.fc(self.avg(inputs))))
+    elif 'getitem' in node.name:
+        return eval(str(node.args[0]))[node.args[1]]
+    elif 'floordiv' in node.name:
+        return eval(str(node.args[0])) // 2
+    elif 'contiguous' in node.name:
+        return eval(str(node.args[0]))
+    elif 'mul' in node.name:
+        return node.args[0] * eval(str(node.args[1]))
+    else:
+        raise Exception(f'No match method found for {node.name}')
