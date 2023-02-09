@@ -6,7 +6,7 @@ from mmpose.models.builder import build_loss
 from mmpose.models.detectors.base import BasePose
 from mmpose.models.builder import MESH_MODELS, build_backbone, build_head
 
-from ..utils.computer_acc import pose_acc
+from edgelab.models.utils.computer_acc import pose_acc
 
 
 @MESH_MODELS.register_module()
@@ -55,7 +55,7 @@ class PFLD(BasePose):
         x = self.head(x)
         result = {}
         if keypoints is not None:
-            loss = self.computer_loss(x, keypoints)
+            loss = self.computer_loss(x.cpu(), keypoints)
             acc = pose_acc(x.cpu().detach().numpy(), keypoints, kwargs['hw'])
             result['loss'] = loss
             result['Acc'] = acc

@@ -6,7 +6,7 @@ from mmcv.runner.hooks import HOOKS
 from mmcv.runner.hooks.evaluation import EvalHook
 from torch.utils.data import DataLoader
 
-from edgelab.core.apis.mmdet.test import sigle_gpu_test_fomo
+from edgelab.core.apis.mmdet.test import single_gpu_test_fomo
 
 
 def show_result(result, img_path, classes):
@@ -54,7 +54,7 @@ class Feval(EvalHook):
             return
 
         if self.fomo:
-            self.test_fn = sigle_gpu_test_fomo
+            self.test_fn = single_gpu_test_fomo
         super()._do_evaluate(runner)
 
     def evaluate(self, runner, results):
