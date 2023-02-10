@@ -6,41 +6,60 @@ EdgeLab的运行环境需要[PyTorch](https://pytorch.org/get-started/locally/)�
 - [MMClassification](https://github.com/open-mmlab/mmclassification)。OpenMMLab图像分类工具包和基准测试。除了分类任务外，它还被用来提供各种骨干网络
 - [MMDetection](https://github.com/open-mmlab/mmdetection)。OpenMMLab检测工具箱和基准测试
 - [MMDPose](https://github.com/open-mmlab/mmpose): OpenMMLab检测工具箱和基准测试
+- [MIM](https://github.com/open-mmlab/mim):MIM 为启动和安装 OpenMMLab 项目及其扩展以及管理 OpenMMLab 模型库提供了一个统一的接口。
 
 ```{note}
 我们强烈建议使用Anaconda3来管理python软件包
 ```
 
-## 支持 CUDA
-### 安装 CUDA
-请参考[官方文档](https://developer.nvidia.com/cuda-downloads)
-### 安装 pytorch
+## 支持 GPU
+1. ### 安装 CUDA
+    请参考[官方文档](https://developer.nvidia.com/cuda-downloads)
+
+2. ### 安装 pytorch
 ```bash
-pip3 install torch==1.10.0+cu113 torchvision==0.11.1+cu113 torchaudio==0.10.0+cu113 --extra-index-url https://download.pytorch.org/whl/cu113
+# conda 安装
+conda install pytorch torchvision torchaudio pytorch-cuda=11.6 -c pytorch -c nvidia
+
+# pip 安装
+pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116
 ```
-### 安装 MMCV
+3. ### 安装依赖库
 ```bash
-pip3 install mmcv-full==1.7.0 -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.10.0/index.html
-```
-### 安装 EdgeLab
-```bash
-pip3 install -r requirements/requirements.txt
+# pip安装，conda无法完全安装
+pip3 install -r requirements/base.txt
 ```
 
-## 不支持 CUDA
-### 安装 pytorch
+4. ### 安装 MMCV
 ```bash
-pip3 install torch==1.10.0 torchvision==0.11.1 torchaudio==0.10.0
-```
-### 安装 MMCY
-```bash
-pip3 install mmcv-full==1.7.0 -f https://download.openmmlab.com/mmcv/dist/cpu/torch1.10.0/index.html
-```
-### 安装 EdgeLab
-```bash
-pip3 install -r requirements/requirements.txt
+# 必须通过mim安装
+mim install mmcv-full==1.7.0 
 ```
 
+
+## 支持 CPU
+1. ### 安装 Pytorch
+```bash
+# conda安装
+conda install pytorch torchvision torchaudio cpuonly -c pytorch
+
+# pip安装
+pip3 install torch torchvision torchaudio
+```
+2. ### 安装依赖库
+```bash
+# pip安装，conda无法完全安装
+pip3 install -r requirements/base.txt
+```
+
+3. ### 安装 MMCV
+```bash
+# 必须通过mim安装
+mim install mmcv-full==1.7.0
+```
+
+
+## 其他方式
 项目环境的配置可以在ubuntu 20.04上用一个脚本自动完成，如果你使用的是其他系统，则可以手动完成。所有相关的环境都可以在ubuntu上用以下命令来配置。
 
 ```bash
