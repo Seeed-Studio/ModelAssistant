@@ -1,16 +1,16 @@
 # Tutorial 5: Pytorch 到 TFLite 的模型转换（实验性支持）
-- #### [Tutorial 5: Pytorch 到 TFLite 的模型转换（实验性支持）](https://github.com/Seeed-Studio/EdgeLab/blob/new-catalog/docs/zh_CN/tutorials/pytorch2tflite.md#tutorial-5-pytorch-%E5%88%B0-tflite-%E7%9A%84%E6%A8%A1%E5%9E%8B%E8%BD%AC%E6%8D%A2%E5%AE%9E%E9%AA%8C%E6%80%A7%E6%94%AF%E6%8C%81)
-    - #### [pytorch模型如何转换到TFLite]()
-        - #### [准备]()
-        - #### [使用]()
-        - #### [参数描述]()
-    - #### [转换后的模型如何验证]()
-        - #### [准备]()
-        - #### [使用]()
-        - #### [参数描述]()
-        - #### [模型和结果]()
-    - #### [提醒]()
-    - #### [FAQs]()
+- [Tutorial 5: Pytorch 到 TFLite 的模型转换（实验性支持）](https://github.com/Seeed-Studio/EdgeLab/blob/torch2tflite/docs/zh_CN/tutorials/pytorch2tflite.md#tutorial-5-pytorch-%E5%88%B0-tflite-%E7%9A%84%E6%A8%A1%E5%9E%8B%E8%BD%AC%E6%8D%A2%E5%AE%9E%E9%AA%8C%E6%80%A7%E6%94%AF%E6%8C%81)
+    - [pytorch模型如何转换到TFLite](https://github.com/Seeed-Studio/EdgeLab/blob/torch2tflite/docs/zh_CN/tutorials/pytorch2tflite.md#tutorial-5-pytorch-%E5%88%B0-tflite-%E7%9A%84%E6%A8%A1%E5%9E%8B%E8%BD%AC%E6%8D%A2%E5%AE%9E%E9%AA%8C%E6%80%A7%E6%94%AF%E6%8C%81-1)
+        - [准备](https://github.com/Seeed-Studio/EdgeLab/blob/torch2tflite/docs/zh_CN/tutorials/pytorch2tflite.md#%E5%87%86%E5%A4%87)
+        - [使用](https://github.com/Seeed-Studio/EdgeLab/blob/torch2tflite/docs/zh_CN/tutorials/pytorch2tflite.md#%E4%BD%BF%E7%94%A8)
+        - [参数描述](https://github.com/Seeed-Studio/EdgeLab/blob/torch2tflite/docs/zh_CN/tutorials/pytorch2tflite.md#%E5%8F%82%E6%95%B0%E6%8F%8F%E8%BF%B0)
+    - [转换后的模型如何验证](https://github.com/Seeed-Studio/EdgeLab/blob/torch2tflite/docs/zh_CN/tutorials/pytorch2tflite.md#%E8%BD%AC%E6%8D%A2%E5%90%8E%E7%9A%84%E6%A8%A1%E5%9E%8B%E5%A6%82%E4%BD%95%E9%AA%8C%E8%AF%81)
+        - [准备](https://github.com/Seeed-Studio/EdgeLab/blob/torch2tflite/docs/zh_CN/tutorials/pytorch2tflite.md#%E5%87%86%E5%A4%87-1)
+        - [使用](https://github.com/Seeed-Studio/EdgeLab/blob/torch2tflite/docs/zh_CN/tutorials/pytorch2tflite.md#%E4%BD%BF%E7%94%A8-1)
+        - [参数描述](https://github.com/Seeed-Studio/EdgeLab/blob/torch2tflite/docs/zh_CN/tutorials/pytorch2tflite.md#%E5%8F%82%E6%95%B0%E6%8F%8F%E8%BF%B0-1)
+        - [模型和结果](https://github.com/Seeed-Studio/EdgeLab/blob/torch2tflite/docs/zh_CN/tutorials/pytorch2tflite.md#%E6%A8%A1%E5%9E%8B%E5%92%8C%E7%BB%93%E6%9E%9C)
+    - [提醒](https://github.com/Seeed-Studio/EdgeLab/blob/torch2tflite/docs/zh_CN/tutorials/pytorch2tflite.md#%E6%8F%90%E9%86%92)
+    - [FAQs](https://github.com/Seeed-Studio/EdgeLab/blob/torch2tflite/docs/zh_CN/tutorials/pytorch2tflite.md#faqs)
 
 ## pytorch模型如何转换到TFLite
 ---
