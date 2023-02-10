@@ -1,0 +1,10 @@
+{
+    "docs":[
+        {
+            "url": "https://github.com/Seeed-Studio/edgelab-example-esp32",
+            "branch": "main",
+            "catalog": "examples",
+            "languages": ["en", "zh_CN"]
+        }
+    ]
+}

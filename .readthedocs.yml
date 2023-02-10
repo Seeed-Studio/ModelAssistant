@@ -1,8 +1,13 @@
 version: 2
 
-formats: all
+build:
+  os: "ubuntu-20.04"
+  tools:
+    python: "3.10"
+  jobs:
+    pre_install:
+      - pip install -r requirements/docs.txt
+    pre_build:
+      - python ./scripts/docs_fetch.py --config ./docs/config.json  --dir ./docs/ 
 
-python:
-  version: 3.7
-  install:
-    - requirements: requirements/docs.txt
+  

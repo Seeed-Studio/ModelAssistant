@@ -4,6 +4,7 @@
 *.png
 *.bmp
 *.tif
+*.gif
 *.tiff
 *.heic
 *.JPG
@@ -123,6 +124,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+!docs/config.json
 
 # PyBuilder
 target/
