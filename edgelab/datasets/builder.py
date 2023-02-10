@@ -16,7 +16,7 @@ from mmdet.datasets.samplers import (ClassAwareSampler,
 
 
 def collate_fn(batch):
-    img, label = [x['img'] for x in batch], [y['bbl'] for y in batch]
+    img, label = [x['img'] for x in batch], [y['target'] for y in batch]
     for i, l in enumerate(label):
         if l.shape[0] > 0:
             l[:, 0] = i

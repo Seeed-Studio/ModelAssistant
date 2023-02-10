@@ -242,7 +242,6 @@ def main():
                     save_path=args.save_dir if args.save_dir else None,
                     **out)
             else:
-                print(out)
                 show_point(out['pred'],
                            out['image_file'],
                            save_path=args.save_dir if args.save_dir else None,

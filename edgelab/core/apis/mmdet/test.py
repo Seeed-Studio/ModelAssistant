@@ -16,8 +16,11 @@ def single_gpu_test_fomo(model, dataloader):
 
     for idx, data in enumerate(dataloader):
         with torch.no_grad():
-            data.dataset['img'] = data.dataset['img'].unsqueeze(0)
-            pred, target = model(return_loss=False, fomo=True, **data.dataset)
+            if isinstance(data, dict):
+                pred, target = model(return_loss=False, fomo=True, **data)
+            else:
+                data.dataset['img'] = data.dataset['img'].unsqueeze(0)
+                pred, target = model(return_loss=False, fomo=True, **data.dataset)
             results.append(dict(pred=pred, target=target))
 
         prog_bar.update()
