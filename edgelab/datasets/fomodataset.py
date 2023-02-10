@@ -97,11 +97,12 @@ class FomoDatasets(Dataset):
                 0, l, (bbox[0] + (bbox[2] / 2)) / H,
                 (bbox[1] + (bbox[3] / 2)) / W, bbox[2] / H, bbox[3] / W
             ])
-        self.data
-        return ToTensor()(image), torch.from_numpy(np.asarray(bbl))
+        # self.data
+        # return ToTensor()(image), torch.from_numpy(np.asarray(bbl))
+        return {'img': ToTensor()(image), 'target': torch.from_numpy(np.asarray(bbl))}
 
     def get_ann_info(self, idx):
-        img, ann = self.__getitem__[idx]
+        ann = self.__getitem__[idx]["target"]
         return ann
 
     def bboxe2cell(self, bboxe, img_h, img_w, H, W):
@@ -113,23 +114,37 @@ class FomoDatasets(Dataset):
         y = int(h * H)
         return (x, y)
 
-    def build_target(self, preds, targets, img_h, img_w):
-        B, H, W = preds.shape
-        target_data = torch.zeros(size=(B, H, W), device=preds.device)
-        target_data[..., 0] = 0
-        bboxes = [i['bbox'] for i in targets]
-        labels = [i['category_id'] for i in targets]
 
-        bboxes = [
-            self.bboxe2cell(bboxe, img_h, img_w, H, W) for bboxe in bboxes
-        ]
-        # print(labels)
-        for bboxe, label in zip(bboxes, labels):
-            target_data[0, bboxe[1], bboxe[0]] = label  #label
+    def post_handle(self, preds,target):
+        B, H, W, C = preds.shape
+        assert (len(self.CLASSES) + 2) == C
 
+        mask = torch.softmax(preds, dim=-1)
+        values, indices = torch.max(mask, dim=-1)
+        values_mask = np.argwhere(values.cpu().numpy() < 0.25)
+        res = torch.argmax(mask, dim=-1)
+
+        for i in values_mask:
+            b, h, w = int(i[0].item()), int(i[1].item()), int(i[2].item())
+            res[b, h, w] = 0
+
+        return res,torch.argmax(self.build_target(preds,target),dim=-1)
+
+    def build_target(self, preds, targets):
+        B, H, W, C = preds.shape
+        target_data = torch.zeros(size=(B, H, W, C), device=preds.device)
+        target_data[..., 0] = 1
+        for i in targets:
+            h, w = int(i[3].item()* H), int(i[2].item() * W )
+            target_data[int(i[0]), h, w, 0] = 0  #confnes
+            target_data[int(i[0]), h, w, int(i[1]) ] = 1  #label
+        
         return target_data
 
+
     def compute_FTP(self, pred, target):
+        pred = torch.argmax(pred, dim=-1)
+        target = torch.argmax(target, dim=-1)
         confusion = confusion_matrix(target.flatten().cpu().numpy(),
                                      pred.flatten().cpu().numpy(),
                                      labels=range(len(self.CLASSES) + 1))
@@ -159,16 +174,22 @@ class FomoDatasets(Dataset):
                  proposal_nums=...,
                  iou_thrs=None,
                  fomo=False,
-                 metric_items=None):
+                 metric_items=None,
+                 **kwargs):
         self.flag
         if fomo:  #just with here evaluate for fomo data
             eval_results = OrderedDict()
             tmp = []
 
             TP, FP, FN = [], [], []
-            for idx, (pred, target) in enumerate(
-                    zip(results['preds'], results['targets'])):
-                B, H, W = pred.shape
+            for idx, data in enumerate(results):
+                (pred, target) = data['pred'], data['target']
+                if len(pred.shape)==4:
+                    B, H, W, C = pred.shape
+                    pred = torch.from_numpy(pred)
+                    pred, target = self.post_handle(pred, target)
+                else:
+                    B, H, W = pred.shape
                 tp, fp, fn = self.compute_FTP(pred, target)
                 mask = torch.eq(pred, target)
                 acc = torch.sum(mask) / (H * W)

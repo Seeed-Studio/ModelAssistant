@@ -7,8 +7,7 @@ import onnx
 import torch
 import numpy as np
 
-from edgelab.models.utils.computer_acc import pose_acc
-
+from edgelab.models.utils.computer_acc import pose_acc, audio_acc
 
 class Inter():
 
@@ -66,14 +65,14 @@ class Inter():
                  input_name: AnyStr = 'input',
                  output_name: AnyStr = 'output'):
         if len(img.shape) == 2:  # audio
-            if img.shape[0] > 10:
-                img = img.transpose(1, 0)
+            if img.shape[1] > 10: # (1, 8192) to (8192, 1)
+                img = img.transpose(1, 0) if self.engine == 'tf' else img
         else:  # image
             C, H, W = img.shape
             if C not in [1, 3]:
-                print(img.shape)
                 img = img.transpose(2, 1, 0)
-            img = np.array([img])
+
+        img = np.array([img])  # add batch dim.
 
         if self.engine == 'onnx':  # onnx
             result = self.inter.run(
@@ -89,7 +88,7 @@ class Inter():
             input_, output = self.inter.get_input_details(
             )[0], self.inter.get_output_details()[0]
             int8 = input_['dtype'] == np.int8 or input_['dtype'] == np.uint8
-            img = img.transpose(0, 2, 3, 1)
+            img = img.transpose(0, 2, 3, 1) if len(img.shape)==4 else img
             if int8:
                 scale, zero_point = input_['quantization']
                 img = (img / scale + zero_point).astype(np.int8)
@@ -103,31 +102,63 @@ class Inter():
         return result
 
 
-def inference_test(model, data_loader):
+def pfld_inference(model, data_loader):
     results = []
-    dataset = data_loader.dataset
-    prog_bar = mmcv.ProgressBar(len(dataset))
+    prog_bar = mmcv.ProgressBar(len(data_loader))
     for data in data_loader:
         # parse data
-        input = data['img']
-        target = data['keypoints'].cpu().numpy()
-        size = data['hw']  #.cpu().numpy()
+        input = data.dataset['img']
+        target = data.dataset['keypoints']
+        size = data.dataset['hw']  #.cpu().numpy()
         input = input.cpu().numpy()
-        result = model(input[0])
+        result = model(input)
         result = np.array(result)
-        if len(result.shape) == 1:
-            result = np.array([result])
+        # result = result[0] if len(result.shape)==2 else result # onnx shape(2,), tflite shape(1,2)
         acc = pose_acc(result.copy(), target, size)
         results.append({
             'Acc': acc,
             'pred': result,
-            'image_file': data['image_file'].data[0][0]
+            'image_file': data.dataset['image_file'].data
         })
 
-        # use the first key as main key to calculate the batch size
-        batch_size = len(next(iter(data.values())))
-        for _ in range(batch_size):
-            prog_bar.update()
+        prog_bar.update()
+    return results
+
+
+def audio_inference(model, data_loader):
+    results = []
+    prog_bar = mmcv.ProgressBar(len(data_loader))
+    for data in data_loader:
+        # parse data
+        input = data.dataset['audio']
+        target = data.dataset['labels']
+        input = input.cpu().numpy()
+        result = model(input)
+        # result = result if len(result.shape)==2 else np.expand_dims(result, 0) # onnx shape(d,), tflite shape(1,d)
+        # result = result[0] if len(result.shape)==2 else result
+        acc = audio_acc(result, target)
+        results.append({
+            'acc': acc,
+            'pred': result,
+            'image_file': data.dataset['audio_file']
+        })
+        prog_bar.update()
+    return results
+
+
+def fomo_inference(model, data_loader):
+    results = []
+    prog_bar = mmcv.ProgressBar(len(data_loader))
+    for data in data_loader:
+        input = data.dataset['img']
+        input = input.cpu().numpy()
+        target = data.dataset['target']
+        result = model(input)
+        results.append({
+            'pred': result,
+            'target': target,
+        })
+        prog_bar.update()
     return results
 
 
@@ -139,6 +170,7 @@ def show_point(keypoints,
     pass
     img = mmcv.imread(img_file, channel_order='bgr').copy()
     h, w = img.shape[:-1]
+    keypoints = keypoints[0] if len(keypoints.shape)==2 else keypoints
     keypoints[::2] = keypoints[::2] * w
     keypoints[1::2] = keypoints[1::2] * h
 

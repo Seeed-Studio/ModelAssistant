@@ -7,13 +7,15 @@ import torch.nn.functional as F
 import torch
 import torch.nn as nn
 from mmcv.runner import load_checkpoint
-from mmcv import Config
+from mmcv import Config, DictAction
+import os.path as osp
 
 import edgelab.models
 import edgelab.datasets
 import edgelab.core
 from edgelab.models.tf.tf_common import *
 from edgelab.core.utils.helper_funcs import representative_dataset, check_type
+from tools.utils.config import load_config
 
 try:
     gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
@@ -45,6 +47,16 @@ def parse_args():
     parser.add_argument('--audio',
                         action='store_true',
                         help='Choose audio dataset load code if given')
+    parser.add_argument(
+        '--cfg-options',
+        nargs='+',
+        action=DictAction,
+        help='override some settings in the used config, the key-value pair '
+        'in xxx=yyy format will be merged into config file. If the value to '
+        'be overwritten is a list, it should be like key="[a,b]" or key=a,b '
+        'It also allows nested list/tuple values, e.g. key="[(a,b),(c,d)]" '
+        'Note that the quotation marks are necessary and that no white space '
+        'is allowed.')
     # parser.add_argument('--shape',
     #                     type=int,
     #                     nargs='+',
@@ -204,7 +216,10 @@ def main():
     args = parse_args()
     weights = os.path.abspath(args.weights)
     f = str(weights).replace('.pth', f'_{args.tflite_type}_new.tflite')
-    cfg = Config.fromfile(args.config)
+
+    config_data = load_config(args.config, args.cfg_options)
+    cfg = Config.fromstring(config_data,
+                            file_format=osp.splitext(args.config)[-1])
     cfg.model.pretrained = None
 
     # Get shape and datataloader

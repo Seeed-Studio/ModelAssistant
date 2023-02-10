@@ -1,7 +1,10 @@
 import os
+import sys
+import warnings
 import argparse
 import warnings
 import os.path as osp
+from pathlib import Path
 
 import mmcv
 import torch
@@ -10,12 +13,10 @@ from mmcv import Config, DictAction
 from mmcv.runner import get_dist_info, init_dist, load_checkpoint
 from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
 
-from mmpose.models import build_posenet
-from mmpose.utils import setup_multi_processes
-from mmpose.apis import multi_gpu_test, single_gpu_test
-from mmpose.datasets import build_dataloader, build_dataset
-
-from tools.utils.inference import Inter, inference_test, show_point
+from tools.utils.inference import Inter, pfld_inference, audio_inference, show_point, fomo_inference
+from edgelab.core.apis.mmdet import single_gpu_test_fomo, single_gpu_test_mmcls, multi_gpu_test
+from edgelab.core.utils.helper_funcs import check_type
+from tools.utils.config import load_config
 
 try:
     from mmcv.runner import wrap_fp16_model
@@ -24,10 +25,18 @@ except ImportError:
                   'Please install mmcv>=1.1.4')
     from mmpose.core import wrap_fp16_model
 
+# Not display redundant warnning.
+warnings.filterwarnings('ignore')
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
-def load_model(cfg, checkpoint, fuse=False):
+# Get work dir.
+FILE = Path(__file__).resolve()
+ROOT = FILE.parents[1]
+
+
+def load_model(cfg, checkpoint, build_model, fuse=False):
     if checkpoint.endswith(('pt', 'pth')):
-        model = build_posenet(cfg.model)
+        model = build_model(cfg.model)
         fp16_cfg = cfg.get('fp16', None)
         if fp16_cfg is not None:
             wrap_fp16_model(model)
@@ -51,8 +60,10 @@ def load_model(cfg, checkpoint, fuse=False):
 
 def parse_args():
     parser = argparse.ArgumentParser(description='mmpose test model')
+    parser.add_argument('type', help='Choose training type')
     parser.add_argument('config', help='test config file path')
     parser.add_argument('checkpoint', help='checkpoint file')
+    parser.add_argument('--audio', action='store_true', help='Choose audio dataset load code if given')
     parser.add_argument('--out', help='output result file')
     parser.add_argument('--data', help='point data root manually')
     parser.add_argument('--no-show',
@@ -117,7 +128,13 @@ def merge_configs(cfg1, cfg2):
 def main():
     args = parse_args()
 
-    cfg = Config.fromfile(args.config)
+    # cfg = Config.fromfile(args.config)
+    config_data = load_config(args.config, args.cfg_options)
+    cfg = Config.fromstring(config_data,
+                            file_format=osp.splitext(args.config)[-1])
+
+     # load bulid function depends on type
+    setup_multi_processes, build_model, build_dataset, build_dataloader = check_type(args.type)
 
     if args.cfg_options is not None:
         cfg.merge_from_dict(args.cfg_options)
@@ -181,15 +198,21 @@ def main():
 
     # build the dataloader
     dataset = build_dataset(cfg.data.test, dict(test_mode=True))
-    data_loader = build_dataloader(dataset, **test_loader_cfg)
+    os.chdir(ROOT)  # build_dataset function will change the root dir.
+    data_loader = [build_dataloader(ds, **test_loader_cfg) for ds in dataset]
+    # data_loader = dataset
 
     # build the model and load checkpoint
-    model, pt = load_model(cfg, args.checkpoint, args.fuse_conv_bn)
+    model, pt = load_model(cfg, args.checkpoint, build_model, args.fuse_conv_bn)
 
     if pt:
         if not distributed:
             model = MMDataParallel(model, device_ids=[args.gpu_id])
-            outputs = single_gpu_test(model, data_loader)
+            # outputs = single_gpu_test(model, data_loader)
+            if (dataset.__class__.__name__ == "FomoDatasets"):
+                outputs = single_gpu_test_fomo(model, data_loader)
+            else:
+                outputs = single_gpu_test_mmcls(model, data_loader, args.audio)
         else:
             model = MMDistributedDataParallel(
                 model.cuda(),
@@ -197,25 +220,29 @@ def main():
                 broadcast_buffers=False)
             outputs = multi_gpu_test(model, data_loader, args.tmpdir,
                                      args.gpu_collect)
-    else:
-        outputs = inference_test(model, data_loader)
+    elif args.audio:
+        outputs = audio_inference(model, data_loader)
+    elif (dataset.__class__.__name__ == "MeterData"):
+        outputs = pfld_inference(model, data_loader)
+    elif (dataset.__class__.__name__ == "FomoDatasets"):
+        outputs = fomo_inference(model, data_loader)
 
     rank, _ = get_dist_info()
     eval_config = cfg.get('evaluation', {})
     eval_config = merge_configs(eval_config, dict(metric=args.eval))
 
-    if not args.no_show or args.save_dir:
+    if (not args.no_show or args.save_dir) and not args.audio:
         for out in outputs:
             if pt:
                 model.module.show_result(
-                    out['image_file'][0],
+                    out['image_file'],
                     out['result'][0],
                     show=False if args.no_show else True,
                     win_name='test',
                     save_path=args.save_dir if args.save_dir else None,
                     **out)
             else:
-                show_point(out['pred'][0],
+                show_point(out['pred'],
                            out['image_file'],
                            save_path=args.save_dir if args.save_dir else None,
                            not_show=args.no_show)
