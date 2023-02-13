@@ -55,8 +55,9 @@ class PFLD(BasePose):
         x = self.head(x)
         result = {}
         if keypoints is not None:
-            loss = self.computer_loss(x.cpu(), keypoints)
-            acc = pose_acc(x.cpu().detach().numpy(), keypoints, kwargs['hw'])
+            loss = self.computer_loss(x, keypoints)
+            acc = pose_acc(x.cpu().detach().numpy(), 
+                           keypoints.cpu().detach().numpy(), kwargs['hw'])
             result['loss'] = loss
             result['Acc'] = acc
         result.update({'result': x, **kwargs})
