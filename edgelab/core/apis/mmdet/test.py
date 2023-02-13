@@ -35,7 +35,8 @@ def single_gpu_test_mmcls(model, data_loader, audio):
     for data in data_loader:
         data.dataset[name] = data.dataset[name].unsqueeze(0)
         if name == 'img':
-            data.dataset.update({'image_file': data.dataset['image_file'].data})  # pfld
+            data.dataset.update({'image_file': data.dataset['image_file'].data,
+                                 'keypoints': torch.tensor(data.dataset['keypoints']).unsqueeze(0)})  # pfld 
         with torch.no_grad():
             result = model(return_loss=False, **data.dataset)
         results.append(result)

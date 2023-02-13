@@ -108,12 +108,12 @@ def pfld_inference(model, data_loader):
     for data in data_loader:
         # parse data
         input = data.dataset['img']
-        target = data.dataset['keypoints']
+        target = np.expand_dims(data.dataset['keypoints'], axis=0)
         size = data.dataset['hw']  #.cpu().numpy()
         input = input.cpu().numpy()
         result = model(input)
         result = np.array(result)
-        # result = result[0] if len(result.shape)==2 else result # onnx shape(2,), tflite shape(1,2)
+        result = result if len(result.shape)==2 else result[None, :] # onnx shape(2,), tflite shape(1,2)
         acc = pose_acc(result.copy(), target, size)
         results.append({
             'Acc': acc,
