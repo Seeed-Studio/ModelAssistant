@@ -51,7 +51,7 @@
 #### pfld model:
     python tools/torch2tflite.py \
         mmpose \
-        cconfigs/pfld/pfld_mv2n_112.py \
+        configs/pfld/pfld_mv2n_112.py \
         --weights pfld_mv2n_112.pth \
         --tflite_type int8 \
 

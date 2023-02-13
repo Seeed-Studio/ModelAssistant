@@ -15,7 +15,7 @@
 ## pytorch模型如何转换到TFLite
 ---
 ### 准备
-1. 确保已经按照[安装指导](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/get_started/installation.md)安装好所有依赖包.
+1. 确保已经按照[安装指导](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/zh_CN/get_started/installation.md)安装好所有依赖包.
 2. 安装推理所需要的库. 使用下面的命令:
     ```
     pip install -r requirements/inference.txt
@@ -51,7 +51,7 @@
 #### pfld模型:
     python tools/torch2tflite.py \
         mmpose \
-        cconfigs/pfld/pfld_mv2n_112.py \
+        configs/pfld/pfld_mv2n_112.py \
         --weights pfld_mv2n_112.pth \
         --tflite_type int8 \
 
