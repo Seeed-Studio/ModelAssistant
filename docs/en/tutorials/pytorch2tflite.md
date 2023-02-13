@@ -1,23 +1,27 @@
 # Tutorial 5: Pytorch To TFLite (Experimental)
-- #### [Tutorial 5: Pytorch To TFlite (Experimental)](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/pytorch2tflite.md#tutorial-5-pytorch-to-tflite-experimental)
-    - #### [How to convert models from Pytorch to TFLite]()
-        - #### [Preparation]()
-        - #### [Usage]()
-        - #### [Description of all arguments]()
-    - #### [How to evaluate the exported models]()
-        - #### [Preparation]()
-        - #### [Usage]()
-        - #### [Description of all arguments]()
-        - #### [Results and Models]()
-    - #### [Reminders]()
-    - #### [FAQs]()
+- [Tutorial 5: Pytorch To TFlite (Experimental)](#tutorial-5-pytorch-to-tflite-experimental)
+    - [How to convert models from Pytorch to TFLite](#how-to-convert-models-from-pytorch-to-tflite)
+        - [Preparation](#preparation)
+        - [Usage](#usage)
+        - [Description of all arguments](#description-of-all-arguments)
+    - [How to evaluate the exported models](#how-to-evaluate-the-exported-models)
+        - [Preparation](#preparation-1)
+        - [Usage](#usage-1)
+        - [Description of all arguments](#description-of-all-arguments-1)
+        - [Results and Models](#results-and-models)
+    - [Reminders](#reminders)
+    - [FAQs](#faqs)
 
 ## How to convert models from Pytorch to TFLite
 ---
 ### Preparation
 1. Make sure you have installed all packages following [get_started/installation.md](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/get_started/installation.md).
-2. Make sure the torch model is ready, if not, you can train a model follow [tutorials/trainning.md](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/tranning.md) or download from [model_zoo](https://github.com/Seeed-Studio/EdgeLab/releases/tag/model_zoo).
-3. Export TFLite model requires the training dataset as a representative dataset, which can be download automatically if not have. But for some large datasets, it will take a lot of time, please wait.
+2. Install libraries needed for inference. Using command as below:
+    ```
+    pip install -r requirements/inference.txt
+    ```
+3. Make sure the torch model is ready, if not, you can train a model follow [tutorials/trainning.md](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/trainning.md) or download from [model_zoo](https://github.com/Seeed-Studio/EdgeLab/releases/tag/model_zoo).
+4. Export TFLite model requires the training dataset as a representative dataset, which can be download automatically if not have. But for some large datasets, it will take a lot of time, please wait.
 
 ### Usage
     python tools/torch2tflite.py \
@@ -38,16 +42,16 @@
 
 #### Example:
 #### fomo model:
-    python tools/torch2tflite/py \
+    python tools/torch2tflite.py \
         mmdet \
         configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
         --weights fomo_model.pth \
         --tflite_type int8 \
         --cfg-options data_root=/home/users/datasets/fomo.v1i.coco/ \
 #### pfld model:
-    python tools/torch2tflite/py \
+    python tools/torch2tflite.py \
         mmpose \
-        cconfigs/pfld/pfld_mv2n_112.py \
+        configs/pfld/pfld_mv2n_112.py \
         --weights pfld_mv2n_112.pth \
         --tflite_type int8 \
 

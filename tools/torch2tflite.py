@@ -215,7 +215,7 @@ def tflite(keras_model, type, data):
 def main():
     args = parse_args()
     weights = os.path.abspath(args.weights)
-    f = str(weights).replace('.pth', f'_{args.tflite_type}_new.tflite')
+    f = str(weights).replace('.pth', f'_{args.tflite_type}.tflite')
 
     config_data = load_config(args.config, args.cfg_options)
     cfg = Config.fromstring(config_data,
