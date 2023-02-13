@@ -49,6 +49,7 @@ def main(config_file, docs_dir):
                     os.system("mkdir -p {}" .format(docs_path))
                     os.system("touch {}" .format(index_path))
                     with open(index_path, 'w') as f:
+                        f.write('************\r{}\r************\r\r'.format(catalog))
                         f.write('.. toctree::\r    :maxdepth: 1\r    \r\r')
                     
                 # copy static resources
