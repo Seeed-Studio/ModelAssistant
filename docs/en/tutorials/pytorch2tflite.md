@@ -1,23 +1,27 @@
 # Tutorial 5: Pytorch To TFLite (Experimental)
-- [Tutorial 5: Pytorch To TFlite (Experimental)](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/pytorch2tflite.md#tutorial-5-pytorch-to-tflite-experimental)
-    - [How to convert models from Pytorch to TFLite](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/pytorch2tflite.md#how-to-convert-models-from-pytorch-to-tflite-1)
-        - [Preparation](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/pytorch2tflite.md#preparation-2)
-        - [Usage](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/pytorch2tflite.md#usage-2)
-        - [Description of all arguments](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/pytorch2tflite.md#description-of-all-arguments-2)
-    - [How to evaluate the exported models](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/pytorch2tflite.md#how-to-evaluate-the-exported-models-1)
-        - [Preparation](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/pytorch2tflite.md#preparation-3)
-        - [Usage](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/pytorch2tflite.md#usage-3)
-        - [Description of all arguments](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/pytorch2tflite.md#description-of-all-arguments-3)
-        - [Results and Models](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/pytorch2tflite.md#results-and-models-1)
-    - [Reminders](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/pytorch2tflite.md#reminders-1)
-    - [FAQs](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/pytorch2tflite.md#faqs-1)
+- [Tutorial 5: Pytorch To TFlite (Experimental)](#tutorial-5-pytorch-to-tflite-experimental)
+    - [How to convert models from Pytorch to TFLite](#how-to-convert-models-from-pytorch-to-tflite)
+        - [Preparation](#preparation)
+        - [Usage](#usage)
+        - [Description of all arguments](#description-of-all-arguments)
+    - [How to evaluate the exported models](#how-to-evaluate-the-exported-models)
+        - [Preparation](#preparation-1)
+        - [Usage](#usage-1)
+        - [Description of all arguments](#description-of-all-arguments-1)
+        - [Results and Models](#results-and-models)
+    - [Reminders](#reminders)
+    - [FAQs](#faqs)
 
 ## How to convert models from Pytorch to TFLite
 ---
 ### Preparation
 1. Make sure you have installed all packages following [get_started/installation.md](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/get_started/installation.md).
-2. Make sure the torch model is ready, if not, you can train a model follow [tutorials/trainning.md](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/tranning.md) or download from [model_zoo](https://github.com/Seeed-Studio/EdgeLab/releases/tag/model_zoo).
-3. Export TFLite model requires the training dataset as a representative dataset, which can be download automatically if not have. But for some large datasets, it will take a lot of time, please wait.
+2. Install libraries needed for inference. Using command as below:
+    ```
+    pip install -r requirements/inference.txt
+    ```
+3. Make sure the torch model is ready, if not, you can train a model follow [tutorials/trainning.md](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/trainning.md) or download from [model_zoo](https://github.com/Seeed-Studio/EdgeLab/releases/tag/model_zoo).
+4. Export TFLite model requires the training dataset as a representative dataset, which can be download automatically if not have. But for some large datasets, it will take a lot of time, please wait.
 
 ### Usage
     python tools/torch2tflite.py \
@@ -38,14 +42,14 @@
 
 #### Example:
 #### fomo model:
-    python tools/torch2tflite/py \
+    python tools/torch2tflite.py \
         mmdet \
         configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
         --weights fomo_model.pth \
         --tflite_type int8 \
         --cfg-options data_root=/home/users/datasets/fomo.v1i.coco/ \
 #### pfld model:
-    python tools/torch2tflite/py \
+    python tools/torch2tflite.py \
         mmpose \
         cconfigs/pfld/pfld_mv2n_112.py \
         --weights pfld_mv2n_112.pth \
