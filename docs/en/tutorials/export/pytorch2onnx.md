@@ -13,14 +13,14 @@
     - [FAQs](#faqs)
 
 ## How to convert models from Pytorch to ONNX
----
+
 ### Preparation
-1. Make sure you have installed all packages following [get_started/installation.md](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/get_started/installation.md).
+1. Make sure you have installed all packages following [get_started/installation.md](../../get_started/installation.md).
 2. Install libraries needed for inference. Using command as below:
     ```
     pip install -r requirements/inference.txt
     ```
-3. Make sure the torch model is ready, if not, you can train a model follow [tutorials/trainning.md](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/trainning.md) or download from [model_zoo](https://github.com/Seeed-Studio/EdgeLab/releases/tag/model_zoo).
+3. Make sure the torch model is ready, if not, you can train a model follow [tutorials/trainning.md](../training/index.rst) or download from [model_zoo](https://github.com/Seeed-Studio/EdgeLab/releases/tag/model_zoo).
 
 ### Usage
     python tools/torch2onnx.py \
@@ -55,11 +55,12 @@
  
 
 ## How to evaluate the exported models
----
-You can use [tools/test.py](https://github.com/Seeed-Studio/EdgeLab/blob/master/tools/test.py) to evaluate ONNX model.
+
+You can use `tools/test.py` to evaluate ONNX model.
 
 ### Preparation
-- Test dataset is set from the corresponding [config file](https://github.com/Seeed-Studio/EdgeLab/tree/master/configs) for each model. If you want test the custom dataset, please follow [custom dataset(TODO)]().
+
+Test dataset is set from the corresponding [config file](../config.md) for each model. If you want test the custom dataset, please follow [custom dataset(TODO)](../datasets/index.rst).
 
 ### Usage
     python tools/test.py \

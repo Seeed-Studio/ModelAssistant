@@ -1,4 +1,4 @@
-# 安装
+# 环境安装
 
 EdgeLab的运行环境需要[PyTorch](https://pytorch.org/get-started/locally/)和以下[OpenMMLab](https://openmmlab.com/)第三方库。
 

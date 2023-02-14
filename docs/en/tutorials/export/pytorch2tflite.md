@@ -1,5 +1,5 @@
-# Tutorial 5: Pytorch To TFLite (Experimental)
-- [Tutorial 5: Pytorch To TFlite (Experimental)](#tutorial-5-pytorch-to-tflite-experimental)
+# Pytorch To TFLite (Experimental)
+- [Tutorial 5: Pytorch To TFlite (Experimental)](#pytorch-to-tflite-experimental)
     - [How to convert models from Pytorch to TFLite](#how-to-convert-models-from-pytorch-to-tflite)
         - [Preparation](#preparation)
         - [Usage](#usage)
@@ -13,14 +13,14 @@
     - [FAQs](#faqs)
 
 ## How to convert models from Pytorch to TFLite
----
+
 ### Preparation
-1. Make sure you have installed all packages following [get_started/installation.md](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/get_started/installation.md).
+1. Make sure you have installed all packages following [get_started/installation.md](../../get_started/installation.md).
 2. Install libraries needed for inference. Using command as below:
     ```
     pip install -r requirements/inference.txt
     ```
-3. Make sure the torch model is ready, if not, you can train a model follow [tutorials/trainning.md](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/en/tutorials/trainning.md) or download from [model_zoo](https://github.com/Seeed-Studio/EdgeLab/releases/tag/model_zoo).
+3. Make sure the torch model is ready, if not, you can train a model follow [tutorials/trainning.md](../training/index.rst) or download from [model_zoo](https://github.com/Seeed-Studio/EdgeLab/releases/tag/model_zoo).
 4. Export TFLite model requires the training dataset as a representative dataset, which can be download automatically if not have. But for some large datasets, it will take a lot of time, please wait.
 
 ### Usage
@@ -58,11 +58,12 @@
 **Note：** TFLite model is saved in the same path as torch model. Data_root for fomo is not given in configuration file, please set it manually.  
 
 ## How to evaluate the exported models
----
-You can use [tools/test.py](https://github.com/Seeed-Studio/EdgeLab/blob/master/tools/test.py) to evaluate TFLite model.
+
+You can use `tools/test.py` to evaluate TFLite model.
 
 ### Preparation
-- Test dataset is set from the corresponding [config file](https://github.com/Seeed-Studio/EdgeLab/tree/master/configs) for each model. If you want test the custom dataset, please follow [custom dataset(TODO)]().
+
+Test dataset is set from the corresponding [config file](../config.md) for each model. If you want test the custom dataset, please follow [custom dataset(TODO)](../datasets/index.rst).
 
 ### Usage
     python tools/test.py \
