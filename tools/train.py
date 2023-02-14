@@ -200,6 +200,12 @@ def main():
         # use config filename as default work_dir if cfg.work_dir is None
         cfg.work_dir = osp.join('./work_dirs',
                                 osp.splitext(osp.basename(args.config))[0])
+    else:
+        # if cfg.work_dir is not none and the besename of work_dir is not equal to config filename, 
+        # use config filename as the basename in cfg.work_dir. 
+        if osp.basename(args.config) != osp.splitext(osp.basename(cfg.work_dir))[0]:
+            cfg.work_dir = osp.join(cfg.work_dir,
+                                osp.splitext(osp.basename(args.config))[0])
 
     if args.resume_from is not None:
         cfg.resume_from = args.resume_from
