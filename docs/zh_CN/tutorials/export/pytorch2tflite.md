@@ -1,26 +1,26 @@
-# Tutorial 5: Pytorch 到 TFLite 的模型转换（实验性支持）
-- [Tutorial 5: Pytorch 到 TFLite 的模型转换（实验性支持）](#tutorial-5-pytorch-到-tflite-的模型转换实验性支持)
+# Pytorch 到 TFLite 的模型转换（实验性支持）
+- [Pytorch 到 TFLite 的模型转换（实验性支持）](#pytorch-到-tflite-的模型转换实验性支持)
     - [pytorch模型如何转换到TFLite](#pytorch模型如何转换到tflite)
         - [准备](#准备)
         - [使用](#使用)
         - [参数描述](#参数描述)
     - [转换后的模型如何验证](#转换后的模型如何验证)
-        - [准备](#e58786e5a487-1)
-        - [使用](#e4bdbfe794a8-1)
-        - [参数描述](#e58f82e695b0e68f8fe8bfb0-1)
+        - [准备](#准备-1)
+        - [使用](#使用-1)
+        - [参数描述](#参数描述-1)
         - [模型和结果](#模型和结果)
     - [提醒](#提醒)
     - [FAQs](#faqs)
 
 ## pytorch模型如何转换到TFLite
----
+
 ### 准备
-1. 确保已经按照[安装指导](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/zh_CN/get_started/installation.md)安装好所有依赖包.
+1. 确保已经按照[安装指导](../../get_started/installation.md)安装好所有依赖包.
 2. 安装推理所需要的库. 使用下面的命令:
     ```
     pip install -r requirements/inference.txt
     ```
-3. 确保已经准备好torch模型，如果没有，可以按照[模型训练](https://github.com/Seeed-Studio/EdgeLab/blob/master/docs/zh_CN/tutorials/trainning.md)训练一个模型，或者从[model_zoo](https://github.com/Seeed-Studio/EdgeLab/releases/tag/model_zoo)下载所需要的模型。
+3. 确保已经准备好torch模型，如果没有，可以按照[模型训练](../training/index.rst)训练一个模型，或者从[model_zoo](https://github.com/Seeed-Studio/EdgeLab/releases/tag/model_zoo)下载所需要的模型。
 4. TFLite模型导出需要训练集作为代表数据集，如果没有找到，程序会自动下载。但对于某些大数据集，这会花费很长时间，请耐心等待。
 
 ### 使用
@@ -58,11 +58,11 @@
 **注意：** TFLite模型保存路径与torch模型路径相同，对于fomo模型，data_root并未在配置文件中给定，需要手动配置。
 
 ## 转换后的模型如何验证
----
-可以使用[tools/test.py](https://github.com/Seeed-Studio/EdgeLab/blob/master/tools/test.py)去验证TFLite模型。
+
+可以使用 `tools/test.py` 去验证TFLite模型。
 
 ### 准备
-- 测试数据集已经在每个模型对应的配置文件中设置，如果需要测试自定义数据集，请参照[custom dataset(TODO)]()。
+- 测试数据集已经在每个模型对应的配置文件中设置，如果需要测试自定义数据集，请参照[custom dataset(TODO)](../datasets/index.rst)。
 
 ### 使用
     python tools/test.py \
