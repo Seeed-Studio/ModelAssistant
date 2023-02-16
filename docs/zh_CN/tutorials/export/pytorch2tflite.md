@@ -16,7 +16,7 @@
 
 ### 准备
 1. 确保已经按照[安装指导](../../get_started/installation.md)安装好所有依赖包.
-2. 安装推理所需要的库. 使用下面的命令:
+2. 安装推理所需要的库。使用下面的命令:
     ```
     pip install -r requirements/inference.txt
     ```
@@ -24,36 +24,41 @@
 4. TFLite模型导出需要训练集作为代表数据集，如果没有找到，程序会自动下载。但对于某些大数据集，这会花费很长时间，请耐心等待。
 
 ### 使用
-    python tools/torch2tflite.py \
-        ${TYPE} \
-        ${CONFIG_FILE} \
-        --weights ${CHECKPOINT_FILE} \
-        --tflite_type ${TFLITE_TYPE} \
-        --cfg-options ${CFG_OPTIONS} \
-        --audio {AUDIO_FLAG} \
-
+```sh
+python tools/torch2tflite.py \
+    ${TYPE} \
+    ${CONFIG_FILE} \
+    --weights ${CHECKPOINT_FILE} \
+    --tflite_type ${TFLITE_TYPE} \
+    --cfg-options ${CFG_OPTIONS} \
+    --audio ${AUDIO_FLAG} \
+```
 ### 参数描述
 - `${TYPE}` 训练模型的类型，[`mmdet`, `mmcls`, `mmpose`]。
 - `${CONFIG_FILE}` 模型配置文件(配置路径下)。
 - `--weights` torch模型路径。
-- `--tflite_type` TFLite量化类型, `int8`, `fp16`, `fp32`, 默认: `int8`。
-- `--cfg-options`: 在配置文件中重写一些配置参数, xxx=yyy的键值对格式会重写到配置文件中。
+- `--tflite_type` TFLite量化类型，`int8`, `fp16`, `fp32`, 默认: `int8`。
+- `--cfg-options`: 在配置文件中重写一些配置参数，xxx=yyy的键值对格式会重写到配置文件中。
 - `--audio` 如果给定，会选择音频数据加载方式。
 
 #### 例子:
 #### fomo模型:
-    python tools/torch2tflite.py \
-        mmdet \
-        configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-        --weights fomo_model.pth \
-        --tflite_type int8 \
-        --cfg-options data_root=/home/users/datasets/fomo.v1i.coco/ \
+```sh
+python tools/torch2tflite.py \
+    mmdet \
+    configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
+    --weights fomo_model.pth \
+    --tflite_type int8 \
+    --cfg-options data_root=/home/users/datasets/fomo.v1i.coco/ \
+```
 #### pfld模型:
-    python tools/torch2tflite.py \
-        mmpose \
-        configs/pfld/pfld_mv2n_112.py \
-        --weights pfld_mv2n_112.pth \
-        --tflite_type int8 \
+```sh
+python tools/torch2tflite.py \
+    mmpose \
+    configs/pfld/pfld_mv2n_112.py \
+    --weights pfld_mv2n_112.pth \
+    --tflite_type int8 \
+```
 
 **注意：** TFLite模型保存路径与torch模型路径相同，对于fomo模型，data_root并未在配置文件中给定，需要手动配置。
 
@@ -65,7 +70,8 @@
 - 测试数据集已经在每个模型对应的配置文件中设置，如果需要测试自定义数据集，请参照[custom dataset(TODO)](../datasets/index.rst)。
 
 ### 使用
-    python tools/test.py \
+```sh
+python tools/test.py \
     ${TYPE} \
     ${CONFIG_FILE} \
     ${CHECKPOINT_FILE} \
@@ -74,6 +80,7 @@
     --data ${DATA_ROOT} \
     --no-show ${SHOW_RESULT} \
     --cfg-options ${CFG-OPTIONS} \
+```
 
 ### 参数描述
 - `${TYPE}` 训练数据类型，[`mmdet`, `mmcls`, `mmpose`]。
@@ -82,18 +89,20 @@
 - `--audio` 如果给定，会选择音频数据加载方式。
 - `--out` 输出结果文件保存路径。
 - `--data` 手动指定数据根目录。
-- `--no-show` 是否显示结果图片, 如果没有指定会设置为 **False**并显示图片。
-- `--cfg-options` 在配置文件中重写一些配置参数, xxx=yyy的键值对格式会重写到配置文件中。
+- `--no-show` 是否显示结果图片，如果没有指定会设置为 **False**并显示图片。
+- `--cfg-options` 在配置文件中重写一些配置参数，xxx=yyy的键值对格式会重写到配置文件中。
 
 #### 例子:
 #### fomo模型（待定）:
 
 #### pfld模型:
-    python tools/test.py \
+```sh
+python tools/test.py \
     mmpose \
     configs/pfld/pfld_mv2n_112.py \
-    pfld_mv2n_112.pth \
+    pfld_mv2n_112.tflite \
     --no_show \
+```
 
 ### 模型和结果
 

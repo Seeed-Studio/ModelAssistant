@@ -24,13 +24,15 @@
 4. Export TFLite model requires the training dataset as a representative dataset, which can be download automatically if not have. But for some large datasets, it will take a lot of time, please wait.
 
 ### Usage
-    python tools/torch2tflite.py \
-        ${TYPE} \
-        ${CONFIG_FILE} \
-        --weights ${CHECKPOINT_FILE} \
-        --tflite_type ${TFLITE_TYPE} \
-        --cfg-options ${CFG_OPTIONS} \
-        --audio {AUDIO_FLAG} \
+```sh
+python tools/torch2tflite.py \
+    ${TYPE} \
+    ${CONFIG_FILE} \
+    --weights ${CHECKPOINT_FILE} \
+    --tflite_type ${TFLITE_TYPE} \
+    --cfg-options ${CFG_OPTIONS} \
+    --audio ${AUDIO_FLAG} \
+```
 
 ### Description of all arguments
 - `${TYPE}` Type for training model，[`mmdet`, `mmcls`, `mmpose`]。
@@ -42,18 +44,23 @@
 
 #### Example:
 #### fomo model:
-    python tools/torch2tflite.py \
-        mmdet \
-        configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-        --weights fomo_model.pth \
-        --tflite_type int8 \
-        --cfg-options data_root=/home/users/datasets/fomo.v1i.coco/ \
+```sh
+python tools/torch2tflite.py \
+    mmdet \
+    configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
+    --weights fomo_model.pth \
+    --tflite_type int8 \
+    --cfg-options data_root=/home/users/datasets/fomo.v1i.coco/ \
+```
+
 #### pfld model:
-    python tools/torch2tflite.py \
-        mmpose \
-        configs/pfld/pfld_mv2n_112.py \
-        --weights pfld_mv2n_112.pth \
-        --tflite_type int8 \
+```sh
+python tools/torch2tflite.py \
+    mmpose \
+    configs/pfld/pfld_mv2n_112.py \
+    --weights pfld_mv2n_112.pth \
+    --tflite_type int8 \
+```
 
 **Note：** TFLite model is saved in the same path as torch model. Data_root for fomo is not given in configuration file, please set it manually.  
 
@@ -66,7 +73,8 @@ You can use `tools/test.py` to evaluate TFLite model.
 Test dataset is set from the corresponding [config file](../config.md) for each model. If you want test the custom dataset, please follow [custom dataset(TODO)](../datasets/index.rst).
 
 ### Usage
-    python tools/test.py \
+```sh
+python tools/test.py \
     ${TYPE} \
     ${CONFIG_FILE} \
     ${CHECKPOINT_FILE} \
@@ -75,6 +83,7 @@ Test dataset is set from the corresponding [config file](../config.md) for each 
     --data ${DATA_ROOT} \
     --no-show ${SHOW_RESULT} \
     --cfg-options ${CFG-OPTIONS} \
+```
 
 ### Description of all arguments
 - `${TYPE}` Type for training model，[`mmdet`, `mmcls`, `mmpose`]。
@@ -90,11 +99,13 @@ Test dataset is set from the corresponding [config file](../config.md) for each 
 #### fomo model(TODO):
 
 #### pfld model:
-    python tools/test.py \
+```sh
+python tools/test.py \
     mmpose \
     configs/pfld/pfld_mv2n_112.py \
-    pfld_mv2n_112.pth \
+    pfld_mv2n_112_int8.tflite \
     --no_show \
+```
 
 ### Results and Models
 

@@ -23,13 +23,15 @@
 3. Make sure the torch model is ready, if not, you can train a model follow [tutorials/trainning.md](../training/index.rst) or download from [model_zoo](https://github.com/Seeed-Studio/EdgeLab/releases/tag/model_zoo).
 
 ### Usage
-    python tools/torch2onnx.py \
-        ${TYPE} \
-        ${CONFIG_FILE} \
-        --checkpoint ${CHECKPOINT_FILE} \
-        --simplify ${SIMPLIFY} \
-        --shape ${DATA_SHAPE} \
-        --audio {AUDIO_FLAG} \
+```sh
+python tools/torch2onnx.py \
+    ${TYPE} \
+    ${CONFIG_FILE} \
+    --checkpoint ${CHECKPOINT_FILE} \
+    --simplify ${SIMPLIFY} \
+    --shape ${DATA_SHAPE} \
+    --audio ${AUDIO_FLAG} \
+```
 
 ### Description of all arguments
 - `${TYPE}` Type for training model，[`mmdet`, `mmcls`, `mmpose`]。
@@ -41,18 +43,22 @@
 
 #### Example:
 #### fomo model:
-    python tools/torch2onnx.py \
-        mmdet \
-        configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-        --checkpoint fomo_model.pth \
-        --shape 96 \
+```sh
+python tools/torch2onnx.py \
+    mmdet \
+    configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
+    --checkpoint fomo_model.pth \
+    --shape 96 \
+```
+
 #### pfld model:
-    python tools/torch2onnx.py \
-        mmpose \
-        configs/pfld/pfld_mv2n_112.py \
-        --checkpoint pfld_mv2n_112.pth \
-        --shape 112 \
- 
+```sh
+python tools/torch2onnx.py \
+    mmpose \
+    configs/pfld/pfld_mv2n_112.py \
+    --checkpoint pfld_mv2n_112.pth \
+    --shape 112 \
+```
 
 ## How to evaluate the exported models
 
@@ -63,7 +69,8 @@ You can use `tools/test.py` to evaluate ONNX model.
 Test dataset is set from the corresponding [config file](../config.md) for each model. If you want test the custom dataset, please follow [custom dataset(TODO)](../datasets/index.rst).
 
 ### Usage
-    python tools/test.py \
+```sh
+python tools/test.py \
     ${TYPE} \
     ${CONFIG_FILE} \
     ${CHECKPOINT_FILE} \
@@ -72,6 +79,7 @@ Test dataset is set from the corresponding [config file](../config.md) for each 
     --data ${DATA_ROOT} \
     --no-show ${SHOW_RESULT} \
     --cfg-options ${CFG-OPTIONS} \
+```
 
 ### Description of all arguments
 - `${TYPE}` Type for training model，[`mmdet`, `mmcls`, `mmpose`]。
@@ -87,11 +95,13 @@ Test dataset is set from the corresponding [config file](../config.md) for each 
 #### fomo model(TODO):
 
 #### pfld model:
-    python tools/test.py \
+```sh
+python tools/test.py \
     mmpose \
     configs/pfld/pfld_mv2n_112.py \
     pfld_mv2n_112.onnx \
     --no_show \
+```
 
 ### Results and Models
 
