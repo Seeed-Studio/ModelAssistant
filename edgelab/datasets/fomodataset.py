@@ -3,7 +3,6 @@ import os.path as osp
 
 import cv2
 import torch
-import json
 import torchvision
 import numpy as np
 import albumentations as A
@@ -77,18 +76,12 @@ class FomoDatasets(Dataset):
             'bboxes': bboxes,
             self.bbox_params['label_fields'][0]: labels
         }
-        while True:
-            result = self.transform(**trans_param)
-            image_ = result['image']
-            bboxes_ = result['bboxes']
-            labels_ = result[self.bbox_params['label_fields'][0]]
-            if len(np.array(bboxes_).flatten()) != (4 * len(bboxes)):
-                continue
-            else:
-                image = image_
-                bboxes = bboxes_
-                labels = labels_
-                break
+
+        result = self.transform(**trans_param)
+        image = result['image']
+        bboxes = result['bboxes']
+        labels = result[self.bbox_params['label_fields'][0]]
+
         H, W, C = image.shape
         bbl = []
         for bbox, l in zip(bboxes, labels):
