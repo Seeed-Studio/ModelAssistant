@@ -1,14 +1,6 @@
 # Installation
 - [Installation](#installation)
-    - [GPU support](#gpu-support)
-        - [Install cuda](#install-cuda)
-        - [Install pytorch](#install-pytorch)
-        - [Install dependent libraries](#install-dependent-libraries)
-        - [Install MMCV](#install-mmcv)
-    - [CPU support](#cpu-support)
-        - [Install pytorch](#install-pytorch-1)
-        - [Install dependent libraries](#install-dependent-libraries-1)
-        - [Install MMCV](#install-mmcv-1)
+    - [Prerequisites](#prerequisites)
     - [Other method](#other-method)
     - [Reminder](#reminders)
     - [FAQs](#faqs)
@@ -21,13 +13,26 @@ The EdgeLab runtime environment requires [PyTorch](https://pytorch.org/get-start
 - [MMDPose](https://github.com/open-mmlab/mmpose): OpenMMLab inspection toolbox and benchmark
 - [MIM](https://github.com/open-mmlab/mim): MIM provides a unified interface for starting and installing the OpenMMLab project and its extensions, and managing the OpenMMLab model library.
 
-**We strongly recommend you to use Anaconda3 to manage python packages.**
+## Prerequisites
+**We strongly recommend you to use Anaconda3 to manage python packages.** You can use [script](#other-method) to configure the environment after finishing the **step 0**, or you can follow all the below steps to prepare the environment.
 
-## GPU support
-1. ### Install cuda
-    Please refer to [official install guide](https://developer.nvidia.com/cuda-downloads)
+**Step 0.** Download and install Miniconda from the [official website](https://docs.conda.io/en/latest/miniconda.html).
 
-2. ### Install pytorch
+**Step 1.** Create a conda environment and activate it.
+
+```bash
+conda create --name edgelab python=3.8 -y
+# activate edgelab
+conda activate edgelab
+```
+
+**Step 2.** Install packages for GPU support and CPU support separately, it depends on your device.
+
+On GPU platforms:
+
+- Install cuda, please refer to [official install guide](https://developer.nvidia.com/cuda-downloads).
+
+- Install pytorch
     ```bash
     # conda install
     conda install pytorch torchvision torchaudio pytorch-cuda=11.6 -c pytorch -c nvidia
@@ -36,20 +41,9 @@ The EdgeLab runtime environment requires [PyTorch](https://pytorch.org/get-start
     pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116
     ```
 
-3. ### Install dependent libraries
-    ```bash
-    # pip install, it is not work for conda.
-    pip3 install -r requirements/base.txt
-    ```
+On CPU platforms:
 
-4. ### Install MMCV
-    ```bash
-    # must use mim install
-    mim install mmcv-full==1.7.0 
-    ```
-
-## CPU support
-1. ### Install pytorch
+- Install pytorch
     ```bash
     # conda install
     conda install pytorch torchvision torchaudio cpuonly -c pytorch
@@ -58,17 +52,20 @@ The EdgeLab runtime environment requires [PyTorch](https://pytorch.org/get-start
     pip3 install torch torchvision torchaudio
     ```
 
-2. ### Install dependent libraries
-    ```bash
-    # pip install, it is not work for conda.
-    pip3 install -r requirements/base.txt
-    ```
+**Step 3.** Install dependent libraries.
 
-3. ### Install MMCV
-    ```bash
-    # must use mim install
-    mim install mmcv-full==1.7.0 
-    ```
+```bash
+# pip install, it is not work for conda.
+pip3 install -r requirements/base.txt
+```
+
+**Step 4.** Install MMCV using MIM.
+
+```bash
+pip3 install -U openmim
+# must use mim install
+mim install mmcv-full==1.7.0 
+```
 
 ## Other method
 The configuration of the project environment can be done automatically using a script on ubuntu 20.04, or manually if you are using other systems. All relevant environments can be configured on ubuntu with the following command.
@@ -81,7 +78,7 @@ python3 tools/env_config.py
 
 ## Reminders
 
-After the appeal steps are completed, the required environment variables have been added to the ~/.bashrc file. A conda virtual environment named edgelab has been created and the dependencies have been installed in the virtual environment, but it is not activated at this point. You can activate conda, the virtual environment and other related environment variables with the following command.
+After the appeal steps are completed, the required environment variables have been added to the ~/.bashrc file. A conda virtual environment named edgelab has been created and the dependencies have been installed in the virtual environment. If it is not activated at this point. You can activate conda, the virtual environment and other related environment variables with the following command.
 
 ```bash
 source ~/.bashrc

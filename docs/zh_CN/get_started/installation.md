@@ -1,34 +1,38 @@
 # 环境安装
 - [环境安装](#环境安装)
-    - [支持GPU](#支持-gpu)
-        - [安装CUDA](#安装-cuda)
-        - [安装pytorch](#安装-pytorch)
-        - [安装依赖库](#安装依赖库)
-        - [安装MMCV](#安装-mmcv)
-    - [支持CPU](#支持-cpu)
-        - [安装pytorch](#e5ae89e8a385-pytorch-1)
-        - [安装依赖库](#e5ae89e8a385e4be9de8b596e5ba93-1)
-        - [安装MMCV](#e5ae89e8a385-mmcv-1)
+    - [先决条件](#先决条件)
     - [其他方式](#其他方式)
     - [提醒](#提醒)
     - [FAQs](#faqs)
 
 EdgeLab的运行环境需要[PyTorch](https://pytorch.org/get-started/locally/)和以下[OpenMMLab](https://openmmlab.com/)第三方库。
 
-- [MMCV](https://github.com/open-mmlab/mmcv)。OpenMMLab计算机视觉基础库。
-- [MMClassification](https://github.com/open-mmlab/mmclassification)。OpenMMLab图像分类工具包和基准测试。除了分类任务外，它还被用来提供各种骨干网络。
-- [MMDetection](https://github.com/open-mmlab/mmdetection)。OpenMMLab检测工具箱和基准测试。
-- [MMDPose](https://github.com/open-mmlab/mmpose): OpenMMLab检测工具箱和基准测试。
-- [MIM](https://github.com/open-mmlab/mim): MIM为启动和安装 OpenMMLab 项目及其扩展以及管理 OpenMMLab 模型库提供了一个统一的接口。
+- [MMCV](https://github.com/open-mmlab/mmcv)：OpenMMLab计算机视觉基础库。
+- [MMClassification](https://github.com/open-mmlab/mmclassification)：OpenMMLab图像分类工具包和基准测试。除了分类任务外，它还被用来提供各种骨干网络。
+- [MMDetection](https://github.com/open-mmlab/mmdetection)：OpenMMLab检测工具箱和基准测试。
+- [MMDPose](https://github.com/open-mmlab/mmpose)：OpenMMLab检测工具箱和基准测试。
+- [MIM](https://github.com/open-mmlab/mim)：MIM为启动和安装 OpenMMLab 项目及其扩展以及管理 OpenMMLab 模型库提供了一个统一的接口。
 
-**我们强烈建议使用Anaconda3来管理python软件包。**
+## 先决条件
+**我们强烈建议使用Anaconda3来管理python软件包。** 你可以在完成第一个步骤后使用[script](#other-method)去配置环境，也可以按照下面的步骤配置环境。
 
+**Step 0.** 参照[官方网站](https://docs.conda.io/en/latest/miniconda.html)下载可安装Miniconda。
 
-## 支持 GPU
-1. ### 安装 CUDA
-    请参考[官方文档](https://developer.nvidia.com/cuda-downloads)
+**Step 1.** 创建conda环境并激活它。
 
-2. ### 安装 pytorch
+```bash
+conda create --name edgelab python=3.8 -y
+# activate edgelab
+conda activate edgelab
+```
+
+**Step 2.** 分别安装GPU支持和CPU支持的包，这取决于你的设备。
+
+GPU平台：
+
+- 请参照[官方文档](https://developer.nvidia.com/cuda-downloads)安装cuda.
+
+- 安装pytorch
     ```bash
     # conda 安装
     conda install pytorch torchvision torchaudio pytorch-cuda=11.6 -c pytorch -c nvidia
@@ -37,20 +41,9 @@ EdgeLab的运行环境需要[PyTorch](https://pytorch.org/get-started/locally/)�
     pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116
     ```
 
-3. ### 安装依赖库
-    ```bash
-    # pip安装，conda无法完全安装
-    pip3 install -r requirements/base.txt
-    ```
+CPU平台：
 
-4. ### 安装 MMCV
-    ```bash
-    # 必须通过mim安装
-    mim install mmcv-full==1.7.0 
-    ```
-
-## 支持 CPU
-1. ### 安装 Pytorch
+- 安装pytorch
     ```bash
     # conda安装
     conda install pytorch torchvision torchaudio cpuonly -c pytorch
@@ -58,17 +51,21 @@ EdgeLab的运行环境需要[PyTorch](https://pytorch.org/get-started/locally/)�
     # pip安装
     pip3 install torch torchvision torchaudio
     ```
-2. ### 安装依赖库
-    ```bash
-    # pip安装，conda无法完全安装
-    pip3 install -r requirements/base.txt
-    ```
 
-3. ### 安装 MMCV
-    ```bash
-    # 必须通过mim安装
-    mim install mmcv-full==1.7.0
-    ```
+**Step 3.** 安装依赖库
+
+```bash
+# pip安装，conda无法完全安装
+pip3 install -r requirements/base.txt
+```
+
+**Step 4.** 使用MIM安装MMCV
+
+```bash
+pip3 install -U openmim
+# 必须通过mim安装
+mim install mmcv-full==1.7.0 
+```
 
 
 ## 其他方式
@@ -82,7 +79,7 @@ python3 tools/env_config.py
 
 ## 提醒
 
-在上诉步骤完成后，所需的环境变量已经被添加到~/.bashrc文件中。一个名为edgelab的conda虚拟环境已经被创建，并且在虚拟环境中安装了依赖项，但此时它还没有被激活。你可以用以下命令激活conda、虚拟环境和其他相关的环境变量。
+在上诉步骤完成后，所需的环境变量已经被添加到~/.bashrc文件中。一个名为edgelab的conda虚拟环境已经被创建，并且在虚拟环境中安装了依赖项。如果它还没有被激活，你可以用以下命令激活conda、虚拟环境和其他相关的环境变量。
 
 ```bash
 source ~/.bashrc
