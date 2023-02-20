@@ -200,9 +200,24 @@ def main():
         # use config filename as default work_dir if cfg.work_dir is None
         cfg.work_dir = osp.join('./work_dirs',
                                 osp.splitext(osp.basename(args.config))[0])
+    else:
+        # if cfg.work_dir is not none and the besename of work_dir is not equal to config filename, 
+        # use config filename as the basename in cfg.work_dir. 
+        if osp.splitext(osp.basename(args.config))[0] != osp.basename(cfg.work_dir):
+            cfg.work_dir = osp.join(cfg.work_dir,
+                                osp.splitext(osp.basename(args.config))[0])
+
+    # get root dir
+    root = osp.abspath('.')
+    # turn relative path to absolute path for parameter load_from and resume_from
+    if cfg.load_from and not osp.isabs(cfg.load_from):
+        cfg.load_from = osp.join(root, cfg.load_from)
 
     if args.resume_from is not None:
         cfg.resume_from = args.resume_from
+    if cfg.resume_from and not osp.isabs(cfg.resume_from):
+        cfg.resume_from = osp.join(root, cfg.resume_from) 
+    
     cfg.auto_resume = args.auto_resume
     if args.gpus is not None:
         cfg.gpu_ids = range(1)

@@ -7,7 +7,5 @@ build:
   jobs:
     pre_install:
       - pip install -r requirements/docs.txt
-    pre_build:
-      - python ./scripts/docs_fetch.py --config ./docs/config.json  --dir ./docs/ 
 
   
