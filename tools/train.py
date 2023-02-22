@@ -181,12 +181,25 @@ def main():
     # set multi-process settings
     setup_multi_processes(cfg)
 
+    # get root dir
+    root = osp.abspath('.')
+
     if args.data is not None:
         args.data = os.path.abspath(args.data)
         cfg.data_root = args.data
         cfg.data.train.data_root = args.data
         cfg.data.val.data_root = args.data
         cfg.data.test.data_root = args.data
+    
+    # convert to absolute paths
+    if not os.path.isabs(cfg.data_root):
+        cfg.data_root = os.path.abspath(cfg.data_root)
+    if not os.path.isabs(cfg.data.train.data_root):
+        cfg.data.train.data_root = os.path.abspath(cfg.data.train.data_root)
+    if not os.path.isabs(cfg.data.val.data_root):
+        cfg.data.val.data_root = os.path.abspath(cfg.data.val.data_root)
+    if not os.path.isabs(cfg.data.test.data_root):
+        cfg.data.test.data_root = os.path.abspath(cfg.data.test.data_root)      
 
     # set cudnn_benchmark
     if cfg.get('cudnn_benchmark', False):
@@ -207,8 +220,7 @@ def main():
             cfg.work_dir = osp.join(cfg.work_dir,
                                 osp.splitext(osp.basename(args.config))[0])
 
-    # get root dir
-    root = osp.abspath('.')
+  
     # turn relative path to absolute path for parameter load_from and resume_from
     if cfg.load_from and not osp.isabs(cfg.load_from):
         cfg.load_from = osp.join(root, cfg.load_from)

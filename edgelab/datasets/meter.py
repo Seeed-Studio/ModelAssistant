@@ -54,6 +54,10 @@ class MeterData(Dataset, metaclass=ABCMeta):
             self.img_dir = osp.join(self.data_root, img_dir)
         if not osp.isabs(index_file) and self.data_root:
             index_file = osp.join(self.data_root, index_file)
+        
+        print(self.data_root)
+        print(index_file)
+
 
         if osp.isdir(index_file):
             file_ls = os.listdir(index_file)
@@ -62,7 +66,7 @@ class MeterData(Dataset, metaclass=ABCMeta):
             self.parse_jsons(file_ls)
         else:
             if index_file.endswith('txt'):
-                with open(os.path.join(self.data_root, index_file), 'r') as f:
+                with open(index_file, 'r') as f:
                     self.lines = f.readlines()
                 self.parse_txt()
             elif index_file.endswith('json'):
