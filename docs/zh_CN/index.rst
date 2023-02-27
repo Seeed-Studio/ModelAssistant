@@ -33,6 +33,12 @@ Seeed Studio EdgeLab是一个专注于嵌入式人工智能的开源项目。我
 
 .. toctree::
    :maxdepth: 2
+   :caption: Examples
+
+   examples/index.rst
+
+.. toctree::
+   :maxdepth: 2
    :caption: 社区建设
 
    faq
