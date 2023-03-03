@@ -5,10 +5,10 @@ model = dict(type='AccelerometerClassifier',
              backbone=dict(type='AxesNet',
                            num_axes=3,
                            frequency=62.5,
-                           duration=1,
+                           window=1000,
                            out_channels=256,
                            ),
-             head=dict(type='LinearClsHead',
+             head=dict(type='AxesClsHead',
                        in_channels=256,
                        num_classes=num_classes,
                        loss=dict(type='CrossEntropyLoss', loss_weight=1.0),
@@ -20,6 +20,8 @@ dataset_type = 'AxesDataset'
 data_root = './work_dirs/datasets/axes'
 batch_size = 4
 workers = 2
+
+shape = [num_classes * int(62.5 * 1000 / 1000)]
 
 
 data = dict(
@@ -47,7 +49,7 @@ evaluation = dict(interval=1, metric='accuracy', metric_options={'topk': 1})
 
 # optimizer
 lr = 0.0005
-epochs = 100
+epochs = 5
 optimizer = dict(type='Adam',
                  lr=lr,
                  betas=[0.9, 0.99],
@@ -59,3 +61,5 @@ lr_config = dict(
     policy='OneCycle',
     max_lr=lr,
     pct_start=0.1)
+
+runner = dict(type='EpochBasedRunner', max_epochs=epochs)
