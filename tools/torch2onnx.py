@@ -16,6 +16,8 @@ from mmcls.models import build_classifier
 from mmdet.models import build_detector
 from mmpose.models import build_posenet
 
+from edgelab import models
+
 torch.manual_seed(3)
 
 

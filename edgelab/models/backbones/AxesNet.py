@@ -8,14 +8,14 @@ from mmcls.models.builder import BACKBONES
 class AxesNet(nn.Module):
 
     def __init__(self,
-                 num_axes=3,
-                 frequency=62.5,
-                 duration=1,
+                 num_axes=3,   # axes number
+                 frequency=62.5,  # sample frequency
+                 window=1000,  # window size
                  out_channels=256,
                  ):
         super().__init__()
 
-        self.intput_feature = num_axes * int(frequency) * duration
+        self.intput_feature = num_axes * int(frequency * window / 1000)
         liner_feature = self.liner_feature_fit()
         self.fc1 = nn.Linear(in_features=self.intput_feature,
                              out_features=out_channels, bias=True)
@@ -26,7 +26,7 @@ class AxesNet(nn.Module):
 
     def liner_feature_fit(self):
 
-        return (int(self.intput_feature / 256) + 1) * 256
+        return (int(self.intput_feature / 1024) + 1) * 256
 
     def forward(self, x):
 

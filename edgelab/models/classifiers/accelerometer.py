@@ -34,51 +34,66 @@ class AccelerometerClassifier(BaseClassifier):
                 self.augments = Augments(augments_cfg)
 
     def forward_dummy(self, img):
-    
-        return self.extract_feat(img, stage='pre_logits')
-
-    def extract_feat(self, img, stage='neck'):
         
+        img = self.extract_feat(img , stage='backbone')
+        
+        if self.with_head:
+            return self.head.forward_dummy(img)
+
+        return img
+    
+    def extract_feat(self, img, stage='neck'):
+
         assert stage in ['backbone', 'neck', 'pre_logits'], \
             (f'Invalid output stage "{stage}", please choose from "backbone", '
              '"neck" and "pre_logits"')
 
-        x = self.backbone(img)
+        img = self.backbone(img)
 
         if stage == 'backbone':
-            return x
+            return img
 
         if self.with_neck:
-            x = self.neck(x)
+            img = self.neck(img)
         if stage == 'neck':
-            return x
+            return img
 
         if self.with_head and hasattr(self.head, 'pre_logits'):
-            x = self.head.pre_logits(x)
-        return x
+            img = self.head.pre_logits(img)
+        return img
 
     def forward_train(self, img, gt_label, **kwargs):
-    
+
         if self.augments is not None:
             img, gt_label = self.augments(img, gt_label)
 
-        x = self.extract_feat(img)
+        img = self.extract_feat(img)
 
         losses = dict()
-        loss = self.head.forward_train(x, gt_label)
+        loss = self.head.forward_train(img, gt_label)
 
         losses.update(loss)
 
         return losses
 
     def simple_test(self, img, img_metas=None, **kwargs):
-       
-        x = self.extract_feat(img)
+
+        img = self.extract_feat(img)
 
         if isinstance(self.head, MultiLabelClsHead):
-            assert 'softmax' not in kwargs, (
-                'Please use `sigmoid` instead of `softmax` '
+            assert 'softmaimg' not in kwargs, (
+                'Please use `sigmoid` instead of `softmaimg` '
                 'in multi-label tasks.')
-        res = self.head.simple_test(x, **kwargs)
+        res = self.head.simple_test(img, **kwargs)
 
         return res
+
+    def forward(self, img, flag=False, return_loss=True, **kwargs):
+        
+        if (flag):
+            return self.forward_dummy(img)
+
+        if return_loss:
+            return self.forward_train(img, **kwargs)
+        else:
+            return self.forward_test(img, **kwargs)
