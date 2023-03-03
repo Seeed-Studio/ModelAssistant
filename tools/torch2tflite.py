@@ -37,7 +37,7 @@ def parse_args():
     parser.add_argument('--weights', type=str, help='torch model file path')
     parser.add_argument('--tflite_type',
                         type=str,
-                        default='int8',
+                        default='fp32',
                         help='Quantization type for tflite, '
                         '(int8, fp16, fp32)')
     # parser.add_argument(
@@ -71,52 +71,66 @@ def parse_args():
 
 def graph2dict(model):
     """Generating tf dictionary from torch graph."""
+    
+    #print("model: ", model)
 
     gm: torch.fx.GraphModule = torch.fx.symbolic_trace(
         model, concrete_args={'flag': True})
-    # gm.graph.print_tabular()
+    #gm.graph.print_tabular()
     modules = dict(model.named_modules())
 
     tf_dict = dict()
     for node in gm.graph.nodes:
         if node.op == 'get_attr':
             tf_dict[node.name] = modules[node.target.rsplit('.', 1)[0]] # Audio model
-        if node.op == 'call_module':
+        elif node.op == 'call_module':
             op = modules[node.target]
             if isinstance(op, (nn.Conv2d, nn.Conv1d)):
                 tf_dict[node.name] = eval(f'TFBase{op.__class__.__name__}')(op)
-            if isinstance(op, (nn.BatchNorm2d, nn.BatchNorm1d)):
+            elif isinstance(op, (nn.BatchNorm2d, nn.BatchNorm1d)):
                 tf_dict[node.name] = TFBN(op)
-            if isinstance(op, (nn.ReLU, nn.ReLU6, nn.LeakyReLU, nn.Sigmoid)):
+            elif isinstance(op, (nn.ReLU, nn.ReLU6, nn.LeakyReLU, nn.Sigmoid)):
                 tf_dict[node.name] = TFActivation(op)
-            if 'drop_path' in node.name:  # yolov3
+            elif 'drop_path' in node.name:  # yolov3
                 tf_dict[node.name] = tf.identity
-            if isinstance(op, nn.Dropout):
+            elif isinstance(op, nn.Dropout):
                 tf_dict[node.name] = keras.layers.Dropout(rate=op.p)
 
-            if isinstance(op, (nn.MaxPool2d, nn.AvgPool2d, nn.AdaptiveAvgPool1d, nn.AdaptiveAvgPool2d)):
+            elif isinstance(op, (nn.MaxPool2d, nn.AvgPool2d, nn.AdaptiveAvgPool1d, nn.AdaptiveAvgPool2d)):
                 tf_dict[node.name] = tf_pool(op)
-            if isinstance(op, nn.Linear):
+            elif isinstance(op, nn.Linear):
                 tf_dict[node.name] = TFDense(op)
-            if isinstance(op, nn.Softmax) or node.name == 'sm':
+            elif isinstance(op, nn.Softmax) or node.name == 'sm':
                 tf_dict[node.name] = keras.layers.Softmax(axis=-1)
-            if isinstance(op, nn.Upsample):
+            elif isinstance(op, nn.Upsample):
                 # tf_dict[node.name] = keras.layers.UpSampling2D(size=int(op.scale_factor), interpolation=op.mode)
                 tf_dict[node.name] = TFUpsample(op)
-        if node.op == 'call_function':
+            else:
+                pass
+        elif node.op == 'call_function':
             if 'add' in node.name:
                 tf_dict[node.name] = keras.layers.Add()
                 # tf_dict[node.name] = lambda y: keras.layers.add([eval(str(x)) for x in y.args])
-            if 'cat' in node.name:
+            elif 'cat' in node.name:
                 dim = node.args[1] if len(
                     node.args) == 2 else node.kwargs['dim']
                 dim = -1 if dim == 1 else dim - 1
                 tf_dict[node.name] = keras.layers.Concatenate(axis=dim)
                 # tf_dict[node.name] = lambda y: tf.concat([eval(str(x)) for x in y.args[0]], axis=dim)
-            if 'conv1d' in node.name:  # audio model
+            elif 'conv1d' in node.name:  # audio model
                 tf_dict[node.name] = TFAADownsample(tf_dict[str(node.args[1])])
-            if 'interpolate' in node.name:
+            elif 'interpolate' in node.name:
                 tf_dict[node.name] = TFUpsample(node)
+            elif 'view' in node.name:
+                tf_dict[node.name] = TFView(node)
+            elif 'relu' in node.name:
+                tf_dict[node.name] = keras.layers.ReLU()
+            elif 'softmax' in node.name:
+                tf_dict[node.name] = keras.layers.Softmax(axis=-1)
+            else:
+                pass
+        else:
+            pass
 
     return tf_dict, gm
 
@@ -132,61 +146,64 @@ class ModelParser(keras.layers.Layer):
         for node in self.nodes:
             if node.op == 'get_attr':  # Fixed weight, pass
                 continue
-            if node.op == 'placeholder':
+            elif node.op == 'placeholder':
                 globals()[node.name] = inputs
-            if node.name in self.tf.keys():
-                if 'add' in node.name:
-                    globals()[node.name] = self.tf[node.name](
-                        [eval(str(x)) for x in node.args])
-                elif 'cat' in node.name:
-                    globals()[node.name] = self.tf[node.name](
-                        [eval(str(x)) for x in node.args[0]])
-                else:
-                    globals()[node.name] = self.tf[node.name](eval(
-                        str(node.args[0])))
-            if 'size' in node.name:
-                if len(node.args) == 2:
-                    # dim = -1 if node.args[1] == 1 else node.args[1]
-                    globals()[node.name] = eval(str(node.args[0])).shape[-1]
-                else:
-                    n, h, w, c = eval(str(node.args[0])).shape.as_list()
-                    globals()[node.name] = [n, c, h, w]
-            if 'getitem' in node.name:
-                globals()[node.name] = eval(str(node.args[0]))[node.args[1]]
-            if 'floordiv' in node.name:
-                globals()[node.name] = eval(str(node.args[0])) // 2
-            if 'view' in node.name:
-                if len(node.args[1:]) == 2:
-                    s = eval(str(node.args[1]))
-                    globals()[node.name] = tf.reshape(eval(str(node.args[0])),
-                                                      [-1, s])
-                else:
-                    if 'contiguous' in str(node.args[0]):
-                        n, c, h, w = [eval(str(a)) for a in node.args[1:]]
-                        globals()[node.name] = tf.reshape(
-                            (eval(str(node.args[0]))), [-1, h, w, c])
+            else:
+                if node.name in self.tf.keys():
+                    if 'add' in node.name:
+                        globals()[node.name] = self.tf[node.name](
+                            [eval(str(x)) for x in node.args])
+                    elif 'cat' in node.name:
+                        globals()[node.name] = self.tf[node.name](
+                            [eval(str(x)) for x in node.args[0]])
                     else:
-                        n, group, f, h, w = [
-                            a if isinstance(a, int) else eval(str(a))
-                            for a in node.args[1:]
-                        ]
-                        globals()[node.name] = tf.reshape(
-                            (eval(str(node.args[0]))), [-1, h, w, group, f])
-            if 'transpose' in node.name:
-                globals()[node.name] = tf.transpose(eval(str(node.args[0])),
-                                                    perm=[0, 1, 2, 4, 3])
-            if 'contiguous' in node.name:
-                globals()[node.name] = eval(str(node.args[0]))
-            if 'mul' in node.name:
-                globals()[node.name] = node.args[0] * eval(str(node.args[1]))
-            if 'chunk' in node.name:
-                globals()[node.name] = tf.split(eval(str(node.args[0])),
-                                                node.args[1],
-                                                axis=-1)
-            if 'flatten' in node.name:
-                globals()[node.name] = tf.keras.layers.Flatten()(eval(str(node.args[0])))
-            if node.name == 'output':
-                return eval(str(node.args[0]))
+                        globals()[node.name] = self.tf[node.name](eval(
+                            str(node.args[0])))
+                elif 'size' in node.name:
+                    if len(node.args) == 2:
+                        # dim = -1 if node.args[1] == 1 else node.args[1]
+                        globals()[node.name] = eval(str(node.args[0])).shape[-1]
+                    else:
+                        n, h, w, c = eval(str(node.args[0])).shape.as_list()
+                        globals()[node.name] = [n, c, h, w]
+                elif 'getitem' in node.name:
+                    globals()[node.name] = eval(str(node.args[0]))[node.args[1]]
+                elif 'floordiv' in node.name:
+                    globals()[node.name] = eval(str(node.args[0])) // 2
+                elif 'view' in node.name:
+                    if len(node.args[1:]) == 2:
+                        s = eval(str(node.args[1]))
+                        globals()[node.name] = tf.reshape(eval(str(node.args[0])),
+                                                        [-1, s])
+                    else:
+                        if 'contiguous' in str(node.args[0]):
+                            n, c, h, w = [eval(str(a)) for a in node.args[1:]]
+                            globals()[node.name] = tf.reshape(
+                                (eval(str(node.args[0]))), [-1, h, w, c])
+                        else:
+                            n, group, f, h, w = [
+                                a if isinstance(a, int) else eval(str(a))
+                                for a in node.args[1:]
+                            ]
+                            globals()[node.name] = tf.reshape(
+                                (eval(str(node.args[0]))), [-1, h, w, group, f])
+                elif 'transpose' in node.name:
+                    globals()[node.name] = tf.transpose(eval(str(node.args[0])),
+                                                        perm=[0, 1, 2, 4, 3])
+                elif 'contiguous' in node.name:
+                    globals()[node.name] = eval(str(node.args[0]))
+                elif 'mul' in node.name:
+                    globals()[node.name] = node.args[0] * eval(str(node.args[1]))
+                elif 'chunk' in node.name:
+                    globals()[node.name] = tf.split(eval(str(node.args[0])),
+                                                    node.args[1],
+                                                    axis=-1)
+                elif 'flatten' in node.name:
+                    globals()[node.name] = tf.keras.layers.Flatten()(eval(str(node.args[0])))
+                elif 'output' == node.name:
+                    return eval(str(node.args[0]))
+                else:
+                    pass
 
 
 def tflite(keras_model, type, data):
@@ -224,7 +241,18 @@ def main():
 
     # Get shape and datataloader
     _, build_model, build_dataset, build_dataloader = check_type(args.task)
-    shape = [cfg.height, cfg.width, 3] if not args.audio else [cfg.width, 1]
+    
+    try:
+        if cfg.shape is not None:
+            shape = cfg.shape
+        else:
+            shape = [cfg.height, cfg.width, 3] if not args.audio else [cfg.width, 1]
+    except:
+        try:
+            shape = [cfg.height, cfg.width, 3] if not args.audio else [cfg.width, 1]
+        except:
+            raise ValueError('Please specify the shape of the input data in the config file')
+    
     dataset = build_dataset(cfg.data.val, dict(test_mode=True))
 
     # build model
