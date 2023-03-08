@@ -178,6 +178,13 @@ class TextLoggerHook(TextLoggerHook):
             log_dict['memory'] = self._get_max_memory(runner)
         log_dict = dict(log_dict, **runner.log_buffer.output)  # type: ignore
         self.log_dict = log_dict
+        if log_dict['mode']=='val':
+            print()
+            st=''
+            for key,value in log_dict.items():
+                value=self._round_float(value)
+                st += f"{key:^}: {value:^} |"
+            print(st)
         self._log_info(log_dict, runner)
         self._dump_log(log_dict, runner)
         return log_dict
