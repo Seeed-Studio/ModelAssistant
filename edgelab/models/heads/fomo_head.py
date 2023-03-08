@@ -162,7 +162,7 @@ class Fomo_Head(BaseModule):
         # calculate
         p = tp / (tp + fp)
         r = tp / (tp + fn)
-        f1 = 2 * (p * r) / (p + r)
+        f1 = 2 * (p * r) / (p + r) if p+r != 0 else 0
 
         return p, r, f1
 
