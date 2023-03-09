@@ -23,7 +23,7 @@ class Fomo(SingleStageDetector):
 
     def forward(self, img, target, flag=False, return_loss=True, **kwargs):
         if flag:
-            return torch.softmax(self.forward_dummy(img))
+            return torch.softmax(self.forward_dummy(img), dim=1)
         else:
             if return_loss:
                 # extract image feature
