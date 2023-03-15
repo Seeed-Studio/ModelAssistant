@@ -65,7 +65,7 @@ class Fomo_Head(BaseModule):
                                padding=0)
 
     def forward(self, x):
-        if isinstance(x, tuple) and len(x):
+        if isinstance(x, (list,tuple)) and len(x):
             x = x[-1]
         x = self.conv1(x)
         x = self.conv2(x)
