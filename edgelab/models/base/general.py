@@ -13,7 +13,7 @@ def get_conv(conv):
         conv=getattr(nn,conv)
     elif isinstance(conv,str) and conv in CONV_LAYERS.module_dict:
         conv=CONV_LAYERS.get(conv)
-    elif isinstance(conv,type.__class__) and issubclass(conv,nn.Module):
+    elif (isinstance(conv,type.__class__) and issubclass(conv,nn.Module)) or hasattr(conv,'__call__'):
         pass
     else:
         raise ValueError('Unable to parse the value of conv_layer, please confirm whether the value of conv_layer is correct')
@@ -28,7 +28,7 @@ def get_norm(norm):
         norm=getattr(nn,norm)
     elif isinstance(norm,str) and norm in NORM_LAYERS.module_dict:
         norm=NORM_LAYERS.get(norm)
-    elif isinstance(norm,type.__class__) and issubclass(norm,nn.Module):
+    elif (isinstance(norm,type.__class__) and issubclass(norm,nn.Module)) or hasattr(norm,'__call__'):
         pass
     else:
         raise ValueError('Unable to parse the value of norm_layer, please confirm whether the value of norm_layer is correct')
@@ -41,7 +41,7 @@ def get_act(act):
         act=getattr(nn,act)
     elif isinstance(act,str) and act in ACTIVATION_LAYERS.module_dict:
         act=ACTIVATION_LAYERS.get(act)
-    elif isinstance(act,type.__class__) and issubclass(act,nn.Module):
+    elif (isinstance(act,type.__class__) and issubclass(act,nn.Module)) or hasattr(act,'__call__'):
         pass
     else:
         raise ValueError('Unable to parse the value of act_layer, please confirm whether the value of act_layer is correct')
