@@ -100,11 +100,11 @@ class Fomo_Head(BaseModule):
         # Get the ground truth box that fits the fomo model
         data = self.build_target(preds, target)
         # background loss
-        cls_no_loss = self.loss_bg(
+        bg_loss = self.loss_bg(
             preds,
             data,
         )
-        cls_no_loss *= self.weight_mask
+        bg_loss *= self.weight_mask
         # no background loss
         cls_loss = self.loss_cls(
             preds,
@@ -112,12 +112,12 @@ class Fomo_Head(BaseModule):
         )
         cls_loss *= 1.0 - self.weight_mask
         # avg loss
-        loss = torch.mean(cls_loss + cls_no_loss)
+        loss = torch.mean(cls_loss + bg_loss)
         # get p,r,f1
         P, R, F1 = self.get_pricsion_revall_f1(preds, data)
         return dict(loss=loss,
-                    cls_los=cls_loss,
-                    cls_no_los=cls_no_loss,
+                    fgnd=cls_loss,
+                    bgnd=bg_loss,
                     P=torch.Tensor([P]),
                     R=torch.Tensor([R]),
                     F1=torch.Tensor([F1]))
@@ -162,7 +162,7 @@ class Fomo_Head(BaseModule):
         # calculate
         p = tp / (tp + fp)
         r = tp / (tp + fn)
-        f1 = 2 * (p * r) / (p + r) if p+r != 0 else 0
+        f1 = 2 * (p * r) / (p + r) if p + r != 0 else 0
 
         return p, r, f1
 
