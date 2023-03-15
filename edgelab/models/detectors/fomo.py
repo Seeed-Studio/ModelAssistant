@@ -38,8 +38,8 @@ class Fomo(SingleStageDetector):
         x = self.extract_feat(imgs)
 
         result = self.bbox_head(x)
-        return result.permute(0, 2, 3, 1), self.bbox_head.build_target(
-            result.permute(0, 2, 3, 1), kwargs['label'])
+        return result, self.bbox_head.build_target(result.permute(0, 2, 3, 1),
+                                                   kwargs['label'])
         # return self.bbox_head.post_handle(result,kwargs['label'])
 
     def train_step(self, data, optimizer):
