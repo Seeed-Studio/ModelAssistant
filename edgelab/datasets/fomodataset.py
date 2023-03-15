@@ -221,6 +221,7 @@ class FomoDatasets(Dataset):
             for idx, data in enumerate(results):
                 (pred, target) = data['pred'], data['target']
                 if len(pred.shape) == 4:
+                    pred=pred.permute(0,2,3,1)
                     B, H, W, C = pred.shape
                 else:
                     B, H, W = pred.shape
