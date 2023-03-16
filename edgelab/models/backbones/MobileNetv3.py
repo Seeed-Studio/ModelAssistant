@@ -5,7 +5,7 @@ from torch import Tensor
 
 from mmcv.runner import BaseModule
 from mmdet.models.builder import BACKBONES
-from mmdet.models.utils import make_divisible
+from mmdet.models.utils.make_divisible import make_divisible
 from edgelab.models.base.general import ConvNormActivation, get_norm
 from torchvision.ops.misc import SqueezeExcitation as SElayer
 
@@ -98,8 +98,9 @@ class MobileNetV3(BaseModule):
     def __init__(self,
                  arch='small',
                  widen_factor=1,
-                 out_indices=(2, ),
+                 out_indices=(1, ),
                  frozen_stages=-1,
+                 input_channels: int = 3,
                  conv_cfg=dict(type='Conv'),
                  norm_cfg=None,
                  act_cfg=dict(type='Hardswish'),
@@ -170,7 +171,7 @@ class MobileNetV3(BaseModule):
         conv1_output_channels = inverted_residual_setting[0].input_channels
         # 1/2
         self.conv1 = ConvNormActivation(
-            3,
+            input_channels,
             conv1_output_channels,
             kernel_size=3,
             stride=2,
