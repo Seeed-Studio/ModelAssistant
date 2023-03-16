@@ -3,10 +3,10 @@ _base_ = './fomo_mobnetv2_0.35_x8_abl_coco.py'
 num_classes=2
 model = dict(
     type='Fomo',
-    backbone=dict(type='MobileNetV3', arch='large',widen_factor=0.35, out_indices=(3, )),
+    backbone=dict(type='ShuffleNetV2', widen_factor=0.1, out_indices=(1, )),
     head=dict(
         type='Fomo_Head',
-        input_channels=16,
+        input_channels=24,
         num_classes=num_classes,
         middle_channels=[96, 32],
         act_cfg='ReLU6',
