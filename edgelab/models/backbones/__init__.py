@@ -5,8 +5,9 @@ from .AxesNet import AxesNet
 from .MobileNetv3 import MobileNetV3
 from .ShuffleNetV2 import ShuffleNetV2
 from .SqueezeNet import SqueezeNet
+from .EfficientNet import EfficientNet
 
 __all__ = [
     'PfldMobileNetV2', 'SoundNetRaw', 'CustomShuffleNetV2', 'AxesNet',
-    'MobileNetV3', 'ShuffleNetV2', 'SqueezeNet'
+    'MobileNetV3', 'ShuffleNetV2', 'SqueezeNet','EfficientNet'
 ]
