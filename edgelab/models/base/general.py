@@ -1,4 +1,5 @@
-from typing import Optional, Callable, Dict, AnyStr
+from typing import Optional, Callable, Dict, AnyStr, Any
+import torch
 import torch.nn as nn
 from mmcv.cnn.bricks.norm import NORM_LAYERS
 from mmcv.cnn.bricks.activation import ACTIVATION_LAYERS
@@ -103,6 +104,43 @@ class ConvNormActivation(nn.Sequential):
             layers.append(activation_layer(inplace=inplace))
         super().__init__(*layers)
         self.out_channels = out_channels
+
+
+class SqueezeExcitation(torch.nn.Module):
+
+    def __init__(
+        self,
+        input_channels: int,
+        squeeze_channels: int,
+        activation: Any = torch.nn.ReLU,
+        scale_activation: Callable[..., torch.nn.Module] = torch.nn.Sigmoid,
+    ) -> None:
+        super().__init__()
+        self.avgpool = torch.nn.AdaptiveAvgPool2d(1)
+        self.activation = get_act(activation)(inplace=True)
+        self.conv1 = ConvNormActivation(input_channels,
+                                        squeeze_channels,
+                                        1,
+                                        padding=0,
+                                        norm_layer=None,
+                                        activation_layer=activation)
+        self.conv2 = ConvNormActivation(squeeze_channels,
+                                        input_channels,
+                                        1,
+                                        padding=0,
+                                        norm_layer=None,
+                                        activation_layer=activation)
+        self.scale_activation = get_act(scale_activation)()
+
+    def _scale(self, input: torch.Tensor) -> torch.Tensor:
+        scale = self.avgpool(input)
+        scale = self.conv1(scale)
+        scale = self.conv2(scale)
+        return self.scale_activation(scale)
+
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
+        scale = self._scale(input)
+        return scale * input
 
 
 def CBR(inp, oup, kernel, stride, bias=False, padding=1, groups=1, act='ReLU'):
