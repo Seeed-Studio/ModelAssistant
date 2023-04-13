@@ -64,7 +64,7 @@ data = dict(samples_per_gpu=batch_size,
 # optimizer
 lr=0.001
 epochs=300
-optimizer = dict(type='Adam', lr=lr, weight_decay=0.0005)
+optimizer = dict(type='Adam', lr=lr, eps=1e-7,weight_decay=0.0005)
 
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 # learning policy
