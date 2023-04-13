@@ -6,7 +6,7 @@ from mmdet.models.builder import BACKBONES
 from mmpose.models.backbones.shufflenet_v2 import ShuffleNetV2
 
 
-@BACKBONES.register_module(name='ShuffleNetV2', force=True)
+@BACKBONES.register_module(force=True)
 class CustomShuffleNetV2(ShuffleNetV2):
 
     def __init__(self,
@@ -52,8 +52,9 @@ class CustomShuffleNetV2(ShuffleNetV2):
         elif widen_factor == 2.0:
             channels = [244, 488, 976, 2048]
         else:
-            raise ValueError('widen_factor must be in [0.5, 1.0, 1.5, 2.0]. '
-                             f'But received {widen_factor}')
+            raise ValueError(
+                'widen_factor must be in [0.25, 0.5, 1.0, 1.5, 2.0]. '
+                f'But received {widen_factor}')
 
         self.in_channels = 24
         self.conv1 = ConvModule(in_channels=3,
