@@ -16,10 +16,6 @@ class Fomo(SingleStageDetector):
                  init_cfg=None):
         super().__init__(backbone, neck, head, train_cfg, test_cfg, pretrained,
                          init_cfg)
-        self.backbone = build_backbone(backbone)
-        self.bbox_head = build_head(head)
-        if neck:
-            self.neck = build_neck(neck)
 
     def forward(self, img, target, flag=False, return_loss=True, **kwargs):
         if flag:
