@@ -9,7 +9,7 @@ import albumentations as A
 from collections import OrderedDict
 from torch.utils.data import Dataset
 from torchvision.transforms import ToTensor
-from mmdet.datasets.builder import DATASETS
+from mmdet.registry import DATASETS
 from sklearn.metrics import confusion_matrix
 
 from .pipelines.pose_transform import Pose_Compose

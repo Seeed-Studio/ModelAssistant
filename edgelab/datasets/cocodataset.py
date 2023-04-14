@@ -5,7 +5,7 @@ import cv2
 import torch
 import numpy as np
 from sklearn.metrics import confusion_matrix
-from mmdet.datasets.builder import DATASETS
+from mmdet.registry import DATASETS
 from mmdet.datasets.coco import CocoDataset
 
 from .utils.download import check_file

@@ -11,8 +11,8 @@ import numpy as np
 import albumentations as A
 from torchvision import transforms
 from torch.utils.data import Dataset
-from mmpose.datasets.builder import DATASETS
-from mmcv.parallel import DataContainer as DC
+from mmengine.registry import DATASETS
+# from mmcv.parallel import DataContainer as DC
 
 from .utils.download import check_file
 from .pipelines.pose_transform import Pose_Compose
@@ -54,10 +54,6 @@ class MeterData(Dataset, metaclass=ABCMeta):
             self.img_dir = osp.join(self.data_root, img_dir)
         if not osp.isabs(index_file) and self.data_root:
             index_file = osp.join(self.data_root, index_file)
-        
-        print(self.data_root)
-        print(index_file)
-
 
         if osp.isdir(index_file):
             file_ls = os.listdir(index_file)
@@ -98,7 +94,7 @@ class MeterData(Dataset, metaclass=ABCMeta):
 
         ann['img'] = img
         ann['keypoints'] = keypoints
-        ann['image_file'] = DC(img_file, cpu_only=True)
+        ann['image_file'] = img_file
         ann['hw'] = [h, w]
 
         return ann

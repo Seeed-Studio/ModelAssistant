@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 from sklearn.metrics import confusion_matrix
 from mmdet.datasets.voc import VOCDataset
-from mmdet.datasets.builder import DATASETS
+from mmdet.registry import DATASETS
 
 from .utils.download import check_file
 

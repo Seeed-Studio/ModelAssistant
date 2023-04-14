@@ -2,10 +2,11 @@ from typing import Optional, Sequence, Tuple, Union
 
 import cv2
 import albumentations as A
-from mmpose.datasets.pipelines import PIPELINES
+# from mmengine.registry import TRANSFORMS
+from mmpose.registry import TRANSFORMS
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class ColorJitter(A.ColorJitter):
 
     def __init__(self,
@@ -19,21 +20,21 @@ class ColorJitter(A.ColorJitter):
                          p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class HorizontalFlip(A.HorizontalFlip):
 
     def __init__(self, always_apply: bool = False, p: float = 0.5):
         super().__init__(always_apply, p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class VerticalFlip(A.VerticalFlip):
 
     def __init__(self, always_apply: bool = False, p: float = 0.5):
         super().__init__(always_apply, p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class Rotate(A.Rotate):
 
     def __init__(self,
@@ -50,7 +51,7 @@ class Rotate(A.Rotate):
                          rotate_method, crop_border, always_apply, p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class Affine(A.Affine):
 
     def __init__(self,
@@ -76,21 +77,21 @@ class Affine(A.Affine):
                          mode, fit_output, keep_ratio, always_apply, p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class ChannelShuffle(A.ChannelShuffle):
 
     def __init__(self, always_apply: bool = False, p: float = 0.5):
         super().__init__(always_apply, p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class OneOf(A.OneOf):
 
     def __init__(self, transforms, p: float = 0.5):
         super().__init__(transforms, p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class IAAAdditiveGaussianNoise(A.IAAAdditiveGaussianNoise):
 
     def __init__(self,
@@ -102,7 +103,7 @@ class IAAAdditiveGaussianNoise(A.IAAAdditiveGaussianNoise):
         super().__init__(loc, scale, per_channel, always_apply, p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class GaussNoise(A.GaussNoise):
 
     def __init__(self,
@@ -114,7 +115,7 @@ class GaussNoise(A.GaussNoise):
         super().__init__(var_limit, mean, per_channel, always_apply, p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class Blur(A.Blur):
 
     def __init__(self,
@@ -124,7 +125,7 @@ class Blur(A.Blur):
         super().__init__(blur_limit, always_apply, p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class MotionBlur(A.MotionBlur):
 
     def __init__(self,
@@ -135,14 +136,14 @@ class MotionBlur(A.MotionBlur):
         super().__init__(blur_limit, allow_shifted, always_apply, p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class MedianBlur(A.MedianBlur):
 
     def __init__(self, blur_limit, always_apply: bool = False, p: float = 0.5):
         super().__init__(blur_limit, always_apply, p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class SafeRotate(A.SafeRotate):
 
     def __init__(self,
@@ -158,14 +159,14 @@ class SafeRotate(A.SafeRotate):
                          always_apply, p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class RandomCrop(A.RandomCrop):
 
     def __init__(self, height, width, always_apply=False, p=1):
         super().__init__(height, width, always_apply, p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class Resize(A.Resize):
 
     def __init__(self,
@@ -177,14 +178,14 @@ class Resize(A.Resize):
         super().__init__(height, width, interpolation, always_apply, p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class ToGray(A.ToGray):
 
     def __init__(self, always_apply: bool = False, p: float = 0.5):
         super().__init__(always_apply, p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class CoarseDropout(A.CoarseDropout):
 
     def __init__(self,
@@ -203,7 +204,7 @@ class CoarseDropout(A.CoarseDropout):
                          always_apply, p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class CoraseDropout(A.CoarseDropout):
 
     def __init__(self,
@@ -222,7 +223,7 @@ class CoraseDropout(A.CoarseDropout):
                          always_apply, p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class RandomResizedCrop(A.RandomResizedCrop):
 
     def __init__(
@@ -239,7 +240,7 @@ class RandomResizedCrop(A.RandomResizedCrop):
                          always_apply, p)
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class RandomBrightnessContrast(A.RandomBrightnessContrast):
 
     def __init__(self,

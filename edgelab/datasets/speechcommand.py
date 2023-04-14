@@ -7,7 +7,7 @@ import torchaudio
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 from mmcls.datasets.builder import DATASETS
-from mmcls.datasets.builder import build_from_cfg, PIPELINES
+from mmcls.registry import TRANSFORMS
 
 from .utils.download import check_file
 
@@ -52,7 +52,7 @@ class Speechcommand(Dataset):
         self.audio_files = sorted(fnames)
         self.label2idx = dict(zip(self.labels, range(len(self.labels))))
         if pipeline:
-            self.pipeline = build_from_cfg(pipeline, PIPELINES)
+            self.pipeline = TRANSFORMS.build(pipeline)
         self.use_background = use_background
         if self.use_background:
             self.bg_aug = glob.glob(root +

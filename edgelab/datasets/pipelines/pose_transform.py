@@ -1,4 +1,4 @@
-from mmpose.datasets.pipelines import PIPELINES
+from mmpose.registry import TRANSFORMS
 from mmpose.datasets.builder import build_from_cfg
 
 import albumentations as A
@@ -15,7 +15,7 @@ class Pose_Compose(A.Compose):
         pose_trans = []
         for transform in transforms:
             if isinstance(transform, dict):
-                transform = build_from_cfg(transform, PIPELINES)
+                transform = TRANSFORMS.build(transform)
                 pose_trans.append(transform)
             elif callable(transform):
                 pose_trans.append(transform)

@@ -5,7 +5,7 @@ import random
 import scipy
 import torch.nn.functional as F
 from scipy.sparse import coo_matrix
-from mmcls.datasets.builder import PIPELINES
+from mmcls.registry import TRANSFORMS
 
 
 class AugBasic:
@@ -445,7 +445,7 @@ class RandomCyclicShift(AugBasic):
         return sample
 
 
-@PIPELINES.register_module()
+@TRANSFORMS.register_module()
 class AudioAugs():
     def __init__(self, k_augs):
         self.noise_vec = ['awgn', 'abgn', 'apgn', 'argn', 'avgn', 'aun', 'phn', 'sine']
