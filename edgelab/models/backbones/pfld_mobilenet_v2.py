@@ -47,6 +47,7 @@ class PfldMobileNetV2(nn.Module):
         self.block2 = InvertedResidual(inp, out_channel, 1, False, 2)
 
     def forward(self, x):
+        
         x = self.conv1(x)
         x = self.conv2(x)
 

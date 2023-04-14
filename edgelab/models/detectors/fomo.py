@@ -1,9 +1,9 @@
 import torch
 from mmdet.models.detectors.single_stage import SingleStageDetector
-from mmdet.models.builder import DETECTORS, build_backbone, build_head, build_neck
+from mmdet.registry import MODELS
 
 
-@DETECTORS.register_module()
+@MODELS.register_module()
 class Fomo(SingleStageDetector):
 
     def __init__(self,

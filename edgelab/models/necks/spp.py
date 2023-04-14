@@ -1,12 +1,12 @@
 import torch
 import torch.nn as nn
 
-from mmdet.models.builder import NECKS
+from mmdet.registry import MODELS
 
 from ..base.general import CBR
 
 
-@NECKS.register_module()
+@MODELS.register_module()
 class SPP(nn.Module):
 
     def __init__(self,

@@ -4,14 +4,15 @@ import torch
 import numpy as np
 import torch.nn as nn
 from sklearn.metrics import confusion_matrix
-from mmdet.models.builder import HEADS, build_loss
-from mmcv.runner.base_module import BaseModule
-from mmcv.cnn import normal_init, constant_init, is_norm
+from mmengine.registry import MODELS
+from mmengine.model import BaseModule
+from mmengine.model import normal_init,constant_init
+from mmcv.cnn import is_norm
 
 from ..base.general import CBR
 
 
-@HEADS.register_module()
+@MODELS.register_module()
 class Fomo_Head(BaseModule):
 
     def __init__(

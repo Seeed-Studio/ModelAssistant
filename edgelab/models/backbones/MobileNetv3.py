@@ -3,8 +3,8 @@ from functools import partial
 import torch.nn as nn
 from torch import Tensor
 
-from mmcv.runner import BaseModule
-from mmdet.models.builder import BACKBONES
+from mmengine.model import BaseModule
+from mmdet.registry import VISBACKENDS
 from mmdet.models.utils.make_divisible import make_divisible
 from edgelab.models.base.general import ConvNormActivation, get_norm
 from torchvision.ops.misc import SqueezeExcitation as SElayer
@@ -92,7 +92,7 @@ class InvertedResidual(nn.Module):
         return result
 
 
-@BACKBONES.register_module()
+@VISBACKENDS.register_module()
 class MobileNetV3(BaseModule):
 
     def __init__(self,

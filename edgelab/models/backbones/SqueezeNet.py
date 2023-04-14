@@ -1,9 +1,9 @@
 import torch
-from mmcv.runner.base_module import BaseModule
+from mmengine.model import BaseModule
 import torch.nn as nn
 from typing import Optional
 from edgelab.models.base.general import ConvNormActivation
-from mmdet.models.builder import BACKBONES
+from mmdet.registry import VISBACKENDS
 from mmdet.models.utils.make_divisible import make_divisible
 
 
@@ -36,7 +36,7 @@ class Squeeze(nn.Module):
         return torch.cat([self.expand1x1(x), self.expand3x3(x)], 1)
 
 
-@BACKBONES.register_module()
+@VISBACKENDS.register_module()
 class SqueezeNet(BaseModule):
     arch = [[128, 16, 128], [128, 32, 256], [256, 32, 256], [256, 48, 384],
             [384, 48, 384], [384, 64, 512], [512, 64, 512]]

@@ -3,15 +3,15 @@ from typing import Optional
 import torch
 import torchvision
 import torch.nn as nn
-from mmcv.runner.base_module import BaseModule
-from mmcv.cnn import normal_init, is_norm, constant_init
-from mmdet.models.builder import HEADS, build_loss
+from mmengine.model import BaseModule
+from mmengine.model  import normal_init, constant_init
+from mmengine.registry import MODELS
 
 from ..base.general import CBR
 from ..utils.metrics import bbox_iou
 
 
-@HEADS.register_module()
+@MODELS.register_module()
 class Fastest_Head(BaseModule):
 
     def __init__(
@@ -26,8 +26,8 @@ class Fastest_Head(BaseModule):
     ) -> None:
         super(Fastest_Head, self).__init__(init_cfg)
 
-        self.loss_cls = build_loss(loss_cls)
-        self.loss_conf = build_loss(loss_conf)
+        self.loss_cls = MODELS.build(loss_cls)
+        self.loss_conf = MODELS.build(loss_conf)
 
         self.num_classes = num_classes
 

@@ -1,33 +1,40 @@
 import cv2
 import mmcv
 import os.path as osp
+import torch
+import numpy as np
 
-from mmpose.models.builder import build_loss
-from mmpose.models.detectors.base import BasePose
-from mmpose.models.builder import MESH_MODELS, build_backbone, build_head
+from mmpose.models.pose_estimators.base import BasePoseEstimator
+from mmengine.registry import MODELS
 
 from edgelab.models.utils.computer_acc import pose_acc
 
 
-@MESH_MODELS.register_module()
-class PFLD(BasePose):
+@MODELS.register_module()
+class PFLD(BasePoseEstimator):
 
     def __init__(self, backbone, head, loss_cfg, pretrained=None):
-        super(PFLD, self).__init__()
-        self.backbone = build_backbone(backbone)
-        self.head = build_head(head)
-        self.computer_loss = build_loss(loss_cfg)
+        super(PFLD, self).__init__(backbone,head=head)
+        self.backbone = MODELS.build(backbone)
+        self.head = MODELS.build(head)
+        self.computer_loss = MODELS.build(loss_cfg)
         self.pretrained = pretrained
 
     def init_weights(self, pretrained=None):
         """Weight initialization for model."""
         if pretrained is not None:
             self.pretrained = pretrained
-        self.backbone.init_weights(self.pretrained)
-        if self.with_neck:
-            self.neck.init_weights()
-        if self.with_keypoint:
-            self.keypoint_head.init_weights()
+        # self.backbone.init_weights(self.pretrained)
+        # if self.with_neck:
+        #     self.neck.init_weights()
+        # if self.with_keypoint:
+        #     self.keypoint_head.init_weights()
+
+    def loss(self, inputs, data_samples) -> dict:
+        return super().loss(inputs, data_samples)
+    
+    def predict(self, inputs, data_samples):
+        return super().predict(inputs, data_samples)
 
     def forward(self,
                 img,
@@ -44,11 +51,15 @@ class PFLD(BasePose):
                 return self.forward_test(img, keypoints, **kwargs)
 
     def forward_train(self, img, keypoints, **kwargs):
+        img=np.array([i.cpu().numpy() for i in img],dtype=np.float32)
+        
+        img=torch.from_numpy(img)
+        img = img.to(torch.device('cuda:0'))
         x = self.backbone(img)
         x = self.head(x)
-        acc = pose_acc(x.cpu().detach().numpy(),
-                       keypoints.cpu().detach().numpy(), kwargs['hw'])
-        return {'loss': self.computer_loss(x, keypoints), 'Acc': acc}
+        # acc = pose_acc(x[0].cpu().detach().numpy(),
+        #                keypoints[0], kwargs['hw'])
+        return {'loss': self.computer_loss(x, torch.tensor(keypoints,device=torch.device('cuda:0')))}
 
     def forward_test(self, img, keypoints, **kwargs):
         x = self.backbone(img)

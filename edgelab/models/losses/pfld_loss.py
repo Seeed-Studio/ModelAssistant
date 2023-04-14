@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
-from mmpose.models.builder import LOSSES
+from mmpose.models.builder import MODELS
 
 
-@LOSSES.register_module()
+@MODELS.register_module()
 class PFLDLoss(nn.Module):
     def __init__(self):
         super(PFLDLoss, self).__init__()

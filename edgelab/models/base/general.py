@@ -1,9 +1,10 @@
 from typing import Optional, Callable, Dict, AnyStr, Any
 import torch
 import torch.nn as nn
-from mmcv.cnn.bricks.norm import NORM_LAYERS
-from mmcv.cnn.bricks.activation import ACTIVATION_LAYERS
-from mmcv.cnn.bricks.conv import CONV_LAYERS
+
+from mmcv.cnn.bricks.norm import MODELS
+from mmcv.cnn.bricks.activation import MODELS
+from mmcv.cnn.bricks.conv import MODELS
 
 
 def get_conv(conv):
@@ -11,8 +12,8 @@ def get_conv(conv):
         conv = getattr(nn, conv.get('type'))
     elif isinstance(conv, str) and hasattr(nn, conv):
         conv = getattr(nn, conv)
-    elif isinstance(conv, str) and conv in CONV_LAYERS.module_dict:
-        conv = CONV_LAYERS.get(conv)
+    elif isinstance(conv, str) and conv in MODELS.module_dict:
+        conv = MODELS.get(conv)
     elif (isinstance(conv, type.__class__)
           and issubclass(conv, nn.Module)) or hasattr(conv, '__call__'):
         pass
@@ -27,12 +28,12 @@ def get_norm(norm):
     if isinstance(norm, dict) and hasattr(nn, norm['type']):
         norm = getattr(nn, norm.get('type'))
     elif isinstance(norm,
-                    dict) and norm.get('type') in NORM_LAYERS.module_dict:
-        norm = NORM_LAYERS.get(norm.get('type'))
+                    dict) and norm.get('type') in MODELS.module_dict:
+        norm = MODELS.get(norm.get('type'))
     elif isinstance(norm, str) and hasattr(nn, norm):
         norm = getattr(nn, norm)
-    elif isinstance(norm, str) and norm in NORM_LAYERS.module_dict:
-        norm = NORM_LAYERS.get(norm)
+    elif isinstance(norm, str) and norm in MODELS.module_dict:
+        norm = MODELS.get(norm)
     elif (isinstance(norm, type.__class__)
           and issubclass(norm, nn.Module)) or hasattr(norm, '__call__'):
         pass
@@ -48,8 +49,8 @@ def get_act(act):
         act = getattr(nn, act.get('type'))
     elif isinstance(act, str) and hasattr(nn, act):
         act = getattr(nn, act)
-    elif isinstance(act, str) and act in ACTIVATION_LAYERS.module_dict:
-        act = ACTIVATION_LAYERS.get(act)
+    elif isinstance(act, str) and act in MODELS.module_dict:
+        act = MODELS.get(act)
     elif (isinstance(act, type.__class__)
           and issubclass(act, nn.Module)) or hasattr(act, '__call__'):
         pass

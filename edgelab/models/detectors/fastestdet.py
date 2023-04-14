@@ -1,11 +1,11 @@
 import torch
 import torch.nn as nn
-from mmdet.core import bbox2result
+from mmdet.structures.bbox import bbox2result
 from mmdet.models.detectors.single_stage import SingleStageDetector
-from mmdet.models.builder import DETECTORS, build_backbone, build_head, build_loss, build_neck
+from mmengine.registry import MODELS
 
 
-@DETECTORS.register_module()
+@MODELS.register_module()
 class FastestDet(SingleStageDetector):
 
     def __init__(
@@ -25,9 +25,9 @@ class FastestDet(SingleStageDetector):
     ):
         super().__init__(backbone, neck, bbox_head, train_cfg, test_cfg,
                          pretrained, init_cfg)
-        self.backbone = build_backbone(backbone)
-        self.neck = build_neck(neck)
-        self.bbox_head = build_head(bbox_head)
+        self.backbone = MODELS.build(backbone)
+        self.neck = MODELS.build(neck)
+        self.bbox_head = MODELS.build(bbox_head)
 
         self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
         self.avg_pool = nn.AvgPool2d(kernel_size=3, stride=2, padding=1)

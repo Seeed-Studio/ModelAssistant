@@ -5,9 +5,9 @@ import math
 from torch import nn
 import torch
 from torchvision.ops import StochasticDepth
-from mmdet.models.builder import BACKBONES
+from mmdet.registry import VISBACKENDS
 from mmdet.models.utils.make_divisible import make_divisible
-from mmcv.runner.base_module import BaseModule
+from mmengine.model import BaseModule
 from edgelab.models.base.general import ConvNormActivation, SqueezeExcitation
 
 
@@ -100,7 +100,7 @@ class MBConv(nn.Module):
         return result
 
 
-@BACKBONES.register_module(name='edgeEfficienNet', force=True)
+@VISBACKENDS.register_module(name='edgeEfficienNet', force=True)
 class EfficientNet(BaseModule):
     # https://arxiv.org/pdf/1610.02357
     arch = [

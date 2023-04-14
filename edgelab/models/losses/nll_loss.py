@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-from mmdet.models.builder import LOSSES
+from mmengine.registry import MODELS
 from mmdet.models.losses.utils import weighted_loss
 
 
@@ -10,7 +10,7 @@ def nll_loss(pred, target):
     return F.nll_loss(pred, target, reduction='none')
 
 
-@LOSSES.register_module()
+@MODELS.register_module()
 class NLLLoss(nn.Module):
 
     def __init__(self, reduction='mean', loss_weight=1.0) -> None:

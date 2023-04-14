@@ -1,7 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from mmcls.models.builder import CLASSIFIERS, build_backbone, build_head, build_neck
 from mmcls.models.heads import MultiLabelClsHead
-from mmcls.models.utils.augment import Augments
 from mmcls.models.classifiers.base import BaseClassifier
 
 
@@ -13,9 +12,18 @@ class AccelerometerClassifier(BaseClassifier):
                  neck=None,
                  head=None,
                  pretrained=None,
+                 data_preprocessor = None,
                  train_cfg=None,
                  init_cfg=None):
         super(AccelerometerClassifier, self).__init__(init_cfg)
+        if data_preprocessor is None:
+            data_preprocessor = {}
+        # The build process is in MMEngine, so we need to add scope here.
+        data_preprocessor.setdefault('type', 'mmpretrain.ClsDataPreprocessor')
+        
+        if train_cfg is not None and 'augments' in train_cfg:
+            # Set batch augmentations by `train_cfg`
+            data_preprocessor['batch_augments'] = train_cfg
 
         if pretrained is not None:
             self.init_cfg = dict(type='Pretrained', checkpoint=pretrained)
@@ -27,11 +35,13 @@ class AccelerometerClassifier(BaseClassifier):
         if head is not None:
             self.head = build_head(head)
 
-        self.augments = None
-        if train_cfg is not None:
-            augments_cfg = train_cfg.get('augments', None)
-            if augments_cfg is not None:
-                self.augments = Augments(augments_cfg)
+        super().__init__(
+            init_cfg=init_cfg, data_preprocessor=data_preprocessor)
+        # self.augments = None
+        # if train_cfg is not None:
+        #     augments_cfg = train_cfg.get('augments', None)
+        #     if augments_cfg is not None:
+        #         self.augments = Augments(augments_cfg)
 
     def forward_dummy(self, img):
         
@@ -64,8 +74,8 @@ class AccelerometerClassifier(BaseClassifier):
 
     def forward_train(self, img, gt_label, **kwargs):
 
-        if self.augments is not None:
-            img, gt_label = self.augments(img, gt_label)
+        if self.data_preprocessor is not None:
+            img, gt_label = self.data_preprocessor(img, gt_label)
 
         img = self.extract_feat(img)
 
