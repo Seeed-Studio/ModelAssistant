@@ -38,27 +38,27 @@ class PFLD(BasePoseEstimator):
 
     def forward(self,
                 img,
-                flag=False,
                 keypoints=None,
-                return_loss=True,
+                mode='loss',
                 **kwargs):
-        if flag:
-            return self.forward_dummy(img)
+        if mode=='predict':
+            print(kwargs)
+
+        if mode=='loss':
+            return self.forward_train(img, keypoints, **kwargs)
+        elif mode=='predict':
+            return self.forward_dummy(img,**kwargs)
+        elif mode=='tensor':
+            pass
         else:
-            if return_loss:
-                return self.forward_train(img, keypoints, **kwargs)
-            else:
-                return self.forward_test(img, keypoints, **kwargs)
+            raise ValueError(f'params mode recive a not exception params:{mode}')
 
     def forward_train(self, img, keypoints, **kwargs):
-        img=np.array([i.cpu().numpy() for i in img],dtype=np.float32)
-        
-        img=torch.from_numpy(img)
-        img = img.to(torch.device('cuda:0'))
         x = self.backbone(img)
         x = self.head(x)
         # acc = pose_acc(x[0].cpu().detach().numpy(),
         #                keypoints[0], kwargs['hw'])
+
         return {'loss': self.computer_loss(x, torch.tensor(keypoints,device=torch.device('cuda:0')))}
 
     def forward_test(self, img, keypoints, **kwargs):
