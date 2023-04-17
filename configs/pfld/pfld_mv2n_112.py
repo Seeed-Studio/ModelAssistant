@@ -44,6 +44,7 @@ train_dataloader = dict(
     num_workers=2,
     persistent_workers=True,
     drop_last=False,
+    collate_fn=dict(type='default_collate'),
     sampler=dict(type='DefaultSampler', shuffle=False, round_up=False),
     dataset=dict(type=dataset_type,
                data_root=data_root,
@@ -56,6 +57,7 @@ val_dataloader=dict(
     num_workers=2,
     persistent_workers=True,
     drop_last=False,
+    collate_fn=dict(type='default_collate'),
     sampler=dict(type='DefaultSampler', shuffle=False, round_up=False),
     dataset=dict(type=dataset_type,
              data_root=data_root,
@@ -71,22 +73,8 @@ evaluation = dict(save_best='loss')
 optim_wrapper=dict(optimizer = dict(type='Adam', lr=lr, betas=(0.9, 0.99), weight_decay=1e-6))
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 val_evaluator=dict(
-    type='CocoMetric')
+    type='PointMetric')
 test_evaluator = val_evaluator
-# learning policy
-lr_config = dict(policy='step',
-                 warmup='linear',
-                 warmup_iters=400,
-                 warmup_ratio=0.0001,
-                 step=[400, 440, 490])
-# lr_config = dict(
-#     policy='OneCycle',
-#     max_lr=0.0001,
-#     # steps_per_epoch=388,
-#     # epoch=1500,
-#     pct_start=0.1)
-# runtime settings
-# runner = dict(type='EpochBasedRunner', max_epochs=30)
-# evaluation = dict(interval=1, metric=['bbox'])
+
 total_epochs = epochs
 find_unused_parameters = True
