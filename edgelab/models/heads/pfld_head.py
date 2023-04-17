@@ -36,15 +36,17 @@ class PFLDhead(nn.Module):
     def forward(self, x):
         x1 = self.avg_pool(x)
         x1 = x1.view(x1.size(0), -1)
-
+        
         x = self.conv1(x)
         x2 = self.avg_pool(x)
         x2 = x2.view(x2.size(0), -1)
-
+        
         x3 = self.conv2(x)
+        x3 = self.avg_pool(x3)
         x3 = x3.view(x3.size(0), -1)
 
         multi_scale = torch.cat([x1, x2, x3], 1)
+
         landmarks = self.fc(multi_scale)
 
         return landmarks
