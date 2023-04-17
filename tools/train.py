@@ -5,7 +5,9 @@ import os.path as osp
 from copy import deepcopy
 import edgelab.models
 import edgelab.datasets
+import edgelab.evaluation
 
+from mmengine.analysis import get_model_complexity_info
 from mmengine.config import Config, DictAction, ConfigDict
 from mmengine.registry import RUNNERS
 from mmengine.runner import Runner
@@ -204,6 +206,11 @@ def main():
         # build customized runner from the registry
         # if 'runner_type' is set in the cfg
         runner = RUNNERS.build(cfg)
+
+    # model complex anly
+    # analysis_results = get_model_complexity_info(model=runner.model,input_shape=(3,122,122))
+    # print(f"Model Flops:{analysis_results['flops_str']}")
+    # print(f"Model Parameters:{analysis_results['params_str']}")
 
     # start training
     runner.train()
