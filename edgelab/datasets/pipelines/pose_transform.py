@@ -1,7 +1,6 @@
-from mmpose.registry import TRANSFORMS
-from mmpose.datasets.builder import build_from_cfg
-
 import albumentations as A
+
+from edgelab.registry import TRANSFORMS
 
 
 class Pose_Compose(A.Compose):

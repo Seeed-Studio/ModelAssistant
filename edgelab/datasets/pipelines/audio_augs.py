@@ -5,7 +5,7 @@ import random
 import scipy
 import torch.nn.functional as F
 from scipy.sparse import coo_matrix
-from mmcls.registry import TRANSFORMS
+from edgelab.registry import TRANSFORMS
 
 
 class AugBasic:

@@ -2,8 +2,8 @@ from typing import Optional, Sequence, Tuple, Union
 
 import cv2
 import albumentations as A
-# from mmengine.registry import TRANSFORMS
-from mmpose.registry import TRANSFORMS
+from edgelab.registry import TRANSFORMS
+
 
 
 @TRANSFORMS.register_module()
