@@ -1,10 +1,13 @@
 import os.path as osp
 from typing import Optional, Dict, Union
 
-from mmcv.runner import HOOKS
-from mmcv.runner.dist_utils import master_only
-from mmcv.utils import TORCH_VERSION, digit_version
-from mmcv.runner.hooks.logger.text import TextLoggerHook
+from edgelab.registry import HOOKS
+from mmengine.dist.utils import master_only
+# from mmcv.runner import HOOKS
+
+# from mmcv.runner.dist_utils import master_only
+# from mmcv.utils import TORCH_VERSION, digit_version
+# from mmcv.runner.hooks.logger.text import TextLoggerHook
 
 from .text import TextLoggerHook
 

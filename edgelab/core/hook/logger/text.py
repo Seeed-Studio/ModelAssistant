@@ -6,13 +6,17 @@ from typing import Optional, Union, Dict
 import torch
 import torch.distributed as dist
 from tqdm import tqdm
-from mmcv.runner import HOOKS
-from mmcv.runner.base_runner import BaseRunner
-from mmcv.runner.hooks.logger.text import TextLoggerHook
+from edgelab.registry import HOOKS
+from mmengine.runner import Runner
+from mmengine.hooks.logger_hook import LoggerHook
+
+# from mmcv.runner import HOOKS
+# from mmcv.runner.base_runner import BaseRunner
+# from mmcv.runner.hooks.logger.text import TextLoggerHook
 
 
 @HOOKS.register_module(force=True)
-class TextLoggerHook(TextLoggerHook):
+class TextLoggerHook(LoggerHook):
 
     def __init__(self,
                  by_epoch: bool = True,
@@ -48,7 +52,7 @@ class TextLoggerHook(TextLoggerHook):
         super().after_train_epoch(runner)
         self.bar = None
 
-    def _progress_log(self, log_dict, runner: BaseRunner):
+    def _progress_log(self, log_dict, runner: Runner):
         head = '\n'
         end = ''
         for key, value in log_dict.items():
@@ -190,7 +194,7 @@ class TextLoggerHook(TextLoggerHook):
         return log_dict
 
     def setloglevel(self,
-                    runner: BaseRunner,
+                    runner: Runner,
                     handler: logging.Handler = logging.StreamHandler,
                     level: int = logging.ERROR):
         if handler in self.handltype: return

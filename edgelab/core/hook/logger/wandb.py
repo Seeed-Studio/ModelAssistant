@@ -1,9 +1,12 @@
 import os.path as osp
 from typing import Optional, Union, Dict
 
-from mmcv.utils import scandir
-from mmcv.runner import HOOKS
-from mmcv.runner.dist_utils import master_only
+from mmengine.utils import scandir
+from edgelab.registry import HOOKS
+from mmengine.dist.utils import master_only
+# from mmcv.utils import scandir
+# from mmcv.runner import HOOKS
+# from mmcv.runner.dist_utils import master_only
 from .text import TextLoggerHook
 
 

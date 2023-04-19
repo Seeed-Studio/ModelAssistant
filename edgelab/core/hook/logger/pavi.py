@@ -8,10 +8,12 @@ from typing import Optional, Union, Dict
 
 import mmcv
 import torch
-from mmcv.runner import HOOKS
-from mmcv.runner.dist_utils import master_only
-from mmcv.parallel.scatter_gather import scatter
-from mmcv.parallel.utils import is_module_wrapper
+from edgelab.registry import HOOKS
+from mmengine.dist.utils import master_only
+# from mmcv.runner import HOOKS
+from mmengine.dist.utils import master_only
+# from mmcv.parallel.scatter_gather import scatter
+# from mmcv.parallel.utils import is_module_wrapper
 
 from .text import TextLoggerHook
 
