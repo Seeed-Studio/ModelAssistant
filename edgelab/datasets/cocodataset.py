@@ -4,9 +4,9 @@ from collections import OrderedDict
 import cv2
 import torch
 import numpy as np
-from sklearn.metrics import confusion_matrix
-from mmdet.registry import DATASETS
+from edgelab.registry import DATASETS
 from mmdet.datasets.coco import CocoDataset
+from sklearn.metrics import confusion_matrix
 
 from .utils.download import check_file
 
@@ -16,33 +16,35 @@ class CustomCocoDataset(CocoDataset):
 
     def __init__(self,
                  ann_file,
-                 pipeline,
-                 classes=None,
+                 metainfo=None,
                  data_root=None,
-                 img_prefix='',
-                 seg_prefix=None,
-                 seg_suffix='.png',
-                 proposal_file=None,
+                 data_prefix='',
+                 filter_cfg=None,
+                 indices=None,
+                 serialize_data: bool = True,
+                 pipeline=[],
                  test_mode=False,
-                 filter_empty_gt=True,
-                 file_client_args=dict(backend='disk')):
+                 lazy_init: bool = False,
+                 max_refetch: int = 1000,
+                 file_client_args=dict(backend='disk'),
+                 classes=None,
+                 **kwargs):
         if data_root:
-            if not (osp.isabs(ann_file) and
-                    (osp.isabs(img_prefix) or osp.isabs(seg_prefix))):
+            if not (osp.isabs(ann_file) and (osp.isabs(data_prefix['img']))):
                 data_root = check_file(
                     data_root, data_name="coco") if data_root else data_root
 
-        super().__init__(ann_file, pipeline, classes, data_root, img_prefix,
-                         seg_prefix, seg_suffix, proposal_file, test_mode,
-                         filter_empty_gt, file_client_args)
+        super().__init__(ann_file, metainfo, data_root, data_prefix,
+                         filter_cfg, indices, serialize_data, pipeline,
+                         test_mode, lazy_init, max_refetch, **kwargs)
 
     def bboxe2cell(self, bboxe, img_h, img_w, H, W):
         w = (bboxe[0] + bboxe[2]) / 2
         h = (bboxe[1] + bboxe[3]) / 2
         w = w / img_w
         h = h / img_h
-        x = int(w * (W-1))
-        y = int(h * (H-1))
+        x = int(w * (W - 1))
+        y = int(h * (H - 1))
         return (x, y)
 
     def build_target(self, preds, targets, img_h, img_w):
@@ -64,7 +66,7 @@ class CustomCocoDataset(CocoDataset):
     def compute_FTP(self, pred, target):
         confusion = confusion_matrix(target.flatten().cpu().numpy(),
                                      pred.flatten().cpu().numpy(),
-                                     labels=range(len(self.CLASSES)+1))
+                                     labels=range(len(self.CLASSES) + 1))
         tn = confusion[0, 0]
         tp = np.diagonal(confusion).sum() - tn
         fn = np.tril(confusion, k=-1).sum()
