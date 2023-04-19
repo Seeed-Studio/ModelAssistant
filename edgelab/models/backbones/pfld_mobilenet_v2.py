@@ -1,5 +1,5 @@
 import torch.nn as nn
-from mmpose.models.builder import BACKBONES
+from edgelab.registry import BACKBONES
 
 from ..base.general import InvertedResidual, CBR
 
