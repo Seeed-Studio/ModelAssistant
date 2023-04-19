@@ -13,7 +13,7 @@ from ..base.general import CBR
 
 
 @MODELS.register_module()
-class Fomo_Head(BaseModule):
+class FomoHead(BaseModule):
 
     def __init__(
         self,
@@ -29,7 +29,7 @@ class Fomo_Head(BaseModule):
         loss_bg: dict = dict(type='BCEWithLogitsLoss', reduction='mean'),
         init_cfg: Optional[dict] = dict(type='Normal', std=0.01)
     ) -> None:
-        super(Fomo_Head, self).__init__(init_cfg)
+        super(FomoHead, self).__init__(init_cfg)
         self.num_classes = num_classes
 
         if loss_weight:
@@ -73,24 +73,16 @@ class Fomo_Head(BaseModule):
         result = self.conv3(x)
 
         return result
+    
+    def loss(self,features,target):
+        pred=self.forward(features)
+        return self.lossFunction(pred,target)
+    
+    def predict(self,features,**kwargs):
+        pred=self.forward(features)
+        return pred,self.build_target(pred.permute(0,2,3,1),kwargs['label'])
 
-    def forward_train(self,
-                      x,
-                      img_metas,
-                      gt_bboxes,
-                      gt_labels=None,
-                      gt_bboxes_ignore=None,
-                      proposal_cfg=None,
-                      **kwargs):
-        results = self(x)
-        loss = self.loss(results,
-                         gt_bboxes=gt_bboxes,
-                         gt_labels=gt_labels,
-                         gt_bbox_ignore=gt_bboxes_ignore,
-                         img_metas=img_metas)
-        return loss
-
-    def loss(self, pred_maps: torch.Tensor, target):
+    def lossFunction(self, pred_maps: torch.Tensor, target):
         """ Calculate the loss of the model """
         preds = pred_maps.permute(0, 2, 3, 1)
         B, H, W, C = preds.shape
@@ -167,22 +159,6 @@ class Fomo_Head(BaseModule):
 
         return p, r, f1
 
-    def post_handle(self, preds, target):
-        preds = preds.permute(0, 2, 3, 1)
-        B, H, W, C = preds.shape
-        assert self.num_attrib == C
-
-        mask = torch.softmax(preds, dim=-1)
-        values, indices = torch.max(mask, dim=-1)
-        values_mask = np.argwhere(values.cpu().numpy() < 0.25)
-        res = torch.argmax(mask, dim=-1)
-
-        for i in values_mask:
-            b, h, w = int(i[0].item()), int(i[1].item()), int(i[2].item())
-            res[b, h, w] = 0
-
-        return preds, self.build_target(preds, target)
-
     def build_target(self, preds, targets):
         B, H, W, C = preds.shape
         target_data = torch.zeros(size=(B, H, W, C), device=preds.device)
@@ -194,29 +170,6 @@ class Fomo_Head(BaseModule):
             target_data[int(i[0]), h, w, int(i[1])] = 1  #label
 
         return target_data
-
-    def merge_gt(self, gt_bboxes, gt_labels, img_metas):
-        target = []
-        max_size = max(img_metas[0]['img_shape'])
-        for idx, (labels, bboxes) in enumerate(zip(gt_labels, gt_bboxes)):
-            bboxes = bboxes / max_size
-
-            bb = torch.zeros_like(bboxes, device=bboxes.device)
-            bb[..., 0] = (bboxes[..., 0] + bboxes[..., 2]) / 2
-            bb[..., 1] = (bboxes[..., 1] + bboxes[..., 3]) / 2
-            bb[..., 2] = bboxes[..., 2] - bboxes[..., 0]
-            bb[..., 3] = bboxes[..., 3] - bboxes[..., 1]
-
-            num = bb.shape[0]
-            labels = labels.reshape((num, 1))
-            z0 = torch.zeros((num, 1), device=bboxes.device) + idx
-            bb = torch.concat((labels, bb), 1)
-            gt = torch.concat((z0, bb), axis=1)
-            target.append(gt)
-
-        target = torch.concat(target, 0)
-
-        return target
 
     @property
     def num_attrib(self):

@@ -9,7 +9,7 @@ import albumentations as A
 from collections import OrderedDict
 from torch.utils.data import Dataset
 from torchvision.transforms import ToTensor
-from mmdet.registry import DATASETS
+from mmengine.registry import DATASETS
 from sklearn.metrics import confusion_matrix
 
 from .pipelines.pose_transform import Pose_Compose
@@ -54,6 +54,7 @@ class FomoDatasets(Dataset):
         self.flag = np.zeros(len(self), dtype=np.uint8)
         for i in range(len(self)):
             self.flag[i] = 1
+        print(len(self),'=============')
 
     def parse_cats(self):
         """ parse dataset is roboflow """
@@ -68,6 +69,7 @@ class FomoDatasets(Dataset):
             if key == 0 and self.roboflow:
                 continue
             self.CLASSES.append(value['name'])
+            
 
     def __len__(self):
         """ return datasets len"""

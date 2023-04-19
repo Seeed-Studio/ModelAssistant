@@ -1,6 +1,5 @@
-import torch
 from mmdet.models.detectors.single_stage import SingleStageDetector
-from mmdet.registry import MODELS
+from edgelab.registry import MODELS
 
 
 @MODELS.register_module()
@@ -17,34 +16,21 @@ class Fomo(SingleStageDetector):
         super().__init__(backbone, neck, head, train_cfg, test_cfg, pretrained,
                          init_cfg)
 
-    def forward(self, img, target, flag=False, return_loss=True, **kwargs):
-        if flag:
-            return torch.softmax(self.forward_dummy(img), dim=1)
+    def forward(self, img, target, mode='loss'):
+        if mode == 'loss':
+            return self.loss(img, target)
+        elif mode == 'predict':
+            return self.predict(img, label=target)
+        elif mode == 'tensor':
+            return self.predict(img, label=target)
         else:
-            if return_loss:
-                # extract image feature
-                x = self.extract_feat(img)
-                result = self.bbox_head(x)
-                return self.bbox_head.loss(result, target)
-            else:
-                return self.forward_test(img, label=target)
+            raise ValueError(
+                f'params mode recive a not exception params:{mode}')
 
-    def forward_test(self, imgs, **kwargs):
+    def loss(self, img, target):
+        x = self.extract_feat(img)
+        return self.bbox_head.loss(x, target)
 
+    def predict(self, imgs, **kwargs):
         x = self.extract_feat(imgs)
-
-        result = self.bbox_head(x)
-        return result, self.bbox_head.build_target(result.permute(0, 2, 3, 1),
-                                                   kwargs['label'])
-        # return self.bbox_head.post_handle(result,kwargs['label'])
-
-    def train_step(self, data, optimizer):
-        losses = self(**data)
-
-        loss, log_vars = self._parse_losses(losses)
-
-        outputs = dict(loss=loss,
-                       log_vars=log_vars,
-                       num_samples=len(data['img']))
-
-        return outputs
+        return self.bbox_head.predict(x, **kwargs)
