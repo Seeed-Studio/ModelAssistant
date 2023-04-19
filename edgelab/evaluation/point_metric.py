@@ -35,19 +35,19 @@ class PointMetric(BaseMetric):
      
      
     def process(self, data_batch: Any, data_samples: Sequence[dict]) -> None:
-        target = np.expand_dims(data_batch['keypoints'], axis=0)
+        target = data_batch['keypoints']
         size = data_batch['hw']  #.cpu().numpy()
-        result = np.array(data_samples.cpu())
-        
+        result = np.array([i.cpu().numpy() for i in data_samples])
+
         result = result if len(result.shape)==2 else result[None, :] # onnx shape(2,), tflite shape(1,2)
         acc = pose_acc(result.copy(), target, size)
         self.results.append({
             'Acc': acc,
             'pred': result,
-            'image_file': data_batch['image_file'].data
+            'image_file': data_batch['image_file']
         })
      
     
     def compute_metrics(self, results: list) -> dict:
-        return super().compute_metrics(results)
+        return {'Acc':sum([i['Acc'] for i in results])/len(results)}
     
