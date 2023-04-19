@@ -5,7 +5,7 @@ model = dict(
     type='Fomo',
     backbone=dict(type='SqueezeNet', widen_factor=0.1, out_indices=(2, )),
     head=dict(
-        type='Fomo_Head',
+        type='FomoHead',
         input_channels=24,
         num_classes=num_classes,
         middle_channels=[96, 32],

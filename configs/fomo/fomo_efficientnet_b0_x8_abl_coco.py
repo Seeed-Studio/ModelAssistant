@@ -6,7 +6,7 @@ model = dict(
     backbone=dict(type='EfficientNet',arch='b0', out_indices=(3, )),
     # backbone=dict(type='edgeEfficienNet',arch='b0', out_indices=(2, )),
     head=dict(
-        type='Fomo_Head',
+        type='FomoHead',
         input_channels=40,
         num_classes=num_classes,
         middle_channels=[96, 32],

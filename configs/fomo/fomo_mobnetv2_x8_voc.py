@@ -1,4 +1,4 @@
-_base_ = '../_base_/pose_default_runtime.py'
+_base_ = '../_base_/default_runtime_det.py'
 
 custom_imports = dict(imports=['models', 'datasets', 'core'],
                       allow_failed_imports=False)
@@ -6,7 +6,7 @@ custom_imports = dict(imports=['models', 'datasets', 'core'],
 model = dict(
     type='Fomo',
     backbone=dict(type='MobileNetV2', widen_factor=0.35, out_indices=(2, )),
-    head=dict(type='Fomo_Head',
+    head=dict(type='FomoHead',
               input_channels=16,
               num_classes=20,
               middle_channels=[96, 32],
@@ -48,45 +48,63 @@ test_pipeline = [
              dict(type='Collect', keys=['img'])
          ])
 ]
+batch_size = 16
+workers = 2
 data = dict(
-    samples_per_gpu=32,
-    workers_per_gpu=4,
-    train=dict(
-        type='RepeatDataset',  # use RepeatDataset to speed up training
-        times=1,
-        dataset=dict(
-            type=dataset_type,
-            data_root=data_root,
-            ann_file='ImageSets/Main/train.txt',
-            #  img_prefix=None,
-            pipeline=train_pipeline)),
-    val=dict(
-        type=dataset_type,
-        data_root=data_root,
-        ann_file='ImageSets/Main/val.txt',
-        #  img_prefix=None,
-        pipeline=test_pipeline),
-    test=dict(
-        type=dataset_type,
-        data_root=data_root,
-        ann_file='ImageSets/Main/val.txt',
-        #   img_prefix=None,
-        pipeline=test_pipeline))
+    batch_size=batch_size,
+    num_workers=workers,
+    persistent_workers=True,
+    drop_last=False,
+    collate_fn=dict(type='fomo_collate'),
+    sampler=dict(type='DefaultSampler', shuffle=True, round_up=False),
+    dataset=dict(type=dataset_type,
+                 data_root=data_root,
+                 filter_empty_gt=False,
+                 ann_file='annotations/instances_train2017.json',
+                 img_prefix='train2017/',
+                 pipeline=train_pipeline),
+)
+val_dataloader = dict(
+    batch_size=batch_size,
+    num_workers=workers,
+    persistent_workers=True,
+    drop_last=False,
+    collate_fn=dict(type='fomo_collate'),
+    sampler=dict(type='DefaultSampler', shuffle=True, round_up=False),
+    dataset=dict(type=dataset_type,
+                 data_root=data_root,
+                 filter_empty_gt=False,
+                 ann_file='annotations/instances_val2017.json',
+                 img_prefix='test2017/',
+                 pipeline=test_pipeline),
+)
+test_dataloader = val_dataloader
 
 # optimizer
-optimizer = dict(type='Adam', lr=0.003, weight_decay=0.0005)
+lr = 0.001
+epochs = 300
 
-optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
-# learning policy
-lr_config = dict(policy='step',
-                 warmup='linear',
-                 warmup_iters=5000,
-                 warmup_ratio=0.0000001,
-                 step=[100, 200, 250])
-# runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=300)
-evaluation = dict(interval=1, metric=['mAP'], fomo=True)
 find_unused_parameters = True
 
-log_config = dict(interval=5,
-                  hooks=[dict(type='TensorboardLoggerHook', ndigits=4)])
+optim_wrapper=dict(optimizer = dict(type='Adam', lr=lr, weight_decay=5e-4,eps=1e-7))
+
+#evaluator
+val_evaluator=dict(
+    type='FomoMetric')
+test_evaluator = val_evaluator
+
+train_cfg = dict(by_epoch=True,max_epochs=70)
+
+# learning policy
+param_scheduler = [
+    dict(
+        type='LinearLR', begin=0, end=30, start_factor=0.001,
+        by_epoch=False),  # warm-up
+    dict(
+        type='MultiStepLR',
+        begin=1,
+        end=500,
+        milestones=[100, 200,250],
+        gamma=0.1,
+        by_epoch=True)
+]
