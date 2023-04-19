@@ -1,8 +1,8 @@
 from torch.utils.data import Dataset
 
-from mmdet.datasets.builder import DATASETS
+from edgelab.registry import DATASETS
 
-DATASETS.register_module()
+@DATASETS.register_module()
 class FoMoDataset(Dataset):
     def __init__(self) -> None:
         super().__init__()

@@ -54,7 +54,6 @@ class FomoDatasets(Dataset):
         self.flag = np.zeros(len(self), dtype=np.uint8)
         for i in range(len(self)):
             self.flag[i] = 1
-        print(len(self),'=============')
 
     def parse_cats(self):
         """ parse dataset is roboflow """
@@ -70,7 +69,6 @@ class FomoDatasets(Dataset):
                 continue
             self.CLASSES.append(value['name'])
             
-
     def __len__(self):
         """ return datasets len"""
         return len(self.data)
