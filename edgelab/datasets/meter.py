@@ -11,8 +11,7 @@ import numpy as np
 import albumentations as A
 from torchvision import transforms
 from torch.utils.data import Dataset
-from mmengine.registry import DATASETS
-# from mmcv.parallel import DataContainer as DC
+from edgelab.registry import DATASETS
 
 from .utils.download import check_file
 from .pipelines.pose_transform import Pose_Compose
