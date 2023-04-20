@@ -1,44 +1,72 @@
-from mmcls.models.builder import CLASSIFIERS, build_backbone, build_head, build_loss
+from edgelab.registry import MODELS, LOSSES
 from mmcls.models.classifiers.base import BaseClassifier
+from mmengine.logging import MessageHub
 import torch
 
 
-@CLASSIFIERS.register_module("Audio_classify", force=True)
+@MODELS.register_module("Audio_classify", force=True)
 class Audio_classify(BaseClassifier):
-    def __init__(self, backbone, head=None, loss_cls=None, pretrained=None):
+    """
+    https://arxiv.org/abs/2204.11479
+    END-TO-END AUDIO STRIKES BACK: BOOSTING
+    AUGMENTATIONS TOWARDS AN EFFICIENT AUDIO
+    CLASSIFICATION NETWORK
+    """
+
+    def __init__(self,
+                 backbone,
+                 n_cls,
+                 loss=dict(),
+                 multilabel=False,
+                 data_preprocessor=None,
+                 head=None,
+                 loss_cls=None,
+                 pretrained=None):
         super(BaseClassifier, self).__init__()
-        self.backbone = build_backbone(backbone)
-        self.cls_head = build_head(head)
-        self.cls_loss = build_loss(loss_cls)
+        self.backbone = MODELS.build(backbone)
+        self.cls_head = MODELS.build(head)
+        self.cls_loss = MODELS.build(loss_cls)
+        if data_preprocessor is not None:
+            self.data_preprocessor = MODELS.build(data_preprocessor)
         self.pretrained = pretrained
         self.sm = torch.nn.Softmax(1)
+        self.n_cls = n_cls
+        self.mutilabel = multilabel
+        self._loss = LOSSES.build(loss)
 
-    def train_step(self, img, optimizer=None, **kwargs):
+    def forward(self, img, mode='loss', **kwargs):
+        if mode == 'loss':
+            return self.loss(img, **kwargs)
+        elif mode == 'predict':
+            return self.predict(img, **kwargs)
+        elif mode == 'tensor':
+            return self.predict(img, **kwargs)
 
-        return self.forward_train(**img)
-
-    def forward_train(self, img, **kwargs):
+    def loss(self, img, **kwargs):
         features = self.backbone(img)
         result = self.cls_head(features)
-        return {'inputs': result, 'targets': kwargs['labels']}
 
-    def extract_feat(self, imgs, stage=None):
-        pass
+        if MessageHub.get_current_instance().get_info('ismixed'):
+            target = MessageHub.get_current_instance().get_info('target')
+            loss = MessageHub.get_current_instance().get_info(
+                'audio_loss').mix_loss(result,
+                                       target,
+                                       self.n_cls,
+                                       pred_one_hot=self.mutilabel)
+        else:
+            loss = self._loss(result, kwargs['labels'])
 
-    def simple_test(self, img, **kwargs):
+        return {'loss': loss}
+
+    def predict(self, img, **kwargs):
         features = self.backbone(img)
         result = self.sm(self.cls_head(features))
-        if 'labels' in kwargs.keys():
-            return [{'loss': self.cls_loss(result, kwargs['labels']),
-                     'acc': (kwargs['labels'] == torch.max(result, dim=1)[1]).float().mean()}]
-        else:
-            return {r'result': result}
-    
-    def forward_dummy(self,img,**kwargs):
-        features = self.backbone(img)
-        result = self.sm(self.cls_head(features))
-        if 'labels' in kwargs.keys():
-            return [{'loss': self.cls_loss(result, kwargs['labels']),
-                     'acc': (kwargs['labels'] == torch.max(result, dim=1)[1]).float().mean()}]
-        else:
-            return {r'result': result}
+        # return [{'pred_label':{"score":result},"gt_label":{"label":kwargs['labels']}}]
+        return [{
+            'pred_label': {
+                "label": torch.max(result, dim=1)[1]
+            },
+            "gt_label": {
+                "label": kwargs['labels']
+            }
+        }]
