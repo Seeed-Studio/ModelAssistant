@@ -1,5 +1,5 @@
 # defaults to use registries in mmpretrain
-default_scope = 'mmpretrain'
+default_scope = 'edgelab'
 
 # configure default hooks
 default_hooks = dict(
@@ -19,7 +19,7 @@ default_hooks = dict(
     sampler_seed=dict(type='DistSamplerSeedHook'),
 
     # validation results visualization, set True to enable it.
-    visualization=dict(type='VisualizationHook', enable=False),
+    visualization=dict(type='mmcls.VisualizationHook', enable=False),
 )
 
 # configure environment
@@ -36,7 +36,7 @@ env_cfg = dict(
 
 # set visualizer
 vis_backends = [dict(type='LocalVisBackend')]
-visualizer = dict(type='UniversalVisualizer', vis_backends=vis_backends)
+visualizer = dict(type='mmcls.UniversalVisualizer', vis_backends=vis_backends)
 
 # set log level
 log_level = 'INFO'
