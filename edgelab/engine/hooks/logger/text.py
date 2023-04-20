@@ -1,7 +1,9 @@
 import logging
 import datetime
+from pathlib import Path
 from collections import OrderedDict
 from typing import Optional, Union, Dict
+
 
 import torch
 import torch.distributed as dist
@@ -19,72 +21,119 @@ from mmengine.hooks.logger_hook import LoggerHook
 class TextLoggerHook(LoggerHook):
 
     def __init__(self,
-                 by_epoch: bool = True,
                  interval: int = 10,
                  ignore_last: bool = True,
-                 reset_flag: bool = False,
                  interval_exp_name: int = 1000,
-                 out_dir: Optional[str] = None,
-                 out_suffix: Union[str, tuple] = ...,
+                 out_dir: Optional[Union[str, Path]] = None,
+                 out_suffix = ...,
                  keep_local: bool = True,
-                 ndigits: int = 4,
-                 file_client_args: Optional[Dict] = None):
-        super().__init__(by_epoch, interval, ignore_last, reset_flag,
-                         interval_exp_name, out_dir, out_suffix, keep_local,
-                         file_client_args)
-        self.ndigits = ndigits
+                 file_client_args: Optional[dict] = None,
+                 log_metric_by_epoch: bool = True,
+                 backend_args: Optional[dict] = None):
+        super().__init__(interval, ignore_last, interval_exp_name, out_dir,
+                         out_suffix, keep_local, file_client_args,
+                         log_metric_by_epoch, backend_args)
+
+
+        self.ndigits = 4
         self.handltype = []
         self.bar = None
         self.reset = True
         self.log_dict = None
         self.head = None
+    
+    def before_run(self, runner) -> None:
+        super().before_run(runner)
+        self.setloglevel(runner,logging.StreamHandler)
 
     def before_train_epoch(self, runner):
         super().before_train_epoch(runner)
         self.reset = True
+    
+    def before_val_epoch(self, runner) -> None:
+        self.reset = True
+        return super().before_val_epoch(runner)
 
-    def after_train_iter(self, runner) -> None:
-        super().after_train_iter(runner)
-        if self.log_dict:
-            self._progress_log(self.log_dict, runner)
+    def after_train_iter(self, runner:Runner,batch_idx:int,data_batch=None,outputs=None) -> None:
+        # Print experiment name every n iterations.
+        self.log_tag=''
+        if self.every_n_train_iters(
+                runner, self.interval_exp_name) or (self.end_of_epoch(
+                    runner.train_dataloader, batch_idx)):
+            exp_info = f'Exp name: {runner.experiment_name}'
+            runner.logger.info(exp_info)
+        if self.every_n_inner_iters(batch_idx, self.interval):
+            parsed_cfg=runner.log_processor._parse_windows_size(runner,batch_idx,runner.log_processor.custom_cfg)
+            self.log_tag=runner.log_processor._collect_scalars(parsed_cfg,runner,'train')
 
+            tag, log_str = runner.log_processor.get_log_after_iter(
+                runner, batch_idx, 'train')
+        elif (self.end_of_epoch(runner.train_dataloader, batch_idx)
+              and not self.ignore_last):
+            # `runner.max_iters` may not be divisible by `self.interval`. if
+            # `self.ignore_last==True`, the log of remaining iterations will
+            # be recorded (Epoch [4][1000/1007], the logs of 998-1007
+            # iterations will be recorded).
+            parsed_cfg=runner.log_processor._parse_windows_size(runner,batch_idx,runner.log_processor.custom_cfg)
+            self.log_tag=runner.log_processor._collect_scalars(parsed_cfg,runner,'train')
+            tag, log_str = runner.log_processor.get_log_after_iter(
+                runner, batch_idx, 'train')
+        else:
+            return
+        
+        # print(log_str)
+        runner.logger.info(log_str)
+        runner.visualizer.add_scalars(
+            tag, step=runner.iter + 1, file_path=self.json_log_path)
+        
+        if self.log_tag:
+            self._progress_log(self.log_tag, runner,runner.train_dataloader)
+    
+    def after_val_iter(self, runner:Runner, batch_idx: int, data_batch = None, outputs = None) -> None:
+        super().after_val_iter(runner, batch_idx, data_batch, outputs)
+        parsed_cfg=runner.log_processor._parse_windows_size(runner,batch_idx,runner.log_processor.custom_cfg)
+        self.log_tag=runner.log_processor._collect_scalars(parsed_cfg,runner,'train')
+        if self.log_tag:
+            self._progress_log(self.log_tag, runner,runner.val_dataloader,mode='val')
+    
     def after_train_epoch(self, runner) -> None:
         super().after_train_epoch(runner)
         self.bar = None
 
-    def _progress_log(self, log_dict, runner: Runner):
+    def _progress_log(self, log_dict:dict, runner: Runner,dataloader,mode='train'):
         head = '\n'
         end = ''
         for key, value in log_dict.items():
             if 'grad_norm' in key or 'iter' in key or 'data_time' in key:
                 continue
             if 'time' == key:
-                self.time_sec_tot += (value * self.interval)
-                time_sec_avg = self.time_sec_tot / (runner.iter -
-                                                    self.start_iter + 1)
-                eta_sec = time_sec_avg * (runner.max_iters - runner.iter - 1)
+                # self.time_sec_tot += (value * self.interval)
+                # time_sec_avg = self.time_sec_tot / (runner.iter -
+                #                                     self.start_iter + 1)
+                eta_sec = value * (runner.max_iters - runner.iter - 1)
                 eta_str = str(datetime.timedelta(seconds=int(eta_sec)))
                 head += f'{"eta":^10}'
                 end += f'{eta_str:^10}'
                 continue
             if 'epoch' in key:
-                value = f'{value}/{runner._max_epochs}'
+                value = f'{value}/{runner.max_epochs}'
             head += f'{key:^10}'
             end += f'{self._round_float(value):^10}' if isinstance(
                 value, float) else f'{value:^10}'
-
+        value = f'{runner.epoch}/{runner.max_epochs}'
         if not self.head:
             self.head = head
         if self.reset:
             print(self.head)
-            self.bar = tqdm(total=len(runner.data_loader),
+            self.bar = tqdm(total=len(dataloader),
                             ncols=120,
                             leave=True)
             self.reset = False
 
         self.bar.set_description(end)
-        self.bar.update(1)
-        if self.bar.n == len(runner.data_loader):
+        
+        self.bar.update(runner.val_interval if mode=='val' else 100)
+        if self.bar.n == len(dataloader):
             del self.bar
             print('\n')
 
@@ -151,7 +200,7 @@ class TextLoggerHook(LoggerHook):
                 val = f'{val:.{self.ndigits}f}'
             log_items.append(f'{name}: {val}')
         log_str += ', '.join(log_items)
-        self.setloglevel(runner, logging.StreamHandler)
+        self.setloglevel(runner,logging.StreamHandler)
         runner.logger.info(log_str)
 
     def log(self, runner) -> OrderedDict:
@@ -182,11 +231,11 @@ class TextLoggerHook(LoggerHook):
             log_dict['memory'] = self._get_max_memory(runner)
         log_dict = dict(log_dict, **runner.log_buffer.output)  # type: ignore
         self.log_dict = log_dict
-        if log_dict['mode']=='val':
+        if log_dict['mode'] == 'val':
             print()
-            st=''
-            for key,value in log_dict.items():
-                value=self._round_float(value)
+            st = ''
+            for key, value in log_dict.items():
+                value = self._round_float(value)
                 st += f"{key:^}: {value:^} |"
             print(st)
         self._log_info(log_dict, runner)
@@ -202,6 +251,7 @@ class TextLoggerHook(LoggerHook):
             if type(hand) is handler:
                 hand.setLevel(level)
                 runner.logger.handlers[i] = hand
+                
                 self.handltype.append(type(hand))
 
     def _round_float(self, items):
