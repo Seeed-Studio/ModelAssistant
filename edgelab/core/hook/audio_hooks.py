@@ -1,13 +1,22 @@
 import torch
 from mmcls.models.builder import build_loss
 from ..utils.batch_augs import BatchAugs
-from mmcv.runner import Hook, HOOKS, EpochBasedRunner
+from mmengine.registry import HOOKS
+from mmengine.hooks import Hook
+from mmengine.runner import Runner
 
 
 @HOOKS.register_module()
 class Audio_hooks(Hook):
-    def __init__(self, n_cls, multilabel, loss, seq_len, sampling_rate, device, augs_mix, mix_ratio, local_rank,
-                 epoch_mix, mix_loss):
+    """
+    Considering that the corresponding data enhancement 
+    will be done according to the current epoch during the 
+    training process, it is necessary to modify the corresponding 
+    hook in the hook
+    """
+
+    def __init__(self, n_cls, multilabel, loss, seq_len, sampling_rate, device,
+                 augs_mix, mix_ratio, local_rank, epoch_mix, mix_loss):
         super(Audio_hooks, self).__init__()
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
@@ -28,24 +37,28 @@ class Audio_hooks(Hook):
         self.mutilabel = multilabel
         self.loss = build_loss(loss)
 
-    def before_train_iter(self, runner: EpochBasedRunner):
-        (x, y) = runner.data_batch.values()
-        (x_k, y_k) = runner.data_batch.keys()
+    def before_train_iter(self, runner: Runner, batch_idx, data_batch):
+        (x, y) = data_batch.values()
+        (x_k, y_k) = data_batch.keys()
         epoch = runner.epoch
-        x, targets, is_mixed = self.batch_augs(
+        x, self.targets, self.is_mixed = self.batch_augs(
             x.to(self.device), y.to(self.device), epoch)
-            
-        runner.data_batch = {x_k: x, y_k: y.float()}
-        runner.targets = targets
-        runner.is_mixed = is_mixed
 
-    def after_train_iter(self, runner: EpochBasedRunner):
-        outputs = runner.outputs
-        if runner.is_mixed:
-            loss_cls = self.batch_augs.mix_loss(
-                outputs['inputs'], runner.targets, self.n_cls, pred_one_hot=self.mutilabel)
+        runner._train_loop.data_batch = {x_k: x, y_k: y.float()}
+        # runner.targets = targets
+        # setattr(runner,'targets',targets)
+
+    def after_train_iter(self, runner: Runner, batch_idx, data_batch, outputs):
+
+        if self.is_mixed:
+            loss_cls = self.batch_augs.mix_loss(outputs['inputs'],
+                                                self.targets,
+                                                self.n_cls,
+                                                pred_one_hot=self.mutilabel)
         else:
             loss_cls = self.loss(**outputs)
-        acc = (outputs['targets'] == torch.max(
-            outputs['inputs'], dim=1)[1]).float().mean()
-        runner.outputs = {'loss': loss_cls, 'acc': acc}
+        acc = (outputs['targets'] == torch.max(outputs['inputs'],
+                                               dim=1)[1]).float().mean()
+
+        # runner.message_hub.update_scalars({'loss': loss_cls, 'acc': acc})
+        runner.message_hub.update_info_dict({'loss': loss_cls, 'acc': acc})
