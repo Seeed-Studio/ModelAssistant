@@ -36,7 +36,7 @@ env_cfg = dict(
 
 # set visualizer
 vis_backends = [dict(type='LocalVisBackend')]
-visualizer = dict(type='mmcls.UniversalVisualizer', vis_backends=vis_backends)
+# visualizer = dict(type='mmcls.UniversalVisualizer', vis_backends=vis_backends)
 
 # set log level
 log_level = 'INFO'
