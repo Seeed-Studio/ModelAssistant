@@ -14,8 +14,8 @@ from mmcv.runner import get_dist_info, init_dist, load_checkpoint
 from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
 
 from tools.utils.inference import Inter, pfld_inference, audio_inference, show_point, fomo_inference
-from edgelab.core.apis.mmdet import single_gpu_test_fomo, single_gpu_test_mmcls, multi_gpu_test
-from edgelab.core.utils.helper_funcs import check_type
+from edgelab.engine.apis.mmdet import single_gpu_test_fomo, single_gpu_test_mmcls, multi_gpu_test
+from edgelab.engine.utils.helper_funcs import check_type
 from tools.utils.config import load_config
 
 try:

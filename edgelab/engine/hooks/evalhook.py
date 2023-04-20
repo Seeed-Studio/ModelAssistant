@@ -2,7 +2,8 @@ import warnings
 from typing import Callable, List, Optional
 
 import cv2
-from mmcv.runner.hooks import HOOKS
+from edgelab.registry import HOOKS
+
 from mmcv.runner.hooks.evaluation import EvalHook
 from torch.utils.data import DataLoader
 

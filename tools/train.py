@@ -6,6 +6,7 @@ from copy import deepcopy
 import edgelab.models
 import edgelab.datasets
 import edgelab.evaluation
+import edgelab.engine
 
 from mmengine.analysis import get_model_complexity_info
 from mmengine.config import Config, DictAction, ConfigDict

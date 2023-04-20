@@ -15,7 +15,7 @@ from mmdet.datasets import build_dataset
 from mmdet.utils import (build_ddp, build_dp, compat_cfg,
                          find_latest_checkpoint, get_root_logger)
 
-from edgelab.core.hook.evalhook import Feval
+from edgelab.engine.hooks.evalhook import Feval
 from edgelab.datasets.builder import build_dataloader
                          
 
