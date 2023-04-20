@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from mmcls.models.builder import BACKBONES
+from edgelab.registry import MODELS
 
 
 class ResBlock1dTF(nn.Module):
@@ -77,7 +77,7 @@ class Down(nn.Module):
         return x
 
 
-@BACKBONES.register_module()
+@MODELS.register_module()
 class SoundNetRaw(nn.Module):
 
     def __init__(self,
@@ -129,6 +129,7 @@ class SoundNetRaw(nn.Module):
             nn.init.constant_(m.weight, 1.0)
 
     def forward(self, x):
+        x = x.cuda()
         x = self.start(x)
         x = self.down(x)
         x = self.down2(x)
