@@ -6,6 +6,7 @@ from mmengine.registry import DATA_SAMPLERS as MMENGINE_DATA_SAMPLERS
 from mmengine.registry import METRICS as MMENGINE_METRICS
 from mmengine.registry import TRANSFORMS as MMENGINE_TRANSFORMS
 from mmengine.registry import FUNCTIONS as MMENGINE_FUNCTIONS
+from mmengine.registry import LOOPS as MMENGINE_LOOPS
 from mmengine.registry import Registry
 
 BACKBONES = MMENGINE_MODELS
@@ -13,6 +14,10 @@ NECKS = MMENGINE_MODELS
 HEADS = MMENGINE_MODELS
 LOSSES = MMENGINE_MODELS
 POSE_ESTIMATORS = MMENGINE_MODELS
+
+LOOPS = Registry('loop',
+                 parent=MMENGINE_LOOPS,
+                 locations=['edgelab.engine.runner'])
 
 MODELS = Registry('model',
                   parent=MMENGINE_MODELS,
