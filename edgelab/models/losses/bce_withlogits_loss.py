@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-from mmengine.registry import MODELS
+from edgelab.registry import LOSSES
 from mmdet.models.losses.utils import weighted_loss
 
 
@@ -10,7 +10,7 @@ def bcewithlogits_loss(pred, target):
     return F.binary_cross_entropy_with_logits(pred, target)
 
 
-@MODELS.register_module()
+@LOSSES.register_module()
 class BCEWithLogitsLoss(nn.Module):
 
     def __init__(self, reduction='mean', loss_weight=1.0) -> None:
