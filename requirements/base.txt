@@ -2,15 +2,15 @@
 tensorboard
 scikit-image
 scikit-learn
-tqdm==4.64.1
+tqdm>=4.64.1
 
 # mmlab
 openmim
-mmdet>=2.0.0
-mmcls==0.24.0
-mmpose==0.29.0
-mmengine==0.2.0
-packaging==22.0 
+mmdet>=3.0.0
+mmcls>=1.0.0rc0
+mmpose>=1.0.0
+mmengine
+packaging>=22.0 
 
 # vision
 opencv-python
