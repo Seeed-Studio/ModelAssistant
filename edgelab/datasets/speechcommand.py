@@ -6,8 +6,7 @@ import torch
 import torchaudio
 import torch.nn.functional as F
 from torch.utils.data import Dataset
-from mmcls.datasets.builder import DATASETS
-from mmcls.registry import TRANSFORMS
+from edgelab.registry import DATASETS, TRANSFORMS
 
 from .utils.download import check_file
 
@@ -95,7 +94,8 @@ class Speechcommand(Dataset):
         self.trans = torch.nn.Sequential(
             torchaudio.transforms.Resample(sampling_rate, 8000, rolloff=0.5))
         if self.lower_volume:
-            self.trans.add_module('Vol',torchaudio.transforms.Vol(0.5, gain_type='db'))
+            self.trans.add_module(
+                'Vol', torchaudio.transforms.Vol(0.5, gain_type='db'))
 
         audio = self.trans(audio)
         audio.squeeze_()
