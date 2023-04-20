@@ -1,9 +1,10 @@
 import torch.nn as nn
-from mmcls.models.builder import HEADS
+from edgelab.registry import MODELS
 
 
-@HEADS.register_module()
+@MODELS.register_module()
 class Audio_head(nn.Module):
+
     def __init__(self, in_channels, n_classes, drop=0.5):
         super(Audio_head, self).__init__()
         self.avg = nn.AdaptiveAvgPool1d(1)

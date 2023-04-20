@@ -5,7 +5,7 @@ import torchvision
 import torch.nn as nn
 from mmengine.model import BaseModule
 from mmengine.model  import normal_init, constant_init
-from mmengine.registry import MODELS
+from edgelab.registry import MODELS
 
 from ..base.general import CBR
 from ..utils.metrics import bbox_iou
