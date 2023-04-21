@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List,Sequence
 
 import torch
 import numpy as np
@@ -17,20 +17,23 @@ class FomoHead(BaseModule):
 
     def __init__(
         self,
-        input_channels: int,
+        input_channels: Sequence[int],
         middle_channels: List[int] = [96, 32],
+        out_channels: Sequence[int]=[21,21,21],
         num_classes: int = 20,
         act_cfg: str = 'ReLU6',
         cls_weight: int = 1,
-        loss_weight: List[int] = None,
-        train_cfg: dict = None,
-        test_cfg: dict = None,
-        loss_cls: dict = dict(type='BCEWithLogitsLoss', reduction='mean'),
-        loss_bg: dict = dict(type='BCEWithLogitsLoss', reduction='mean'),
+        loss_weight: Optional[Sequence[int]] = None,
+        train_cfg: Optional[dict] = None,
+        test_cfg: Optional[dict] = None,
+        loss_cls: Optional[dict] = dict(type='BCEWithLogitsLoss', reduction='mean'),
+        loss_bg: Optional[dict] = dict(type='BCEWithLogitsLoss', reduction='mean'),
         init_cfg: Optional[dict] = dict(type='Normal', std=0.01)
     ) -> None:
         super(FomoHead, self).__init__(init_cfg)
         self.num_classes = num_classes
+        self.input_channels=input_channels
+        self.output_channels=out_channels
 
         if loss_weight:
             for idx, w in enumerate(loss_weight):
@@ -64,23 +67,32 @@ class FomoHead(BaseModule):
                                1,
                                1,
                                padding=0)
+    
+    def _init_layers(self):
+        self.convs_bridge=nn.ModuleList()
+        self.convs_pred=nn.ModuleList()
+        for i in range(len(self.input_channels)):
+            CBR(self.input_channels[i],self.output_channels)
+        
+        
+        
 
     def forward(self, x):
         if isinstance(x, (list,tuple)) and len(x):
-            x = x[-1]
+            x = x[0]
         x = self.conv1(x)
         x = self.conv2(x)
         result = self.conv3(x)
 
         return result
     
-    def loss(self,features,target):
-        pred=self.forward(features)
-        return self.lossFunction(pred,target)
+    def loss(self,inputs,data_samples):
+        pred=self.forward(inputs)
+        return self.lossFunction(pred,data_samples)
     
-    def predict(self,features,**kwargs):
+    def predict(self,features,data_samples,rescale=False):
         pred=self.forward(features)
-        return pred,self.build_target(pred.permute(0,2,3,1),kwargs['label'])
+        return pred,self.build_target(pred.permute(0,2,3,1),data_samples)
 
     def lossFunction(self, pred_maps: torch.Tensor, target):
         """ Calculate the loss of the model """
