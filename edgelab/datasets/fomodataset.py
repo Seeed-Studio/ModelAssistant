@@ -107,8 +107,8 @@ class FomoDatasets(Dataset):
         # self.data
         # return ToTensor()(image), torch.from_numpy(np.asarray(bbl))
         return {
-            'img': ToTensor()(image),
-            'target': torch.from_numpy(np.asarray(bbl))
+            'inputs': ToTensor()(image),
+            'data_samples': torch.from_numpy(np.asarray(bbl))
         }
 
     def get_ann_info(self, idx):
