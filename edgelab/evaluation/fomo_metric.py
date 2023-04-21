@@ -71,7 +71,8 @@ class FomoMetric(BaseMetric):
 
     def process(self, data_batch, data_samples) -> None:
         tmp = TP = FP = FN = []
-        pred, target = data_samples[0], data_samples[1]
+
+        pred, target = data_samples[0]['pred_instances']['pred'], data_samples[0]['pred_instances']['labels']
         pred = pred.permute(0, 2, 3, 1)
         B, H, W, C = target.shape
         tp, fp, fn = self.compute_ftp(pred, target)

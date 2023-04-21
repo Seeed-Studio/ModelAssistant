@@ -8,4 +8,4 @@ def fomo_collate(batch):
     for i, l in enumerate(label):
         if l.shape[0] > 0:
             l[:, 0] = i
-    return dict(inputs=torch.stack(img), data_samples=torch.cat(label, 0))
+    return dict(inputs=torch.stack(img), data_samples=[DetDataSample(labels=torch.cat(label, 0))])
