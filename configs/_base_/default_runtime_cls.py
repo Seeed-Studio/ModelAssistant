@@ -7,7 +7,7 @@ default_hooks = dict(
     timer=dict(type='IterTimerHook'),
 
     # print log every 100 iterations.
-    logger=dict(type='LoggerHook', interval=100),
+    logger=dict(type='TextLoggerHook', interval=100),
 
     # enable the parameter scheduler.
     param_scheduler=dict(type='ParamSchedulerHook'),

@@ -1,5 +1,4 @@
 from typing import Optional, Dict
-from torch import Tensor
 from mmdet.models.detectors.single_stage import SingleStageDetector
 from edgelab.registry import MODELS
 

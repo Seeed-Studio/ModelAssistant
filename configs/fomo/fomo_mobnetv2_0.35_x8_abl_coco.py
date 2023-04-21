@@ -5,11 +5,12 @@ custom_imports = dict(imports=['edgelab'], allow_failed_imports=False)
 num_classes = 2
 model = dict(
     type='Fomo',
-    backbone=dict(type='mmdet.MobileNetV2', widen_factor=0.35, out_indices=(2, )),
+    backbone=dict(type='mmdet.MobileNetV2', widen_factor=0.35, out_indices=(2,)),
     head=dict(
         type='FomoHead',
-        input_channels=16,
+        input_channels=[16],
         num_classes=num_classes,
+        out_channels=[2],
         middle_channels=[96, 32],
         act_cfg='ReLU6',
         loss_cls=dict(type='BCEWithLogitsLoss',
@@ -22,7 +23,7 @@ model = dict(
 
 # dataset settings
 dataset_type = 'FomoDatasets'
-data_root = '/home/dq/datasets/mask/'
+data_root = ''
 height = 96
 width = 96
 batch_size = 16
@@ -32,12 +33,12 @@ train_pipeline = [
     dict(type='RandomResizedCrop',
          height=height,
          width=width,
-         scale=(0.90, 1.1),
+         scale=(0.80, 1.2),
          p=1),
-    dict(type='Rotate', limit=20),
+    dict(type='Rotate', limit=30),
     dict(type='RandomBrightnessContrast',
-         brightness_limit=0.2,
-         contrast_limit=0.2,
+         brightness_limit=0.3,
+         contrast_limit=0.3,
          p=0.5),
     dict(type='HorizontalFlip', p=0.5),
 ]
@@ -71,6 +72,8 @@ val_dataloader = dict(
                                pipeline=test_pipeline), )
 test_dataloader = val_dataloader
 
+
+# data_preprocessor=dict(type='mmdet.DetDataPreprocessor')
 # optimizer
 lr = 0.001
 epochs = 300
