@@ -1,3 +1,5 @@
+from typing import Optional, Dict
+from torch import Tensor
 from mmdet.models.detectors.single_stage import SingleStageDetector
 from edgelab.registry import MODELS
 
@@ -6,18 +8,13 @@ from edgelab.registry import MODELS
 class Fomo(SingleStageDetector):
 
     def __init__(self,
-                 backbone,
-                 neck=None,
-                 head=None,
-                 data_preprocessor=None,
-                 train_cfg=None,
-                 test_cfg=None,
-                 pretrained=None,
-                 init_cfg=None
-                 ):
-        super().__init__(backbone, neck, head, train_cfg, test_cfg, 
-                         data_preprocessor,init_cfg)
-
-    def predict(self, imgs, data_samples):
-        x = self.extract_feat(imgs)
-        return self.bbox_head.predict(x, data_samples)
+                 backbone: Dict,
+                 neck: Optional[Dict] = None,
+                 head: Optional[Dict] = None,
+                 data_preprocessor: Optional[Dict] = None,
+                 train_cfg: Optional[Dict] = None,
+                 test_cfg: Optional[Dict] = None,
+                 pretrained: Optional[Dict] = None,
+                 init_cfg: Optional[Dict] = None):
+        super().__init__(backbone, neck, head, train_cfg, test_cfg,
+                         data_preprocessor, init_cfg)

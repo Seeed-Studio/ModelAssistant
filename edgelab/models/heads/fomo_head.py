@@ -1,12 +1,13 @@
-from typing import Optional, List,Sequence
+from typing import Optional, List, Sequence, Tuple
 
 import torch
 import numpy as np
 import torch.nn as nn
 from sklearn.metrics import confusion_matrix
 from mmengine.registry import MODELS
+from mmengine.structures import InstanceData
 from mmengine.model import BaseModule
-from mmengine.model import normal_init,constant_init
+from mmengine.model import normal_init, constant_init
 from mmcv.cnn import is_norm
 
 from ..base.general import CBR
@@ -19,21 +20,23 @@ class FomoHead(BaseModule):
         self,
         input_channels: Sequence[int],
         middle_channels: List[int] = [96, 32],
-        out_channels: Sequence[int]=[21,21,21],
+        out_channels: Sequence[int] = [21, 21, 21],
         num_classes: int = 20,
         act_cfg: str = 'ReLU6',
         cls_weight: int = 1,
         loss_weight: Optional[Sequence[int]] = None,
         train_cfg: Optional[dict] = None,
         test_cfg: Optional[dict] = None,
-        loss_cls: Optional[dict] = dict(type='BCEWithLogitsLoss', reduction='mean'),
-        loss_bg: Optional[dict] = dict(type='BCEWithLogitsLoss', reduction='mean'),
+        loss_cls: Optional[dict] = dict(type='BCEWithLogitsLoss',
+                                        reduction='mean'),
+        loss_bg: Optional[dict] = dict(type='BCEWithLogitsLoss',
+                                       reduction='mean'),
         init_cfg: Optional[dict] = dict(type='Normal', std=0.01)
     ) -> None:
         super(FomoHead, self).__init__(init_cfg)
         self.num_classes = num_classes
-        self.input_channels=input_channels
-        self.output_channels=out_channels
+        self.input_channels = input_channels
+        self.output_channels = out_channels
 
         if loss_weight:
             for idx, w in enumerate(loss_weight):
@@ -48,51 +51,39 @@ class FomoHead(BaseModule):
             [[0, -1, 0], [0, -1, -1], [0, 0, -1], [0, 1, 0], [0, 1, 1],
              [0, 0, 1], [0, 1, -1], [0, -1, 1], [0, 0, 0]],
             dtype=torch.long)
+        self._init_layers()
 
-        self.conv1 = CBR(input_channels,
-                         middle_channels[0],
-                         1,
-                         1,
-                         padding=0,
-                         act=act_cfg)
-        self.conv2 = CBR(middle_channels[0],
-                         middle_channels[1],
-                         1,
-                         1,
-                         padding=0,
-                         act='ReLU')
-
-        self.conv3 = nn.Conv2d(middle_channels[1],
-                               num_classes + 1,
-                               1,
-                               1,
-                               padding=0)
-    
     def _init_layers(self):
-        self.convs_bridge=nn.ModuleList()
-        self.convs_pred=nn.ModuleList()
+        self.convs_bridge = nn.ModuleList()
+        self.convs_pred = nn.ModuleList()
         for i in range(len(self.input_channels)):
-            CBR(self.input_channels[i],self.output_channels)
-        
-        
-        
+            self.convs_bridge.append(
+                CBR(self.input_channels[i],
+                    48,
+                    3,
+                    1,padding=1,
+                    act='ReLU'))
+            self.convs_pred.append(
+                nn.Conv2d(48, self.num_classes + 1, 1,padding=0))
 
-    def forward(self, x):
-        if isinstance(x, (list,tuple)) and len(x):
-            x = x[0]
-        x = self.conv1(x)
-        x = self.conv2(x)
-        result = self.conv3(x)
+    def forward(self, x: Tuple[torch.Tensor, ...]):
+        assert len(x) == len(self.input_channels)
 
-        return result
-    
-    def loss(self,inputs,data_samples):
-        pred=self.forward(inputs)
-        return self.lossFunction(pred,data_samples)
-    
-    def predict(self,features,data_samples,rescale=False):
-        pred=self.forward(features)
-        return pred,self.build_target(pred.permute(0,2,3,1),data_samples)
+        result=[]
+        for i,feat in enumerate(x):
+            feat=self.convs_bridge[i](feat)
+            pred_map=self.convs_pred[i](feat)
+            result.append(pred_map)
+
+        return tuple(result)
+
+    def loss(self, inputs: Tuple[torch.Tensor, ...], data_samples):
+        pred = self.forward(inputs)
+        return self.lossFunction(pred[0], data_samples[0].labels)
+
+    def predict(self, features, data_samples, rescale=False):
+        pred = self.forward(features)
+        return [InstanceData(pred=pred[0], labels=self.build_target(pred[0].permute(0, 2, 3, 1), data_samples[0].labels))]
 
     def lossFunction(self, pred_maps: torch.Tensor, target):
         """ Calculate the loss of the model """
@@ -119,7 +110,7 @@ class FomoHead(BaseModule):
         # avg loss
         loss = torch.mean(cls_loss + bg_loss)
         # get p,r,f1
-        P, R, F1 = self.get_pricsion_revall_f1(preds, data)
+        P, R, F1 = self.get_pricsion_recall_f1(preds, data)
         return dict(loss=loss,
                     fgnd=cls_loss,
                     bgnd=bg_loss,
@@ -127,7 +118,7 @@ class FomoHead(BaseModule):
                     R=torch.Tensor([R]),
                     F1=torch.Tensor([F1]))
 
-    def get_pricsion_revall_f1(self, preds, target):
+    def get_pricsion_recall_f1(self, preds, target):
         preds = torch.softmax(preds, dim=-1)
         # Get the category id of each box
         target_max = torch.argmax(target, dim=-1)
