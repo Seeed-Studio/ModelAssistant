@@ -1,0 +1,16 @@
+name: edgelab
+
+channels:
+  - defaults
+  - pytorch
+
+dependencies:
+  - python=3.8
+  - pytorch=2.0.0
+  - cpuonly=2.0
+  - torchaudio=2.0.0
+  - torchvision=0.15.0
+  - pip=23.0.1
+  - pip:
+    - -r requirements/base.txt  # base
+    - onnxruntime==1.14.1       # inference
