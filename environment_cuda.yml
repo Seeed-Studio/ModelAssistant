@@ -13,5 +13,6 @@ dependencies:
   - torchvision=0.15.0
   - pip=23.0.1
   - pip:
-    - -r requirements/base.txt  # base
-    - onnxruntime-gpu==1.14.1   # inference
+    - -r requirements/base.txt
+    - -r requirements/pytorch.txt
+    - -r requirements/inference.txt
