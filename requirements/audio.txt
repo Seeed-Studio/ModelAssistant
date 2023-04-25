@@ -1,2 +1,2 @@
-torchaudio>=0.5.0
-soundfile
+torchaudio==2.0.0
+soundfile==0.12.1

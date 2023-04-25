@@ -1,8 +1,8 @@
-onnx
-onnxruntime-gpu
-onnxsim
-onnxmltools
+onnx==1.13.1
+onnxruntime==1.14.1
+onnxsim==0.4.24
+onnxmltools==1.11.2
 
-ncnn
+ncnn==1.0.20230223
 tensorflow==2.9.0
 protobuf==3.20.3

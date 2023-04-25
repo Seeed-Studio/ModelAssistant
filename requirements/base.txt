@@ -1,21 +1,17 @@
-# tesnorboard
-tensorboard
-scikit-image
-scikit-learn
-tqdm>=4.64.1
+# visualize
+tensorboard==2.12.2
+scikit-image==0.20.0
+scikit-learn==1.2.2
+tqdm==4.65.0
 
-# mmlab
-openmim
-mmdet>=3.0.0
-mmcls>=1.0.0rc0
-mmpose>=1.0.0
-mmengine
-packaging>=22.0 
+# openmmlab package manager
+openmim==0.3.7
+packaging==23.1 
 
 # vision
-opencv-python
-albumentations>=1.2.1
-pyyaml
-pillow
-pandas
-numpy
+opencv-python==4.7.0.72
+albumentations==1.3.0
+pyyaml==6.0
+pillow==9.4.0
+pandas==2.0.0
+numpy==1.23.5
