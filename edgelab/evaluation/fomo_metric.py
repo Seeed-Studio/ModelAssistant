@@ -84,7 +84,9 @@ class FomoMetric(BaseMetric):
         FN.append(fn)
         self.results.append(dict(tp=tp, fp=fp, fn=fn))
 
-    def compute_metrics(self, results: list) -> dict:
+    def compute_metrics(self, results: Optional[list]=None) -> dict:
+        if results is None:
+            results=self.results
         tp = sum([i['tp'] for i in results])
         fp = sum([i['fp'] for i in results])
         fn = sum([i['fn'] for i in results])
