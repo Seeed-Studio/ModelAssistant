@@ -1,8 +1,7 @@
 # Seeed Studio EdgeLab
 
-
 <div align="center">
-  <img width="100%" src="https://user-images.githubusercontent.com/20147381/206665275-feceede2-c68c-4259-a4db-541b3bd25b2f.png">
+  <img width="100%" src="docs/public/images/EdgeLab-Logo.png">
   <h3> <a href="https://edgelab.readthedocs.io/en/latest/"> Documentation </a> | <a href="https://edgelab.readthedocs.io/zh_CN/latest/"> 中文文档 </a>  </h3>
 </div>
 
@@ -10,9 +9,11 @@
 
 English | [简体中文](README_zh-CN.md)
 
+
 ## Introduction
 
 Seeed Studio EdgeLab is an open-source project focused on embedded AI. We have optimized excellent algorithms from [OpenMMLab](https://github.com/open-mmlab) for real-world scenarios and made implemention more user-friendly, achieving faster and more accurate inference on embedded devices.
+
 
 ## What's included
 
@@ -29,8 +30,8 @@ Here we provide a number of computer vision algorithms such as object detection,
 </details>
 
 <details>
-<summary>Scenario-Specific</summary>
-Specific scenarios, such as the recognition of analog meters, traditional digital meters and audio classfication.
+<summary>Scenario Specific</summary>
+EdgeLab provides customized scenarios for specific production environments, such as identification of analog instruments, traditional digital meters, and audio classification.
 </details>
 
 <br>
@@ -55,13 +56,15 @@ EdgeLab focuses on end-side AI algorithm research, and the algorithm models can 
 is mainly used in microcontrollers, while <a href="https://onnx.ai">ONNX</a> is mainly used in devices with Embedded Linux. There are some special formats such as <a href="https://developer.nvidia.com/tensorrt">TensorRT</a>, <a href="https://docs.openvino.ai">OpenVINO</a> which are already well supported by OpenMMlab. EdgeLab has added TFLite model export for microcontrollers, which can be directly converted to uf2 format and drag-and-drop into the device for deployment.
 </details>
 
+
 ## Acknowledgement
 
-Edgelab referenced the following projects：
+EdgeLab referenced the following projects:
 
 - [OpenMMLab](https://openmmlab.com/)
 - [ONNX](https://github.com/onnx/onnx)
 - [NCNN](https://github.com/Tencent/ncnn)
+
 
 ## License
 
