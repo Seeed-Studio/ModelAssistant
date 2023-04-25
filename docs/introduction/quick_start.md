@@ -22,7 +22,7 @@ We suggest that all beginners of EdgeLab start learning from [Getting Started](#
 
 ## Advanced
 
-- **Model Deployment**. If you want to deploy the exported training model on edge computing devices, please refer to [ESP32 Deployment Example](../examples/esp32/deploy) or [Grove Vision AI Deployment Example](../examples/move/deploy).
+- **Model Deployment**. If you want to deploy the exported training model on edge computing devices, please refer to [ESP32 Deployment Example](../examples/esp32/deploy) or [Grove Vision AI Deployment Example](../examples/grove/deploy).
 
 - **Custom Datasets**. If you want to train on a custom dataset, please refer to [Datasets](../tutorials/datasets/).
 

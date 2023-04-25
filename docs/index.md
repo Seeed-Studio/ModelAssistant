@@ -12,13 +12,13 @@ hero:
   actions:
     - theme: brand
       text: Get Started
-      link: /get_started/overview
+      link: ./introduction/quick_start
     - theme: alt
       text: Install EdgeLab
-      link: /get_started/installation
+      link: ./introduction/installation
     - theme: alt
       text: View on GitHub
-      link: https://github.com/Seeed-Studio/Edgelab
+      link: https://github.com/Seeed-Studio/EdgeLab
 
 features:
   - icon: 🔍

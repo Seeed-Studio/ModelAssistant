@@ -12,13 +12,13 @@ hero:
   actions:
     - theme: brand
       text: 入门指南
-      link: /get_started/overview
+      link: ./introduction/quick_start
     - theme: alt
       text: 安装 EdgeLab
-      link: /get_started/installation
+      link: ./introduction/installation
     - theme: alt
       text: 查看 GitHub 仓库
-      link: https://github.com/Seeed-Studio/Edgelab
+      link: https://github.com/Seeed-Studio/EdgeLab
 
 features:
   - icon: 🔍
