@@ -280,6 +280,7 @@ node_modules/
 .pnp.*
 
 
-# Vitepress
-*/.vitepress/dist
-*/.vitepress/cache
+# VitePress
+**/.vitepress/dist
+**/.vitepress/cache
+**/.vitepress/cache/deps
