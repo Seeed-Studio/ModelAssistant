@@ -284,3 +284,4 @@ node_modules/
 **/.vitepress/dist
 **/.vitepress/cache
 **/.vitepress/cache/deps
+!docs/public/**
