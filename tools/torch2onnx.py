@@ -1,20 +1,19 @@
 import argparse
 import os
 import os.path as osp
-from functools import partial
 
-import mmcv
+from typing import Any, Union, Optional, Sequence, List, Tuple
+
 import numpy as np
 import onnxruntime as rt
 import torch
 import onnx
-from mmcv.onnx import register_extra_symbolics
-from mmcv.runner import load_checkpoint
+from onnx.checker import check_model
 
-from mmdet.core.export import preprocess_example_input
-from mmcls.models import build_classifier
-from mmdet.models import build_detector
-from mmpose.models import build_posenet
+from mmengine.config import Config
+from mmengine.registry import RUNNERS
+from mmengine.runner import Runner
+
 
 from edgelab import models
 
@@ -56,17 +55,17 @@ def _demo_mm_inputs(input_shape, num_classes):
     return mm_inputs
 
 
-def pytorch2onnx(model,
-                 input_shape,
-                 input_img=None,
-                 normalize=None,
-                 opset_version=9,
-                 dynamic_export=False,
-                 show=False,
+def pytorch2onnx(model: torch.nn.Module,
+                 input_shape: Tuple[int, ...],
+                 input_img: Optional[str] = None,
+                 normalize: Optional[Tuple[float, ...]] = None,
+                 opset_version: int = 9,
+                 dynamic_export: bool = False,
+                 show: bool = False,
                  output_file='tmp.onnx',
-                 do_simplify=False,
-                 verify=False,
-                 task='mmcls'):
+                 do_simplify: bool = False,
+                 verify: bool = False,
+                 task: str = 'mmcls'):
     """Export Pytorch model to ONNX model and verify the outputs are same
     between Pytorch and ONNX.
 
@@ -82,27 +81,8 @@ def pytorch2onnx(model,
             Default: False.
     """
     model.cpu().eval()
-    origin_forward = model.forward
-    if task == 'mmdet':
-        input_config = {
-            'input_shape': input_shape,
-            'input_path': input_img,
-            'normalize_cfg': normalize
-        }
-        # prepare input
-        input_img, one_meta = preprocess_example_input(input_config)
-        img_list, img_meta_list = [input_img], [[one_meta]]
-        # replace original forward function
-        model.forward = partial(model.forward,
-                                img_metas=img_meta_list,
-                                return_loss=False,
-                                rescale=False)
-        model.forward = model.forward_dummy
-    else:
-        model.forward = partial(model.forward, img_metas={}, return_loss=False)
-        input_img = torch.randn(size=input_shape)
 
-    register_extra_symbolics(opset_version)
+    input_img = torch.randn(size=input_shape)
 
     # support dynamic shape export
     if dynamic_export:
@@ -129,7 +109,6 @@ def pytorch2onnx(model,
 
     # export onnx
     with torch.no_grad():
-
         torch.onnx.export(model,
                           input_img,
                           output_file,
@@ -142,16 +121,9 @@ def pytorch2onnx(model,
                           verbose=show,
                           opset_version=opset_version)
         print(f'Successfully exported ONNX model: {output_file}')
-    model.forward = origin_forward
-
+        
     if do_simplify:
         import onnxsim
-        from mmcv import digit_version
-
-        min_required_version = '0.4.0'
-        assert digit_version(mmcv.__version__) >= digit_version(
-            min_required_version
-        ), f'Requires to install onnx-simplify>={min_required_version}'
 
         model_opt, check_ok = onnxsim.simplify(output_file)
         if check_ok:
@@ -162,7 +134,7 @@ def pytorch2onnx(model,
     if verify:  # TODO
         # check by onnx
         onnx_model = onnx.load(output_file)
-        onnx.checker.check_model(onnx_model)
+        check_model(onnx_model)
 
         # test the dynamic model
         if dynamic_export:
@@ -194,16 +166,18 @@ def pytorch2onnx(model,
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Convert Pytorch model to ONNX')
+    parser = argparse.ArgumentParser(
+        description='Convert Pytorch model to ONNX')
     parser.add_argument('task',
                         type=str,
-                        default='mmcls',
-                        choices=['mmcls', 'mmdet', 'mmpose'],
+                        default='cls',
+                        choices=['cls', 'det', 'pose'],
                         help='The task type of the exported model')
-    parser.add_argument('config',
-                        type=str,
-                        default='./configs/audio_classify/ali_classiyf_small_8k_8192.py',
-                        help='test config file path')
+    parser.add_argument(
+        'config',
+        type=str,
+        default='./configs/audio_classify/ali_classiyf_small_8k_8192.py',
+        help='test config file path')
     parser.add_argument('--checkpoint', type=str, help='checkpoint file')
 
     parser.add_argument('--input-img', type=str, help='Images for input')
@@ -217,7 +191,7 @@ def parse_args():
                         help='Exported onnx file name')
     parser.add_argument('--opset-version',
                         type=int,
-                        default=10,
+                        default=11,
                         help='Exported version of onnx operator set')
     parser.add_argument('--simplify',
                         action='store_true',
@@ -252,34 +226,36 @@ def main():
 
     if audio:
         input_shape = (1, 1, shape[0])
-    elif len(args.shape) == 1:
-        input_shape = (1, 3, args.shape[0], args.shape[0])
-    elif len(args.shape) == 2:
+    elif len(shape) == 1:
+        input_shape = (1, 3, shape[0], shape[0])
+    elif len(shape) == 2:
         input_shape = (
             1,
             1,
-        ) + tuple(args.shape)
+        ) + tuple(shape)
     else:
         raise ValueError('invalid input shape')
 
-    cfg = mmcv.Config.fromfile(args.config)
-    cfg.model.pretrained = None
+    cfg = Config.fromfile(args.config)
+    cfg.work_dir = osp.join('./work_dirs',
+                                osp.splitext(osp.basename(args.config))[0])
+    
+    runner=Runner.from_cfg(cfg=cfg)
+    
 
     # build the model
-    if args.task == 'mmcls':
-        model = build_classifier(cfg.model)
-    elif args.task == 'mmdet':
-        model = build_detector(cfg.model)
-        normalize_cfg = parse_normalize_cfg(cfg.test_pipeline)
-        args.opset_version = 11
-    elif args.task == 'mmpose':
-        model = build_posenet(cfg.model)
+    # if args.task == 'mmcls':
+    #     model = build_classifier(cfg.model)
+    # elif args.task == 'mmdet':
+    #     model = build_detector(cfg.model)
+    #     normalize_cfg = parse_normalize_cfg(cfg.test_pipeline)
+    #     args.opset_version = 11
+    # elif args.task == 'mmpose':
+    #     model = build_posenet(cfg.model)
 
     # load checkpoint
     if args.checkpoint:
-        load_checkpoint(model=model,
-                        filename=args.checkpoint,
-                        map_location='cpu')
+        runner.load_checkpoint(filename=args.checkpoint)
 
     if not args.input_img:
         args.input_img = os.path.join(os.path.dirname(__file__),
@@ -295,7 +271,7 @@ def main():
         output_file = osp.join(dn, bn.replace('.pth', '.onnx'))
 
     # convert model to onnx file
-    pytorch2onnx(model,
+    pytorch2onnx(runner.model,
                  input_shape,
                  normalize=normalize_cfg,
                  input_img=args.input_img,
