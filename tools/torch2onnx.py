@@ -1,8 +1,7 @@
 import argparse
 import os
 import os.path as osp
-
-from typing import Any, Union, Optional, Sequence, List, Tuple
+from typing import Optional, Tuple
 
 import numpy as np
 import onnxruntime as rt
@@ -11,11 +10,7 @@ import onnx
 from onnx.checker import check_model
 
 from mmengine.config import Config
-from mmengine.registry import RUNNERS
 from mmengine.runner import Runner
-
-
-from edgelab import models
 
 torch.manual_seed(3)
 
@@ -43,7 +38,7 @@ def _demo_mm_inputs(input_shape, num_classes):
             number of semantic classes
     """
     # (N, C, H, W) = input_shape
-    input_shape = (1, 1, 16384)
+    # input_shape = (1, 1, 16384)
     rng = np.random.RandomState(0)
     imgs = rng.rand(*input_shape)
     gt_labels = rng.randint(low=0, high=num_classes,
@@ -64,8 +59,7 @@ def pytorch2onnx(model: torch.nn.Module,
                  show: bool = False,
                  output_file='tmp.onnx',
                  do_simplify: bool = False,
-                 verify: bool = False,
-                 task: str = 'mmcls'):
+                 verify: bool = False):
     """Export Pytorch model to ONNX model and verify the outputs are same
     between Pytorch and ONNX.
 
@@ -121,7 +115,7 @@ def pytorch2onnx(model: torch.nn.Module,
                           verbose=show,
                           opset_version=opset_version)
         print(f'Successfully exported ONNX model: {output_file}')
-        
+
     if do_simplify:
         import onnxsim
 
@@ -238,10 +232,9 @@ def main():
 
     cfg = Config.fromfile(args.config)
     cfg.work_dir = osp.join('./work_dirs',
-                                osp.splitext(osp.basename(args.config))[0])
-    
-    runner=Runner.from_cfg(cfg=cfg)
-    
+                            osp.splitext(osp.basename(args.config))[0])
+
+    runner = Runner.from_cfg(cfg=cfg)
 
     # build the model
     # if args.task == 'mmcls':
