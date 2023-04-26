@@ -10,14 +10,12 @@ model = dict(
         type='FomoHead',
         input_channels=[16],
         num_classes=num_classes,
-        out_channels=[2],
-        middle_channels=[96, 32],
+        middle_channel=48,
         act_cfg='ReLU6',
         loss_cls=dict(type='BCEWithLogitsLoss',
                       reduction='none',
                       pos_weight=40),
         loss_bg=dict(type='BCEWithLogitsLoss', reduction='none'),
-        cls_weight=40,
     ),
 )
 

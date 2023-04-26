@@ -9,11 +9,11 @@ model = dict(
     head=dict(type='FomoHead',
               input_channels=16,
               num_classes=80,
-              middle_channels=[96, 32],
+              middle_channels=48,
               act_cfg='ReLU6',
               loss_cls=dict(type='BCEWithLogitsLoss', reduction='mean'),
               loss_bg=dict(type='BCEWithLogitsLoss', reduction='mean'),
-              cls_weight=100),
+              ),
 )
 
 # dataset settings
