@@ -42,7 +42,8 @@ class FomoHead(BaseModule):
         self.input_channels = input_channels if isinstance(
             input_channels, Sequence) else [input_channels]
 
-        self.middle_channels = middle_channel
+        self.middle_channels = middle_channel[0] if isinstance(
+            middle_channel, Sequence) else middle_channel
         self.act_cfg = act_cfg
 
         if loss_weight:
@@ -51,7 +52,7 @@ class FomoHead(BaseModule):
 
         self.loss_bg = LOSSES.build(loss_bg)
         self.loss_cls = LOSSES.build(loss_cls)
-        
+
         # Offset of the ground truth box
         self.posit_offset = torch.tensor(
             [[0, -1, 0], [0, -1, -1], [0, 0, -1], [0, 1, 0], [0, 1, 1],
@@ -99,7 +100,7 @@ class FomoHead(BaseModule):
         pred = self.forward(inputs)
         return self.lossFunction(pred[0], data_samples[0].labels)
 
-    def predict(self, features, data_samples,rescale=False):
+    def predict(self, features, data_samples, rescale=False):
         pred = self.forward(features)
         return [
             InstanceData(pred=pred[0],

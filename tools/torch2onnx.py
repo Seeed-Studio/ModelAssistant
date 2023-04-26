@@ -273,8 +273,7 @@ def main():
                  dynamic_export=args.dynamic_export,
                  output_file=output_file,
                  do_simplify=args.simplify,
-                 verify=args.verify,
-                 task=args.task)
+                 verify=args.verify)
 
 
 if __name__ == '__main__':
