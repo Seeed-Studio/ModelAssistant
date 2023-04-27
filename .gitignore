@@ -281,9 +281,7 @@ node_modules/
 
 
 # VitePress
-**/.vitepress/dist
-**/.vitepress/cache
-**/.vitepress/cache/deps
 dist
 cache
 temp
+!docs/public/**
