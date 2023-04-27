@@ -1,6 +1,6 @@
 # Copyrights and Licenses
 
-This project is released under the [MIT license](https://github.com/Seeed-Studio/EdgeLab/blob/main/LICENSES).
+EdgeLab is released under the [MIT license](https://github.com/Seeed-Studio/EdgeLab/blob/main/LICENSES).
 
 ```
 MIT License

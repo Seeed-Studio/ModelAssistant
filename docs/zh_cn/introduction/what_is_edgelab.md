@@ -39,5 +39,5 @@ EdgeLab 专注于终端侧的人工智能算法研究，算法模型可以部署
 
 <details>
 <summary>多格式导出</summary>
-<a href="https://www.tensorflow.org/lite">TensorFlow Lite</a> 在嵌入式设备中广泛应用，<a href="https://onnx.ai">ONNX</a> 则被用在嵌入式 Linux 中流行。 有一些特殊的格式，如 <a href="https://developer.nvidia.com/tensorrt">TensorRT</a>、<a href="https://docs.openvino.ai">OpenVINO</a>，这些格式已经被 OpenMMlab 很好地支持。EdgeLab 为微控制器增加了 TFLite 模型导出，可以直接转换为 <a href="https://developer.nvidia.com/tensorrt">TensorRT</a>，<a href="https://github.com/microsoft/uf2">UF2</a> 格式，并拖放到设备中进行部署。
+<a href="https://www.tensorflow.org/lite">TensorFlow Lite</a> 在嵌入式设备中广泛应用，<a href="https://onnx.ai">ONNX</a> 则被用在嵌入式 Linux 中流行。 有一些特殊的格式，如 <a href="https://developer.nvidia.com/tensorrt">TensorRT</a>、<a href="https://docs.openvino.ai">OpenVINO</a>，这些格式已经被 OpenMMLab 很好地支持。EdgeLab 为微控制器增加了 TFLite 模型导出，可以直接转换为 <a href="https://developer.nvidia.com/tensorrt">TensorRT</a>，<a href="https://github.com/microsoft/uf2">UF2</a> 格式，并拖放到设备中进行部署。
 </details>

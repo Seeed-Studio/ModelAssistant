@@ -76,16 +76,16 @@ function sidebar() {
                     text: 'ESP32 - Deploy',
                     link: '/examples/esp32/deploy',
                     items: [
-                        { text: 'ESP32 FOMO', link: '/examples/esp32/fomo' },
-                        { text: 'ESP32 Meter Reader', link: '/examples/esp32/meter' }
+                        { text: 'ESP32 Mask Detection', link: '/examples/esp32/mask_detection' },
+                        { text: 'ESP32 Meter Reader', link: '/examples/esp32/meter_reader' }
                     ]
                 },
                 {
                     text: 'Grove - Deploy',
                     link: '/examples/grove/deploy',
                     items: [
-                        { text: 'Grove FOMO', link: '/examples/grove/fomo' },
-                        { text: 'Grove Meter Reader', link: '/examples/grove/meter' }
+                        { text: 'Grove Mask Detection', link: '/examples/grove/mask_detection' },
+                        { text: 'Grove Meter Reader', link: '/examples/grove/meter_reader' }
                     ]
                 }
             ]

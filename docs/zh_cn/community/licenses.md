@@ -1,6 +1,6 @@
 # Copyrights and Licenses
 
-该项目采用 [MIT 开源许可证](https://github.com/Seeed-Studio/EdgeLab/blob/main/LICENSES)。
+EdgeLab 采用 [MIT 开源许可证](https://github.com/Seeed-Studio/EdgeLab/blob/main/LICENSES)。
 
 ```
 MIT License

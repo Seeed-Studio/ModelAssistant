@@ -75,19 +75,19 @@ function sidebar() {
             collapsed: false,
             items: [
                 {
-                    text: 'ESP32 - Deploy',
+                    text: 'ESP32 - 部署教程',
                     link: '/zh_cn/examples/esp32/deploy',
                     items: [
-                        { text: 'ESP32 FOMO', link: '/zh_cn/examples/esp32/fomo' },
-                        { text: 'ESP32 Meter Reader', link: '/zh_cn/examples/esp32/meter' }
+                        { text: 'ESP32 口罩检测', link: '/zh_cn/examples/esp32/mask_detection' },
+                        { text: 'ESP32 表计读数', link: '/zh_cn/examples/esp32/meter_reader' }
                     ]
                 },
                 {
-                    text: 'Grove - Deploy',
+                    text: 'Grove - 部署教程',
                     link: '/zh_cn/examples/grove/deploy',
                     items: [
-                        { text: 'Grove FOMO', link: '/zh_cn/examples/grove/fomo' },
-                        { text: 'Grove Meter Reader', link: '/zh_cn/examples/grove/meter' }
+                        { text: 'Grove 口罩检测', link: '/zh_cn/examples/grove/mask_detection' },
+                        { text: 'Grove 表计读数', link: '/zh_cn/examples/grove/meter_reader' }
                     ]
                 }
             ]
