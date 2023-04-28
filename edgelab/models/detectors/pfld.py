@@ -3,9 +3,12 @@ import os.path as osp
 import cv2
 import mmcv
 import torch
+import numpy as np
 
 from mmpose.models.pose_estimators.base import BasePoseEstimator
 from edgelab.registry import MODELS
+from mmpose.structures import PoseDataSample
+from mmengine.structures.instance_data import InstanceData
 
 
 @MODELS.register_module()
@@ -28,30 +31,40 @@ class PFLD(BasePoseEstimator):
         # if self.with_keypoint:
         #     self.keypoint_head.init_weights()
 
-    def forward(self, img, keypoints=None, mode='loss', **kwargs):
+    def forward(self, inputs, data_samples, mode='loss'):
+
         if mode == 'loss':
-            return self.loss(img, keypoints, **kwargs)
+            return self.loss(inputs, data_samples)
         elif mode == 'predict':
-            return self.predict(img, **kwargs)
+            return self.predict(inputs, data_samples)
         elif mode == 'tensor':
-            return self.predict(img, **kwargs)
+            return self.predict(inputs, data_samples)
         else:
             raise ValueError(
                 f'params mode recive a not exception params:{mode}')
 
-    def loss(self, input, keypoints, **kwargs):
-        x = self.extract_feat(input)
+    def loss(self, inputs, data_samples):
+        # inputs=torch.stack(inputs)
+        x = self.extract_feat(inputs)
         results = dict()
         results.update(
             self.head.loss(
-                x, torch.tensor(keypoints, device=torch.device('cuda:0')),
-                kwargs['hw']))
+                x,
+                torch.tensor(data_samples['keypoints'],
+                             device=torch.device('cuda:0')),
+                data_samples['hw']))
         return results
 
-    def predict(self, input, **kwargs):
-        x = self.extract_feat(input)
-        x = self.head(x)
-        return x
+    def predict(self, inputs, data_samples):
+        # inputs=torch.stack(inputs)
+        feat = self.extract_feat(inputs)
+        x = self.head.predict(feat)
+        res = PoseDataSample(**data_samples)
+        res.results = x
+        res.pred_instances = InstanceData(
+            keypoints=np.array([x.cpu().numpy()]) *
+            data_samples['init_size'][1].cpu().numpy())
+        return [res]
 
     def show_result(self,
                     img_file,
