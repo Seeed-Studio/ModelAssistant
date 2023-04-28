@@ -235,11 +235,11 @@ work_dir = './work_dirs'              # Directory to save the model checkpoints 
 
 ## Parameterized Configuration
 
-When submitting a job using `tools/train.py` or `tools/test.py` from EdgeLab, you can specify `-cfg-options` to temporarily overwrite the configuration.
+When submitting a job using `tools/train.py` or `tools/test.py` from EdgeLab, you can specify `--cfg-options` to temporarily overwrite the configuration.
 
 ::: tip
 
-You can specify configuration options in the order of the dict keys in the original configuration and update the dict chain of configuration keys. For example, `-cfg-options data_root='. /dataset/coco'` change the data root directory of the dataset.
+You can specify configuration options in the order of the dict keys in the original configuration and update the dict chain of configuration keys. For example, `--cfg-options data_root='. /dataset/coco'` change the data root directory of the dataset.
 
 :::
 
