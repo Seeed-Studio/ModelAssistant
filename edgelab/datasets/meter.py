@@ -77,6 +77,7 @@ class MeterData(Dataset, metaclass=ABCMeta):
         ann = copy.deepcopy(self.ann_ls[item])
         img_file = ann['image_file']
         self.img = cv2.imread(img_file)
+        ann['init_size']=self.img.shape
         self.img = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
         points = ann['keypoints']
         point_num = ann['point_num']
