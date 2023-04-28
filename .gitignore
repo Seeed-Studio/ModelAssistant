@@ -1,4 +1,4 @@
-# Repo-specific GitIgnore ----------------------------------------------------------------------------------------------
+# Repo specific
 *.jpg
 *.jpeg
 *.png
@@ -8,7 +8,7 @@
 *.tiff
 *.heic
 *.JPG
-//*.JPEG
+*.JPEG
 *.PNG
 *.BMP
 *.TIF
@@ -22,26 +22,24 @@
 *.json
 *.cfg
 *.uf2
+*.csv
 .ei-block-config
-!setup.cfg
-
-storage.googleapis.com
 
 
-results*.csv
-
-# Datasets -------------------------------------------------------------------------------------------------------------
+# Datasets
 datasets/
 coco/
 coco128/
 VOC/
 
-# MATLAB GitIgnore -----------------------------------------------------------------------------------------------------
+
+# MATLAB
 *.m~
 *.mat
 !targets*.mat
 
-# Neural Network weights -----------------------------------------------------------------------------------------------
+
+# Weights
 *.weights
 *.pt
 *.pb
@@ -54,19 +52,20 @@ VOC/
 *_saved_model/
 *_web_model/
 *_openvino_model/
-darknet53.conv.74
-yolov3-tiny.conv.15
+*.conv.*
 
-# GitHub Python GitIgnore ----------------------------------------------------------------------------------------------
-# Byte-compiled / optimized / DLL files
+
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
+
+# Shared library
 *.so
 
-# Distribution / packaging
+
+# Distribution, packaging
 .Python
 env/
 build/
@@ -88,16 +87,16 @@ wheels/
 
 
 # PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+
 
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Unit test / coverage reports
+
+# Unit test, coverage reports
 htmlcov/
 .tox/
 .coverage
@@ -108,77 +107,85 @@ coverage.xml
 *.cover
 .hypothesis/
 
+
 # Translations
 *.mo
 *.pot
+
 
 # Django stuff:
 *.log
 local_settings.py
 
+
 # Flask stuff:
 instance/
 .webassets-cache
 
+
 # Scrapy stuff:
 .scrapy
+
 
 # Sphinx documentation
 docs/_build/
 !docs/config.json
 
+
 # PyBuilder
 target/
+
 
 # Jupyter Notebook
 .ipynb_checkpoints
 
+
 # pyenv
 .python-version
+
 
 # celery beat schedule file
 celerybeat-schedule
 
+
 # SageMath parsed files
 *.sage.py
 
+
 # dotenv
 .env
+
 
 # virtualenv
 .venv*
 venv*/
 ENV*/
 
+
 # Spyder project settings
 .spyderproject
 .spyproject
 
+
 # Rope project settings
 .ropeproject
 
+
 # mkdocs documentation
 /site
+
 
 # mypy
 .mypy_cache/
 
 
-# https://github.com/github/gitignore/blob/master/Global/macOS.gitignore -----------------------------------------------
-
-# General
+# macOS
 .DS_Store
 .AppleDouble
 .LSOverride
-
-# Icon must end with two \r
 Icon
 Icon?
-
-# Thumbnails
 ._*
-
-# Files that might appear in the root of a volume
 .DocumentRevisions-V100
 .fseventsd
 .Spotlight-V100
@@ -186,20 +193,14 @@ Icon?
 .Trashes
 .VolumeIcon.icns
 .com.apple.timemachine.donotpresent
-
-# Directories potentially created on remote AFP share
 .AppleDB
 .AppleDesktop
 Network Trash Folder
 Temporary Items
 .apdisk
 
-
-# https://github.com/github/gitignore/blob/master/Global/JetBrains.gitignore
-# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
-# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
-
-# User-specific stuff:
+ 
+# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm (https://github.com/github/gitignore/blob/master/Global/JetBrains.gitignore)
 .idea/*
 .idea/**/workspace.xml
 .idea/**/tasks.xml
@@ -207,8 +208,6 @@ Temporary Items
 .html  # Bokeh Plots
 .pg  # TensorFlow Frozen Graphs
 .avi # videos
-
-# Sensitive or high-churn files:
 .idea/**/dataSources/
 .idea/**/dataSources.ids
 .idea/**/dataSources.local.xml
@@ -216,27 +215,29 @@ Temporary Items
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 
+
 # Gradle:
 .idea/**/gradle.xml
 .idea/**/libraries
+
 
 # CMake
 cmake-build-debug/
 cmake-build-release/
 
+
 # Mongo Explorer plugin:
 .idea/**/mongoSettings.xml
+
 
 ## File-based project format:
 *.iws
 
-## Plugin-specific files:
 
 # IntelliJ
 out/
-
-# mpeltonen/sbt-idea plugin
 .idea_modules/
+
 
 # JIRA plugin
 atlassian-ide-plugin.xml
@@ -250,9 +251,37 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-#default work dir
+
+# Default work dir
 work_dirs/
 
-# docs
-!docs/_static/*.*
-!docs/_static/images/*.*
+
+# Docs
+!docs/public/*.*
+!docs/static/*.*
+!docs/static/images/*.*
+
+
+# Node & Yarn
+!package.json
+!package-lock.json
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+node_modules/
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+
+# VitePress
+dist
+cache
+temp
+!docs/public/**

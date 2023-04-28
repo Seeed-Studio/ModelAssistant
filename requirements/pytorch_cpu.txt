@@ -1,0 +1,5 @@
+-i https://download.pytorch.org/whl/cpu
+
+torch==2.0.0
+torchaudio==2.0.0
+torchvision==0.15.0
