@@ -37,7 +37,7 @@ fi
 
 # create conda env and install deps
 echo -en "Creating conda env and installing base deps... "
-if [ ! "${CUDA_AVAILABLE}" ]; then
+if [ "${CUDA_AVAILABLE}" ]; then
     echo -en "${BLUE}Using CUDA${RST}\n"
     conda env create -n edgelab -f environment.yml
 else
