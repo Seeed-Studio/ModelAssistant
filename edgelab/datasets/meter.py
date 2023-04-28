@@ -4,18 +4,16 @@ import copy
 import json
 import os.path as osp
 from abc import ABCMeta
+from typing import Optional, Sequence
 
 import cv2
-import torch
 import numpy as np
-import albumentations as A
 from torchvision import transforms
 from torch.utils.data import Dataset
 from edgelab.registry import DATASETS
-from mmpose.structures import PoseDataSample
 
 from .utils.download import check_file
-from .pipelines.pose_transform import Pose_Compose
+from .pipelines.composition import AlbCompose
 
 
 def calc_angle(x1, y1, x2, y2):
@@ -36,17 +34,33 @@ def calc_angle(x1, y1, x2, y2):
 
 @DATASETS.register_module()
 class MeterData(Dataset, metaclass=ABCMeta):
+    """
+    The meter data set class, this class is mainly for the data set of 
+    the pointer table, the data set is marked in a format similar to the 
+    key point detection
+    
+    Args:
+        data_root: The root path of the dataset
+        index_file: The path of the annotation file or the folder path
+            of the annotation file
+        img_dir: The folder path of the image data, which needs to be 
+            the image file name that can be found in the corresponding 
+            annotation file
+        pipeline: The option to do data enhancement on image data, which
+            needs to be in list format
+        format: format of keypoints. Should be 'xy', 'yx', 'xya', 'xys', 'xyas', 'xysa'
+    
+    """
     CLASSES = ('meter')
 
     def __init__(self,
-                 data_root,
+                 data_root: str,
                  index_file: str,
-                 img_dir: str = None,
-                 pipeline=None,
-                 format='xy',
-                 test_mode=None):
+                 img_dir: Optional[str] = None,
+                 pipeline: Optional[Sequence[dict]] = None,
+                 format: str = 'xy'):
         super(MeterData, self).__init__()
-        self.metainfo=dict()
+        self.metainfo = dict()
 
         self.data_root = check_file(data_root)
         self.img_dir = img_dir  #todo
@@ -59,25 +73,25 @@ class MeterData(Dataset, metaclass=ABCMeta):
         if osp.isdir(index_file):
             file_ls = os.listdir(index_file)
             file_ls = [osp.join(index_file, i) for i in file_ls]
-
             self.parse_jsons(file_ls)
+        elif index_file.endswith('txt'):
+            self.parse_txt(index_file)
+        elif index_file.endswith('json'):
+            self.parse_json(index_file)
         else:
-            if index_file.endswith('txt'):
-                with open(index_file, 'r') as f:
-                    self.lines = f.readlines()
-                self.parse_txt()
-            elif index_file.endswith('json'):
-                self.parse_json(index_file)
+            raise ValueError(
+                'The parameter index_file must be a folder path',
+                ' or a file in txt or json format, but the received ',
+                f'value is {index_file}')
 
-        self.transforms = Pose_Compose(
-            pipeline, keypoint_params=A.KeypointParams(format))
+        self.transforms = AlbCompose(pipeline, keypoint_params=format)
         self.totensor = transforms.Compose([transforms.ToTensor()])
 
-    def __getitem__(self, item) -> dict:
+    def __getitem__(self, item: int) -> dict:
         ann = copy.deepcopy(self.ann_ls[item])
         img_file = ann['image_file']
         self.img = cv2.imread(img_file)
-        ann['init_size']=self.img.shape
+        ann['init_size'] = self.img.shape
         self.img = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
         points = ann['keypoints']
         point_num = ann['point_num']
@@ -99,39 +113,28 @@ class MeterData(Dataset, metaclass=ABCMeta):
         ann['image_file'] = img_file
         ann['hw'] = [h, w]
 
-        return {'inputs': img,'data_samples':ann}
+        return {'inputs': img, 'data_samples': ann}
 
     def __len__(self) -> int:
         return len(self.ann_ls)
 
-    def evaluate(self, results, **kwargs):
-        return {
-            'loss':
-            torch.mean(
-                torch.tensor([
-                    i['loss'] for i in results if 'loss' in i.keys()
-                ])).cpu().item(),
-            'Acc':
-            torch.mean(
-                torch.tensor([i['Acc'] for i in results
-                              if 'Acc' in i.keys()])).cpu().item()
-        }
+    def parse_jsons(self, index_dir: str) -> None:
+        """
+        When the annotation file is in json format, parse the corresponding annotation file
+        """
+        file_ls = os.listdir(index_dir)
+        file_ls = [osp.join(index_dir, i) for i in file_ls]
 
-    def parse_json(self, json_path) -> None:
-        pass  #todo
-
-    def parse_jsons(self, json_ls) -> None:
         self.ann_ls = []
-        for js in json_ls:
-
+        for js in file_ls:
             tmp = {}
             point = []
             file = json.load(open(js, 'r'))
             img_path = file['imagePath']
-            img_path = osp.join(
-                self.img_dir,
-                img_path.split('\\')[-1]
-                if '\\' in img_path else img_path.split('/')[-1])
+            
+            sep='\\' if '\\' in img_path else '/'
+            img_path = osp.join(img_path.split(sep)[-1])
+            
             tmp['image_file'] = img_path
 
             for points in file['shapes']:
@@ -140,7 +143,13 @@ class MeterData(Dataset, metaclass=ABCMeta):
             tmp['point_num'] = len(file['shapes'])
             self.ann_ls.append(tmp)
 
-    def parse_txt(self) -> None:
+    def parse_txt(self, index_file: str) -> None:
+        """
+        When the comment file is in txt format, parse the corresponding comment file
+        """
+        with open(index_file, 'r') as f:
+            self.lines = f.readlines()
+
         self.ann_ls = []
         for ann in self.lines:
             line = ann.strip().split()
@@ -152,3 +161,6 @@ class MeterData(Dataset, metaclass=ABCMeta):
                 'keypoints': points,
                 'point_num': point_num
             })
+
+    def parse_json(self, json_path: str) -> None:
+        pass  #todo

@@ -12,7 +12,7 @@ from torchvision.transforms import ToTensor
 from mmengine.registry import DATASETS
 from sklearn.metrics import confusion_matrix
 
-from .pipelines.pose_transform import Pose_Compose
+from .pipelines.composition import AlbCompose
 
 
 @DATASETS.register_module()
@@ -35,7 +35,7 @@ class FomoDatasets(Dataset):
             ann_file = os.path.join(data_root, ann_file)
 
         self.bbox_params = bbox_params
-        self.transform = Pose_Compose(pipeline,
+        self.transform = AlbCompose(pipeline,
                                       bbox_params=A.BboxParams(**bbox_params))
         # load data with coco format
         self.data = torchvision.datasets.CocoDetection(
