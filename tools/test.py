@@ -16,6 +16,7 @@ from mmengine.hooks import Hook
 from mmengine.runner import Runner
 from mmdet.utils import setup_cache_size_limit_of_dynamo
 
+from tools.utils.config import load_config
 import edgelab.models
 import edgelab.datasets
 import edgelab.evaluation
@@ -110,7 +111,8 @@ def main():
     setup_cache_size_limit_of_dynamo()
 
     # load config
-    cfg = Config.fromfile(args.config)
+    config_data = load_config(args.config,args.cfg_options)
+    cfg = Config.fromstring(config_data,'.'+ args.config.split('.')[-1])
     cfg = merge_args(cfg, args) # pose
     cfg.launcher = args.launcher
     if args.cfg_options is not None:

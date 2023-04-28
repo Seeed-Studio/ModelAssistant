@@ -1,7 +1,8 @@
 import re
 import os.path as osp
 
-from mmcv.utils import Config
+from mmengine.config import Config
+# from mmcv.utils import Config
 
 
 def load_config(filename, args=None):
