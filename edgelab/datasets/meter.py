@@ -12,6 +12,7 @@ import albumentations as A
 from torchvision import transforms
 from torch.utils.data import Dataset
 from edgelab.registry import DATASETS
+from mmpose.structures import PoseDataSample
 
 from .utils.download import check_file
 from .pipelines.pose_transform import Pose_Compose
@@ -45,6 +46,7 @@ class MeterData(Dataset, metaclass=ABCMeta):
                  format='xy',
                  test_mode=None):
         super(MeterData, self).__init__()
+        self.metainfo=dict()
 
         self.data_root = check_file(data_root)
         self.img_dir = img_dir  #todo
@@ -96,7 +98,7 @@ class MeterData(Dataset, metaclass=ABCMeta):
         ann['image_file'] = img_file
         ann['hw'] = [h, w]
 
-        return ann
+        return {'inputs': img,'data_samples':ann}
 
     def __len__(self) -> int:
         return len(self.ann_ls)
