@@ -1,17 +1,22 @@
-# visualize
-tensorboard
+# common
+numpy==1.23.5
+pandas==2.0.0
+pyyaml==6.0
 scikit-image==0.20.0
 scikit-learn==1.2.2
+
+# visualize
+tensorboard
 tqdm==4.65.0
 
 # openmmlab package manager
 openmim==0.3.7
-packaging==23.1 
+packaging==23.1
+
+# sound
+soundfile==0.12.1
 
 # vision
 opencv-python==4.7.0.72
 albumentations==1.3.0
-pyyaml==6.0
 pillow==9.4.0
-pandas==2.0.0
-numpy==1.23.5

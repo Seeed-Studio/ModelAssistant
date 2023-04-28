@@ -4,7 +4,6 @@ about: Create a report to help us improve
 title: ''
 labels: ''
 assignees: ''
-
 ---
 
 **Describe the bug**
@@ -15,10 +14,9 @@ Environment you use when bug appears:
 1. Python version
 2. PyTorch Version
 3. MMCV Vesion
-4. Edgelab version
-4. code you run
-5. the detailed error
-
+4. EdgeLab Version
+4. Code you run
+5. The detailed error
 
 **Additional context**
 Add any other context about the problem here.
