@@ -124,8 +124,7 @@ model=dict(
     backbone=dict(
         type='MobileNetV2',
         widen_factor=0.35,
-        out_indices=(2, )
-    ),                                # 主干网络配置
+        out_indices=(2, )),           # 主干网络配置
     head=dict(
         type='Fomo_Head',             # 检测头配置
         input_channels=16,            # 输入通道数，与 Neck 的输入通道一致
@@ -135,11 +134,9 @@ model=dict(
         loss_cls=dict(
             type='BCEWithLogitsLoss', # Sigmoid 层和 BCELoss 结合的损失函数
             reduction='none',
-            pos_weight=40
-        ),
+            pos_weight=40),
         loss_bg=dict(type='BCEWithLogitsLoss', reduction='none'),
-        cls_weight=40,                # pos_weight 的参数值 
-    ),
+        cls_weight=40)                # pos_weight 的参数值
 )
 ```
 
@@ -163,8 +160,7 @@ train_pipeline=[              # 训练数据加载管道
     dict(type='HorizontalFlip', p=0.5)         # 围绕 Y 轴水平翻转
 ]
 test_pipeline=[dict(type='Resize', height=height, width=width,
-                    p=1)                       # 将输入调整为给定的高度和宽度
-]
+                    p=1)]                      # 将输入调整为给定的高度和宽度
 
 data=dict(samples_per_gpu=batch_size,          # 训练期间单个 GPU 的批量大小
           workers_per_gpu=workers,             # 验证期间单个 GPU 预读取数据的线程数
@@ -205,13 +201,13 @@ optimizer_config=dict(grad_clip=dict(max_norm=35, norm_type=2)) # 用于构建�
 
 :::tip
 
-关于 Hook 的更多应用细节，请参考 [MMEngine - HOOK](https://mmengine.readthedocs.io/zh_CN/latest/tutorials/hook.html)。
+关于 Hook 的更多应用细节，请参考 [MMEngine - Hook](https://mmengine.readthedocs.io/zh_CN/latest/tutorials/hook.html)。
 
 :::
 
 ### 配置文件继承
 
-在目录 `config/_base_` 下包含默认的配置文件，由 `_base_` 中的组件组成的配置文件称为原语。  
+在目录 `config/_base_` 下包含默认的配置文件，由 `_base_` 中的组件组成的配置文件称为原始配置。
 
 为了便于测试，我们建议使用者继承现有的配置文件。例如，在 FOMO 模型的训练配置文件中设置有 `_base_='../_base_/default_runtime_det.py'`，然后在继承文件的基础上，我们修改配置文件中的必要字段。
 
@@ -252,4 +248,4 @@ work_dir='./work_dirs'                # 用于保存当前实验的模型检查�
 
 - 不同模型的配置文件会有一定的差异,我如何理解?
 
-    更多细节请参考 [MMDet Config](https://mmdetection.readthedocs.io/en/latest/tutorials/config.html)，[MMPose Config](https://mmpose.readthedocs.io/en/latest/tutorials/0_config.html) 和 [MMCls Config](https://mmclassification.readthedocs.io/en/latest/tutorials/config.html)。
+    更多细节请参考 [MMDet Config](https://mmdetection.readthedocs.io/zh_CN/latest/tutorials/config.html)，[MMPose Config](https://mmpose.readthedocs.io/zh_CN/latest/tutorials/0_config.html) 和 [MMCls Config](https://mmclassification.readthedocs.io/zh_CN/latest/tutorials/config.html)。
