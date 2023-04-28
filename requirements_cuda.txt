@@ -1,5 +1,5 @@
 # pip
--r requirements/pytorch_cpu.txt
+-r requirements/pytorch_cuda.txt
 -r requirements/base.txt
 -r requirements/inference.txt
 

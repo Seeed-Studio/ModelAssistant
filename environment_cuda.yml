@@ -14,5 +14,4 @@ dependencies:
   - pip=23.0.1
   - pip:
     - -r requirements/base.txt
-    - -r requirements/pytorch.txt
     - -r requirements/inference.txt

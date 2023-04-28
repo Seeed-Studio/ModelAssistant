@@ -4,7 +4,6 @@
 # configs
 INSTALL_OPTIONAL=true
 INSTALL_DOCS=false
-CONDA_AVAILABLE="$(command -v conda)"
 CUDA_AVAILABLE="$(command -v nvidia-smi)"
 
 
@@ -13,16 +12,6 @@ RED='\033[031m'
 GREEN='\033[032m'
 BLUE='\033[034m' 
 RST='\033[m'
-
-
-# check conda
-echo -en "Checking if conda installed... "
-if [ ! "${CONDA_AVAILABLE}" ]; then
-    echo -en "${RED}Not found${RST}\n"
-    exit 1
-else
-    echo -en "${GREEN}Path: $(which conda)${RST}\n"
-fi
 
 
 # check cuda
@@ -35,24 +24,19 @@ else
 fi
 
 
-# create conda env and install deps
-echo -en "Creating conda env and installing base deps... "
+# install base deps
+echo -en "Installing base deps... "
 if [ ! "${CUDA_AVAILABLE}" ]; then
     echo -en "${BLUE}Using CUDA${RST}\n"
-    conda env create -n edgelab -f environment.yml
+    pip3 -r requirements/pytorch_cuda.txt && \
+    pip3 -r requirements/base.txt
 else
     echo -en "${BLUE}Using CPU${RST}\n"
-    conda env create -n edgelab -f environment_gpu.yml
+    pip3 -r requirements/pytorch_cpu.txt && \
+    pip3 -r requirements/base.txt
 fi
 if [ "$?" != 0 ]; then
-    echo -en "Conda create env failed... ${RED}Exiting${RST}\n"
-    exit 1
-fi
-
-eval "$(conda shell.bash hook)" && \
-conda activate edgelab
-if [ "$?" != 0 ]; then
-    echo -en "Conda active env failed... ${RED}Exiting${RST}\n"
+    echo -en "Install base deps failed... ${RED}Exiting${RST}\n"
     exit 1
 fi
 
