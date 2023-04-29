@@ -14,6 +14,5 @@ model = dict(
                       reduction='none',
                       pos_weight=100),
         loss_bg=dict(type='BCEWithLogitsLoss', reduction='none'),
-        cls_weight=100,
     ),
 )

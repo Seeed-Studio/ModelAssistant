@@ -14,9 +14,9 @@ from mmengine.registry import RUNNERS
 from mmengine.runner import Runner
 from mmengine.utils import digit_version
 from mmengine.utils.dl_utils import TORCH_VERSION
-
 from mmdet.utils import setup_cache_size_limit_of_dynamo
 
+from tools.utils.config import load_config
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
@@ -191,7 +191,8 @@ def main():
     setup_cache_size_limit_of_dynamo()
 
     # load config
-    cfg = Config.fromfile(args.config)
+    config_data = load_config(args.config,args.cfg_options)
+    cfg = Config.fromstring(config_data,'.'+ args.config.split('.')[-1])
     cfg = merge_args(cfg,args)
     
     # set preprocess configs to model

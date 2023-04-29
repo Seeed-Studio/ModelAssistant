@@ -9,5 +9,5 @@ __all__ = [
     'SoundNetRaw', 'Speechcommand', 'PFLD', 'Audio_head', 'Audio_classify',
     'LabelSmoothCrossEntropyLoss', 'PFLDLoss', 'PFLDhead', 'FastestDet', 'SPP',
     'NLLLoss', 'BCEWithLogitsLoss', 'Fomo_Head', 'CustomShuffleNetV2',
-    'FomoLoss','Fomo', 'AxesNet', 'AccelerometerClassifier'
+    'FomoLoss','Fomo', 'AxesNet', 'AccelerometerClassifier','FPN'
 ]

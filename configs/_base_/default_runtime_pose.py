@@ -3,11 +3,11 @@ default_scope = 'edgelab'
 # hooks
 default_hooks = dict(
     timer=dict(type='IterTimerHook'),
-    logger=dict(type='LoggerHook', interval=50),
+    logger=dict(type='TextLoggerHook', interval=50),
     param_scheduler=dict(type='ParamSchedulerHook'),
     checkpoint=dict(type='CheckpointHook', interval=10),
     sampler_seed=dict(type='DistSamplerSeedHook'),
-    # visualization=dict(type='PoseVisualizationHook', enable=False),
+    visualization=dict(type='Posevisualization'),
 )
 
 # custom hooks
@@ -30,8 +30,8 @@ vis_backends = [
     # dict(type='TensorboardVisBackend'),
     # dict(type='WandbVisBackend'),
 ]
-# visualizer = dict(
-    # type='PoseLocalVisualizer', vis_backends=vis_backends, name='visualizer')
+visualizer = dict(
+    type='mmpose.PoseLocalVisualizer',radius=1, vis_backends=vis_backends, name='visualizer')
 
 # logger
 log_processor = dict(

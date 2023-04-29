@@ -13,7 +13,7 @@ model = dict(
               act_cfg='ReLU6',
               loss_cls=dict(type='BCEWithLogitsLoss', reduction='mean'),
               loss_bg=dict(type='BCEWithLogitsLoss', reduction='mean'),
-              cls_weight=100),
+              ),
 )
 
 # dataset settings

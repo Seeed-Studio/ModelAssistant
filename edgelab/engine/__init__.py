@@ -1,7 +1,8 @@
 from .runner import GetEpochBasedTrainLoop
-from .hooks import TextLoggerHook, TensorboardLoggerHook, WandbLoggerHook
+from .hooks import TextLoggerHook, TensorboardLoggerHook, WandbLoggerHook, Posevisualization
 
 __all__ = [
-    'TextLoggerHook', 'TensorboardLoggerHook',
-    'WandbLoggerHook', 'PaviLoggerHook', 'ClearMLLoggerHook', 'GetEpochBasedTrainLoop'
+    'TextLoggerHook', 'TensorboardLoggerHook', 'WandbLoggerHook',
+    'PaviLoggerHook', 'ClearMLLoggerHook', 'GetEpochBasedTrainLoop',
+    'Posevisualization'
 ]

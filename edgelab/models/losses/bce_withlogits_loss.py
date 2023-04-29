@@ -1,5 +1,8 @@
+from typing import Union, Tuple
+
 import torch.nn as nn
 import torch.nn.functional as F
+from torch import Tensor
 
 from edgelab.registry import LOSSES
 from mmdet.models.losses.utils import weighted_loss
@@ -11,26 +14,24 @@ def bcewithlogits_loss(pred, target):
 
 
 @LOSSES.register_module()
-class BCEWithLogitsLoss(nn.Module):
+class BCEWithLogitsLoss(nn.BCEWithLogitsLoss):
 
-    def __init__(self, reduction='mean', loss_weight=1.0) -> None:
-        super().__init__()
-        self.reduction = reduction
-        self.loss_weight = loss_weight
+    def __init__(self,
+                 weight: Union[Tuple[int or float, ...], Tensor, None] = None,
+                 size_average=None,
+                 reduce=None,
+                 reduction: str = 'mean',
+                 pos_weight: Tensor or int or None = None) -> None:
+        if isinstance(weight, (int, float)):
+            weight = Tensor([weight])
 
-    def forward(self,
-                pred,
-                target,
-                weight=None,
-                avg_factor=None,
-                reduction_override=None):
-        assert reduction_override in (None, 'none', 'mean', 'sum')
+        if isinstance(weight, (list, tuple)):
+            weight = Tensor(weight)
 
-        reduction = reduction_override if reduction_override else self.reduction
+        if isinstance(pos_weight, (int, float)):
+            pos_weight = Tensor([pos_weight])
 
-        loss = bcewithlogits_loss(pred,
-                                  target,
-                                  weight,
-                                  reduction=reduction,
-                                  avg_factor=avg_factor)
-        return loss
+        if isinstance(pos_weight, (list, tuple)):
+            pos_weight = Tensor(pos_weight)
+
+        super().__init__(weight, size_average, reduce, reduction, pos_weight)
