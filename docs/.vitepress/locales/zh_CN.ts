@@ -8,7 +8,10 @@ export default defineConfig({
         nav: nav(),
         sidebar: { '/zh_cn': sidebar() },
 
+        darkModeSwitchLabel: '外观切换',
+        outlineTitle: '页面大纲',
         lastUpdatedText: '最后更新于',
+        returnToTopLabel: '返回顶部',
 
         editLink: {
             pattern: 'https://github.com/Seeed-Studio/Edgelab/edit/main/docs/zh_cn/:path',
@@ -103,4 +106,3 @@ function sidebar() {
         }
     ]
 }
-
