@@ -67,8 +67,14 @@ class MeterData(Dataset, metaclass=ABCMeta):
 
         if img_dir and not osp.isabs(img_dir) and self.data_root:
             self.img_dir = osp.join(self.data_root, img_dir)
+
         if not osp.isabs(index_file) and self.data_root:
             index_file = osp.join(self.data_root, index_file)
+
+        if img_dir is None:
+            self.img_dir = osp.join(self.data_root, 'images')
+        elif osp.isabs(img_dir):
+            self.img_dir = img_dir
 
         if osp.isdir(index_file):
             file_ls = os.listdir(index_file)
@@ -131,10 +137,10 @@ class MeterData(Dataset, metaclass=ABCMeta):
             point = []
             file = json.load(open(js, 'r'))
             img_path = file['imagePath']
-            
-            sep='\\' if '\\' in img_path else '/'
+
+            sep = '\\' if '\\' in img_path else '/'
             img_path = osp.join(img_path.split(sep)[-1])
-            
+
             tmp['image_file'] = img_path
 
             for points in file['shapes']:
@@ -153,7 +159,7 @@ class MeterData(Dataset, metaclass=ABCMeta):
         self.ann_ls = []
         for ann in self.lines:
             line = ann.strip().split()
-            img_file = os.path.join(self.data_root, line[0])
+            img_file = os.path.join(self.img_dir, line[0])
             points = np.asarray(line[1:], dtype=np.float32)
             point_num = len(points) // 2
             self.ann_ls.append({
