@@ -44,26 +44,21 @@ class PFLD(BasePoseEstimator):
                 f'params mode recive a not exception params:{mode}')
 
     def loss(self, inputs, data_samples):
-        # inputs=torch.stack(inputs)
+
         x = self.extract_feat(inputs)
         results = dict()
-        results.update(
-            self.head.loss(
-                x,
-                torch.tensor(data_samples['keypoints'],
-                             device=torch.device('cuda:0')),
-                data_samples['hw']))
+        results.update(self.head.loss(x, data_samples))
         return results
 
     def predict(self, inputs, data_samples):
-        # inputs=torch.stack(inputs)
         feat = self.extract_feat(inputs)
         x = self.head.predict(feat)
         res = PoseDataSample(**data_samples)
         res.results = x
         res.pred_instances = InstanceData(
-            keypoints=np.array([x.cpu().numpy()]) *
+            keypoints=np.array([x.reshape(4, -1).cpu().numpy()]) *
             data_samples['init_size'][1].cpu().numpy())
+
         return [res]
 
     def show_result(self,

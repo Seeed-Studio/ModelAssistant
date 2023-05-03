@@ -30,7 +30,6 @@ class PFLDhead(nn.Module):
                          1,
                          bias=False,
                          padding=0)
-        # self.conv2 = nn.Conv2d(feature_num[0], feature_num[1], 7, 1)
 
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.fc = nn.Linear(input_channel + sum(feature_num), num_point * 2)
@@ -54,13 +53,14 @@ class PFLDhead(nn.Module):
 
         return landmarks
 
-    def loss(self, features, labels, hw):
+    def loss(self, features, data_samples):
         preds = self.forward(features)
 
-        loss = self.lossFunction(
-            preds, torch.tensor(labels, device=torch.device('cuda:0')))
-        acc = pose_acc(preds.cpu().detach().numpy(), labels, hw)
-        return {"loss": loss, "Acc": torch.tensor(acc)}
+        labels = torch.tensor(data_samples['keypoints'], device=preds.device)
+        loss = self.lossFunction(preds, labels)
+        acc = pose_acc(preds.cpu().detach().numpy(), labels,
+                       data_samples['hw'])
+        return {"loss": loss, "Acc": torch.tensor(acc).clone().detach()}
 
     def predict(self, features):
         return self.forward(features)
