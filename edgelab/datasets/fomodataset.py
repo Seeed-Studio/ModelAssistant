@@ -6,7 +6,6 @@ import torch
 import torchvision
 import numpy as np
 import albumentations as A
-from collections import OrderedDict
 from torch.utils.data import Dataset
 from torchvision.transforms import ToTensor
 from mmengine.registry import DATASETS
@@ -25,8 +24,7 @@ class FomoDatasets(Dataset):
                  bbox_params: dict = dict(format='coco',
                                           label_fields=['class_labels']),
                  ann_file: str = None,
-                 img_prefix: str = None,
-                 test_mode=None) -> None:
+                 img_prefix: str = None) -> None:
         super().__init__()
 
         if not osp.isabs(img_prefix):
@@ -35,6 +33,7 @@ class FomoDatasets(Dataset):
             ann_file = os.path.join(data_root, ann_file)
 
         self.bbox_params = bbox_params
+
         self.transform = AlbCompose(pipeline,
                                       bbox_params=A.BboxParams(**bbox_params))
         # load data with coco format

@@ -64,7 +64,6 @@ val_dataloader = dict(
     sampler=dict(type='DefaultSampler', shuffle=True, round_up=False),
     dataset=dict(type=dataset_type,
                                data_root=data_root,
-                               test_mode=True,
                                ann_file='valid/_annotations.coco.json',
                                img_prefix='valid',
                                pipeline=test_pipeline), )

@@ -6,14 +6,16 @@ model = dict(
                   widen_factor=0.35,
                   out_indices=(2, 3, 5)),
     neck=dict(
-        type='mmdet.FPN',
+        type='FPN',
         in_channels=[16, 24, 56],
-        out_channels=24,
         num_outs=3,
+        out_idx=[0,],
+        out_channels=24,
     ),
     head=dict(
         type='FomoHead',
-        input_channels=[24,24,24],
+        input_channels=[24],
         num_classes=num_classes,
+        act_cfg='ReLU'
     ),
 )
