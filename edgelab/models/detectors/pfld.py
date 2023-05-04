@@ -37,7 +37,7 @@ class PFLD(BasePoseEstimator):
         # if self.with_keypoint:
         #     self.keypoint_head.init_weights()
 
-    def forward(self, inputs, data_samples, mode='tensor'):
+    def forward(self, inputs, data_samples = None, mode='tensor'):
         if mode == 'loss':
             return self.loss(inputs, data_samples)
         elif mode == 'predict':
