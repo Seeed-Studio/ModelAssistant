@@ -40,6 +40,7 @@ export default defineConfig({
         search: { provider: 'local' },
 
         i18nRouting: true,
+        outline: [2, 3],
 
         socialLinks: [
             { icon: 'github', link: 'https://github.com/Seeed-Studio/Edgelab' }
