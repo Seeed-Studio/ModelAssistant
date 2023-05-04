@@ -1,6 +1,6 @@
 _base_ = '../_base_/default_runtime_pose.py'
 
-num_classes = 1
+num_classes = 4
 model = dict(type='PFLD',
              backbone=dict(type='PfldMobileNetV2',
                            inchannel=3,
@@ -15,7 +15,7 @@ model = dict(type='PFLD',
 # dataset settings
 dataset_type = 'MeterData'
 
-data_root = ''
+data_root = ""
 height = 112
 width = 112
 batch_size = 32
@@ -35,7 +35,7 @@ train_pipeline = [
 val_pipeline = [dict(type="Resize", height=height, width=width)]
 
 train_dataloader = dict(
-    batch_size=32,
+    batch_size=16,
     num_workers=2,
     persistent_workers=True,
     drop_last=False,
@@ -43,9 +43,9 @@ train_dataloader = dict(
     sampler=dict(type='DefaultSampler', shuffle=True, round_up=False),
     dataset=dict(type=dataset_type,
                  data_root=data_root,
-                 index_file=r'train/annotations.txt',
-                 pipeline=train_pipeline,
-                 test_mode=False),
+                 img_dir="crop_img/",
+                 index_file=r'ann.txt',
+                 pipeline=train_pipeline),
 )
 
 val_dataloader = dict(
@@ -57,9 +57,9 @@ val_dataloader = dict(
     sampler=dict(type='DefaultSampler', shuffle=False, round_up=False),
     dataset=dict(type=dataset_type,
                  data_root=data_root,
-                 index_file=r'val/annotations.txt',
-                 pipeline=val_pipeline,
-                 test_mode=True),
+                 img_dir="crop_img/",
+                 index_file=r'ann.txt',
+                 pipeline=val_pipeline),
 )
 test_dataloader = val_dataloader
 
