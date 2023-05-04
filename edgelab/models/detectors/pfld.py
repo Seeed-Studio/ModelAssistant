@@ -1,8 +1,5 @@
-import os.path as osp
+from typing import Optional
 
-import cv2
-import mmcv
-import torch
 import numpy as np
 
 from mmpose.models.pose_estimators.base import BasePoseEstimator
@@ -13,12 +10,21 @@ from mmengine.structures.instance_data import InstanceData
 
 @MODELS.register_module()
 class PFLD(BasePoseEstimator):
+    """
+    PFLD: A Practical Facial Landmark Detector: https://arxiv.org/abs/1902.10859
+    Args:
+        backbone(dict): Configuration of pfld model backbone
+        head(dict): Configuration of pfld model head
+        pretrained: Model pre-training weight path
+    """
 
-    def __init__(self, backbone, head, pretrained=None):
+    def __init__(self,
+                 backbone: dict,
+                 head: dict,
+                 pretrained: Optional[str] = None):
         super(PFLD, self).__init__(backbone, head=head)
         self.backbone = MODELS.build(backbone)
         self.head = MODELS.build(head)
-
         self.pretrained = pretrained
 
     def init_weights(self, pretrained=None):
@@ -31,26 +37,25 @@ class PFLD(BasePoseEstimator):
         # if self.with_keypoint:
         #     self.keypoint_head.init_weights()
 
-    def forward(self, inputs, data_samples, mode='loss'):
-
+    def forward(self, inputs, data_samples, mode='tensor'):
         if mode == 'loss':
             return self.loss(inputs, data_samples)
         elif mode == 'predict':
             return self.predict(inputs, data_samples)
         elif mode == 'tensor':
-            return self.predict(inputs, data_samples)
+            return self.forward_(inputs, data_samples)
         else:
             raise ValueError(
                 f'params mode recive a not exception params:{mode}')
 
     def loss(self, inputs, data_samples):
-
         x = self.extract_feat(inputs)
         results = dict()
         results.update(self.head.loss(x, data_samples))
         return results
 
     def predict(self, inputs, data_samples):
+        print(data_samples)
         feat = self.extract_feat(inputs)
         x = self.head.predict(feat)
         res = PoseDataSample(**data_samples)
@@ -61,28 +66,6 @@ class PFLD(BasePoseEstimator):
 
         return [res]
 
-    def show_result(self,
-                    img_file,
-                    keypoints,
-                    show=False,
-                    win_name='img',
-                    save_path=None,
-                    **kwargs):
-        img = mmcv.imread(img_file, channel_order='bgr').copy()
-        h, w = img.shape[:-1]
-        keypoints[::2] = keypoints[::2] * w
-        keypoints[1::2] = keypoints[1::2] * h
-        keypoints = keypoints.cpu().numpy()
-
-        for idx, point in enumerate(keypoints[::2]):
-            if not isinstance(point, (float, int)):
-                img = cv2.circle(img,
-                                 (int(point), int(keypoints[idx * 2 + 1])), 2,
-                                 (255, 0, 0), -1)
-        if show:
-            cv2.imshow(win_name, img)
-            cv2.waitKey(500)
-
-        if save_path:
-            img_name = osp.basename(img_file)
-            cv2.imwrite(osp.join(save_path, img_name), img)
+    def forward_(self, inputs, data_samples):
+        x = self.extract_feat(inputs)
+        return self.head(x)
