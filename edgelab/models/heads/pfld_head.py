@@ -1,3 +1,4 @@
+from typing import Sequence, Optional, Union
 import torch
 import torch.nn as nn
 from edgelab.registry import HEADS, LOSSES
@@ -8,28 +9,42 @@ from edgelab.models.utils.computer_acc import pose_acc
 
 @HEADS.register_module()
 class PFLDhead(nn.Module):
+    """
+    The head of the pfld model mainly uses convolution and global average pooling
+    
+    Args:
+        num_point: The model needs to predict the number of key points, 
+            and set the output of the model according to this value
+        input_channel: The number of channels of the head input feature map
+        feature_num: Number of channels in the middle feature map of the head
+        act_cfg: Configuration of the activation function
+        loss_cfg: Related configuration of model loss function
+    """
 
-    def __init__(self,
-                 num_point=1,
-                 input_channel=16,
-                 feature_num=[32, 32],
-                 loss_cfg=dict(type='PFLDLoss')) -> None:
+    def __init__(
+        self,
+        num_point: int = 1,
+        input_channel: int = 16,
+        feature_num: Sequence[int] = [32, 32],
+        act_cfg: Union[dict, str, None] = "ReLU",
+        loss_cfg: dict = dict(type='PFLDLoss')
+    ) -> None:
         super().__init__()
-
-        self.relu = nn.ReLU(inplace=True)
 
         self.conv1 = CBR(input_channel,
                          feature_num[0],
                          3,
                          2,
                          padding=1,
-                         bias=False)
+                         bias=False,
+                         act=act_cfg)
         self.conv2 = CBR(feature_num[0],
                          feature_num[1],
                          7,
                          1,
                          bias=False,
-                         padding=0)
+                         padding=0,
+                         act=act_cfg)
 
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.fc = nn.Linear(input_channel + sum(feature_num), num_point * 2)
@@ -55,7 +70,7 @@ class PFLDhead(nn.Module):
 
     def loss(self, features, data_samples):
         preds = self.forward(features)
-
+        print('ppp', data_samples)
         labels = torch.tensor(data_samples['keypoints'], device=preds.device)
         loss = self.lossFunction(preds, labels)
         acc = pose_acc(preds.cpu().detach().numpy(), labels,
