@@ -41,9 +41,9 @@ class AlbCompose(A.Compose):
             else:
                 raise TypeError('transform must be callable or a dict, but got'
                                 f' {type(transform)}')
-            keypoint_params = keypoint_params if isinstance(
-                keypoint_params,
-                (dict, KeypointParams)) else A.KeypointParams(keypoint_params)
+            if isinstance(keypoint_params,str):
+                keypoint_params = A.KeypointParams(keypoint_params)
+
         super().__init__(transforms=pose_trans,
                          bbox_params=bbox_params,
                          keypoint_params=keypoint_params,
