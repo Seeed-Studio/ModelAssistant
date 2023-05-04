@@ -55,7 +55,6 @@ class PFLD(BasePoseEstimator):
         return results
 
     def predict(self, inputs, data_samples):
-        print(data_samples)
         feat = self.extract_feat(inputs)
         x = self.head.predict(feat)
         res = PoseDataSample(**data_samples)

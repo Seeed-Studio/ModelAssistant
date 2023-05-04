@@ -70,7 +70,6 @@ class PFLDhead(nn.Module):
 
     def loss(self, features, data_samples):
         preds = self.forward(features)
-        print('ppp', data_samples)
         labels = torch.tensor(data_samples['keypoints'], device=preds.device)
         loss = self.lossFunction(preds, labels)
         acc = pose_acc(preds.cpu().detach().numpy(), labels,
