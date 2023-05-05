@@ -1,11 +1,83 @@
 import re
 import os.path as osp
+import tempfile as tf
+from typing import Union, Sequence
 
 from mmengine.config import Config
-# from mmcv.utils import Config
 
 
-def load_config(filename, args=None):
+def repleace(data, args=None):
+    if not args: return data
+    for key, value in args.items():
+        if isinstance(value, (int, float)):
+            data = re.sub(f"^{key}\s?=\s?[^,{key}].*?[^,{key}]\n",
+                          f'{key}={value}\n',
+                          data,
+                          flags=re.MULTILINE)
+        else:
+            value = value.replace('\\', '/')
+            data = re.sub(f"^{key}\s?=\s?['\"]{{1}}.*?['\"]{{1}}\n",
+                          f'{key}="{value}"\n',
+                          data,
+                          flags=re.MULTILINE)
+    return data
+
+
+def repleace_base_(data: str, base: Union[str, Sequence[str]]) -> str:
+    if isinstance(base, str):
+        pattern = "_base_\s?=\s?[',\"].+?[',\"]"
+        data = re.sub(pattern, f"_base_ = '{base}'", data, flags=re.MULTILINE)
+    elif isinstance(base, (list, tuple)):
+        pattern = "_base_\s?=\s?[\[].+?[\]]"
+        data = re.sub(pattern,
+                      f"_base_ = {str(base)}",
+                      data,
+                      flags=re.MULTILINE)
+
+    return data
+
+
+def load_config(filename, args=None, deep=False, fold=None):
+    with open(filename, 'r', encoding='gb2312') as f:
+        data = f.read()
+        data = repleace(data, args)
+
+    tmp_dict = {}
+    exec(data, tmp_dict)
+    cfg_dir = osp.dirname(filename)
+
+    tmp_file = tf.NamedTemporaryFile(dir=fold.name, delete=False, suffix='.py')
+    if '_base_' in tmp_dict.keys():
+        base = tmp_dict['_base_']
+
+        if isinstance(base, str):
+            _base_path = load_config(osp.join(cfg_dir, base),
+                                     args=args,
+                                     fold=fold)
+            data = repleace_base_(data, _base_path)
+            with open(tmp_file.name, 'w', encoding='gb2312') as f:
+                f.write(data)
+
+        elif isinstance(base, (tuple, list)):
+            _tmp_base = []
+            for _base in base:
+                _base_path = load_config(osp.join(cfg_dir, _base),
+                                         args=args,
+                                         fold=fold)
+                _tmp_base.append(_base_path)
+
+            data = repleace_base_(data, _tmp_base)
+            with open(tmp_file.name, 'w', encoding='gb2312') as f:
+                f.write(data)
+
+    else:
+        with open(tmp_file.name, 'w', encoding='gb2312') as f:
+            f.write(data)
+
+    return tmp_file.name
+
+
+def load_config_(filename, args=None):
     with open(filename, 'r', encoding='gb2312') as f:
         data = f.read()
     tmp_dict = {}
@@ -33,6 +105,7 @@ def load_config(filename, args=None):
                           f'{key}="{value}"\n',
                           data,
                           flags=re.MULTILINE)
+
     return data
 
 

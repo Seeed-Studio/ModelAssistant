@@ -17,6 +17,7 @@ from mmdet.utils import setup_cache_size_limit_of_dynamo
 
 from tools.utils.config import load_config
 
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
     parser.add_argument('task',
@@ -25,15 +26,13 @@ def parse_args():
                         help='Choose training type')
     parser.add_argument('config', help='train config file path')
     parser.add_argument('--work-dir', help='the dir to save logs and models')
-    parser.add_argument(
-        '--amp',
-        action='store_true',
-        default=False,
-        help='enable automatic-mixed-precision training')
-    parser.add_argument(
-        '--auto-scale-lr',
-        action='store_true',
-        help='enable automatically scaling LR.')
+    parser.add_argument('--amp',
+                        action='store_true',
+                        default=False,
+                        help='enable automatic-mixed-precision training')
+    parser.add_argument('--auto-scale-lr',
+                        action='store_true',
+                        help='enable automatically scaling LR.')
     parser.add_argument(
         '--resume',
         nargs='?',
@@ -50,17 +49,15 @@ def parse_args():
         '--show',
         action='store_true',
         help='whether to display the prediction results in a window.')
-    parser.add_argument(
-        '--interval',
-        type=int,
-        default=1,
-        help='visualize per interval samples.')
-    parser.add_argument(
-        '--wait-time',
-        type=float,
-        default=1,
-        help='display time of every window. (second)')
-    
+    parser.add_argument('--interval',
+                        type=int,
+                        default=1,
+                        help='visualize per interval samples.')
+    parser.add_argument('--wait-time',
+                        type=float,
+                        default=1,
+                        help='display time of every window. (second)')
+
     parser.add_argument(
         '--no-validate',
         action='store_true',
@@ -84,11 +81,10 @@ def parse_args():
         'It also allows nested list/tuple values, e.g. key="[(a,b),(c,d)]" '
         'Note that the quotation marks are necessary and that no white space '
         'is allowed.')
-    parser.add_argument(
-        '--launcher',
-        choices=['none', 'pytorch', 'slurm', 'mpi'],
-        default='none',
-        help='job launcher')
+    parser.add_argument('--launcher',
+                        choices=['none', 'pytorch', 'slurm', 'mpi'],
+                        default='none',
+                        help='job launcher')
     # When using PyTorch version >= 2.0.0, the `torch.distributed.launch`
     # will pass the `--local-rank` parameter to `tools/train.py` instead
     # of `--local_rank`.
@@ -98,6 +94,7 @@ def parse_args():
         os.environ['LOCAL_RANK'] = str(args.local_rank)
 
     return args
+
 
 def merge_args(cfg, args):
     """Merge CLI arguments to config."""
@@ -139,7 +136,7 @@ def merge_args(cfg, args):
         cfg.auto_scale_lr.enable = True
 
     # visualization-
-    if args.task=='pose' and (args.show or (args.show_dir is not None)):
+    if args.task == 'pose' and (args.show or (args.show_dir is not None)):
         assert 'visualization' in cfg.default_hooks, \
             'PoseVisualizationHook is not set in the ' \
             '`default_hooks` field of config. Please set ' \
@@ -154,8 +151,8 @@ def merge_args(cfg, args):
 
     if args.cfg_options is not None:
         cfg.merge_from_dict(args.cfg_options)
-    
-    if args.task=='cls':
+
+    if args.task == 'cls':
         # set dataloader args
         default_dataloader_cfg = ConfigDict(
             pin_memory=True,
@@ -164,6 +161,7 @@ def merge_args(cfg, args):
         )
         if digit_version(TORCH_VERSION) < digit_version('1.8.0'):
             default_dataloader_cfg.persistent_workers = False
+
         def set_default_dataloader_cfg(cfg, field):
             if cfg.get(field, None) is None:
                 return
@@ -189,11 +187,17 @@ def main():
     # training speed.
     setup_cache_size_limit_of_dynamo()
 
+    import tempfile as tf
+
     # load config
-    config_data = load_config(args.config,args.cfg_options)
-    cfg = Config.fromstring(config_data,'.'+ args.config.split('.')[-1])
-    cfg = merge_args(cfg,args)
-    
+    tmp_fold = tf.TemporaryDirectory()
+    # Modify and create temporary configuration files
+    config_data = load_config(args.config, args.cfg_options, fold=tmp_fold)
+    # load temporary configuration files
+    cfg = Config.fromfile(config_data)
+    tmp_fold.cleanup()
+    cfg = merge_args(cfg, args)
+
     # set preprocess configs to model
     if 'preprocess_cfg' in cfg:
         cfg.model.setdefault('data_preprocessor',
