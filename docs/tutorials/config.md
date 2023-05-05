@@ -9,7 +9,7 @@ The configuration files used by EdgeLab are located in the `configs` directory, 
 
 ::: code-group
 
-``` [Directory Stracture]
+```sh [Directory Stracture]
 configs
 ├── _base_
 │   ├── datasets
@@ -35,7 +35,7 @@ configs
 └── <Other Tasks...>
 ```
 
-``` [Subfolders for Different Tasks]
+```sh [Subfolders for Different Tasks]
 configs // [!code focus]
 ├── _base_ // [!code focus]
 │   ├── datasets
@@ -61,7 +61,7 @@ configs // [!code focus]
 └── <Other Tasks...> // [!code focus]
 ```
 
-``` [Different Train Pipeline for each Tasks (e.g. FOMO)]
+```sh [Different Train Pipeline for each Tasks (e.g. FOMO)]
 configs // [!code focus]
 ├── _base_
 │   ├── datasets
@@ -143,7 +143,7 @@ model=dict(
 
 Dataset and data pipeline need to be set to build the dataloader. Due to the complexity of this part, we use intermediate variables to simplify the writing of dataloader configs. More complex data argumentation methods can be found in `edgelab/datasets/pipelines` path.
 
-We will demonstrate here the training and testing pipeline for FOMO, which uses the [Custom COCO_MASK Dataset](./datasets/):
+We will demonstrate here the training and testing pipeline for FOMO, which uses the [Custom COCO_MASK Dataset](./datasets):
 
 
 ```python

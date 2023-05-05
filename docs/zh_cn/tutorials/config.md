@@ -9,7 +9,7 @@ EdgeLab 使用的配置文件位于 `configs` 目录下，用于不同任务下�
 
 ::: code-group
 
-``` [整体结构]
+```sh [整体结构]
 configs
 ├── _base_
 │   ├── datasets
@@ -35,7 +35,7 @@ configs
 └── <Other Tasks...>
 ```
 
-``` [按不同任务分类]
+```sh [按不同任务分类]
 configs // [!code focus]
 ├── _base_ // [!code focus]
 │   ├── datasets
@@ -61,7 +61,7 @@ configs // [!code focus]
 └── <Other Tasks...> // [!code focus]
 ```
 
-``` [各任务中配置有不同的训练管线 (如 FOMO)]
+```sh [各任务中配置有不同的训练管线 (如 FOMO)]
 configs // [!code focus]
 ├── _base_
 │   ├── datasets
@@ -144,7 +144,7 @@ model=dict(
 
 在设置好网络模型后，我们还需要设置数据集和数据加载管道来构建数据加载器。由于这部分的复杂性，我们使用中间变量来简化数据加载器配置的编写。完整的数据增强方法可以在 `edgelab/datasets/pipelines` 文件夹中找到。
 
-我们将在这里演示 FOMO 的训练和测试管线，该管线使用了[自定义的 COCO_MASK 数据集](./datasets/):
+我们将在这里演示 FOMO 的训练和测试管线，该管线使用了[自定义的 COCO_MASK 数据集](./datasets):
 
 ```python
 dataset_type='FomoDatasets'   # 数据集类型，用于定义数据集

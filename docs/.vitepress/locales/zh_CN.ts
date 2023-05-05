@@ -48,16 +48,10 @@ function sidebar() {
             collapsed: false,
             items: [
                 { text: '模型配置', link: '/zh_cn/tutorials/config' },
-                {
-                    text: '数据集',
-                    link: '/zh_cn/tutorials/datasets/index',
-                    items: [
-                        { text: '自定义数据集', link: '/zh_cn/tutorials/datasets/custom' }
-                    ]
-                },
+                { text: '数据集', link: '/zh_cn/tutorials/datasets' },
                 {
                     text: '模型训练',
-                    link: '/zh_cn/tutorials/training/index',
+                    link: '/zh_cn/tutorials/training/overview',
                     items: [
                         { text: 'FOMO 模型', link: '/zh_cn/tutorials/training/fomo' },
                         { text: 'PFLD 模型', link: '/zh_cn/tutorials/training/pfld' }
@@ -65,7 +59,7 @@ function sidebar() {
                 },
                 {
                     text: '模型导出',
-                    link: '/zh_cn/tutorials/export/index',
+                    link: '/zh_cn/tutorials/export/overview',
                     items: [
                         { text: 'PyTorch 转 ONNX', link: '/zh_cn/tutorials/export/pytorch_2_onnx' },
                         { text: 'PyTorch 转 TFLite', link: '/zh_cn/tutorials/export/pytorch_2_tflite' }
