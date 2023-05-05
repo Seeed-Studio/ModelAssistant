@@ -11,7 +11,7 @@
 
 1. 参考[互联网数据集 - EdgeLab - COCO_MASK 数据集](../datasets.md#EdgeLab)下载数据集并完成数据集的解压。
 
-2. 记住数据集解压后的**文件夹路径** (如: `datasets\coco_mask`)，在之后修改配置文件时需要使用该文件夹路径。
+2. 记住数据集解压后的**文件夹路径** (如: `datasets\mask`)，在之后修改配置文件时需要使用该文件夹路径。
 
 
 ## 选择配置文件
@@ -131,7 +131,7 @@ python3 tools/train.py \
     det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
     --cfg-options \
-        data_root='datasets/coco_mask' \
+        data_root='datasets/mask' \
         epochs=50
 ```
 
@@ -166,7 +166,7 @@ python3 tools/train.py \
     --work-dir work_dir \
     --gpu-id 0 \
     --cfg-options \
-        data_root='datasets/coco_mask' \
+        data_root='datasets/mask' \
         epochs=50
 ```
 
@@ -177,7 +177,7 @@ python3 tools/train.py \
     --work-dir work_dir \
     --gpu-id 0 \
     --cfg-options \
-        data_root='datasets/coco_mask' \
+        data_root='datasets/mask' \
         epochs=50
 ```
 
@@ -188,7 +188,7 @@ python3 tools/train.py \
     --work-dir work_dir \ // [!code focus]
     --gpu-id 0 \
     --cfg-options \
-        data_root='datasets/coco_mask' \
+        data_root='datasets/mask' \
         epochs=50
 ```
 
@@ -199,7 +199,7 @@ python3 tools/train.py \
     --work-dir work_dir \
     --gpu-id 0 \ // [!code focus]
     --cfg-options \
-        data_root='datasets/coco_mask' \
+        data_root='datasets/mask' \
         epochs=50
 ```
 
@@ -210,7 +210,7 @@ python3 tools/train.py \
     --work-dir work_dir \
     --gpu-id 0 \
     --cfg-options \ // [!code focus]
-        data_root='datasets/coco_mask' \ // [!code focus]
+        data_root='datasets/mask' \ // [!code focus]
         epochs=50 // [!code focus]
 ```
 

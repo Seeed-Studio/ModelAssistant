@@ -11,7 +11,7 @@ EdgeLab uses [COCO_MASK Datasets](../datasets.md#EdgeLab) by default to train th
 
 1. Please refer to [Internet Datasets - EdgeLab - COCO_MASK Dataset](../datasets.md#EdgeLab) to download and unpack the dataset.
 
-2. Remember its **folder path** (e.g. `datasets\coco_mask`) of the unpacked datasets, you may need to use this folder path later.
+2. Remember its **folder path** (e.g. `datasets\mask`) of the unpacked datasets, you may need to use this folder path later.
 
 
 ## Choose a Configuration
@@ -131,7 +131,7 @@ python3 tools/train.py \
     det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
     --cfg-options \
-        data_root='datasets/coco_mask' \
+        data_root='datasets/mask' \
         epochs=50
 ```
 
@@ -166,7 +166,7 @@ python3 tools/train.py \
     --work-dir work_dir \
     --gpu-id 0 \
     --cfg-options \
-        data_root='datasets/coco_mask' \
+        data_root='datasets/mask' \
         epochs=50
 ```
 
@@ -177,7 +177,7 @@ python3 tools/train.py \
     --work-dir work_dir \
     --gpu-id 0 \
     --cfg-options \
-        data_root='datasets/coco_mask' \
+        data_root='datasets/mask' \
         epochs=50
 ```
 
@@ -188,7 +188,7 @@ python3 tools/train.py \
     --work-dir work_dir \ // [!code focus]
     --gpu-id 0 \
     --cfg-options \
-        data_root='datasets/coco_mask' \
+        data_root='datasets/mask' \
         epochs=50
 ```
 
@@ -199,7 +199,7 @@ python3 tools/train.py \
     --work-dir work_dir \
     --gpu-id 0 \ // [!code focus]
     --cfg-options \
-        data_root='datasets/coco_mask' \
+        data_root='datasets/mask' \
         epochs=50
 ```
 
@@ -210,7 +210,7 @@ python3 tools/train.py \
     --work-dir work_dir \
     --gpu-id 0 \
     --cfg-options \ // [!code focus]
-        data_root='datasets/coco_mask' \ // [!code focus]
+        data_root='datasets/mask' \ // [!code focus]
         epochs=50 // [!code focus]
 ```
 
