@@ -190,12 +190,14 @@ def main():
     import tempfile as tf
 
     # load config
-    tmp_fold = tf.TemporaryDirectory()
+    tmp_folder = tf.TemporaryDirectory()
     # Modify and create temporary configuration files
-    config_data = load_config(args.config, args.cfg_options, fold=tmp_fold)
+    config_data = load_config(args.config,
+                              folder=tmp_folder.name,
+                              cfg_options=args.cfg_options)
     # load temporary configuration files
     cfg = Config.fromfile(config_data)
-    tmp_fold.cleanup()
+    tmp_folder.cleanup()
     cfg = merge_args(cfg, args)
 
     # set preprocess configs to model

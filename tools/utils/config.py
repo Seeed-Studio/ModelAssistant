@@ -1,12 +1,22 @@
 import re
 import os.path as osp
 import tempfile as tf
-from typing import Union, Sequence
+from typing import Union, Sequence, Optional
 
 from mmengine.config import Config
 
 
-def repleace(data, args=None):
+def replace(data: str, args: Optional[dict] = None) -> str:
+    """ 
+    Replace the basic configuration items in the configuration file
+    
+    Args:
+        data(str): the string to be replaced
+        args(dict): the replaced value
+        
+    Returns:
+        data(str): the replaced string
+    """
     if not args: return data
     for key, value in args.items():
         if isinstance(value, (int, float)):
@@ -23,7 +33,17 @@ def repleace(data, args=None):
     return data
 
 
-def repleace_base_(data: str, base: Union[str, Sequence[str]]) -> str:
+def replace_base_(data: str, base: Union[str, Sequence[str]]) -> str:
+    """
+    Replace the _base_ configuration item in the configuration file
+    
+    Args:
+        data(str): the string to be replaced
+        base(str|[str]): the replaced value
+        
+    Returns: 
+        data(str): the replaced string
+    """
     if isinstance(base, str):
         pattern = "_base_\s?=\s?[',\"].+?[',\"]"
         data = re.sub(pattern, f"_base_ = '{base}'", data, flags=re.MULTILINE)
@@ -37,71 +57,60 @@ def repleace_base_(data: str, base: Union[str, Sequence[str]]) -> str:
     return data
 
 
-def load_config(filename, args=None, deep=False, fold=None):
+def load_config(filename: str,
+                folder: str,
+                cfg_options: Optional[dict] = None) -> str:
+    """
+    Load the configuration file and modify the value in cfg-options at the 
+    same time, write the modified file to the temporary file, and finally store 
+    the modified file in the temporary path and return the corresponding path
+    
+    Args:
+        filename: configuration file path
+        cfg_options: Parameters passed on the command line to modify the 
+            configuration file
+        folder: The path to the temporary folder, all temporary files in 
+            the function will be stored in this folder
+            
+    Returns:
+        cfg_path: The path of the replaced temporary file is equal to the 
+            path of the corresponding file after filename is modified
+    """
     with open(filename, 'r', encoding='gb2312') as f:
         data = f.read()
-        data = repleace(data, args)
+        data = replace(data, cfg_options)
 
     tmp_dict = {}
     exec(data, tmp_dict)
     cfg_dir = osp.dirname(filename)
 
-    tmp_file = tf.NamedTemporaryFile(dir=fold.name, delete=False, suffix='.py')
+    tmp_file = tf.NamedTemporaryFile(dir=folder, delete=False, suffix='.py')
     if '_base_' in tmp_dict.keys():
         base = tmp_dict['_base_']
-
         if isinstance(base, str):
-            _base_path = load_config(osp.join(cfg_dir, base),
-                                     args=args,
-                                     fold=fold)
-            data = repleace_base_(data, _base_path)
+            _base_path = load_config(
+                osp.join(cfg_dir, base),
+                folder=folder,
+                cfg_options=cfg_options,
+            )
+            data = replace_base_(data, _base_path)
 
         elif isinstance(base, (tuple, list)):
             _tmp_base = []
             for _base in base:
-                _base_path = load_config(osp.join(cfg_dir, _base),
-                                         args=args,
-                                         fold=fold)
+                _base_path = load_config(
+                    osp.join(cfg_dir, _base),
+                    folder=folder,
+                    cfg_options=cfg_options,
+                )
                 _tmp_base.append(_base_path)
 
-            data = repleace_base_(data, _tmp_base)
+            data = replace_base_(data, _tmp_base)
 
     with open(tmp_file.name, 'w', encoding='gb2312') as f:
         f.write(data)
 
     return tmp_file.name
-
-
-def load_config_(filename, args=None):
-    with open(filename, 'r', encoding='gb2312') as f:
-        data = f.read()
-    tmp_dict = {}
-    exec(data, tmp_dict)
-    cfg_dir = osp.dirname(filename)
-    if '_base_' in tmp_dict.keys():
-        base = tmp_dict['_base_']
-        if isinstance(base, str):
-            data = load_config(osp.join(cfg_dir, base)) + '\n' + data
-        elif isinstance(base, (list, tuple)):
-            for i in base:
-                data = load_config(osp.join(cfg_dir, i)) + '\n' + data
-
-    data = re.sub(f'_base_', f'old_base', data)
-    if not args: return data
-    for key, value in args.items():
-        if isinstance(value, (int, float)):
-            data = re.sub(f"^{key}\s?=\s?[^,{key}].*?[^,{key}]\n",
-                          f'{key}={value}\n',
-                          data,
-                          flags=re.MULTILINE)
-        else:
-            value = value.replace('\\', '/')
-            data = re.sub(f"^{key}\s?=\s?['\"]{{1}}.*?['\"]{{1}}\n",
-                          f'{key}="{value}"\n',
-                          data,
-                          flags=re.MULTILINE)
-
-    return data
 
 
 def replace_cfg_vals(ori_cfg):
