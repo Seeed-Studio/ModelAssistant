@@ -55,8 +55,6 @@ def load_config(filename, args=None, deep=False, fold=None):
                                      args=args,
                                      fold=fold)
             data = repleace_base_(data, _base_path)
-            with open(tmp_file.name, 'w', encoding='gb2312') as f:
-                f.write(data)
 
         elif isinstance(base, (tuple, list)):
             _tmp_base = []
@@ -67,12 +65,9 @@ def load_config(filename, args=None, deep=False, fold=None):
                 _tmp_base.append(_base_path)
 
             data = repleace_base_(data, _tmp_base)
-            with open(tmp_file.name, 'w', encoding='gb2312') as f:
-                f.write(data)
 
-    else:
-        with open(tmp_file.name, 'w', encoding='gb2312') as f:
-            f.write(data)
+    with open(tmp_file.name, 'w', encoding='gb2312') as f:
+        f.write(data)
 
     return tmp_file.name
 
