@@ -43,16 +43,10 @@ function sidebar() {
             collapsed: false,
             items: [
                 { text: 'Config', link: '/tutorials/config' },
-                {
-                    text: 'Datasets',
-                    link: '/tutorials/datasets/index',
-                    items: [
-                        { text: 'Custom Datasets', link: '/tutorials/datasets/custom' }
-                    ]
-                },
+                { text: 'Datasets', link: '/tutorials/datasets' },
                 {
                     text: 'Training',
-                    link: '/tutorials/training/index',
+                    link: '/tutorials/training/overview',
                     items: [
                         { text: 'FOMO Model', link: '/tutorials/training/fomo' },
                         { text: 'PFLD Model', link: '/tutorials/training/pfld' }
@@ -60,7 +54,7 @@ function sidebar() {
                 },
                 {
                     text: 'Export',
-                    link: '/tutorials/export/index',
+                    link: '/tutorials/export/overview',
                     items: [
                         { text: 'PyTorch to ONNX', link: '/tutorials/export/pytorch_2_onnx' },
                         { text: 'PyTorch to TFLite', link: '/tutorials/export/pytorch_2_tflite' }

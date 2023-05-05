@@ -13,9 +13,9 @@ We suggest that all beginners of EdgeLab start learning from [Getting Started](#
 
 2. Then, familiar with the basic usage methods of EdgeLab:
 
-    - **Model Training**, please refer to [Model Training](../tutorials/training/) to learn how to use EdgeLab to train a model. We suggest that you select a model from an example for training.
+    - **Model Training**, please refer to [Model Training](../tutorials/training/overview) to learn how to use EdgeLab to train a model. We suggest that you select a model from an example for training.
 
-    - **Model Export**. After completing model training, in order to deploy on the edge-computing device, it is necessary to first export the model. For the export tutorial of the model, please refer to [Model Export](../tutorials/export/).
+    - **Model Export**. After completing model training, in order to deploy on the edge-computing device, it is necessary to first export the model. For the export tutorial of the model, please refer to [Model Export](../tutorials/export/overview).
 
     - **Model Verification**. Model verification can be performed after training or export. The former verifies the correctness of the neural network and training results, while the latter mainly verifies the correctness of the exported model, facilitating deployment and debugging on edge computing devices later. Some methods for model validation have been provided in the documents in the above two steps.
 
@@ -24,6 +24,6 @@ We suggest that all beginners of EdgeLab start learning from [Getting Started](#
 
 - **Model Deployment**. If you want to deploy the exported training model on edge computing devices, please refer to [ESP32 Deployment Example](../examples/esp32/deploy) or [Grove Vision AI Deployment Example](../examples/grove/deploy).
 
-- **Custom Datasets**. If you want to train on a custom dataset, please refer to [Datasets](../tutorials/datasets/).
+- **Custom Datasets**. If you want to train on a custom dataset, please refer to [Datasets](../tutorials/datasets).
 
 - **Custom Model**. If you want to modify an existing neural network or design your own neural network, please refer to [Model Configuration](../tutorials/config).
