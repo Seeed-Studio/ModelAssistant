@@ -27,16 +27,6 @@ class PFLD(BasePoseEstimator):
         self.head = MODELS.build(head)
         self.pretrained = pretrained
 
-    def init_weights(self, pretrained=None):
-        """Weight initialization for model."""
-        if pretrained is not None:
-            self.pretrained = pretrained
-        # self.backbone.init_weights(self.pretrained)
-        # if self.with_neck:
-        #     self.neck.init_weights()
-        # if self.with_keypoint:
-        #     self.keypoint_head.init_weights()
-
     def forward(self, inputs, data_samples = None, mode='tensor'):
         if mode == 'loss':
             return self.loss(inputs, data_samples)
@@ -60,7 +50,7 @@ class PFLD(BasePoseEstimator):
         res = PoseDataSample(**data_samples)
         res.results = x
         res.pred_instances = InstanceData(
-            keypoints=np.array([x.reshape(4, -1).cpu().numpy()]) *
+            keypoints=np.array([x.reshape(-1, 2).cpu().numpy()]) *
             data_samples['init_size'][1].cpu().numpy())
 
         return [res]

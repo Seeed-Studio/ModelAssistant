@@ -70,11 +70,13 @@ class PFLDhead(nn.Module):
 
     def loss(self, features, data_samples):
         preds = self.forward(features)
-        labels = torch.tensor(data_samples['keypoints'], device=preds.device)
+        labels = torch.as_tensor(data_samples['keypoints'],
+                                 device=preds.device,
+                                 dtype=torch.float32)
         loss = self.lossFunction(preds, labels)
         acc = pose_acc(preds.cpu().detach().numpy(), labels,
                        data_samples['hw'])
-        return {"loss": loss, "Acc": torch.tensor(acc).clone().detach()}
+        return {"loss": loss, "Acc": torch.as_tensor(acc, dtype=torch.float32)}
 
     def predict(self, features):
         return self.forward(features)

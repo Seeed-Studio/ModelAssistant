@@ -34,7 +34,7 @@ class PointMetric(BaseMetric):
 
     def __init__(self,
                  collect_device: str = 'cpu',
-                 prefix: Optional[str] = None) -> None:
+                 prefix: Optional[str] = 'keypoint') -> None:
         super().__init__(collect_device, prefix)
 
     def process(self, data_batch: Any, data_samples: Sequence[dict]) -> None:
