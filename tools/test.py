@@ -2,6 +2,7 @@ import argparse
 import os
 import os.path as osp
 import warnings
+import tempfile as tf
 from copy import deepcopy
 
 import mmengine
@@ -111,8 +112,15 @@ def main():
     setup_cache_size_limit_of_dynamo()
 
     # load config
-    config_data = load_config(args.config,args.cfg_options)
-    cfg = Config.fromstring(config_data,'.'+ args.config.split('.')[-1])
+    tmp_folder = tf.TemporaryDirectory()
+    # Modify and create temporary configuration files
+    config_data = load_config(args.config,
+                              folder=tmp_folder.name,
+                              cfg_options = args.cfg_options)
+    # load temporary configuration files
+    cfg = Config.fromfile(config_data)
+    tmp_folder.cleanup()
+    
     cfg = merge_args(cfg, args) # pose
     cfg.launcher = args.launcher
     if args.cfg_options is not None:
