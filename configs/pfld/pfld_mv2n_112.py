@@ -1,6 +1,6 @@
 _base_ = '../_base_/default_runtime_pose.py'
 
-num_classes = 4
+num_classes = 1
 model = dict(type='PFLD',
              backbone=dict(type='PfldMobileNetV2',
                            inchannel=3,
@@ -10,6 +10,7 @@ model = dict(type='PFLD',
              head=dict(type='PFLDhead',
                        num_point=num_classes,
                        input_channel=16,
+                       act_cfg="ReLU",
                        loss_cfg=dict(type='L1Loss')))
 
 # dataset settings
@@ -23,12 +24,13 @@ workers = 4
 
 train_pipeline = [
     dict(type="Resize", height=height, width=width, interpolation=0),
+    # dict(type="PixelDropout"),
     dict(type='ColorJitter', brightness=0.3, p=0.5),
     # dict(type='GaussNoise'),
-    dict(type='MedianBlur', blur_limit=3, p=0.3),
+    dict(type='MedianBlur', blur_limit=3, p=0.5),
     dict(type='HorizontalFlip'),
     dict(type='VerticalFlip'),
-    dict(type='Rotate'),
+    dict(type='Rotate', p=1),
     dict(type='Affine', translate_percent=[0.05, 0.1], p=0.6)
 ]
 
@@ -43,8 +45,8 @@ train_dataloader = dict(
     sampler=dict(type='DefaultSampler', shuffle=True, round_up=False),
     dataset=dict(type=dataset_type,
                  data_root=data_root,
-                 img_dir="crop_img/",
-                 index_file=r'ann.txt',
+                 img_dir="images",
+                 index_file=r'train/annotations.txt',
                  pipeline=train_pipeline),
 )
 
@@ -57,8 +59,8 @@ val_dataloader = dict(
     sampler=dict(type='DefaultSampler', shuffle=False, round_up=False),
     dataset=dict(type=dataset_type,
                  data_root=data_root,
-                 img_dir="crop_img/",
-                 index_file=r'ann.txt',
+                 img_dir="images",
+                 index_file=r'val/annotations.txt',
                  pipeline=val_pipeline),
 )
 test_dataloader = val_dataloader
