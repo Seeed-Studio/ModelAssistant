@@ -227,7 +227,9 @@ python3 tools/train.py \
 python3 tools/test.py \
     det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)"
+    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)" \
+    --cfg-options \
+        data_root='datasets/mask'
 ```
 
 ::: tip

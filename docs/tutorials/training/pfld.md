@@ -222,7 +222,9 @@ After have finished training the PFLD model, you can specify specific weights an
 python3 tools/test.py \
     pose \
     configs/pfld/pfld_mv2n_112.py \
-    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)"
+    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)" \
+    --cfg-options \
+        data_root='datasets/meter'
 ```
 
 ::: tip
