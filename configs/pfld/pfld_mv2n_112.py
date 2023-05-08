@@ -45,7 +45,7 @@ train_dataloader = dict(
     sampler=dict(type='DefaultSampler', shuffle=True, round_up=False),
     dataset=dict(type=dataset_type,
                  data_root=data_root,
-                 img_dir="images",
+                 img_dir="train/images",
                  index_file=r'train/annotations.txt',
                  pipeline=train_pipeline),
 )
@@ -59,7 +59,7 @@ val_dataloader = dict(
     sampler=dict(type='DefaultSampler', shuffle=False, round_up=False),
     dataset=dict(type=dataset_type,
                  data_root=data_root,
-                 img_dir="images",
+                 img_dir="val/images",
                  index_file=r'val/annotations.txt',
                  pipeline=val_pipeline),
 )
@@ -76,7 +76,7 @@ test_evaluator = val_evaluator
 
 find_unused_parameters = True
 
-train_cfg = dict(by_epoch=True, max_epochs=500)
+train_cfg = dict(by_epoch=True, max_epochs=epochs)
 # learning policy
 param_scheduler = [
     dict(type='LinearLR', begin=0, end=500, start_factor=0.001,
