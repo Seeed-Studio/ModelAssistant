@@ -1,5 +1,6 @@
 import argparse
 import os
+import tempfile as tf
 import os.path as osp
 import torch
 import numpy as np
@@ -8,6 +9,7 @@ import edgelab.models
 import edgelab.datasets
 import edgelab.evaluation
 import edgelab.engine
+from tools.utils.config import load_config
 
 from tqdm import tqdm
 
@@ -81,7 +83,15 @@ def args_check():
     if args.device is None:
         args.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         
-    cfg = Config.fromfile(args.config)
+    # load config
+    tmp_folder = tf.TemporaryDirectory()
+    # Modify and create temporary configuration files
+    config_data = load_config(args.config,
+                              folder=tmp_folder.name,
+                              cfg_options=args.cfg_options)
+    # load temporary configuration files
+    cfg = Config.fromfile(config_data)
+    tmp_folder.cleanup()
     
     if args.cfg_options is not None:
         cfg.merge_from_dict(args.cfg_options)

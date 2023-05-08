@@ -1,6 +1,7 @@
 import argparse
 import os
 import os.path as osp
+import tempfile as tf
 from typing import Optional, Tuple
 
 import numpy as np
@@ -11,6 +12,7 @@ from onnx.checker import check_model
 
 from mmengine.config import Config
 from mmengine.runner import Runner
+from tools.utils.config import load_config
 
 torch.manual_seed(3)
 
@@ -230,7 +232,15 @@ def main():
     else:
         raise ValueError('invalid input shape')
 
-    cfg = Config.fromfile(args.config)
+    # load config
+    tmp_folder = tf.TemporaryDirectory()
+    # Modify and create temporary configuration files
+    config_data = load_config(args.config,
+                              folder=tmp_folder.name,
+                              cfg_options=args.cfg_options)
+    # load temporary configuration files
+    cfg = Config.fromfile(config_data)
+    tmp_folder.cleanup()
     cfg.work_dir = osp.join('./work_dirs',
                             osp.splitext(osp.basename(args.config))[0])
 
