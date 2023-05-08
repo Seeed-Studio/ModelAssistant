@@ -111,7 +111,7 @@ python3 tools/test.py \
     --cfg-options <CFG_OPTIONS>
 ```
 
-### 参数描述
+### 验证参数
 
 您需要将以上参数根据实际情况进行替换，各个不同参数的具体说明如下:
 
