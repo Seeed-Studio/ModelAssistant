@@ -135,13 +135,13 @@ python3 tools/train.py \
         epochs=50
 ```
 
-During training, the model weights and related log information are saved to the path `work_dir/fomo_mobnetv2_0.35_x8_abl_coco` by default, and you can use tools such as [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) fact to monitor for training.
+During training, the model weights and related log information are saved to the path `work_dirs/fomo_mobnetv2_0.35_x8_abl_coco` by default, and you can use tools such as [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) fact to monitor for training.
 
 ```sh
-tensorboard --logdir work_dir/fomo_mobnetv2_0.35_x8_abl_coco
+tensorboard --logdir work_dirs/fomo_mobnetv2_0.35_x8_abl_coco
 ```
 
-After training is complete, the latest FOMO model weight file will be saved under the ``work_dir/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth`` path by default. Please remember the path to the weight file, as it will be needed when converting the model to other formats.
+After training is complete, the latest FOMO model weight file will be saved under the ``work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth`` path by default. Please remember the path to the weight file, as it will be needed when converting the model to other formats.
 
 ::: tip
 
@@ -227,7 +227,7 @@ After have finished training the FOMO model, you can specify specific weights an
 python3 tools/test.py \
     det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    work_dir/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth
+    work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth
 ```
 
 ::: tip

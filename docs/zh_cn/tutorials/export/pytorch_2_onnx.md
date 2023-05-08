@@ -68,7 +68,7 @@ python3 tools/torch2onnx.py \
 python3 tools/torch2onnx.py \
     det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    --checkpoint work_dir/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth \
+    --checkpoint work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth \
     --shape 96
 ```
 
@@ -76,7 +76,7 @@ python3 tools/torch2onnx.py \
 python3 tools/torch2onnx.py \
     pose \
     configs/pfld/pfld_mv2n_112.py \
-    --checkpoint work_dir/pfld_mv2n_112/exp1/latest.pth \
+    --checkpoint work_dirs/pfld_mv2n_112/exp1/latest.pth \
     --shape 112
 ```
 
@@ -124,14 +124,14 @@ python3 tools/test.py \
 python3 tools/test.py \
     det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    work_dir/fomo_mobnetv2_0.35_x8_abl_coco/exp1/fomo_mobnetv2_0.35_x8_abl_coco.onnx
+    work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/exp1/fomo_mobnetv2_0.35_x8_abl_coco.onnx
 ```
 
 ```sh [PFLD 模型评估]
 python3 tools/test.py \
     pose \
     configs/pfld/pfld_mv2n_112.py \
-    work_dir/pfld_mv2n_112/exp1/pfld_mv2n_112.onnx
+    work_dirs/pfld_mv2n_112/exp1/pfld_mv2n_112.onnx
 ```
 
 :::

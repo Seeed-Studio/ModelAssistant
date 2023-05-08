@@ -73,14 +73,14 @@ Here are some model conversion examples for reference.
 ```sh [FOMO Model Conversion]
 python3 tools/torch2tflite.py \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    --checkpoint work_dir/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth \
+    --checkpoint work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth \
     --type int8
 ```
 
 ```sh [PFLD Model Conversion]
 python3 tools/torch2tflite.py \
     configs/pfld/pfld_mv2n_112.py \
-    --checkpoint work_dir/pfld_mv2n_112/exp1/latest.pth \
+    --checkpoint work_dirs/pfld_mv2n_112/exp1/latest.pth \
     --type int8
 ```
 
@@ -128,14 +128,14 @@ You need to replace the above parameters according to the actual scenario, and d
 python3 tools/test.py \
     det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    work_dir/fomo_mobnetv2_0.35_x8_abl_coco/exp1/fomo_mobnetv2_0.35_x8_abl_coco.tflite
+    work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/exp1/fomo_mobnetv2_0.35_x8_abl_coco.tflite
 ```
 
 ```sh [PFLD Model Validation]
 python3 tools/test.py \
     pose \
     configs/pfld/pfld_mv2n_112.py \
-    work_dir/pfld_mv2n_112/exp1/pfld_mv2n_112.tflite
+    work_dirs/pfld_mv2n_112/exp1/pfld_mv2n_112.tflite
 ```
 
 :::

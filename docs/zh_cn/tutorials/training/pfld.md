@@ -130,13 +130,13 @@ python3 tools/train.py \
         epochs=50
 ```
 
-在训练期间，训练得到的模型权重和相关的日志信息会默认保存至路径 `work_dir/pfld_mv2n_112` 下，您可以使用 [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) 等工具事实监测训练情况。
+在训练期间，训练得到的模型权重和相关的日志信息会默认保存至路径 `work_dirs/pfld_mv2n_112` 下，您可以使用 [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) 等工具事实监测训练情况。
 
 ```sh
-tensorboard --logdir work_dir/pfld_mv2n_112
+tensorboard --logdir work_dirs/pfld_mv2n_112
 ```
 
-在训练完成后，最新的 PFLD 模型权重文件默认会保存在 `work_dir/pfld_mv2n_112/exp1/latest.pth` 路径下。请记住权重文件路径，在模型转换其他格式时需要用到。
+在训练完成后，最新的 PFLD 模型权重文件默认会保存在 `work_dirs/pfld_mv2n_112/exp1/latest.pth` 路径下。请记住权重文件路径，在模型转换其他格式时需要用到。
 
 ::: tip
 
@@ -222,7 +222,7 @@ python3 tools/train.py \
 python3 tools/test.py \
     pose \
     configs/pfld/pfld_mv2n_112.py \
-    work_dir/pfld_mv2n_112/exp1/latest.pth
+    work_dirs/pfld_mv2n_112/exp1/latest.pth
 ```
 
 ::: tip

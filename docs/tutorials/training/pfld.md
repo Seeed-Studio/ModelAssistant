@@ -130,13 +130,13 @@ python3 tools/train.py \
         epochs=50
 ```
 
-During training, the model weights and related log information are saved to the path `work_dir/pfld_mv2n_112` by default, and you can use tools such as [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) fact to monitor for training.
+During training, the model weights and related log information are saved to the path `work_dirs/pfld_mv2n_112` by default, and you can use tools such as [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) fact to monitor for training.
 
 ```sh
-tensorboard --logdir work_dir/pfld_mv2n_112
+tensorboard --logdir work_dirs/pfld_mv2n_112
 ```
 
-After training is complete, the latest PFLD model weight file will be saved under the ``work_dir/pfld_mv2n_112/exp1/latest.pth`` path by default. Please remember the path to the weight file, as it will be needed when converting the model to other formats.
+After training is complete, the latest PFLD model weight file will be saved under the ``work_dirs/pfld_mv2n_112/exp1/latest.pth`` path by default. Please remember the path to the weight file, as it will be needed when converting the model to other formats.
 
 ::: tip
 
@@ -222,7 +222,7 @@ After have finished training the PFLD model, you can specify specific weights an
 python3 tools/test.py \
     pose \
     configs/pfld/pfld_mv2n_112.py \
-    work_dir/pfld_mv2n_112/exp1/latest.pth
+    work_dirs/pfld_mv2n_112/exp1/latest.pth
 ```
 
 ::: tip

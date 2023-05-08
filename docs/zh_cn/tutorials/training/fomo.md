@@ -135,13 +135,13 @@ python3 tools/train.py \
         epochs=50
 ```
 
-在训练期间，训练得到的模型权重和相关的日志信息会默认保存至路径 `work_dir/fomo_mobnetv2_0.35_x8_abl_coco` 下，您可以使用 [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) 等工具事实监测训练情况。
+在训练期间，训练得到的模型权重和相关的日志信息会默认保存至路径 `work_dirs/fomo_mobnetv2_0.35_x8_abl_coco` 下，您可以使用 [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) 等工具事实监测训练情况。
 
 ```sh
-tensorboard --logdir work_dir/fomo_mobnetv2_0.35_x8_abl_coco
+tensorboard --logdir work_dirs/fomo_mobnetv2_0.35_x8_abl_coco
 ```
 
-在训练完成后，最新的 FOMO 模型权重文件默认会保存在 `work_dir/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth` 路径下。请记住权重文件路径，在模型转换其他格式时需要用到。
+在训练完成后，最新的 FOMO 模型权重文件默认会保存在 `work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth` 路径下。请记住权重文件路径，在模型转换其他格式时需要用到。
 
 ::: tip
 
@@ -227,7 +227,7 @@ python3 tools/train.py \
 python3 tools/test.py \
     det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    work_dir/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth
+    work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth
 ```
 
 ::: tip
