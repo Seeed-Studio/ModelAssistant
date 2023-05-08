@@ -2,10 +2,8 @@
 
 <div align="center">
   <img width="100%" src="docs/public/images/EdgeLab-Logo.png">
-  <h3> <a href="https://edgelab.readthedocs.io/en/latest/"> Documentation </a> | <a href="https://edgelab.readthedocs.io/zh_CN/latest/"> 中文文档 </a>  </h3>
+  <h3> <a href="https://seeed-studio.github.io/EdgeLab/"> Documentation </a> | <a href="https://seeed-studio.github.io/EdgeLab/zh_cn/"> 中文文档 </a>  </h3>
 </div>
-
-[![Documentation Status](https://readthedocs.org/projects/edgelab/badge/?version=latest)](https://edgelab.readthedocs.io/en/latest/?badge=latest)
 
 [English](README.md) | 简体中文
 
@@ -67,4 +65,5 @@ EdgeLab 参考了以下项目:
 
 
 ## 开源许可证
+
 该项目采用 [MIT 开源许可证](LICENSES)。
