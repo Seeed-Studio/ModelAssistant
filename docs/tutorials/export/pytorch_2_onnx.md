@@ -38,8 +38,7 @@ python3 tools/torch2onnx.py \
     <CONFIG_FILE_PATH> \
     --checkpoint <CHECKPOINT_FILE_PATH> \
     --simplify <SIMPLIFY> \
-    --shape <SHAPE> \
-    --audio <AUDIO>
+    --shape <SHAPE>
 ```
 
 ### Transform Parameters
@@ -56,7 +55,11 @@ You need to replace the above parameters according to the actual scenario, the d
 
 - `<SHAPE>` - The dimensionality of the model's input tensor, default `112`
 
-- `<AUDIO>` - (Optional) Whether the input data type of the model is audio, default `False`
+::: tip
+
+For more parameters supported, please refer to the source code `tools/torch2onnx.py`.
+
+:::
 
 ### Transform Examples
 
@@ -68,7 +71,7 @@ Here are some model conversion examples for reference.
 python3 tools/torch2onnx.py \
     det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    --checkpoint work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth \
+    --checkpoint "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)" \
     --shape 96
 ```
 
@@ -76,7 +79,7 @@ python3 tools/torch2onnx.py \
 python3 tools/torch2onnx.py \
     pose \
     configs/pfld/pfld_mv2n_112.py \
-    --checkpoint work_dirs/pfld_mv2n_112/exp1/latest.pth \
+    --checkpoint "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)" \
     --shape 112
 ```
 
@@ -94,8 +97,7 @@ python3 tools/test.py \
     <CHECKPOINT_FILE_PATH> \
     --out <OUT_FILE_PATH> \
     --work-dir <WORK_DIR_PATH> \
-    --cfg-options <CFG_OPTIONS> \
-    --audio <AUDIO>
+    --cfg-options <CFG_OPTIONS>
 ```
 
 ### Validation Parameters
@@ -114,7 +116,11 @@ You need to replace the above parameters according to the actual scenario, and d
 
 - `<CFG_OPTIONS>` - (Optional) Configuration file parameter override, please refer to [Config - Parameterized Configuration](../config.md#parameterized-configuration)
 
-- `<AUDIO>` - (Optional) Whether the model's input data type is audio, default `False`
+::: tip
+
+For more parameters supported, please refer to the source code `tools/test.py`.
+
+:::
 
 ### Validation Example
 
@@ -124,14 +130,18 @@ You need to replace the above parameters according to the actual scenario, and d
 python3 tools/test.py \
     det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/exp1/fomo_mobnetv2_0.35_x8_abl_coco.onnx
+    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint | sed -e 's/.pth/.onnx/g')" \
+    --cfg-options \
+        data_root='datasets/mask'
 ```
 
 ```sh [PFLD Model Validation]
 python3 tools/test.py \
     pose \
     configs/pfld/pfld_mv2n_112.py \
-    work_dirs/pfld_mv2n_112/exp1/pfld_mv2n_112.onnx
+    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint | sed -e 's/.pth/.onnx/g')" \
+    --cfg-options \
+        data_root='datasets/meter'
 ```
 
 :::

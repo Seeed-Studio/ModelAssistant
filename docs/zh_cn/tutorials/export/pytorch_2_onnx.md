@@ -38,8 +38,7 @@ python3 tools/torch2onnx.py \
     <CONFIG_FILE_PATH> \
     --checkpoint <CHECKPOINT_FILE_PATH> \
     --simplify <SIMPLIFY> \
-    --shape <SHAPE> \
-    --audio <AUDIO>
+    --shape <SHAPE>
 ```
 
 ### 导出参数
@@ -56,7 +55,11 @@ python3 tools/torch2onnx.py \
 
 - `<SHAPE>` - 模型的输入张量的维度，默认 `112`
 
-- `<AUDIO>` - (可选) 模型的输入数据类型的否为音频，默认 `False`
+::: tip
+
+对于支持的更多参数，请参考代码源文件 `tools/torch2onnx.py`。
+
+:::
 
 ### 导出示例
 
@@ -68,7 +71,7 @@ python3 tools/torch2onnx.py \
 python3 tools/torch2onnx.py \
     det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    --checkpoint work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth \
+    --checkpoint "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)" \
     --shape 96
 ```
 
@@ -76,7 +79,7 @@ python3 tools/torch2onnx.py \
 python3 tools/torch2onnx.py \
     pose \
     configs/pfld/pfld_mv2n_112.py \
-    --checkpoint work_dirs/pfld_mv2n_112/exp1/latest.pth \
+    --checkpoint "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)" \
     --shape 112
 ```
 
@@ -94,8 +97,7 @@ python3 tools/test.py \
     <CHECKPOINT_FILE_PATH> \
     --out <OUT_FILE_PATH> \
     --work-dir <WORK_DIR_PATH> \
-    --cfg-options <CFG_OPTIONS> \
-    --audio <AUDIO>
+    --cfg-options <CFG_OPTIONS>
 ```
 
 ### 参数描述
@@ -114,7 +116,11 @@ python3 tools/test.py \
 
 - `<CFG_OPTIONS>` - (可选) 配置文件参数覆写，具体请参考[模型配置 - EdgeLab 参数化配置](../config.md#edgelab-参数化配置)
 
-- `<AUDIO>` - (可选) 模型的输入数据类型的否为音频，默认 `False`
+::: tip
+
+对于支持的更多参数，请参考代码源文件 `tools/test.py`。
+
+:::
 
 ### 评估示例
 
@@ -124,14 +130,18 @@ python3 tools/test.py \
 python3 tools/test.py \
     det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/exp1/fomo_mobnetv2_0.35_x8_abl_coco.onnx
+    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint | sed -e 's/.pth/.onnx/g')" \
+    --cfg-options \
+        data_root='datasets/mask'
 ```
 
 ```sh [PFLD 模型评估]
 python3 tools/test.py \
     pose \
     configs/pfld/pfld_mv2n_112.py \
-    work_dirs/pfld_mv2n_112/exp1/pfld_mv2n_112.onnx
+    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint | sed -e 's/.pth/.onnx/g')" \
+    --cfg-options \
+        data_root='datasets/meter'
 ```
 
 :::
