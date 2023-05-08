@@ -80,7 +80,7 @@ To help you understand the process in a more organized way, we have written comp
 
 - [**Grove Mask Detection**](./mask_detection.md)
 
-- [**Grove meter readings**](./meter_reader.md)
+- [**Grove Meter Reader**](./meter_reader.md)
 
 
 ::: warning
