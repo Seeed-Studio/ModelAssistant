@@ -130,7 +130,7 @@ python3 tools/train.py \
         epochs=50
 ```
 
-During training, the model weights and related log information are saved to the path `work_dirs/pfld_mv2n_112` by default, and you can use tools such as [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) fact to monitor for training.
+During training, the model weights and related log information are saved to the path `work_dirs/pfld_mv2n_112` by default, and you can use tools such as [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) to monitor for training.
 
 ```sh
 tensorboard --logdir work_dirs/pfld_mv2n_112
