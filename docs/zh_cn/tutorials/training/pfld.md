@@ -136,7 +136,7 @@ python3 tools/train.py \
 tensorboard --logdir work_dirs/pfld_mv2n_112
 ```
 
-在训练完成后，最新的 PFLD 模型权重文件默认会保存在 `work_dirs/pfld_mv2n_112/exp1/latest.pth` 路径下。请记住权重文件路径，在模型转换其他格式时需要用到。
+在训练完成后，最新的 PFLD 模型权重文件的路径会保存在 `work_dirs/pfld_mv2n_112/last_checkpoint` 文件中。请留意权重文件路径，在将模型转换为其他格式时需要用到。
 
 ::: tip
 
@@ -216,18 +216,18 @@ python3 tools/train.py \
 
 ### 测试
 
-在完成了 PFLD 模型的训练后，您可以使用以下命令，指定特定权重并测试模型:
+在完成了 PFLD 模型的训练后，您可以使用以下命令，指定特定权重并对模型进行简单测试:
 
 ```sh
 python3 tools/test.py \
     pose \
     configs/pfld/pfld_mv2n_112.py \
-    work_dirs/pfld_mv2n_112/exp1/latest.pth
+    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)"
 ```
 
 ::: tip
 
-如果您在测试时不希望实时的可视化预览，您可以在测试命令后追加一个参数 `--no_show` 来关闭预览。
+如果您在测试时希望实时的可视化预览，您可以在测试命令后追加一个参数 `--show` 来显示预测结果。对于更多可选的参数，请参考源代码 `tools/test.py`。
 
 :::
 

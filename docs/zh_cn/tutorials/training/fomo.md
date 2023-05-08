@@ -141,7 +141,7 @@ python3 tools/train.py \
 tensorboard --logdir work_dirs/fomo_mobnetv2_0.35_x8_abl_coco
 ```
 
-在训练完成后，最新的 FOMO 模型权重文件默认会保存在 `work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth` 路径下。请记住权重文件路径，在模型转换其他格式时需要用到。
+在训练完成后，最新的 FOMO 模型权重文件的路径会保存在 `work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint` 文件中。请留意权重文件路径，在将模型转换为其他格式时需要用到。
 
 ::: tip
 
@@ -227,12 +227,12 @@ python3 tools/train.py \
 python3 tools/test.py \
     det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth
+    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)"
 ```
 
 ::: tip
 
-如果您在测试时不希望实时的可视化预览，您可以在测试命令后追加一个参数 `--no_show` 来关闭预览。
+如果您在测试时希望实时的可视化预览，您可以在测试命令后追加一个参数 `--show` 来显示预测结果。对于更多可选的参数，请参考源代码 `tools/test.py`。
 
 :::
 

@@ -141,7 +141,7 @@ During training, the model weights and related log information are saved to the 
 tensorboard --logdir work_dirs/fomo_mobnetv2_0.35_x8_abl_coco
 ```
 
-After training is complete, the latest FOMO model weight file will be saved under the ``work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth`` path by default. Please remember the path to the weight file, as it will be needed when converting the model to other formats.
+After the training is completed, the path of the latest FOMO model weights file is saved in the `work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint` file. Please take care of the path of the weight file, as it is needed when converting the model to other formats.
 
 ::: tip
 
@@ -227,12 +227,12 @@ After have finished training the FOMO model, you can specify specific weights an
 python3 tools/test.py \
     det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth
+    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)"
 ```
 
 ::: tip
 
-If you do not want to see a live preview when testing, you can turn off the preview by appending a parameter `--no_show` to the end of the test command.
+If you want a real-time preview while testing, you can append a parameter `--show` to the test command to show the predicted results. For more optional parameters, please refer to the source code `tools/test.py`.
 
 :::
 
