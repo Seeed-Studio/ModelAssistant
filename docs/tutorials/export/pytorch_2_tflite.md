@@ -72,7 +72,7 @@ For more parameters supported, please refer to the source code `tools/torch2tfli
 
 ### Transform Examples
 
-Here are some model conversion examples for reference.
+Here are some model conversion examples (`int8` precision) for reference.
 
 ::: code-group
 
@@ -135,13 +135,15 @@ For more parameters supported, please refer to the source code `tools/test.py`.
 
 ### Validation Example
 
+Here are some examples for validating converted model (`int8` precision), for reference only.
+
 ::: code-group
 
 ```sh [FOMO Model Validation]
 python3 tools/test.py \
     det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint | sed -e 's/.pth/.tflite/g')" \
+    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)_int8.tflite" \
     --cfg-options \
         data_root='datasets/mask'
 ```
@@ -150,7 +152,7 @@ python3 tools/test.py \
 python3 tools/test.py \
     pose \
     configs/pfld/pfld_mv2n_112.py \
-    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint | sed -e 's/.pth/.tflite/g')" \
+    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)_int8.tflite" \
     --cfg-options \
         data_root='datasets/meter'
 ```

@@ -72,7 +72,7 @@ python3 tools/torch2tflite.py \
 
 ### 导出示例
 
-以下是一些模型的转换导出示例，仅供参考:
+以下是一些模型的转换导出示例 (`int8` 精度)，仅供参考:
 
 ::: code-group
 
@@ -135,13 +135,15 @@ python3 tools/test.py \
 
 ### 评估示例
 
+以下是一些模型转换导出后的测试评估示例 (`int8` 精度)，仅供参考:
+
 ::: code-group
 
 ```sh [FOMO 模型评估]
 python3 tools/test.py \
     det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint | sed -e 's/.pth/.tflite/g')" \
+    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)_int8.tflite" \
     --cfg-options \
         data_root='datasets/mask'
 ```
@@ -150,7 +152,7 @@ python3 tools/test.py \
 python3 tools/test.py \
     pose \
     configs/pfld/pfld_mv2n_112.py \
-    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint | sed -e 's/.pth/.tflite/g')" \
+    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)_int8.tflite" \
     --cfg-options \
         data_root='datasets/meter'
 ```
