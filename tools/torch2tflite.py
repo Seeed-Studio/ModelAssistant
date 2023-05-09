@@ -13,6 +13,7 @@ from tools.utils.config import load_config
 
 from tqdm import tqdm
 
+
 from mmengine.analysis import get_model_complexity_info
 from mmengine.config import Config, DictAction, ConfigDict
 from mmengine.registry import RUNNERS
@@ -38,6 +39,8 @@ def parse_args():
     parser.add_argument('--device', type=str, help='device used for inference')
     parser.add_argument('--type', type=str, default='int8',
                         help='tflite export type', choices=['int8', 'uint8', 'float32'])
+    parser.add_argument('--algorithm', type=str, default='l2', choices=['l2', 'kl'])
+    parser.add_argument('--backend', type=str, default='qnnpack', choices=['qnnpack', 'fbgemm'])
     parser.add_argument('--show', action='store_true',
                         help='show tflite graph')
     parser.add_argument(
@@ -149,31 +152,6 @@ def calibrate(model, context: DLContext):
 
                 context.iteration += 1
 
-
-# def verify_tflite(args, context: DLContext):
-#     """Verify the tflite model
-#     Args:
-#         args: The args
-#         context (DLContext): The dataset context object
-#     """
-#     tflite_model = tflite.Interpreter(
-#         model_path=args.tflite_file)
-#     tflite_model.allocate_tensors()
-#     tflite_input = tflite_model.get_input_details()
-#     tflite_output = tflite_model.get_output_details()
-
-#     for i, data in enumerate(context.val_loader):
-#         if context.max_iteration is not None and i >= context.max_iteration:
-#             break
-#         image = data['inputs']
-#         input = image.unsqueeze(0).numpy().astype(
-#             np.int8).transpose(0, 2, 3, 1)
-#         tflite_model.set_tensor(tflite_input[0]['index'], input)
-#         tflite_model.invoke()
-#         output = tflite_model.get_tensor(tflite_output[0]['index'])
-#         print(output)
-
-
 def export_tflite(args, model, context: DLContext):
     """Export the model to tflite
     Args:
@@ -185,7 +163,7 @@ def export_tflite(args, model, context: DLContext):
     if args.type == 'int8' or type == 'uint8':
         with model_tracer():
             quantizer = PostQuantizer(model, dummy_input, work_dir=args.work_dir, config={
-                                      'asymmetric': True, 'set_quantizable_op_stats': True, 'per_tensor': False})
+                                      'asymmetric': True, 'set_quantizable_op_stats': True, 'per_tensor': False, 'algorithm': args.algorithm, 'backend': args.backend})
             ptq_model = quantizer.quantize()
             ptq_model.to(device=context.device)
 
@@ -236,6 +214,7 @@ def main():
     context.max_iteration = args.epoch
 
     export_tflite(args, runner.model, context)
+
 
 
 if __name__ == '__main__':
