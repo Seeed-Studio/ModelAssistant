@@ -64,6 +64,12 @@ You need to replace the above parameters according to the actual scenario, the d
 
 - `<CFG_OPTIONS>` - (Optional) Configuration file parameter override, please refer to [Config - Parameterized Configuration](../config.md#parameterized-configuration)
 
+::: tip
+
+For more parameters supported, please refer to the source code `tools/torch2tflite.py`.
+
+:::
+
 ### Transform Examples
 
 Here are some model conversion examples for reference.
@@ -73,15 +79,19 @@ Here are some model conversion examples for reference.
 ```sh [FOMO Model Conversion]
 python3 tools/torch2tflite.py \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    --checkpoint work_dir/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth \
-    --type int8
+    --checkpoint "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)" \
+    --type int8 \
+    --cfg-options \
+        data_root='datasets/mask'
 ```
 
 ```sh [PFLD Model Conversion]
 python3 tools/torch2tflite.py \
     configs/pfld/pfld_mv2n_112.py \
-    --checkpoint work_dir/pfld_mv2n_112/exp1/latest.pth \
-    --type int8
+    --checkpoint "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)" \
+    --type int8 \
+    --cfg-options \
+        data_root='datasets/meter'
 ```
 
 :::
@@ -98,8 +108,7 @@ python3 tools/test.py \
     <CHECKPOINT_FILE_PATH> \
     --out <OUT_FILE_PATH> \
     --work-dir <WORK_DIR_PATH> \
-    --cfg-options <CFG_OPTIONS> \
-    --audio <AUDIO>
+    --cfg-options <CFG_OPTIONS>
 ```
 
 ### Validation Parameters
@@ -118,7 +127,11 @@ You need to replace the above parameters according to the actual scenario, and d
 
 - `<CFG_OPTIONS>` - (Optional) Configuration file parameter override, please refer to [Config - Parameterized Configuration](../config.md#parameterized-configuration)
 
-- `<AUDIO>` - (Optional) Whether the model's input data type is audio, default `False`
+::: tip
+
+For more parameters supported, please refer to the source code `tools/test.py`.
+
+:::
 
 ### Validation Example
 
@@ -128,14 +141,18 @@ You need to replace the above parameters according to the actual scenario, and d
 python3 tools/test.py \
     det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    work_dir/fomo_mobnetv2_0.35_x8_abl_coco/exp1/fomo_mobnetv2_0.35_x8_abl_coco.tflite
+    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint | sed -e 's/.pth/.tflite/g')" \
+    --cfg-options \
+        data_root='datasets/mask'
 ```
 
 ```sh [PFLD Model Validation]
 python3 tools/test.py \
     pose \
     configs/pfld/pfld_mv2n_112.py \
-    work_dir/pfld_mv2n_112/exp1/pfld_mv2n_112.tflite
+    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint | sed -e 's/.pth/.tflite/g')" \
+    --cfg-options \
+        data_root='datasets/meter'
 ```
 
 :::

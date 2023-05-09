@@ -64,6 +64,12 @@ python3 tools/torch2tflite.py \
 
 - `<CFG_OPTIONS>` - (可选) 配置文件参数覆写，具体请参考[模型配置 - EdgeLab 参数化配置](../config.md#edgelab-参数化配置)
 
+::: tip
+
+对于支持的更多参数，请参考代码源文件 `tools/torch2tflite.py`。
+
+:::
+
 ### 导出示例
 
 以下是一些模型的转换导出示例，仅供参考:
@@ -73,15 +79,19 @@ python3 tools/torch2tflite.py \
 ```sh [FOMO 模型导出]
 python3 tools/torch2tflite.py \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    --checkpoint work_dir/fomo_mobnetv2_0.35_x8_abl_coco/exp1/latest.pth \
-    --type int8
+    --checkpoint "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)" \
+    --type int8 \
+    --cfg-options \
+        data_root='datasets/mask'
 ```
 
 ```sh [PFLD 模型导出]
 python3 tools/torch2tflite.py \
     configs/pfld/pfld_mv2n_112.py \
-    --checkpoint work_dir/pfld_mv2n_112/exp1/latest.pth \
-    --type int8
+    --checkpoint "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)" \
+    --type int8 \
+    --cfg-options \
+        data_root='datasets/meter'
 ```
 
 :::
@@ -98,11 +108,10 @@ python3 tools/test.py \
     <CHECKPOINT_FILE_PATH> \
     --out <OUT_FILE_PATH> \
     --work-dir <WORK_DIR_PATH> \
-    --cfg-options <CFG_OPTIONS> \
-    --audio <AUDIO>
+    --cfg-options <CFG_OPTIONS>
 ```
 
-### 参数描述
+### 验证参数
 
 您需要将以上参数根据实际情况进行替换，各个不同参数的具体说明如下:
 
@@ -118,7 +127,11 @@ python3 tools/test.py \
 
 - `<CFG_OPTIONS>` - (可选) 配置文件参数覆写，具体请参考[模型配置 - EdgeLab 参数化配置](../config.md#edgelab-参数化配置)
 
-- `<AUDIO>` - (可选) 模型的输入数据类型的否为音频，默认 `False`
+::: tip
+
+对于支持的更多参数，请参考代码源文件 `tools/test.py`。
+
+:::
 
 ### 评估示例
 
@@ -128,14 +141,18 @@ python3 tools/test.py \
 python3 tools/test.py \
     det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    work_dir/fomo_mobnetv2_0.35_x8_abl_coco/exp1/fomo_mobnetv2_0.35_x8_abl_coco.tflite
+    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint | sed -e 's/.pth/.tflite/g')" \
+    --cfg-options \
+        data_root='datasets/mask'
 ```
 
 ```sh [PFLD 模型评估]
 python3 tools/test.py \
     pose \
     configs/pfld/pfld_mv2n_112.py \
-    work_dir/pfld_mv2n_112/exp1/pfld_mv2n_112.tflite
+    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint | sed -e 's/.pth/.tflite/g')" \
+    --cfg-options \
+        data_root='datasets/meter'
 ```
 
 :::

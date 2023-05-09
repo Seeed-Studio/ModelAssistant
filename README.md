@@ -2,10 +2,8 @@
 
 <div align="center">
   <img width="100%" src="docs/public/images/EdgeLab-Logo.png">
-  <h3> <a href="https://edgelab.readthedocs.io/en/latest/"> Documentation </a> | <a href="https://edgelab.readthedocs.io/zh_CN/latest/"> 中文文档 </a>  </h3>
+  <h3> <a href="https://seeed-studio.github.io/EdgeLab/"> Documentation </a> | <a href="https://seeed-studio.github.io/EdgeLab/zh_cn/"> 中文文档 </a>  </h3>
 </div>
-
-[![Documentation Status](https://readthedocs.org/projects/edgelab/badge/?version=latest)](https://edgelab.readthedocs.io/en/latest/?badge=latest)
 
 English | [简体中文](README_zh-CN.md)
 
@@ -38,6 +36,7 @@ EdgeLab provides customized scenarios for specific production environments, such
 
 We will keep adding more algorithms in the future. Stay tuned!
 
+
 ## Features 
 
 <details>
@@ -52,8 +51,7 @@ EdgeLab focuses on end-side AI algorithm research, and the algorithm models can 
 
 <details>
 <summary>Supports mutiple formats for model export</summary>
-<a href="https://www.tensorflow.org/lite">TensorFlow Lite</a>
-is mainly used in microcontrollers, while <a href="https://onnx.ai">ONNX</a> is mainly used in devices with Embedded Linux. There are some special formats such as <a href="https://developer.nvidia.com/tensorrt">TensorRT</a>, <a href="https://docs.openvino.ai">OpenVINO</a> which are already well supported by OpenMMlab. EdgeLab has added TFLite model export for microcontrollers, which can be directly converted to uf2 format and drag-and-drop into the device for deployment.
+<a href="https://www.tensorflow.org/lite">TensorFlow Lite</a> is mainly used in microcontrollers, while <a href="https://onnx.ai">ONNX</a> is mainly used in devices with Embedded Linux. There are some special formats such as <a href="https://developer.nvidia.com/tensorrt">TensorRT</a>, <a href="https://docs.openvino.ai">OpenVINO</a> which are already well supported by OpenMMlab. EdgeLab has added TFLite model export for microcontrollers, which can be directly converted to uf2 format and drag-and-drop into the device for deployment.
 </details>
 
 
