@@ -3,6 +3,7 @@ from typing import Optional, Sequence, Tuple, Union
 import torch
 import numpy as np
 import torch.nn as nn
+from torch.nn import functional as F
 from sklearn.metrics import confusion_matrix
 from mmengine.registry import MODELS
 from mmengine.structures import InstanceData
@@ -101,10 +102,10 @@ class FomoHead(BaseModule):
         return self.lossFunction(pred[0], data_samples[0].labels)
 
     def predict(self, features, data_samples, rescale=False):
-        pred = self.forward(features)
+        pred =F.softmax(self.forward(features)[0],dim=1)
         return [
-            InstanceData(pred=pred[0],
-                         labels=self.build_target(pred[0].permute(0, 2, 3, 1),
+            InstanceData(pred=pred,
+                         labels=self.build_target(pred.permute(0, 2, 3, 1),
                                                   data_samples[0].labels))
         ]
 
