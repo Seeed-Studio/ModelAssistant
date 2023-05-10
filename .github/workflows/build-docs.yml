@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - lab2.0
     paths:
       - 'docs/**'
       - 'package.json'
@@ -23,7 +22,7 @@ jobs:
       - name: checkout repository
         uses: actions/checkout@v2
         with:
-          ref: 'lab2.0' # should be main later
+          ref: 'main' # should be main later
 
       - name: setup node
         uses: actions/setup-node@v3

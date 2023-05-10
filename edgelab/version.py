@@ -1,4 +1,4 @@
-__version__ = '0.0.1rc0'
+__version__ = '2.0.0rc1'
 short_version = __version__
 
 
