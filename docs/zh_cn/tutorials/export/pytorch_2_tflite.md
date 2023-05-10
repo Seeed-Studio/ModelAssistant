@@ -44,6 +44,8 @@ python3 tools/torch2tflite.py \
     --checkpoint <CHECKPOINT_FILE_PATH> \
     --type <TYPE> \
     --simplify <SIMPLIFY> \
+    --algorithm <ALGORITHM> \
+    --backend <BACKEND> \
     --shape <SHAPE> \
     --cfg-options <CFG_OPTIONS>
 ```
@@ -56,9 +58,13 @@ python3 tools/torch2tflite.py \
 
 - `<CHECKPOINT_FILE_PATH>` - 模型权重文件的路径
 
-- `<TYPE>` - TFlite 模型的精度，可选参数: `['int8', 'fp16', 'fp32']`，默认 `int8`
+- `<TYPE>` - TFlite 模型的精度，可选参数: `['int8', 'uint8', 'float32']`，默认 `int8`
 
 - `<SIMPLIFY>` - (可选) 是否简化模型，默认 `False`
+
+- `<ALGORITHM>` - (可选) 模型量化算法，可选参数: `['l2', 'kl']`，默认 `l2`
+
+- `<BACKEND>` - (可选) 模型量化后端，可选参数: `['qnnpack', 'fbgemm']`，默认 `qnnpack`
 
 - `<SHAPE>` - (可选) 模型的输入张量的维度
 

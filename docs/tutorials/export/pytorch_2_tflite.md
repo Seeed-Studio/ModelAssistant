@@ -44,6 +44,8 @@ python3 tools/torch2tflite.py \
     --checkpoint <CHECKPOINT_FILE_PATH> \
     --type <TYPE> \
     --simplify <SIMPLIFY> \
+    --algorithm <ALGORITHM> \
+    --backend <BACKEND> \
     --shape <SHAPE> \
     --cfg-options <CFG_OPTIONS>
 ```
@@ -56,9 +58,13 @@ You need to replace the above parameters according to the actual scenario, the d
 
 - `<CHECKPOINT_FILE_PATH>` - Path to the model weights file
 
-- `<TYPE>` - Precision of the TFlite model, choose from: `['int8', 'fp16', 'fp32']`, default `int8`
+- `<TYPE>` - Precision of the TFlite model, choose from: `['int8', 'uint8', 'float32']`, default `int8`
 
 - `<SIMPLIFY>` - (Optional) Whether to simplify the model, default `False`
+
+- `<algorithm>` - (Optional) Algorithm used for model quantization, choose from: `['l2', 'kl']`, default `kl`
+
+- `<BACKEND>` - (Optional) Backend used for model quantization, choose from: `['qnnpack', 'fbgemm']`, default `qnnpack`
 
 - `<SHAPE>` - (Optional) The dimensionality of the model's input tensor
 
