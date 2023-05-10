@@ -5,6 +5,7 @@ import os.path as osp
 import torch
 import numpy as np
 from copy import deepcopy
+from functools import partial
 import edgelab.models
 import edgelab.datasets
 import edgelab.evaluation
@@ -159,6 +160,10 @@ def export_tflite(args, model, context: DLContext):
         model: The model to be exported
         context (DLContext): The dataset context object
     """
+    model.cpu().eval()
+    
+    #model.forward = partial(model.forward, mode='tensor')
+    
     dummy_input = torch.randn(1, *args.shape)
     if args.type == 'int8' or type == 'uint8':
         with model_tracer():
@@ -184,8 +189,6 @@ def export_tflite(args, model, context: DLContext):
 
     else:
         with torch.no_grad():
-            model.cpu()
-            model.eval()
             torch.backends.quantized.engine = 'qnnpack'
             converter = TFLiteConverter(
                 model, dummy_input, tflite_path=args.tflite_file)
