@@ -43,10 +43,10 @@ After completing the [Grove - Deployment Tutorial - Compile and Deploy - Deploym
 
 1. Set 3 points: center point, start point and end point.
 
-2. Set the first and last digit of the dial to set the measurement range.
+2. Set the first and last digit of the meter to set the measurement range.
 
 3. Configure the number of decimal places.
 
-The above steps are graphically indicated in the console, and finally, you can see the real-time dial reading results as shown in the figure below.
+The above steps are graphically indicated in the console, and finally, you can see the real-time meter reading results as shown in the figure below.
 
 ![PFLD Meter Reader](/static/grove/images/pfld_meter.gif)
