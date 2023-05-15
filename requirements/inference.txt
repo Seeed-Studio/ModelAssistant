@@ -7,5 +7,3 @@ ncnn==1.0.20230223
 tensorflow==2.12.0
 tflite-runtime==2.11.0
 protobuf==3.20.3
-
-git+https://github.com/alibaba/TinyNeuralNetwork.git
