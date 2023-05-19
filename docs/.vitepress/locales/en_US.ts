@@ -83,7 +83,18 @@ function sidebar() {
                     ]
                 }
             ]
-        }, {
+        },
+        {
+            text: 'Edge Impluse',
+            collapsed: false,
+            items: [
+                {
+                    text: 'Edge Impluse Learning Blocks',
+                    link: '/edgeimpulse/ei_ml_blocks',
+                },
+            ]
+        },
+        {
             text: 'Community',
             collapsed: false,
             items: [
