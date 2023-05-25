@@ -84,7 +84,7 @@ class DetHead(BaseModel):
 
         return multi_apply(self.forward_split, x, self.convs_pred)
 
-    def _forward(self, x) -> List[Tensor, Tensor, Tensor]:
+    def _forward(self, x) -> List[Tensor]:
         assert len(x) == self.num_levels
         res = []
         for feat, conv in zip(x, self.convs_pred):
@@ -102,7 +102,7 @@ class DetHead(BaseModel):
         return cls_score, bbox_pred, objectness
 
     def forward_single(self, x: Tensor,
-                       convs: nn.Module) -> Tuple[Tensor, Tensor, Tensor]:
+                       convs: nn.Module) -> Tensor:
         """Forward feature of a single scale level."""
         pred_map = convs(x)
         bs, _, ny, nx = pred_map.shape
@@ -110,7 +110,7 @@ class DetHead(BaseModel):
                                  ny, nx)
         return pred_map.permute(0, 1, 3, 4, 2).contiguous()
 
-    def process(self, pred_map) -> Tuple(Tensor, Tensor):
+    def process(self, pred_map) -> Tuple[Tensor,Tensor]:
         res = []
 
         for idx, feat_ in enumerate(pred_map):
@@ -178,5 +178,5 @@ class YOLOV5Head(YOLOv5Head):
                                            rescale=rescale)
         return predictions
 
-    def forward(self, x) -> Tuple(Tensor, Tensor):
+    def forward(self, x) -> Tuple[Tensor, Tensor]:
         return self.head_module._forward(x)
