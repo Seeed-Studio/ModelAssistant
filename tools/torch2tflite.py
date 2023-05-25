@@ -208,7 +208,7 @@ def main():
         # build customized runner from the registry
         # if 'runner_type' is set in the cfg
         runner = RUNNERS.build(cfg)
-
+    runner.call_hook('before_run')
     runner.load_checkpoint(args.checkpoint, map_location='cpu')
 
     context = DLContext()
