@@ -66,7 +66,7 @@ val_dataloader = dict(
 test_dataloader = val_dataloader
 
 lr = 0.0001
-epochs = 300
+epochs = 1000
 evaluation = dict(save_best='loss')
 optim_wrapper = dict(
     optimizer=dict(type='Adam', lr=lr, betas=(0.9, 0.99), weight_decay=1e-6))
@@ -84,7 +84,7 @@ param_scheduler = [
     dict(type='MultiStepLR',
          begin=1,
          end=500,
-         milestones=[350, 400, 450, 490],
+         milestones=[350,500,600,700,800,900],
          gamma=0.1,
          by_epoch=True)
 ]

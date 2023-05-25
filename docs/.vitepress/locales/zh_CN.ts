@@ -88,7 +88,18 @@ function sidebar() {
                     ]
                 }
             ]
-        }, {
+        },
+        {
+            text: 'Edge Impluse',
+            collapsed: false,
+            items: [
+                {
+                    text: 'Edge Impluse Learning Blocks',
+                    link: '/zh_cn/edgeimpulse/ei_ml_blocks',
+                },
+            ]
+        },
+        {
             text: '社区建设',
             collapsed: false,
             items: [

@@ -51,6 +51,9 @@ class PFLDhead(nn.Module):
         self.lossFunction = LOSSES.build(loss_cfg)
 
     def forward(self, x):
+        if isinstance(x,(list,tuple)):
+            x=x[0]
+
         x1 = self.avg_pool(x)
         x1 = x1.view(x1.size(0), -1)
 
