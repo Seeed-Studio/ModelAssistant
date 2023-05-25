@@ -3,13 +3,13 @@ _base_ = ['../_base_/default_runtime_det.py']
 default_scope = 'mmyolo'
 # ========================Frequently modified parameters======================
 # -----data related-----
-data_root = '/home/dq/datasets/meter_merge_coco/'  # Root path of data
+data_root = 'data/coco/'  # Root path of data
 # Path of train annotation file
-train_ann_file = 'train/_annotations.coco.json'
-train_data_prefix = 'train/'  # Prefix of train image path
+train_ann_file = 'annotations/instances_train2017.json'
+train_data_prefix = 'train2017/'  # Prefix of train image path
 # Path of val annotation file
-val_ann_file = 'valid/_annotations.coco.json'
-val_data_prefix = 'valid/'  # Prefix of val image path
+val_ann_file = 'annotations/instances_val2017.json'
+val_data_prefix = 'val2017/'  # Prefix of val image path
 
 num_classes = 80  # Number of classes for classification
 # Batch size of a single GPU during training
