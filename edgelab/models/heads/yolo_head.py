@@ -125,7 +125,7 @@ class DetHead(BaseModel):
             out = torch.cat((xy, wh, feat[..., 4:]), -1)
             res.append(out.view(bs, -1, self.num_out_attrib))
 
-        return (torch.cat(res, 1), pred_map)
+        return torch.cat(res, 1)
 
     def get_grid(self, x, y, idx, device):
         if torch.__version__ > '1.10.0':
