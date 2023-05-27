@@ -82,13 +82,14 @@ function sidebar() {
                     link: '/examples/grove/deploy',
                     items: [
                         { text: 'Grove Mask Detection', link: '/examples/grove/mask_detection' },
-                        { text: 'Grove Meter Reader', link: '/examples/grove/meter_reader' }
+                        { text: 'Grove Meter Reader', link: '/examples/grove/meter_reader' },
+                        { text: 'Grove Digital Meter', link: '/examples/grove/digital_meter' }
                     ]
                 }
             ]
         },
         {
-            text: 'Edge Impluse',
+            text: 'Edge Impulse',
             collapsed: false,
             items: [
                 {

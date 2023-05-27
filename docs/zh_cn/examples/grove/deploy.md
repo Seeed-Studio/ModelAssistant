@@ -113,6 +113,11 @@ sudo apt-get install make -y
     # Grove 表计读数
     make HW=grove_vision_ai APP=meter
     ```
+
+    ```sh [digtal meter]
+    # Grove 数字表计读数
+    make HW=grove_vision_ai APP=digtal_meter
+    ```
     
     :::
     

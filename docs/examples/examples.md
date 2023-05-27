@@ -5,6 +5,7 @@ EdgeLab provides a variety of examples to help you quickly get started with Edge
 ## [Grove AI](./grove/deploy.md) 
 - [mask_detection](./grove/mask_detection.md): Face mask detection
 - [meter_reading](./grove/meter_reader.md): Pointer meter reading
+- [digital_meter](./grove/digital_meter.md): Digital meter reading
 
 ## [ESP32](./esp32/deploy.md)
 - [mask_detection](./esp32/mask_detection.md): Face mask detection

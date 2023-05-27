@@ -87,12 +87,13 @@ function sidebar() {
                     items: [
                         { text: 'Grove 口罩检测', link: '/zh_cn/examples/grove/mask_detection' },
                         { text: 'Grove 表计读数', link: '/zh_cn/examples/grove/meter_reader' },
+                        { text: 'Grove 数字表记', link: '/zh_cn/examples/grove/digital_meter' }
                     ]
                 }
             ]
         },
         {
-            text: 'Edge Impluse',
+            text: 'Edge Impulse',
             collapsed: false,
             items: [
                 {
