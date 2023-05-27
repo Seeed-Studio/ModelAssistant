@@ -48,8 +48,9 @@ def parse_args():
         '--verify', action='store_true', default=False, help='verify the tflite model')
     parser.add_argument(
         '--simplify',
-        action='store_true',
-        help='Whether to simplify onnx model.')
+        type=int,
+        default=5,
+        help='level of graph simplification, 0 to 5')
     parser.add_argument(
         '--shape',
         type=int,
@@ -83,6 +84,7 @@ def args_check():
     assert args.config is not None, 'Please specify the config file'
     assert osp.exists(args.config), 'Config file does not exist'
     assert osp.exists(args.checkpoint), 'Checkpoint file does not exist'
+    assert args.simplify >= 0 and args.simplify <= 5, 'Simplify level should be in [0, 5]'
 
     if args.device is None:
         args.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -146,11 +148,24 @@ def calibrate(model, context: DLContext):
                 if context.max_iteration is not None and i >= context.max_iteration:
                     break
                 #print('\rcalibration iteration: {}'.format(i+1), end='')
-                pbar.update(1)
                 inputs = data['inputs']
-                inputs = inputs.to(device=context.device)
-                model(inputs)
+                if isinstance(inputs, (list, tuple)):
+                    input = inputs[0] # only one input
+                else:
+                    input = inputs
+                    
+                assert isinstance(input, torch.Tensor), "The input should be a tensor"
+                
+                if input.dtype != torch.float32:
+                    input = input / 255.0 # normalize to [0, 1]
+                    
+                if input.shape[0] != 1: 
+                    input = input.unsqueeze(0) # batch size 1
+                    
+                input = input.to(device=context.device)
+                model(input)
 
+                pbar.update(1)
                 context.iteration += 1
 
 def export_tflite(args, model, context: DLContext):
@@ -185,13 +200,13 @@ def export_tflite(args, model, context: DLContext):
             torch.backends.quantized.engine = quantizer.backend
 
             converter = TFLiteConverter(
-                ptq_model, dummy_input, quantize_target_type=args.type, fuse_quant_dequant=True, rewrite_quantizable=True, tflite_path=args.tflite_file)
+                ptq_model, dummy_input, optimize=args.simplify,  quantize_target_type=args.type, fuse_quant_dequant=True, rewrite_quantizable=True, tflite_path=args.tflite_file)
 
     else:
         with torch.no_grad():
             torch.backends.quantized.engine = 'qnnpack'
             converter = TFLiteConverter(
-                model, dummy_input, tflite_path=args.tflite_file)
+                model, dummy_input, optimize=args.simplify, tflite_path=args.tflite_file)
 
     converter.convert()
 

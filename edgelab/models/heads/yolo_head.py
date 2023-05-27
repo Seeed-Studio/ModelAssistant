@@ -115,13 +115,13 @@ class DetHead(BaseModel):
 
         for idx, feat_ in enumerate(pred_map):
             bs, _, ny, nx, _ = feat_.shape
-            self.grid, self.grid_ = self.get_grid(nx, ny, idx, feat_.device)
+            grid, grid_ = self.get_grid(nx, ny, idx, feat_.device)
             feat = feat_.sigmoid()
-            xy = (feat[..., 0:2] * 2 - 0.5 + self.grid) * torch.as_tensor(
+            xy = (feat[..., 0:2] * 2 - 0.5 + grid) * torch.as_tensor(
                 self.featmap_strides[idx],
                 dtype=torch.float,
                 device=feat.device)
-            wh = (feat[..., 2:4] * 2)**2 * self.grid_
+            wh = (feat[..., 2:4] * 2)**2 * grid_
             out = torch.cat((xy, wh, feat[..., 4:]), -1)
             res.append(out.view(bs, -1, self.num_out_attrib))
 
