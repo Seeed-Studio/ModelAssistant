@@ -54,7 +54,8 @@ function sidebar() {
                     link: '/zh_cn/tutorials/training/overview',
                     items: [
                         { text: 'FOMO 模型', link: '/zh_cn/tutorials/training/fomo' },
-                        { text: 'PFLD 模型', link: '/zh_cn/tutorials/training/pfld' }
+                        { text: 'PFLD 模型', link: '/zh_cn/tutorials/training/pfld' },
+                        { text: 'YOLOv5 模型', link: '/zh_cn/tutorials/training/yolov5' }
                     ]
                 },
                 {
@@ -70,6 +71,7 @@ function sidebar() {
         {
             text: '部署示例',
             collapsed: false,
+            link: '/zh_cn/examples/examples',
             items: [
                 {
                     text: 'ESP32 - 部署教程',
@@ -84,7 +86,7 @@ function sidebar() {
                     link: '/zh_cn/examples/grove/deploy',
                     items: [
                         { text: 'Grove 口罩检测', link: '/zh_cn/examples/grove/mask_detection' },
-                        { text: 'Grove 表计读数', link: '/zh_cn/examples/grove/meter_reader' }
+                        { text: 'Grove 表计读数', link: '/zh_cn/examples/grove/meter_reader' },
                     ]
                 }
             ]
