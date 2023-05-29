@@ -18,8 +18,8 @@ widen_factor = 0.75
 data_root = ''
 height = 192
 width = 192
-batch_size = 32
-workers = 4
+batch_size = 16
+workers = 2
 
 #training
 lr = 0.01
