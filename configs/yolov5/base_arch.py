@@ -45,7 +45,7 @@ height = 192
 width = 192
 img_scale = (width, height)  # width, height
 # Dataset type, this will be used to define the dataset
-dataset_type = 'YOLOv5CocoDataset'
+dataset_type = 'edgelab.CustomYOLOv5CocoDataset'
 # Batch size of a single GPU during validation
 val_batch_size_per_gpu = 1
 # Worker to pre-fetch data for each single GPU during validation
@@ -83,7 +83,7 @@ obj_level_weights = [4., 1., 0.4]
 lr_factor = 0.01  # Learning rate scaling factor
 weight_decay = 0.0005
 # Save model checkpoint and validation intervals
-save_checkpoint_intervals = 5
+save_checkpoint_intervals = 1
 # The maximum checkpoints to keep.
 max_keep_ckpts = 3
 # Single-scale training is recommended to
