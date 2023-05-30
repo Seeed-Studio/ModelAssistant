@@ -1,23 +1,22 @@
-_base_ = ['../_base_/default_runtime_det.py']
+_base_ = [
+    '../_base_/default_runtime_det.py',
+]
 
 default_scope = 'mmyolo'
 # ========================Frequently modified parameters======================
 # -----data related-----
-data_root = 'data/coco/'  # Root path of data
+data_root = ''  # Root path of data
 # Path of train annotation file
-train_ann_file = 'annotations/instances_train2017.json'
-train_data_prefix = 'train2017/'  # Prefix of train image path
+train_ann_file = 'train/_annotations.coco.json'
+train_data_prefix = 'train/'  # Prefix of train image path
 # Path of val annotation file
-val_ann_file = 'annotations/instances_val2017.json'
-val_data_prefix = 'val2017/'  # Prefix of val image path
+val_ann_file = 'valid/_annotations.coco.json'
+val_data_prefix = 'valid/'  # Prefix of val image path
 
 num_classes = 80  # Number of classes for classification
-# Batch size of a single GPU during training
-train_batch_size_per_gpu = 16
-# Worker to pre-fetch data for each single GPU during training
-train_num_workers = 8
-# persistent_workers must be False if num_workers is 0
-persistent_workers = True
+
+batch_size = 32  # batch_size
+workers = 4  # workers
 
 # -----model related-----
 # Basic size of multi-scale prior box
@@ -41,16 +40,17 @@ model_test_cfg = dict(
     nms=dict(type='nms', iou_threshold=0.65),  # NMS type and threshold
     max_per_img=300)  # Max number of detections of each image
 
-# ========================Possible modified parameters========================
 # -----data related-----
-img_scale = (640, 640)  # width, height
+height = 192
+width = 192
+img_scale = (width, height)  # width, height
 # Dataset type, this will be used to define the dataset
 dataset_type = 'YOLOv5CocoDataset'
 # Batch size of a single GPU during validation
 val_batch_size_per_gpu = 1
 # Worker to pre-fetch data for each single GPU during validation
 val_num_workers = 2
-
+persistent_workers = True
 # Config of batch shapes. Only on val.
 # It means not used if batch_shapes_cfg is None.
 batch_shapes_cfg = dict(
@@ -83,16 +83,16 @@ obj_level_weights = [4., 1., 0.4]
 lr_factor = 0.01  # Learning rate scaling factor
 weight_decay = 0.0005
 # Save model checkpoint and validation intervals
-save_checkpoint_intervals = 10
+save_checkpoint_intervals = 5
 # The maximum checkpoints to keep.
 max_keep_ckpts = 3
 # Single-scale training is recommended to
 # be turned on, which can speed up training.
 env_cfg = dict(cudnn_benchmark=True)
 
-# ===============================Unmodified in most cases====================
+# model arch
 model = dict(
-    type='YOLODetector',
+    type='mmyolo.YOLODetector',
     data_preprocessor=dict(type='mmdet.DetDataPreprocessor',
                            mean=[0., 0., 0.],
                            std=[255., 255., 255.],
@@ -101,7 +101,7 @@ model = dict(
                   deepen_factor=deepen_factor,
                   widen_factor=widen_factor,
                   norm_cfg=norm_cfg,
-                  act_cfg=dict(type='SiLU', inplace=True)),
+                  act_cfg=dict(type='ReLU', inplace=True)),
     neck=dict(type='YOLOv5PAFPN',
               deepen_factor=deepen_factor,
               widen_factor=widen_factor,
@@ -109,7 +109,7 @@ model = dict(
               out_channels=[256, 512, 1024],
               num_csp_blocks=3,
               norm_cfg=norm_cfg,
-              act_cfg=dict(type='SiLU', inplace=True)),
+              act_cfg=dict(type='ReLU', inplace=True)),
     bbox_head=dict(
         type='edgelab.YOLOV5Head',
         head_module=dict(type='edgelab.DetHead',
@@ -126,7 +126,7 @@ model = dict(
                       use_sigmoid=True,
                       reduction='mean',
                       loss_weight=loss_cls_weight *
-                      (num_classes / 80 * 3 / num_det_layers)),
+                      (num_classes / 11 * 3 / num_det_layers)),
         loss_bbox=dict(type='IoULoss',
                        iou_mode='ciou',
                        bbox_format='xywh',
@@ -180,14 +180,18 @@ train_pipeline = [
              'gt_bboxes': 'bboxes'
          }),
     dict(type='YOLOv5HSVRandomAug'),
-    dict(type='mmdet.RandomFlip', prob=0.5),
+    # dict(type='mmdet.RandomFlip', prob=0.5),
     dict(type='mmdet.PackDetInputs',
-         meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape', 'flip',
-                    'flip_direction'))
+         meta_keys=(
+             'img_id',
+             'img_path',
+             'ori_shape',
+             'img_shape',
+         ))
 ]
 
-train_dataloader = dict(batch_size=train_batch_size_per_gpu,
-                        num_workers=train_num_workers,
+train_dataloader = dict(batch_size=batch_size,
+                        num_workers=workers,
                         persistent_workers=persistent_workers,
                         pin_memory=True,
                         sampler=dict(type='DefaultSampler', shuffle=True),
@@ -209,7 +213,7 @@ test_pipeline = [
     dict(type='LoadAnnotations', with_bbox=True, _scope_='mmdet'),
     dict(type='mmdet.PackDetInputs',
          meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape',
-                    'scale_factor', 'pad_param'))
+                    'scale_factor'))
 ]
 
 val_dataloader = dict(batch_size=val_batch_size_per_gpu,
@@ -230,13 +234,12 @@ test_dataloader = val_dataloader
 
 param_scheduler = None
 optim_wrapper = dict(type='OptimWrapper',
-                     optimizer=dict(
-                         type='SGD',
-                         lr=base_lr,
-                         momentum=0.937,
-                         weight_decay=weight_decay,
-                         nesterov=True,
-                         batch_size_per_gpu=train_batch_size_per_gpu),
+                     optimizer=dict(type='SGD',
+                                    lr=base_lr,
+                                    momentum=0.937,
+                                    weight_decay=weight_decay,
+                                    nesterov=True,
+                                    batch_size_per_gpu=batch_size),
                      constructor='YOLOv5OptimizerConstructor')
 
 default_hooks = dict(param_scheduler=dict(type='YOLOv5ParamSchedulerHook',

@@ -1,17 +1,17 @@
 _base_ = '../_base_/default_runtime_pose.py'
 
-num_classes = 1
+num_classes = 4
 model = dict(type='PFLD',
              backbone=dict(type='PfldMobileNetV2',
                            inchannel=3,
                            layer1=[16, 16, 16, 16, 16],
                            layer2=[32, 32, 32, 32, 32, 32],
-                           out_channel=16),
+                           out_channel=32),
              head=dict(type='PFLDhead',
                        num_point=num_classes,
-                       input_channel=16,
+                       input_channel=32,
                        act_cfg="ReLU",
-                       loss_cfg=dict(type='L1Loss')))
+                       loss_cfg=dict(type='PFLDLoss')))
 
 # dataset settings
 dataset_type = 'MeterData'
@@ -25,13 +25,14 @@ workers = 4
 train_pipeline = [
     dict(type="Resize", height=height, width=width, interpolation=0),
     # dict(type="PixelDropout"),
-    dict(type='ColorJitter', brightness=0.3, p=0.5),
+    dict(type='ColorJitter', brightness=0.3,contrast=0.3,saturation=0.3, p=0.5),
+    # dict(type="CoarseDropout",max_height=12,max_width=12),
     # dict(type='GaussNoise'),
     dict(type='MedianBlur', blur_limit=3, p=0.5),
     dict(type='HorizontalFlip'),
     dict(type='VerticalFlip'),
-    dict(type='Rotate', p=1),
-    dict(type='Affine', translate_percent=[0.05, 0.1], p=0.6)
+    dict(type='Rotate',limit=45, p=0.7),
+    dict(type='Affine', translate_percent=[0.05, 0.30], p=0.6)
 ]
 
 val_pipeline = [dict(type="Resize", height=height, width=width)]
@@ -56,7 +57,7 @@ val_dataloader = dict(
     persistent_workers=True,
     drop_last=False,
     collate_fn=dict(type='default_collate'),
-    sampler=dict(type='DefaultSampler', shuffle=False, round_up=False),
+    sampler=dict(type='DefaultSampler', shuffle=True, round_up=False),
     dataset=dict(type=dataset_type,
                  data_root=data_root,
                  img_dir="val/images",

@@ -44,6 +44,6 @@ resume = False
 backend_args = dict(backend='local')
 
 # training/validation/testing progress
-train_cfg = dict(by_epoch=True,max_epochs=210)
+train_cfg = dict(by_epoch=True,max_epochs=210,val_interval=5)
 val_cfg = dict()
 test_cfg = dict()
