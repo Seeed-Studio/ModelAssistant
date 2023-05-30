@@ -165,3 +165,8 @@ optim_wrapper = dict(type='OptimWrapper',
                                     nesterov=True,
                                     batch_size_per_gpu=batch_size),
                      constructor='YOLOv5OptimizerConstructor')
+val_evaluator = dict(type='mmdet.CocoMetric',
+                     proposal_nums=(100, 1, 10),
+                     ann_file=data_root + val_ann_file,
+                     metric='bbox')
+test_evaluator = val_evaluator
