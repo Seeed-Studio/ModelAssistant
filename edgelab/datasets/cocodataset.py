@@ -1,3 +1,4 @@
+import copy
 import os.path as osp
 from collections import OrderedDict
 
@@ -6,6 +7,7 @@ import torch
 import numpy as np
 from edgelab.registry import DATASETS
 from mmdet.datasets.coco import CocoDataset
+from mmengine.fileio import list_from_file, load
 from sklearn.metrics import confusion_matrix
 
 from .utils.download import check_file
@@ -37,6 +39,9 @@ class CustomCocoDataset(CocoDataset):
         super().__init__(ann_file, metainfo, data_root, data_prefix,
                          filter_cfg, indices, serialize_data, pipeline,
                          test_mode, lazy_init, max_refetch, **kwargs)
+    
+        annotations = load(self.ann_file)
+        print(annotations.keys())
 
     def bboxe2cell(self, bboxe, img_h, img_w, H, W):
         w = (bboxe[0] + bboxe[2]) / 2
