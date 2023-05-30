@@ -38,6 +38,7 @@ class DetHead(BaseModel):
         self.num_out_attrib = 5 + self.num_classes
         self.num_levels = len(self.featmap_strides)
         self.num_base_priors = num_base_priors
+        self.n_shapes = []
 
         if isinstance(in_channels, int):
             self.in_channels = [make_divisible(in_channels, widen_factor)
@@ -105,28 +106,36 @@ class DetHead(BaseModel):
                        convs: nn.Module) -> Tensor:
         """Forward feature of a single scale level."""
         pred_map = convs(x)
+        pred_map = pred_map.sigmoid()
         bs, _, ny, nx = pred_map.shape
         pred_map = pred_map.view(bs, self.num_base_priors, self.num_out_attrib,
-                                 ny, nx)
-        return pred_map.permute(0, 1, 3, 4, 2).contiguous()
+                                 ny*nx)
+        self.n_shapes.append((ny, nx))
+        return pred_map.permute(0, 1, 3, 2).contiguous()
 
     def process(self, pred_map) -> Tuple[Tensor,Tensor]:
         res = []
-
+        
         for idx, feat_ in enumerate(pred_map):
-            bs, _, ny, nx, _ = feat_.shape
+            bs = feat_.shape[0]
+            nx = self.n_shapes[idx][1]
+            ny = self.n_shapes[idx][0]
             grid, grid_ = self.get_grid(nx, ny, idx, feat_.device)
-            feat = feat_.sigmoid()
-            xy = (feat[..., 0:2] * 2 - 0.5 + grid) * torch.as_tensor(
+        
+            feat_xy, feat_wh, feat_cls = torch.split(feat_, [2, 2, self.num_classes+1], dim=-1)
+            xy = (feat_xy * 2 - 0.5 + grid) * torch.as_tensor(
                 self.featmap_strides[idx],
                 dtype=torch.float,
-                device=feat.device)
-            wh = (feat[..., 2:4] * 2)**2 * grid_
-            out = torch.cat((xy, wh, feat[..., 4:]), -1)
+                device=feat_.device) 
+            wh = 2 * feat_wh 
+            wh *= wh
+            wh *= grid_
+            cls = feat_cls * 100
+            out = torch.cat((xy, wh, cls), -1)
             res.append(out.view(bs, -1, self.num_out_attrib))
 
         return torch.cat(res, 1)
-
+    
     def get_grid(self, x, y, idx, device):
         if torch.__version__ > '1.10.0':
             dy, dx = torch.meshgrid([
@@ -139,11 +148,11 @@ class DetHead(BaseModel):
                 torch.arange(y, device=device),
                 torch.arange(x, device=device)
             ])
-        grid = torch.stack((dx, dy), dim=2).expand(1, self.num_base_priors, y,
-                                                   x, 2).float()
+
+        grid = torch.stack((dx, dy), dim=2).expand(1, 1, y, x, 2).view(1, 1, -1, 2).float().to(device)
         grid_ = self.anchors[idx].clone().view(
-            (1, self.num_base_priors, 1, 1, 2)).expand(
-                (1, self.num_base_priors, y, x, 2)).float().to(device)
+            (1, self.num_base_priors,  1, 2)).expand(
+                (1, self.num_base_priors, y*x, 2)).float().to(device)
 
         return grid, grid_
 

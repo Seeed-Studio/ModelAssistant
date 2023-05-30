@@ -200,7 +200,7 @@ def export_tflite(args, model, context: DLContext):
             torch.backends.quantized.engine = quantizer.backend
 
             converter = TFLiteConverter(
-                ptq_model, dummy_input, optimize=args.simplify,  quantize_target_type=args.type, fuse_quant_dequant=True, rewrite_quantizable=True, tflite_path=args.tflite_file)
+                ptq_model, dummy_input, optimize=args.simplify,  quantize_target_type=args.type, fuse_quant_dequant=True, rewrite_quantizable=True,  tflite_micro_rewrite=True, tflite_path=args.tflite_file)
 
     else:
         with torch.no_grad():
