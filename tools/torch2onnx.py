@@ -244,6 +244,7 @@ def main():
                             osp.splitext(osp.basename(args.config))[0])
 
     runner = Runner.from_cfg(cfg=cfg)
+    runner.call_hook('before_run')
 
     # build the model
     # if args.task == 'mmcls':

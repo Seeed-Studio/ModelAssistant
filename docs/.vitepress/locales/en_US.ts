@@ -49,7 +49,9 @@ function sidebar() {
                     link: '/tutorials/training/overview',
                     items: [
                         { text: 'FOMO Model', link: '/tutorials/training/fomo' },
-                        { text: 'PFLD Model', link: '/tutorials/training/pfld' }
+                        { text: 'PFLD Model', link: '/tutorials/training/pfld' },
+                        { text: 'YOLOv5 Model', link: '/tutorials/training/yolov5' },
+
                     ]
                 },
                 {
@@ -65,6 +67,7 @@ function sidebar() {
         {
             text: 'Examples',
             collapsed: false,
+            link: '/examples/examples',
             items: [
                 {
                     text: 'ESP32 - Deploy',
@@ -79,13 +82,14 @@ function sidebar() {
                     link: '/examples/grove/deploy',
                     items: [
                         { text: 'Grove Mask Detection', link: '/examples/grove/mask_detection' },
-                        { text: 'Grove Meter Reader', link: '/examples/grove/meter_reader' }
+                        { text: 'Grove Meter Reader', link: '/examples/grove/meter_reader' },
+                        { text: 'Grove Digital Meter', link: '/examples/grove/digital_meter' }
                     ]
                 }
             ]
         },
         {
-            text: 'Edge Impluse',
+            text: 'Edge Impulse',
             collapsed: false,
             items: [
                 {
