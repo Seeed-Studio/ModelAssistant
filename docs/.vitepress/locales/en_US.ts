@@ -93,7 +93,7 @@ function sidebar() {
             collapsed: false,
             items: [
                 {
-                    text: 'Edge Impluse Learning Blocks',
+                    text: 'Edge Impulse Learning Blocks',
                     link: '/edgeimpulse/ei_ml_blocks',
                 },
             ]

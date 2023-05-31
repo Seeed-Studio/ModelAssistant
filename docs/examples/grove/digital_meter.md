@@ -20,7 +20,7 @@ The meter reading feature is based on the YOLOv5 model, in this step you need a 
 
 - Download the pre-trained model from our [Model Zoo](https://github.com/Seeed-Studio/EdgeLab/releases).
 
-- Refer to [Training - YOLOv5 Models](../../tutorials/training/YOLOv5.md) to train the YOLOv5 model and get the model weights using PyTorch and EdgeLab by yourself.
+- Refer to [Training - YOLOv5 Models](../../tutorials/training/yolov5.md) to train the YOLOv5 model and get the model weights using PyTorch and EdgeLab by yourself.
 
 
 ## Export Model
@@ -43,4 +43,4 @@ After completing the [Grove - Deployment Tutorial - Compile and Deploy - Deploym
 
 The above steps are graphically indicated in the console, and finally, you can see the real-time meter reading results as shown in the figure below.
 
-![YOLOv5 Digital Meter Reader](/static/grove/images/yolov5_digital_meter.gif)
+![YOLOv5 Digital Meter Reader](/static/grove/images/digital_meter.gif)
