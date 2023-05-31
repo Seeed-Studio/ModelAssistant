@@ -39,6 +39,17 @@ class TFLITE_TESTER:
         self.logger = logging.getLogger()
         self.logger.addHandler(LOGGER())
 
+        if not self.check_parms():
+            return None
+
+        self.logger.info('TFLite model tester runtime informations: \n\tTensorFlow version: %s \n\tTFLite model path: %s \n\tNum threads: %d', tf.__version__, self.path, self.n_cores)
+        self.interpreter = tf.lite.Interpreter(model_path=self.path, num_threads=self.n_cores)
+        self.interpreter.allocate_tensors()
+
+        self.input_details = self.interpreter.get_input_details()
+        self.output_details = self.interpreter.get_output_details()
+        self.logger.info('TFLite interpreter input/output details: \n\tInput details: %s \n\tOutput details: %s', self.input_details, self.output_details)
+
     def check_parms(self) -> bool:
         if not f'{self.path}'.endswith('.tflite'):
             self.logger.error('TFLite model path should have a \'.tflite\' file extension, please check the path parameters.')
@@ -52,44 +63,34 @@ class TFLITE_TESTER:
 
         return True
 
-    def invoke(self, interpreter, input_details, output_details):
-        for inp_detail in input_details:
+    def invoke(self):
+        for inp_detail in self.input_details:
             inp_index = inp_detail['index']
             inp_shape = inp_detail['shape']
             inp_data_type = inp_detail['dtype']
             dummy_input = np.zeros(inp_shape, dtype=inp_data_type)
-            interpreter.set_tensor(inp_index, dummy_input)
+            self.interpreter.set_tensor(inp_index, dummy_input)
 
         s = datetime.datetime.now()
-        interpreter.invoke()
+        self.interpreter.invoke()
         e = datetime.datetime.now()
         duration = e - s
 
         output_data = {}
-        for out_detail in output_details:
+        for out_detail in self.output_details:
             out_index = out_detail['index']
             out_name = out_detail['name']
-            output_data[out_name] = interpreter.get_tensor(out_index)
+            output_data[out_name] = self.interpreter.get_tensor(out_index)
+        self.interpreter.reset_all_variables()
 
         return output_data, duration
 
     def run(self) -> int:
-        if not self.check_parms():
-            return -1
-
-        self.logger.info('TFLite tester runtime informations: \n\tTensorFlow version: %s \n\tTFLite model path: %s \n\tNum threads: %d', tf.__version__, self.path, self.n_cores)
-        interpreter = tf.lite.Interpreter(model_path=self.path, num_threads=self.n_cores)
-        interpreter.allocate_tensors()
-
-        input_details = interpreter.get_input_details()
-        output_details = interpreter.get_output_details()
-        self.logger.info('TFLite interpreter input/output details: \n\tInput details: %s \n\tOutput details: %s', input_details, output_details)
-
-        self.logger.info('Invoking using dummy input: \n\tInputs: %d \n\tOutputs: %d', len(input_details), len(output_details))
-        output_data, _ = self.invoke(interpreter, input_details, output_details)
+        self.logger.info('Invoking using dummy input: \n\tInputs: %d \n\tOutputs: %d', len(self.input_details), len(self.output_details))
+        output_data, _ = self.invoke()
 
         self.logger.info('Checking if invoke result matches model output: \n\tOutput data: %s', output_data)
-        for out_detail in output_details:
+        for out_detail in self.output_details:
             out_name = out_detail['name']
             out_shape = out_detail['shape']
             out_dtype = out_detail['dtype']
@@ -103,12 +104,19 @@ class TFLITE_TESTER:
                 self.logger.error('Output \'%s\' data type mismatch: \n\tCurrent: %s \n\tExpected: %s', out_name, output_data[out_name].dtype, out_dtype)
                 return -1
 
-        model_metadata = interpreter.get_tensor_details()
+        model_metadata = self.interpreter.get_tensor_details()
         self.logger.info('Getting TFLite model details: \n\tNodes: %d \n\tContents: %s', len(model_metadata), model_metadata)
 
         from tensorflow.lite.python.analyzer_wrapper import _pywrap_analyzer_wrapper as _analyzer_wrapper
         model_analytics_result = _analyzer_wrapper.ModelAnalyzer(self.path, True, False)
         self.logger.info('Analyzing TFlite model: \n\tResults: %s', model_analytics_result)
+
+        self.logger.info('Testing TFLite model invoking time: \n\tTimes: %d', self.invoke_times)
+        invoke_durations = []
+        for _ in range(self.invoke_times):
+            _, duration = self.invoke()
+            invoke_durations.append(duration.microseconds / 1000)
+        self.logger.info('Invoking time statics: \n\tAverage: %.4fms \n\tMin: %.4fms \n\tMax: %.4fms', np.average(invoke_durations), np.min(invoke_durations), np.max(invoke_durations))
 
         self.logger.info('TFLite model test result: \n\tStatus: Passed \n\tReport path: %s', self.log_path)
 
