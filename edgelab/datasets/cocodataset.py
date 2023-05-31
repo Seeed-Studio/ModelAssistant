@@ -7,7 +7,7 @@ import torch
 import numpy as np
 from edgelab.registry import DATASETS
 from mmdet.datasets.coco import CocoDataset
-from mmengine.fileio import list_from_file, load
+from mmengine.fileio import load, get_local_path
 from sklearn.metrics import confusion_matrix
 
 from .utils.download import check_file
@@ -39,9 +39,57 @@ class CustomCocoDataset(CocoDataset):
         super().__init__(ann_file, metainfo, data_root, data_prefix,
                          filter_cfg, indices, serialize_data, pipeline,
                          test_mode, lazy_init, max_refetch, **kwargs)
-    
+
         annotations = load(self.ann_file)
         print(annotations.keys())
+
+    def load_data_list(self) -> List[dict]:
+        """Load annotations from an annotation file named as ``self.ann_file``
+
+        Returns:
+            List[dict]: A list of annotation.
+        """  # noqa: E501
+        with get_local_path(self.ann_file,
+                            backend_args=self.backend_args) as local_path:
+            self.coco = self.COCOAPI(local_path)
+        # The order of returned `cat_ids` will not
+        # change with the order of the `classes`
+        self.cat_ids = self.coco.get_cat_ids(
+            cat_names=self.
+            metainfo['classes'] if len(self.metainfo['classes']) else [
+                cat['name'] for cat in self.coco.dataset['categories']
+                if (cat['supercategory'] != "none")
+            ])
+
+        self.cat2label = {cat_id: i for i, cat_id in enumerate(self.cat_ids)}
+        self.cat_img_map = copy.deepcopy(self.coco.cat_img_map)
+
+        img_ids = self.coco.get_img_ids()
+        data_list = []
+        total_ann_ids = []
+        for img_id in img_ids:
+            raw_img_info = self.coco.load_imgs([img_id])[0]
+            raw_img_info['img_id'] = img_id
+
+            ann_ids = self.coco.get_ann_ids(img_ids=[img_id])
+            raw_ann_info = self.coco.load_anns(ann_ids)
+            total_ann_ids.extend(ann_ids)
+
+            parsed_data_info = self.parse_data_info({
+                'raw_ann_info':
+                raw_ann_info,
+                'raw_img_info':
+                raw_img_info
+            })
+            data_list.append(parsed_data_info)
+        if self.ANN_ID_UNIQUE:
+            assert len(set(total_ann_ids)) == len(
+                total_ann_ids
+            ), f"Annotation ids in '{self.ann_file}' are not unique!"
+
+        del self.coco
+
+        return data_list
 
     def bboxe2cell(self, bboxe, img_h, img_w, H, W):
         w = (bboxe[0] + bboxe[2]) / 2
