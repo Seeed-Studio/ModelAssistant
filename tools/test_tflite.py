@@ -42,23 +42,29 @@ class TFLITE_TESTER:
         if not self.check_parms():
             return None
 
-        self.logger.info('TFLite model tester runtime informations: \n\tTensorFlow version: %s \n\tTFLite model path: %s \n\tNum threads: %d', tf.__version__, self.path, self.n_cores)
-        self.interpreter = tf.lite.Interpreter(model_path=self.path, num_threads=self.n_cores)
+        self.logger.info('TFLite model tester runtime informations: \n\tTensorFlow version: %s \n\tTFLite model path: %s \n\tNum threads: %d',
+                         tf.__version__, self.path, self.n_cores)
+        self.interpreter = tf.lite.Interpreter(
+            model_path=self.path, num_threads=self.n_cores)
         self.interpreter.allocate_tensors()
 
         self.input_details = self.interpreter.get_input_details()
         self.output_details = self.interpreter.get_output_details()
-        self.logger.info('TFLite interpreter input/output details: \n\tInput details: %s \n\tOutput details: %s', self.input_details, self.output_details)
+        self.logger.info('TFLite interpreter input/output details: \n\tInput details: %s \n\tOutput details: %s',
+                         self.input_details, self.output_details)
 
     def check_parms(self) -> bool:
         if not f'{self.path}'.endswith('.tflite'):
-            self.logger.error('TFLite model path should have a \'.tflite\' file extension, please check the path parameters.')
+            self.logger.error(
+                'TFLite model path should have a \'.tflite\' file extension, please check the path parameters.')
             return False
         if self.n_cores < 1:
-            self.logger.error('Number of threads while invoking should not less than 1, current: %d.', self.n_cores)
+            self.logger.error(
+                'Number of threads while invoking should not less than 1, current: %d.', self.n_cores)
             return False
         if self.invoke_times < 1:
-            self.logger.error('Times of invoking time test should not less than 1, current: %d.', self.invoke_times)
+            self.logger.error(
+                'Times of invoking time test should not less than 1, current: %d.', self.invoke_times)
             return False
 
         return True
@@ -86,49 +92,64 @@ class TFLITE_TESTER:
         return output_data, duration
 
     def run(self) -> int:
-        self.logger.info('Invoking using dummy input: \n\tInputs: %d \n\tOutputs: %d', len(self.input_details), len(self.output_details))
+        self.logger.info('Invoking using dummy input: \n\tInputs: %d \n\tOutputs: %d', len(
+            self.input_details), len(self.output_details))
         output_data, _ = self.invoke()
 
-        self.logger.info('Checking if invoke result matches model output: \n\tOutput data: %s', output_data)
+        self.logger.info(
+            'Checking if invoke result matches model output: \n\tOutput data: %s', output_data)
         for out_detail in self.output_details:
             out_name = out_detail['name']
             out_shape = out_detail['shape']
             out_dtype = out_detail['dtype']
             if out_name not in output_data.keys():
-                self.logger.error('Cannot find output \'%s\' in output data.', out_name)
+                self.logger.error(
+                    'Cannot find output \'%s\' in output data.', out_name)
                 return -1
             if (output_data[out_name].shape != out_shape).any():
-                self.logger.error('Output \'%s\' shape mismatch: \n\tCurrent: %s \n\tExpected: %s', out_name, output_data[out_name].shape, out_shape)
+                self.logger.error('Output \'%s\' shape mismatch: \n\tCurrent: %s \n\tExpected: %s',
+                                  out_name, output_data[out_name].shape, out_shape)
                 return -1
             if output_data[out_name].dtype != out_dtype:
-                self.logger.error('Output \'%s\' data type mismatch: \n\tCurrent: %s \n\tExpected: %s', out_name, output_data[out_name].dtype, out_dtype)
+                self.logger.error('Output \'%s\' data type mismatch: \n\tCurrent: %s \n\tExpected: %s',
+                                  out_name, output_data[out_name].dtype, out_dtype)
                 return -1
 
         model_metadata = self.interpreter.get_tensor_details()
-        self.logger.info('Getting TFLite model details: \n\tNodes: %d \n\tContents: %s', len(model_metadata), model_metadata)
+        self.logger.info('Getting TFLite model details: \n\tNodes: %d \n\tContents: %s', len(
+            model_metadata), model_metadata)
 
         from tensorflow.lite.python.analyzer_wrapper import _pywrap_analyzer_wrapper as _analyzer_wrapper
-        model_analytics_result = _analyzer_wrapper.ModelAnalyzer(self.path, True, False)
-        self.logger.info('Analyzing TFlite model: \n\tResults: %s', model_analytics_result)
+        model_analytics_result = _analyzer_wrapper.ModelAnalyzer(
+            self.path, True, False)
+        self.logger.info(
+            'Analyzing TFlite model: \n\tResults: %s', model_analytics_result)
 
-        self.logger.info('Testing TFLite model invoking time: \n\tTimes: %d', self.invoke_times)
+        self.logger.info(
+            'Testing TFLite model invoking time: \n\tTimes: %d', self.invoke_times)
         invoke_durations = []
         for _ in range(self.invoke_times):
             _, duration = self.invoke()
             invoke_durations.append(duration.microseconds / 1000)
-        self.logger.info('Invoking time statics: \n\tAverage: %.4fms \n\tMin: %.4fms \n\tMax: %.4fms', np.average(invoke_durations), np.min(invoke_durations), np.max(invoke_durations))
+        self.logger.info('Invoking time statics: \n\tAverage: %.4fms \n\tMin: %.4fms \n\tMax: %.4fms', np.average(
+            invoke_durations), np.min(invoke_durations), np.max(invoke_durations))
 
-        self.logger.info('TFLite model test result: \n\tStatus: Passed \n\tReport path: %s', self.log_path)
+        self.logger.info(
+            'TFLite model test result: \n\tStatus: Passed \n\tReport path: %s', self.log_path)
 
         return 0
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='EdgeLab TFLite model test script')
+    parser = argparse.ArgumentParser(
+        description='EdgeLab TFLite model test script')
     parser.add_argument('model', help='path of the TFLite model file')
-    parser.add_argument('--workdir', default='work_dirs', help='path of the work directory')
-    parser.add_argument('--num_threads', default='0', type=int, help='number of threads while invoking')
-    parser.add_argument('--invoke_times', default='10', type=int, help='times of invoke time test')
+    parser.add_argument('--workdir', default='work_dirs',
+                        help='path of the work directory')
+    parser.add_argument('--num_threads', default='0', type=int,
+                        help='number of threads while invoking')
+    parser.add_argument('--invoke_times', default='10',
+                        type=int, help='times of invoke time test')
     args = parser.parse_args()
 
     return args
@@ -145,6 +166,7 @@ def main():
     ret = tflite_tester.run()
 
     return ret
+
 
 if __name__ == '__main__':
     main()
