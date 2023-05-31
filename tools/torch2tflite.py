@@ -114,6 +114,9 @@ def args_check():
     
     args.work_dir = cfg.work_dir
     
+    cfg.val_dataloader['batch_size'] = 1
+    cfg.val_dataloader['num_workers'] = 1
+    
     if args.tflite_file is None:
         args.tflite_file = osp.join(args.work_dir, osp.basename(
             args.checkpoint) + '_' + args.type + '.tflite')
