@@ -164,6 +164,7 @@ The deployment process of Grove - Vision AI is divided into two main steps, whic
 
 Before flash the firmware, you must check if the device bootloader version matches the firmware version. If it does not match, you will need to flush the bootloader firmware first, and then the firmware.
 
+
 :::
 
 ::: tip
@@ -199,8 +200,8 @@ You may need to detect if the BootLoader version needs to be updated to decide i
 
 ![check_bootloader](https://raw.githubusercontent.com/Seeed-Studio/Seeed_Arduino_GroveAI/master/assert/q2.png)
 
-You can see that the third line of the picture is the version number of BootLoader. If it is the same as the version number we released, you don't need to update BootLoader.
 
+You can see that the third line of the picture is the version number of BootLoader. If it is the same as the version number we released, you don't need to update BootLoader.
 
 
 ### Update BootLoader
@@ -212,7 +213,6 @@ If your Grove Vision AI is not recognized by your computer and behaves as no por
 Please download the latest version of the BootLoader file in the link below. The name of the BootLoader is usually `tinyuf2-grove_vision_ai_vx.x.x.bin`.
 
 [![git_release](/static/grove/images/git_release.png)](https://github.com/Seeed-Studio/Seeed_Arduino_GroveAI/releases)
-
 
 This is the firmware that controls the BL702 chip that builds the connection between the computer and the Himax chip. The latest version of the BootLoader has now fixed the problem of Vision AI not being able to be recognised by Mac and Linux.
 
@@ -226,13 +226,14 @@ This is the firmware that controls the BL702 chip that builds the connection bet
 
 - **Step 4**. Make sure there are no other devices connect to the PC. Then hold the Boot button on the module, connect it to the PC.
 
-  ![GroveAI05](https://files.seeedstudio.com/wiki/Grove_AI_Module/GroveAI05.png)
+![GroveAI05](https://files.seeedstudio.com/wiki/Grove_AI_Module/GroveAI05.png)
 
   We can see 5V light and 3.3V LED light are lighting on the back of the module, then loose the Boot button.
 
-  ![GroveAI06](https://files.seeedstudio.com/wiki/Grove_AI_Module/GroveAI06.png)
+![GroveAI06](https://files.seeedstudio.com/wiki/Grove_AI_Module/GroveAI06.png)
 
 - **Step 5**. Back to the BLDevCube software on the PC, click **Refresh** and choose a proper port. Then click **Open UART** and set **Chip Erase** to **True**, then clink **Creat&Program**, wait for the process done.
+
 
 ## Contribute
 

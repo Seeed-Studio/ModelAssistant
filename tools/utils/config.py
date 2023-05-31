@@ -52,7 +52,7 @@ def replace_base_(data: str, base: Union[str, Sequence[str]]) -> str:
         data = re.sub(pattern,
                       f"_base_ = {str(base)}",
                       data,
-                      flags=re.MULTILINE)
+                      flags=re.S)
 
     return data
 

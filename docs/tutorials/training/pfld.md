@@ -236,3 +236,7 @@ If you want a real-time preview while testing, you can append a parameter `--sho
 ### Evaluation
 
 In order to further test and evaluate the model on a realistic edge computing device, you need to export the model. In the process of exporting the model, EdgeLab will do some optimization on the model, such as model pruning, distillation, etc. You can refer to the [Export](../export/overview) section to learn more about how to export models.
+
+### Deployment
+
+After exporting the model, you can deploy the model to the edge computing device for testing and evaluation. You can refer to the [examples](../../examples/examples.md) section to learn more about how to deploy models.

@@ -236,8 +236,7 @@ def main():
     tmp_folder = tf.TemporaryDirectory()
     # Modify and create temporary configuration files
     config_data = load_config(args.config,
-                              folder=tmp_folder.name,
-                              cfg_options=args.cfg_options)
+                              folder=tmp_folder.name)
     # load temporary configuration files
     cfg = Config.fromfile(config_data)
     tmp_folder.cleanup()
@@ -245,6 +244,7 @@ def main():
                             osp.splitext(osp.basename(args.config))[0])
 
     runner = Runner.from_cfg(cfg=cfg)
+    runner.call_hook('before_run')
 
     # build the model
     # if args.task == 'mmcls':
