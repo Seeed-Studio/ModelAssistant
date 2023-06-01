@@ -13,13 +13,13 @@ class LOGGER(logging.Handler):
 
 
 class TFLITE_TESTER:
-    def __init__(self, tflite_model_path, log_dir, n_cores=os.cpu_count(), invoke_times=10):
+    def __init__(self, tflite_model_path, log_dir='', n_cores=os.cpu_count(), invoke_times=10):
         self.path = tflite_model_path
         self.log_dir = log_dir
         self.n_cores = n_cores
         self.invoke_times = invoke_times
 
-        folder_name = os.path.dirname(os.path.curdir)
+        folder_name = os.path.dirname(os.path.abspath(tflite_model_path))
         model_name = os.path.basename(tflite_model_path)
         date_string = datetime.datetime.now().strftime('%Y-%m-%d-%s')
         log_file_name = f'{model_name}_{date_string}.log'
@@ -144,7 +144,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description='EdgeLab TFLite model test script')
     parser.add_argument('model', help='path of the TFLite model file')
-    parser.add_argument('--workdir', default='work_dirs',
+    parser.add_argument('--workdir', default='',
                         help='path of the work directory')
     parser.add_argument('--num_threads', default='0', type=int,
                         help='number of threads while invoking')
