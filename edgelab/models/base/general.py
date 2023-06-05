@@ -27,8 +27,7 @@ def get_conv(conv):
 def get_norm(norm):
     if isinstance(norm, dict) and hasattr(nn, norm['type']):
         norm = getattr(nn, norm.get('type'))
-    elif isinstance(norm,
-                    dict) and norm.get('type') in MODELS.module_dict:
+    elif isinstance(norm, dict) and norm.get('type') in MODELS.module_dict:
         norm = MODELS.get(norm.get('type'))
     elif isinstance(norm, str) and hasattr(nn, norm):
         norm = getattr(nn, norm)
@@ -81,29 +80,30 @@ class ConvNormActivation(nn.Sequential):
         dilation: int = 1,
         inplace: bool = True,
     ) -> None:
+        super().__init__()
         if padding is None:
             padding = (kernel_size - 1) // 2 * dilation
         if conv_layer is None:
             conv_layer = nn.Conv2d
         else:
             conv_layer = get_conv(conv_layer)
-        layers = [
-            conv_layer(in_channels,
-                       out_channels,
-                       kernel_size,
-                       stride,
-                       padding,
-                       dilation=dilation,
-                       groups=groups,
-                       bias=norm_layer is None if bias is None else bias)
-        ]
+        print(conv_layer)
+        conv = conv_layer(in_channels,
+                          out_channels,
+                          kernel_size,
+                          stride,
+                          padding,
+                          dilation=dilation,
+                          groups=groups,
+                          bias=norm_layer is None if bias is None else bias)
+        self.add_module('conv', conv)
         if norm_layer is not None:
             norm_layer = get_norm(norm_layer)
-            layers.append(norm_layer(out_channels))
+            self.add_module('norm', norm_layer(out_channels))
         if activation_layer is not None:
             activation_layer = get_act(activation_layer)
-            layers.append(activation_layer(inplace=inplace))
-        super().__init__(*layers)
+            self.add_module('act', activation_layer())
+
         self.out_channels = out_channels
 
 
