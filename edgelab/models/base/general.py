@@ -87,7 +87,6 @@ class ConvNormActivation(nn.Sequential):
             conv_layer = nn.Conv2d
         else:
             conv_layer = get_conv(conv_layer)
-        print(conv_layer)
         conv = conv_layer(in_channels,
                           out_channels,
                           kernel_size,
