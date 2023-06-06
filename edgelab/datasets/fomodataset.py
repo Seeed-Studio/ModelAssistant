@@ -21,6 +21,7 @@ class FomoDatasets(Dataset):
                  data_root,
                  pipeline,
                  classes=None,
+                 use_alb=True,
                  bbox_params: dict = dict(format='coco',
                                           label_fields=['class_labels']),
                  ann_file: str = None,
@@ -35,7 +36,7 @@ class FomoDatasets(Dataset):
         self.bbox_params = bbox_params
 
         self.transform = AlbCompose(pipeline,
-                                      bbox_params=A.BboxParams(**bbox_params))
+                                    bbox_params=A.BboxParams(**bbox_params))
         # load data with coco format
         self.data = torchvision.datasets.CocoDetection(
             img_dir,
@@ -67,7 +68,7 @@ class FomoDatasets(Dataset):
             if key == 0 and self.roboflow:
                 continue
             self.CLASSES.append(value['name'])
-            
+
     def __len__(self):
         """ return datasets len"""
         return len(self.data)
@@ -79,6 +80,12 @@ class FomoDatasets(Dataset):
         bboxes = []
         labels = []
         for annotation in ann:
+            x_min, y_min, x_max, y_max = annotation['bbox'][:4]
+            if x_max == 0:
+                x_max += 2
+            if y_max == 0:
+                y_max += 2
+            annotation['bbox'][:4] = [x_min, y_min, x_max, y_max]
             bboxes.append(annotation['bbox'])
             labels.append(annotation['category_id'])
 
