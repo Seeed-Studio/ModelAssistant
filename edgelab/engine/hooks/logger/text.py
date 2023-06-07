@@ -36,9 +36,9 @@ class TextLoggerHook(LoggerHook):
         self.reset = True
         self.log_dict = None
         self.head = None
-        self.currentIter=0
-        self.trainIdx=0
-        self.valIdx=0
+        self.currentIter = 0
+        self.trainIdx = 0
+        self.valIdx = 0
         self.logData = BaseDataElement()
         self.trainLogData = BaseDataElement()
         self.valLogData = BaseDataElement()
@@ -82,13 +82,17 @@ class TextLoggerHook(LoggerHook):
             runner, batch_idx, runner.log_processor.custom_cfg)
         log_tag = runner.log_processor._collect_scalars(
             parsed_cfg, runner, 'val')
-        self._progress_log(log_tag, runner, runner.val_dataloader, batch_idx,mode='val')
+        self._progress_log(log_tag,
+                           runner,
+                           runner.val_dataloader,
+                           batch_idx,
+                           mode='val')
 
     def after_train_epoch(self, runner) -> None:
         super().after_train_epoch(runner)
         self.bar = None
         print('')
-        
+
     def _after_epoch(self, runner, mode: str = 'train') -> None:
 
         return super()._after_epoch(runner, mode)
@@ -96,7 +100,8 @@ class TextLoggerHook(LoggerHook):
     def _progress_log(self,
                       log_dict: dict,
                       runner: Runner,
-                      dataloader,idx:int,
+                      dataloader,
+                      idx: int,
                       mode='train'):
         head = '\n'
         end = ''
@@ -109,7 +114,8 @@ class TextLoggerHook(LoggerHook):
         head += "Mode".center(10)
         end += f"{mode:^10}"
         head += "Epoch".center(10)
-        end += f"{current_epoch}/{max_epochs}".center(10)
+        end += f"{(current_epoch+1) if mode=='train' else current_epoch}/{max_epochs}".center(
+            10)
 
         for key, value in log_dict.items():
             if isinstance(value, torch.Tensor):
@@ -138,9 +144,9 @@ class TextLoggerHook(LoggerHook):
             self.reset = False
 
         self.bar.set_description(end)
-        
+
         # self.bar.update(runner.val_interval if mode == 'val' else 100)
-        self.bar.update(self.progressInterval(idx,mode=mode))
+        self.bar.update(self.progressInterval(idx, mode=mode))
         if self.bar.n == len(dataloader):
             del self.bar
 
@@ -164,7 +170,7 @@ class TextLoggerHook(LoggerHook):
         else:
             return items
 
-    def _get_max_memory(self, runner:Runner) -> int:
+    def _get_max_memory(self, runner: Runner) -> int:
         device = getattr(runner.model, 'output_device', None)
         mem = torch.cuda.max_memory_allocated(device=device)
         mem_mb = torch.tensor([int(mem) // (1048576)],
@@ -173,28 +179,26 @@ class TextLoggerHook(LoggerHook):
         if runner.world_size > 1:
             dist.reduce(mem_mb, 0, op=dist.ReduceOp.MAX)
         return f'{mem_mb.item()}MB'
-    
-    
-    def progressInterval(self,idx:int,mode:str='train'):
-        if mode=='train':
-            if idx<self.trainIdx:  
-                self.trainIdx=idx
-                res=idx
+
+    def progressInterval(self, idx: int, mode: str = 'train'):
+        if mode == 'train':
+            if idx < self.trainIdx:
+                self.trainIdx = idx
+                res = idx
             else:
-                res=idx-self.trainIdx
-                self.trainIdx=idx
-                
+                res = idx - self.trainIdx
+                self.trainIdx = idx
+
         else:
-            if idx<self.valIdx:  
-                self.valIdx=idx
-                res=idx
+            if idx < self.valIdx:
+                self.valIdx = idx
+                res = idx
             else:
-                res=idx-self.valIdx
-                self.valIdx=idx
+                res = idx - self.valIdx
+                self.valIdx = idx
         return res if res else 1
-            
-    
-    def iterInterval(self,runner:Runner):
-        interval=runner.iter-self.currentIter
-        self.currentIter=runner.iter
+
+    def iterInterval(self, runner: Runner):
+        interval = runner.iter - self.currentIter
+        self.currentIter = runner.iter
         return interval
