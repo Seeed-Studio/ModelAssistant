@@ -79,13 +79,15 @@ class FomoDatasets(Dataset):
 
         bboxes = []
         labels = []
+        min_hw_pixels = 2
         for annotation in ann:
-            x_min, y_min, x_max, y_max = annotation['bbox'][:4]
-            if x_max == 0:
-                x_max += 2
-            if y_max == 0:
-                y_max += 2
-            annotation['bbox'][:4] = [x_min, y_min, x_max, y_max]
+            # coco annotation specific https://cocodataset.org/#format-data
+            x, y, width, height = annotation['bbox'][:4]
+            if width == 0:
+                width += min_hw_pixels
+            if height == 0:
+                height += min_hw_pixels
+            annotation['bbox'][:4] = [x, y, width, height]
             bboxes.append(annotation['bbox'])
             labels.append(annotation['category_id'])
 
@@ -186,7 +188,7 @@ class FomoDatasets(Dataset):
         confusion = confusion_matrix(target_max.flatten().cpu().numpy(),
                                      preds_max.flatten().cpu().numpy(),
                                      labels=range(preds.shape[-1]))
-        # Calculate the value of P、R、F1 based on the confusion matrix
+        # Calculate the value of P, R, F1 based on the confusion matrix
         tn = confusion[0, 0]
         tp = np.diagonal(confusion).sum() - tn
         fn = np.tril(confusion, k=-1).sum()
