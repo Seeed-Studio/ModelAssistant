@@ -103,14 +103,10 @@ train_pipeline = [
              'gt_bboxes': 'bboxes'
          }),
     dict(type='YOLOv5HSVRandomAug'),
-    # dict(type='mmdet.RandomFlip', prob=0.5),
+    dict(type='mmdet.RandomFlip', prob=0.5),
     dict(type='mmdet.PackDetInputs',
-         meta_keys=(
-             'img_id',
-             'img_path',
-             'ori_shape',
-             'img_shape',
-         ))
+         meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape', 'flip',
+                    'flip_direction'))
 ]
 
 train_dataloader = dict(batch_size=batch_size,
@@ -129,15 +125,14 @@ train_dataloader = dict(batch_size=batch_size,
 test_pipeline = [
     dict(type='LoadImageFromFile', file_client_args=dict(backend='disk')),
     dict(type='YOLOv5KeepRatioResize', scale=img_scale),
-    # dict(type='LetterResize',
-    #      scale=img_scale,
-    #      allow_scale_up=False,
-    #     #  pad_val=dict(img=114)
-    #  ),
+    dict(type='LetterResize',
+         scale=img_scale,
+         allow_scale_up=False,
+         pad_val=dict(img=114)),
     dict(type='LoadAnnotations', with_bbox=True, _scope_='mmdet'),
     dict(type='mmdet.PackDetInputs',
          meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape',
-                    'scale_factor'))
+                    'scale_factor', 'pad_param'))
 ]
 
 val_dataloader = dict(batch_size=batch_size,

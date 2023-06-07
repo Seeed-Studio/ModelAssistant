@@ -126,7 +126,7 @@ model = dict(
                       use_sigmoid=True,
                       reduction='mean',
                       loss_weight=loss_cls_weight *
-                      (num_classes / 11 * 3 / num_det_layers)),
+                      (num_classes / 80 * 3 / num_det_layers)),
         loss_bbox=dict(type='IoULoss',
                        iou_mode='ciou',
                        bbox_format='xywh',
@@ -180,14 +180,10 @@ train_pipeline = [
              'gt_bboxes': 'bboxes'
          }),
     dict(type='YOLOv5HSVRandomAug'),
-    # dict(type='mmdet.RandomFlip', prob=0.5),
+    dict(type='mmdet.RandomFlip', prob=0.5),
     dict(type='mmdet.PackDetInputs',
-         meta_keys=(
-             'img_id',
-             'img_path',
-             'ori_shape',
-             'img_shape',
-         ))
+         meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape', 'flip',
+                    'flip_direction'))
 ]
 
 train_dataloader = dict(batch_size=batch_size,
@@ -213,7 +209,7 @@ test_pipeline = [
     dict(type='LoadAnnotations', with_bbox=True, _scope_='mmdet'),
     dict(type='mmdet.PackDetInputs',
          meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape',
-                    'scale_factor'))
+                    'scale_factor', 'pad_param'))
 ]
 
 val_dataloader = dict(batch_size=val_batch_size_per_gpu,
@@ -239,7 +235,7 @@ optim_wrapper = dict(type='OptimWrapper',
                                     momentum=0.937,
                                     weight_decay=weight_decay,
                                     nesterov=True,
-                                    batch_size_per_gpu=batch_size),
+                                    batch_size_per_gpu=16),
                      constructor='YOLOv5OptimizerConstructor')
 
 default_hooks = dict(param_scheduler=dict(type='YOLOv5ParamSchedulerHook',
