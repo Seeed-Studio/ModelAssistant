@@ -23,6 +23,7 @@ class FomoMetric(BaseMetric):
         preds, target = preds.to(torch.device('cpu')), target.to(
             torch.device('cpu'))
         preds = torch.softmax(preds, dim=-1)
+        B, C, H, W = preds.shape
         # Get the category id of each box
         target_max = torch.argmax(target, dim=-1)
         preds_max = torch.argmax(preds, dim=-1)
@@ -40,7 +41,7 @@ class FomoMetric(BaseMetric):
             for po in self.posit_offset:
                 site = ti + po
                 # Avoid index out ofAvoid index out of bounds
-                if torch.any(site < 0) or torch.any(site > 11):
+                if torch.any(site < 0) or torch.any(site >= 12):
                     continue
                 # The prediction is considered to be correct if it is near the ground truth box
                 if site in preds_index and preds_max[site.chunk(
@@ -72,7 +73,8 @@ class FomoMetric(BaseMetric):
     def process(self, data_batch, data_samples) -> None:
         tmp = TP = FP = FN = []
 
-        pred, target = data_samples[0]['pred_instances']['pred'], data_samples[0]['pred_instances']['labels']
+        pred, target = data_samples[0]['pred_instances']['pred'], data_samples[
+            0]['pred_instances']['labels']
         pred = pred.permute(0, 2, 3, 1)
         B, H, W, C = target.shape
         tp, fp, fn = self.compute_ftp(pred, target)
@@ -84,9 +86,9 @@ class FomoMetric(BaseMetric):
         FN.append(fn)
         self.results.append(dict(tp=tp, fp=fp, fn=fn))
 
-    def compute_metrics(self, results: Optional[list]=None) -> dict:
+    def compute_metrics(self, results: Optional[list] = None) -> dict:
         if results is None:
-            results=self.results
+            results = self.results
         tp = sum([i['tp'] for i in results])
         fp = sum([i['fp'] for i in results])
         fn = sum([i['fn'] for i in results])

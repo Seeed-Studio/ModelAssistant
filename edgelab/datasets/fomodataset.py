@@ -75,7 +75,7 @@ class FomoDatasets(Dataset):
 
     def __getitem__(self, index):
         image, ann = self.data[index]
-        image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
+        image = np.asarray(image)
 
         bboxes = []
         labels = []
@@ -159,6 +159,7 @@ class FomoDatasets(Dataset):
 
     def compute_ftp(self, preds, target):
         preds = torch.softmax(preds, dim=-1)
+        B, C, H, W = preds.shape
         # Get the category id of each box
         target_max = torch.argmax(target, dim=-1)
         preds_max = torch.argmax(preds, dim=-1)
@@ -175,7 +176,7 @@ class FomoDatasets(Dataset):
             for po in self.posit_offset:
                 site = ti + po
                 # Avoid index out ofAvoid index out of bounds
-                if torch.any(site < 0) or torch.any(site > 11):
+                if torch.any(site < 0) or torch.any(site >= H):
                     continue
                 # The prediction is considered to be correct if it is near the ground truth box
                 if site in preds_index and preds_max[site.chunk(

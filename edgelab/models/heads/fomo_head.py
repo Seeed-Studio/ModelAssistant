@@ -102,7 +102,7 @@ class FomoHead(BaseModule):
         return self.lossFunction(pred[0], data_samples[0].labels)
 
     def predict(self, features, data_samples, rescale=False):
-        pred =F.softmax(self.forward(features)[0],dim=1)
+        pred = F.softmax(self.forward(features)[0], dim=1)
         return [
             InstanceData(pred=pred,
                          labels=self.build_target(pred.permute(0, 2, 3, 1),
@@ -168,6 +168,7 @@ class FomoHead(BaseModule):
             F1: F1
         """
         preds = torch.softmax(preds, dim=-1)
+        B, C, H, W = preds.shape
         # Get the category id of each box
         target_max = torch.argmax(target, dim=-1)
         preds_max = torch.argmax(preds, dim=-1)
@@ -184,7 +185,7 @@ class FomoHead(BaseModule):
             for po in self.posit_offset:
                 site = ti + po
                 # Avoid index out of bounds
-                if torch.any(site < 0) or torch.any(site > 11):
+                if torch.any(site < 0) or torch.any(site >= H):
                     continue
                 # The prediction is considered to be correct if it is near the ground truth box
                 if site in preds_index and preds_max[site.chunk(
