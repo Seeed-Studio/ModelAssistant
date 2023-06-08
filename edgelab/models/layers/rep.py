@@ -149,7 +149,7 @@ class RepBlock(BaseModule):
         self.use_norm = use_norm
         self.act_layer = act_layer
         self.kernel_size = kernel_size
-        self.groups=groups
+        self.groups = groups
         self.conv_norm1 = ConvNormActivation(in_channels,
                                              in_channels,
                                              kernel_size,
@@ -193,7 +193,7 @@ class RepBlock(BaseModule):
                                bias=True,
                                padding_mode='zeros')
         self.frist = True
-    
+
     def forward(self, x):
         if self.training:
             if self.use_norm:
@@ -213,26 +213,27 @@ class RepBlock(BaseModule):
 
     def rep(self):
 
-        kbn1, bbn1 = fuse_conv_norm(self.conv_norm1,self.groups)
-        kbn2, bbn2 = fuse_conv_norm(self.conv_norm2,self.groups)
+        kbn1, bbn1 = fuse_conv_norm(self.conv_norm1, self.groups)
+        kbn2, bbn2 = fuse_conv_norm(self.conv_norm2, self.groups)
 
         weights, bias = kbn1 + padding_weights(kbn2), bbn1 + bbn2
         if self.use_norm:
-            norm_weight, norm_bias = fuse_conv_norm(self.norm,self.groups)
+            norm_weight, norm_bias = fuse_conv_norm(self.norm, self.groups)
             weights, bias = weights + padding_weights(
                 norm_weight), norm_bias + bias
-        
-        self.conv3.weight.data=weights
-        self.conv3.bias.data=bias
+
+        self.conv3.weight.data = weights
+        self.conv3.bias.data = bias
 
     def eval(self):
         self.rep()
         return super().eval()
-    
+
     def train(self, mode: bool = True):
         if not mode:
             self.rep()
         return super().train(mode)
+
 
 if __name__ == '__main__':
     torch.set_grad_enabled(False)
