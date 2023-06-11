@@ -74,7 +74,7 @@ class MobileNetv2(BaseModule):
                     layer = block(in_channels,
                                   out_channels,
                                   stride=stride,
-                                  groups=round_nearest,
+                                  groups=in_channels,
                                   norm_layer=norm_layer)
                 else:
                     layer = block(in_channels,
