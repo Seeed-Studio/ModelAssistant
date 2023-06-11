@@ -183,15 +183,15 @@ class RepBlock(BaseModule):
                                                 norm_layer=norm_layer,
                                                 activation_layer=act_layer)
 
-        self.conv3 = nn.Conv2d(in_channels,
-                               in_channels,
-                               kernel_size=kernel_size,
-                               stride=stride,
-                               padding=padding,
-                               dilation=dilation,
-                               groups=groups,
-                               bias=True,
-                               padding_mode='zeros')
+        self.fused_conv = nn.Conv2d(in_channels,
+                                    in_channels,
+                                    kernel_size=kernel_size,
+                                    stride=stride,
+                                    padding=padding,
+                                    dilation=dilation,
+                                    groups=groups,
+                                    bias=True,
+                                    padding_mode='zeros')
         self.frist = True
 
     def forward(self, x):
@@ -202,7 +202,7 @@ class RepBlock(BaseModule):
                 res = self.conv_norm1(x) + self.conv_norm2(x)
             self.frist = True
         else:
-            res = self.conv3(x)
+            res = self.fused_conv(x)
         if self.act_layer:
             res = self.act(res)
 
@@ -222,8 +222,8 @@ class RepBlock(BaseModule):
             weights, bias = weights + padding_weights(
                 norm_weight), norm_bias + bias
 
-        self.conv3.weight.data = weights
-        self.conv3.bias.data = bias
+        self.fused_conv.weight.data = weights
+        self.fused_conv.bias.data = bias
 
     def eval(self):
         self.rep()
