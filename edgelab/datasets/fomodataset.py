@@ -21,6 +21,7 @@ class FomoDatasets(Dataset):
                  data_root,
                  pipeline,
                  classes=None,
+                 use_alb=True,
                  bbox_params: dict = dict(format='coco',
                                           label_fields=['class_labels']),
                  ann_file: str = None,
@@ -35,7 +36,7 @@ class FomoDatasets(Dataset):
         self.bbox_params = bbox_params
 
         self.transform = AlbCompose(pipeline,
-                                      bbox_params=A.BboxParams(**bbox_params))
+                                    bbox_params=A.BboxParams(**bbox_params))
         # load data with coco format
         self.data = torchvision.datasets.CocoDetection(
             img_dir,
@@ -67,7 +68,7 @@ class FomoDatasets(Dataset):
             if key == 0 and self.roboflow:
                 continue
             self.CLASSES.append(value['name'])
-            
+
     def __len__(self):
         """ return datasets len"""
         return len(self.data)
@@ -78,7 +79,15 @@ class FomoDatasets(Dataset):
 
         bboxes = []
         labels = []
+        min_hw_pixels = 2
         for annotation in ann:
+            # coco annotation specific https://cocodataset.org/#format-data
+            x, y, width, height = annotation['bbox'][:4]
+            if width == 0:
+                width += min_hw_pixels
+            if height == 0:
+                height += min_hw_pixels
+            annotation['bbox'][:4] = [x, y, width, height]
             bboxes.append(annotation['bbox'])
             labels.append(annotation['category_id'])
 
@@ -179,7 +188,7 @@ class FomoDatasets(Dataset):
         confusion = confusion_matrix(target_max.flatten().cpu().numpy(),
                                      preds_max.flatten().cpu().numpy(),
                                      labels=range(preds.shape[-1]))
-        # Calculate the value of P、R、F1 based on the confusion matrix
+        # Calculate the value of P, R, F1 based on the confusion matrix
         tn = confusion[0, 0]
         tp = np.diagonal(confusion).sum() - tn
         fn = np.tril(confusion, k=-1).sum()
