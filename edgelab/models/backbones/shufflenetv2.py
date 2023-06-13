@@ -2,11 +2,11 @@ import copy
 
 import torch.nn as nn
 from mmcv.cnn import ConvModule
-from mmdet.registry import VISBACKENDS
+from edgelab.registry import BACKBONES
 from mmpose.models.backbones.shufflenet_v2 import ShuffleNetV2
 
 
-@VISBACKENDS.register_module(force=True)
+@BACKBONES.register_module()
 class CustomShuffleNetV2(ShuffleNetV2):
 
     def __init__(self,
