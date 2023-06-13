@@ -38,7 +38,6 @@ class DetHead(BaseModel):
         self.num_out_attrib = 5 + self.num_classes
         self.num_levels = len(self.featmap_strides)
         self.num_base_priors = num_base_priors
-        self.n_shapes = []
 
         if isinstance(in_channels, int):
             self.in_channels = [make_divisible(in_channels, widen_factor)
@@ -110,16 +109,13 @@ class DetHead(BaseModel):
         bs, _, ny, nx = pred_map.shape
         pred_map = pred_map.view(bs, self.num_base_priors, self.num_out_attrib,
                                  ny*nx)
-        self.n_shapes.append((ny, nx))
-        return pred_map.permute(0, 1, 3, 2).contiguous()
+        return pred_map.permute(0, 1, 3, 2).contiguous(), nx, ny
 
     def process(self, pred_map) -> Tuple[Tensor,Tensor]:
         res = []
         
-        for idx, feat_ in enumerate(pred_map):
+        for idx, (feat_, nx, ny) in enumerate(pred_map):
             bs = feat_.shape[0]
-            nx = self.n_shapes[idx][1]
-            ny = self.n_shapes[idx][0]
             grid, grid_ = self.get_grid(nx, ny, idx, feat_.device)
         
             feat_xy, feat_wh, feat_cls = torch.split(feat_, [2, 2, self.num_classes+1], dim=-1)
