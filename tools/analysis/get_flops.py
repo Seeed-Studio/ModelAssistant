@@ -1,77 +1,145 @@
+# Copyright (c) OpenMMLab. All rights reserved.
 import argparse
+import tempfile
+from pathlib import Path
 
-from mmcv import Config
-from mmcv.cnn.utils import get_model_complexity_info
+import torch
+from mmdet.registry import MODELS
+from mmengine.analysis import get_model_complexity_info
+from mmengine.config import Config, DictAction
+from mmengine.logging import MMLogger
+from mmengine.model import revert_sync_batchnorm
+from mmengine.registry import init_default_scope
+
+from mmyolo.utils import switch_to_deploy
+
+from tools.utils.config import load_config
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Get model flops and params')
-    parser.add_argument('config', help='config file path')
-    parser.add_argument('--shape',
-                        type=int,
-                        nargs='+',
-                        default=[320, 320],
-                        help='input image size')
-    parser.add_argument('--task',
-                        default='mmcls',
-                        help='The task type to which the model belongs')
-    parser.add_argument('--audio',
-                        action='store_true',
-                        help='input data is audio')
-    parser.add_argument('--channle',
-                        type=int,
-                        default=3,
-                        help='Number of channels for input data')
-    args = parser.parse_args()
-    return args
+    parser = argparse.ArgumentParser(description='Get a detector flops')
+    parser.add_argument('config', help='train config file path')
+    parser.add_argument(
+        '--shape',
+        type=int,
+        nargs='+',
+        default=[],
+        help='input image size')
+    parser.add_argument(
+        '--show-arch',
+        action='store_true',
+        help='whether return the statistics in the form of network layers')
+    parser.add_argument(
+        '--not-show-table',
+        action='store_true',
+        help='whether return the statistics in the form of table'),
+    parser.add_argument(
+        '--cfg-options',
+        nargs='+',
+        action=DictAction,
+        help='override some settings in the used config, the key-value pair '
+        'in xxx=yyy format will be merged into config file. If the value to '
+        'be overwritten is a list, it should be like key="[a,b]" or key=a,b '
+        'It also allows nested list/tuple values, e.g. key="[(a,b),(c,d)]" '
+        'Note that the quotation marks are necessary and that no white space '
+        'is allowed.')
+    return parser.parse_args()
+
+
+def inference(args, logger):
+    config_name = Path(args.config)
+    if not config_name.exists():
+        logger.error(f'{config_name} not found.')
+
+    # load config
+    tmp_folder = tempfile.TemporaryDirectory()
+    # Modify and create temporary configuration files
+    config_data = load_config(args.config,
+                              folder=tmp_folder.name,
+                              cfg_options=args.cfg_options)
+    # load temporary configuration files
+    cfg = Config.fromfile(config_data)
+    tmp_folder.cleanup()
+    
+    cfg.work_dir = tempfile.TemporaryDirectory().name
+    cfg.log_level = 'WARN'
+    if args.cfg_options is not None:
+        cfg.merge_from_dict(args.cfg_options)
+
+    init_default_scope(cfg.get('default_scope', 'mmyolo'))
+    
+    if len(args.shape) == 1:
+        h = w = args.shape[0]
+    elif len(args.shape) == 2:
+        h, w = args.shape
+    else:
+        try:
+            h, w = cfg.height, cfg.width
+        except:
+            raise ValueError('invalid input shape')
+
+    # model
+    model = MODELS.build(cfg.model)
+    if torch.cuda.is_available():
+        model.cuda()
+    model = revert_sync_batchnorm(model)
+    model.eval()
+    switch_to_deploy(model)
+
+    # input tensor
+    # automatically generate a input tensor with the given input_shape.
+    data_batch = {'inputs': [torch.rand(3, h, w)], 'batch_samples': [None]}
+    print(model.data_preprocessor)
+    data = model.data_preprocessor(data_batch)
+    if isinstance(data['inputs'], (list, tuple)):
+        inputs = data['inputs'][0]
+    else:
+        inputs = data['inputs']
+        
+    if inputs.shape[0] != 1: 
+        inputs = inputs.unsqueeze(0) # batch size 1
+        
+    result = {'ori_shape': (h, w), 'pad_shape': inputs.shape[-2:]}
+    outputs = get_model_complexity_info(
+        model,
+        input_shape=None,
+        inputs=inputs,  # the input tensor of the model
+        show_table=not args.not_show_table,  # show the complexity table
+        show_arch=args.show_arch)  # show the complexity arch
+
+    result['flops'] = outputs['flops_str']
+    result['params'] = outputs['params_str']
+    result['out_table'] = outputs['out_table']
+    result['out_arch'] = outputs['out_arch']
+
+    return result
 
 
 def main():
-
     args = parse_args()
+    logger = MMLogger.get_instance(name='MMLogger')
+    result = inference(args, logger)
 
-    if len(args.shape) == 1:
-        if args.audio:
-            input_shape = (1, args.shape[0])
-        else:
-            input_shape = (args.channle, args.shape[0], args.shape[0])
-
-    elif len(args.shape) == 2:
-        input_shape = (args.channle, ) + tuple(args.shape)
-    else:
-        raise ValueError('invalid input shape')
-
-    cfg = Config.fromfile(args.config)
-    if args.task == 'mmcls':
-        from mmcls.models import build_classifier
-
-        model = build_classifier(cfg.model)
-    elif args.task == 'mmdet':
-        from mmdet.models import build_detector
-
-        model = build_detector(cfg.model)
-    elif args.task == 'mmpose':
-        from mmpose.models import build_posenet
-
-        model = build_posenet(cfg.model)
-    model.eval()
-
-    if hasattr(model, 'forward_dummy'):
-        model.forward = model.forward_dummy
-    else:
-        raise NotImplementedError(
-            'FLOPs counter is currently not currently supported with {}'.
-            format(model.__class__.__name__))
-
-    flops, params = get_model_complexity_info(model,
-                                              input_shape,
-                                              as_strings=True)
     split_line = '=' * 30
-    print(f'{split_line}\nInput shape: {input_shape}\n'
-          f'Flops: {flops}\nParams: {params}\n{split_line}')
+
+    ori_shape = result['ori_shape']
+    pad_shape = result['pad_shape']
+    flops = result['flops']
+    params = result['params']
+
+    print(result['out_table'])  # print related information by table
+    print(result['out_arch'])  # print related information by network layers
+
+    if pad_shape != ori_shape:
+        print(f'{split_line}\nUse size divisor set input shape '
+              f'from {ori_shape} to {pad_shape}')
+
+    print(f'{split_line}\n'
+          f'Input shape: {pad_shape}\nModel Flops: {flops}\n'
+          f'Model Parameters: {params}\n{split_line}')
     print('!!!Please be cautious if you use the results in papers. '
-          'You may need to check if all ops are supported and verify that the '
-          'flops computation is correct.')
+          'You may need to check if all ops are supported and verify '
+          'that the flops computation is correct.')
 
 
 if __name__ == '__main__':
