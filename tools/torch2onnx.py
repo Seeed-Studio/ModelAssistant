@@ -13,6 +13,9 @@ from onnx.checker import check_model
 from mmengine.config import Config
 from mmengine.runner import Runner
 from tools.utils.config import load_config
+import edgelab.models
+import edgelab.datasets
+import edgelab.evaluation
 
 torch.manual_seed(3)
 
@@ -227,7 +230,7 @@ def main():
     elif len(shape) == 2:
         input_shape = (
             1,
-            1,
+            3,
         ) + tuple(shape)
     else:
         raise ValueError('invalid input shape')
@@ -235,8 +238,7 @@ def main():
     # load config
     tmp_folder = tf.TemporaryDirectory()
     # Modify and create temporary configuration files
-    config_data = load_config(args.config,
-                              folder=tmp_folder.name)
+    config_data = load_config(args.config, folder=tmp_folder.name)
     # load temporary configuration files
     cfg = Config.fromfile(config_data)
     tmp_folder.cleanup()
