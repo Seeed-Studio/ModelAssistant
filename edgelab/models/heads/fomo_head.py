@@ -10,6 +10,7 @@ from mmengine.structures import InstanceData
 from mmengine.model import BaseModule
 from mmengine.model import normal_init, constant_init
 from mmcv.cnn import is_norm
+from mmdet.models.utils import unpack_gt_instances, multi_apply
 
 from edgelab.registry import LOSSES
 from ..base.general import CBR
@@ -98,18 +99,71 @@ class FomoHead(BaseModule):
         return tuple(result)
 
     def loss(self, inputs: Tuple[torch.Tensor, ...], data_samples):
-        pred = self.forward(inputs)
-        return self.lossFunction(pred[0], data_samples[0].labels)
 
-    def predict(self, features, data_samples, rescale=False):
+        pred = self.forward(inputs)
+
+        gt = unpack_gt_instances(data_samples)
+        (batch_gt_instances, batch_gt_instances_ignore, batch_img_metas) = gt
+
+        loss = self.loss_by_feat(pred, batch_gt_instances, batch_img_metas,
+                                 batch_gt_instances_ignore)
+
+        return loss
+
+    def predict(self, features, batch_data_samples, rescale=False):
+
         pred = F.softmax(self.forward(features)[0], dim=1)
-        return [
-            InstanceData(pred=pred,
-                         labels=self.build_target(pred.permute(0, 2, 3, 1),
-                                                  data_samples[0].labels))
+        img_shape = batch_data_samples[0]['img_shape']
+
+        batch_gt_instances = [
+            data_samples.gt_instances for data_samples in batch_data_samples
         ]
 
-    def lossFunction(self, pred_maps: torch.Tensor, target: torch.Tensor):
+        return [
+            InstanceData(pred=pred,
+                         labels=self.build_target(pred.shape[2:], img_shape,
+                                                  batch_gt_instances,
+                                                  torch.device("cuda:0")))
+        ]
+
+    def loss_by_feat(self, preds, batch_gt_instances, batch_img_metas,
+                     batch_gt_instances_ignore) -> dict:
+        device = preds[0].device
+        input_shape = batch_img_metas[0]['img_shape']  #batch_input_shape
+        # Get the ground truth box that fits the fomo model
+        target = [
+            self.build_target(pred.shape[2:], input_shape, batch_gt_instances,
+                              device) for pred in preds
+        ]
+        loss, cls_loss, bg_loss, P, R, F1 = multi_apply(
+            self.lossFunction, preds, target)
+
+        return dict(loss=loss, fgnd=cls_loss, bgnd=bg_loss, P=P, R=R, F1=F1)
+
+    def build_target(self, pred_shape, ori_shape, gt_bboxs, device):
+        """
+        The target feature map constructed according to the size 
+        of the feature map output by the model
+        bbox: xyxy
+        """
+        H, W, = pred_shape
+        B = len(gt_bboxs)
+
+        target_data = torch.zeros(size=(B, *pred_shape, self.num_attrib),
+                                  device=device)
+        target_data[..., 0] = 1
+
+        for b, bboxs in enumerate(gt_bboxs):
+
+            for idx, bbox in enumerate(bboxs.bboxes):
+                w = (bbox[2] + bbox[0]) / 2 / ori_shape[1]
+                h = (bbox[3] + bbox[1]) / 2 / ori_shape[0]
+                h, w = int(h.item() * H), int(w.item() * W)
+                target_data[b, h, w, 0] = 0  # background
+                target_data[b, h, w, bboxs.labels[idx] + 1] = 1  #label
+        return target_data
+
+    def lossFunction(self, pred_maps: torch.Tensor, data: torch.Tensor):
         """ Calculate the loss of the model 
         Args:
             preds(torch.Tensor): Model Predicted Output
@@ -126,8 +180,7 @@ class FomoHead(BaseModule):
         weight = torch.zeros(self.num_attrib, device=preds.device)
         weight[0] = 1
         self.weight_mask = torch.tile(weight, (H, W, 1))
-        # Get the ground truth box that fits the fomo model
-        data = self.build_target(preds, target)
+
         # background loss
         bg_loss = self.loss_bg(
             preds,
@@ -144,12 +197,8 @@ class FomoHead(BaseModule):
         loss = torch.mean(cls_loss + bg_loss)
         # get p,r,f1
         P, R, F1 = self.get_pricsion_recall_f1(preds, data)
-        return dict(loss=loss,
-                    fgnd=cls_loss,
-                    bgnd=bg_loss,
-                    P=torch.Tensor([P]),
-                    R=torch.Tensor([R]),
-                    F1=torch.Tensor([F1]))
+        return loss, cls_loss, bg_loss, torch.Tensor([P]), torch.Tensor(
+            [R]), torch.Tensor([F1])
 
     def get_pricsion_recall_f1(self, preds: torch.Tensor,
                                target: torch.Tensor):
@@ -210,22 +259,6 @@ class FomoHead(BaseModule):
         f1 = 2 * (p * r) / (p + r) if p + r != 0 else 0
 
         return p, r, f1
-
-    def build_target(self, preds: torch.Tensor, targets: torch.Tensor):
-        """
-        The target feature map constructed according to the size 
-        of the feature map output by the model
-        """
-        B, H, W, C = preds.shape
-        target_data = torch.zeros(size=(B, H, W, C), device=preds.device)
-        target_data[..., 0] = 1
-
-        for i in targets:
-            h, w = int(i[3].item() * H), int(i[2].item() * W)
-            target_data[int(i[0]), h, w, 0] = 0  # background
-            target_data[int(i[0]), h, w, int(i[1])] = 1  #label
-
-        return target_data
 
     @property
     def num_attrib(self):
