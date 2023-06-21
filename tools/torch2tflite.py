@@ -9,6 +9,7 @@ from functools import partial
 import edgelab.models
 import edgelab.datasets
 import edgelab.evaluation
+import edgelab.visualization
 import edgelab.engine
 from tools.utils.config import load_config
 
@@ -186,7 +187,7 @@ def export_tflite(args, model, context: DLContext):
     model.cpu().eval()
     
     #model.forward = partial(model.forward, mode='tensor')
-    if len(args.shape) ==1 :
+    if type(args.shape) == int:
         dummy_input = torch.randn(1, args.shape)
     else:
         dummy_input = torch.randn(1, *args.shape)

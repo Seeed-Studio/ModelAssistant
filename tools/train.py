@@ -217,8 +217,23 @@ def main():
         runner = RUNNERS.build(cfg)
 
     # model complex anly
-    shape = (3, cfg.height, cfg.width)
-    inputs = torch.rand(1, *shape)
+    try:
+        if 'shape' in cfg:
+            shape = cfg.shape
+        elif 'width' in cfg and 'height' in cfg:
+            shape = [
+                3,
+                cfg.width,
+                cfg.height,
+            ]
+    except:
+        raise ValueError('Please specify the input shape')
+
+    if type(shape) == int:
+        inputs = torch.rand(1, shape)
+    else:
+        inputs = torch.rand(1, *shape)
+        
     if torch.cuda.is_available():
         inputs = inputs.cuda()
         runner.model.cuda()
