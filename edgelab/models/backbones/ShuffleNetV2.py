@@ -3,12 +3,10 @@ import torch
 from torch import Tensor
 from typing import Optional
 import torch.nn as nn
-from mmdet.registry import VISBACKENDS
 from mmdet.models.utils.make_divisible import make_divisible
 from mmengine.model import BaseModule
 
-torchvision.models.SqueezeNet
-
+from edgelab.registry import BACKBONES
 from edgelab.models.base.general import ConvNormActivation
 
 
@@ -110,7 +108,7 @@ class InvertedResidual(nn.Module):
         return out
 
 
-@VISBACKENDS.register_module(name='TmpShuffleNetV2')
+@BACKBONES.register_module(name='TmpShuffleNetV2')
 class ShuffleNetV2(BaseModule):
 
     def __init__(self,

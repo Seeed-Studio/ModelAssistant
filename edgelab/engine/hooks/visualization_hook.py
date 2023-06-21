@@ -1,14 +1,17 @@
 import os
+import os.path as osp
 import warnings
 from typing import Optional, Sequence
 
 import mmcv
 import mmengine
 import mmengine.fileio as fileio
+from mmengine.hooks.hook import DATA_BATCH
 from mmengine.runner import Runner
 from mmengine.visualization import Visualizer
 from mmengine.hooks import Hook
 from edgelab.registry import HOOKS
+from mmdet.engine.hooks import DetVisualizationHook
 from mmpose.structures import PoseDataSample, merge_data_samples
 
 
@@ -95,3 +98,52 @@ class Posevisualization(Hook):
                 kpt_thr=self.kpt_thr,
                 out_file=out_file,
                 step=self._test_index)
+
+
+@HOOKS.register_module()
+class DetFomoVisualizationHook(DetVisualizationHook):
+
+    def __init__(self, *args, fomo: bool = False, **kwarg):
+        super().__init__(*args, **kwarg)
+        self.fomo = fomo
+
+    def after_val_iter(self,
+                       runner,
+                       batch_idx: int,
+                       data_batch: DATA_BATCH = None,
+                       outputs: Optional[Sequence] = None) -> None:
+        if self.fomo:
+            if self.draw is False:
+                return
+
+            # There is no guarantee that the same batch of images
+            # is visualized for each evaluation.
+            total_curr_iter = runner.iter + batch_idx
+
+            # Visualize only the first data
+            img_path = outputs[0].img_path
+            img_bytes = fileio.get(img_path, backend_args=self.backend_args)
+            img = mmcv.imfrombytes(img_bytes, channel_order='rgb')
+
+            if total_curr_iter % self.interval == 0:
+                self._visualizer.add_datasample(
+                    osp.basename(img_path) if self.show else 'val_img',
+                    img,
+                    data_sample=outputs[0],
+                    show=self.show,
+                    wait_time=self.wait_time,
+                    pred_score_thr=self.score_thr,
+                    step=total_curr_iter)
+        else:
+            return super().after_val_iter(runner, batch_idx, data_batch, outputs)
+
+    def after_test_iter(self,
+                        runner,
+                        batch_idx: int,
+                        data_batch: DATA_BATCH = None,
+                        outputs: Optional[Sequence] = None) -> None:
+    
+        if self.fomo:
+            pass
+        else:
+            return super().after_test_iter(runner, batch_idx, data_batch, outputs)

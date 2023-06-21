@@ -19,11 +19,7 @@ class Fomo(SingleStageDetector):
         super().__init__(backbone, neck, head, train_cfg, test_cfg,
                          data_preprocessor, init_cfg)
 
-        
-    def _forward(
-            self,
-            batch_inputs,
-            batch_data_samples):
+    def _forward(self, batch_inputs, batch_data_samples):
         """Network forward process. Usually includes backbone, neck and head
         forward without any post-processing.
 
@@ -38,4 +34,6 @@ class Fomo(SingleStageDetector):
         """
         x = self.extract_feat(batch_inputs)
         results = self.bbox_head.forward(x)
-        return torch.softmax(results[0], dim=1)
+        return [
+            torch.softmax(pred, dim=1).permute(0, 2, 3, 1) for pred in results
+        ]

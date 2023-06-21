@@ -20,7 +20,7 @@ vis_backends = [dict(type='LocalVisBackend'),
                 # dict(type='WandbVisBackend'),
                 dict(type='TensorboardVisBackend')]
 visualizer = dict(
-    type='mmdet.DetLocalVisualizer', vis_backends=vis_backends, name='visualizer')
+    type='edgelab.FomoLocalVisualizer', vis_backends=vis_backends, name='visualizer')
 
 
 log_processor = dict(type='LogProcessor', window_size=50, by_epoch=True)
