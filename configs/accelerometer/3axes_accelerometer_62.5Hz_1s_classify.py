@@ -84,3 +84,7 @@ train_cfg = dict(by_epoch=True, max_epochs=epochs)
 
 val_cfg = dict()
 test_cfg = dict()
+
+# set visualizer
+vis_backends = [dict(type='LocalVisBackend')]
+visualizer = dict(type='edgelab.SensorClsVisualizer', vis_backends=vis_backends, name='visualizer')
