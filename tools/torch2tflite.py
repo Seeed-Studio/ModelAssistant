@@ -44,7 +44,7 @@ def parse_args():
     parser.add_argument('--type', type=str, default='int8',
                         help='tflite export type', choices=['int8', 'uint8', 'float32'])
     parser.add_argument('--algorithm', type=str, default='l2', choices=['l2', 'kl'])
-    parser.add_argument('--backend', type=str, default='qnnpack', choices=['qnnpack', 'fbgemm'])
+    parser.add_argument('--backend', type=str, default='fbgemm', choices=['qnnpack', 'fbgemm'])
     parser.add_argument('--show', action='store_true',
                         help='show tflite graph')
     parser.add_argument(
