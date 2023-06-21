@@ -1,6 +1,10 @@
 _base_ = "../_base_/default_runtime_det.py"
 default_scope = "edgelab"
 custom_imports = dict(imports=["edgelab"], allow_failed_imports=False)
+default_hooks = dict(
+    visualization=dict(type='mmdet.DetVisualizationHook', score_thr=0.8))
+
+visualizer = dict(type='FomoLocalVisualizer', fomo=True)
 
 num_classes = 2
 data_preprocessor = dict(type='mmdet.DetDataPreprocessor',
