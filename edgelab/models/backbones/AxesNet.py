@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from mmcls.models.builder import BACKBONES
+from edgelab.registry import MODELS
 
 
-@BACKBONES.register_module()
+@MODELS.register_module()
 class AxesNet(nn.Module):
 
     def __init__(self,
@@ -12,9 +12,10 @@ class AxesNet(nn.Module):
                  frequency=62.5,  # sample frequency
                  window=1000,  # window size
                  out_channels=256,
+                 num_classes=-1
                  ):
         super().__init__()
-
+        self.num_classes = num_classes
         self.intput_feature = num_axes * int(frequency * window / 1000)
         liner_feature = self.liner_feature_fit()
         self.fc1 = nn.Linear(in_features=self.intput_feature,
@@ -23,6 +24,10 @@ class AxesNet(nn.Module):
                              out_features=liner_feature, bias=True)
         self.fc3 = nn.Linear(
             in_features=liner_feature, out_features=out_channels, bias=True)
+
+        if self.num_classes > 0:
+            self.classifier = nn.Linear(in_features=out_channels, out_features=num_classes, bias=True)
+
 
     def liner_feature_fit(self):
 
@@ -33,8 +38,11 @@ class AxesNet(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
-
-        return x
+        
+        if self.num_classes > 0:
+            x = self.classifier(x)
+            
+        return (x, )
 
 
 if __name__ == '__main__':

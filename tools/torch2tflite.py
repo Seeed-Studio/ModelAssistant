@@ -14,6 +14,8 @@ from tools.utils.config import load_config
 
 from tqdm import tqdm
 
+from tensorflow import lite as tflite
+
 
 from mmengine.analysis import get_model_complexity_info
 from mmengine.config import Config, DictAction, ConfigDict
@@ -122,11 +124,14 @@ def args_check():
             args.checkpoint) + '_' + args.type + '.tflite')
 
     try:
-        args.shape = [
-            3,
-            cfg.height,
-            cfg.width,
-        ]
+        if 'shape' in cfg:
+            args.shape = cfg.shape
+        elif 'width' in cfg and 'height' in cfg:
+            args.shape = [
+                3,
+                cfg.width,
+                cfg.height,
+            ]
     except:
         raise ValueError('Please specify the input shape')
 
@@ -181,8 +186,11 @@ def export_tflite(args, model, context: DLContext):
     model.cpu().eval()
     
     #model.forward = partial(model.forward, mode='tensor')
+    if len(args.shape) ==1 :
+        dummy_input = torch.randn(1, args.shape)
+    else:
+        dummy_input = torch.randn(1, *args.shape)
     
-    dummy_input = torch.randn(1, *args.shape)
     if args.type == 'int8' or type == 'uint8':
         with model_tracer():
             quantizer = PostQuantizer(model, dummy_input, work_dir=args.work_dir, config={
@@ -212,8 +220,7 @@ def export_tflite(args, model, context: DLContext):
                 model, dummy_input, optimize=args.simplify, tflite_path=args.tflite_file)
 
     converter.convert()
-
-
+       
 def main():
     
     args, cfg = args_check()
@@ -235,7 +242,6 @@ def main():
     context.max_iteration = args.epoch
 
     export_tflite(args, runner.model, context)
-
 
 
 if __name__ == '__main__':

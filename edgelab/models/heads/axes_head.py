@@ -1,37 +1,29 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from mmcls.models.builder import HEADS
-from mmcls.models.heads import LinearClsHead
-from mmcls.models.utils import is_tracing
+from edgelab.registry import MODELS
+from mmcls.models.heads import ClsHead
+from typing import List, Optional, Tuple, Union
 
-
-@HEADS.register_module()
-class AxesClsHead(LinearClsHead):
+@MODELS.register_module()
+class AxesClsHead(ClsHead):
     def __init__(self,
-                 num_classes,
-                 in_channels,
-                 init_cfg=dict(type='Normal', layer='Linear', std=0.01),
-                 *args,
-                 **kwargs):
-        super(AxesClsHead, self).__init__(num_classes=num_classes, in_channels=in_channels, init_cfg=init_cfg, *args, **kwargs)
+                 loss: dict = dict(type='CrossEntropyLoss', loss_weight=1.0),
+                 topk: Union[int, Tuple[int]] = (1, ),
+                 cal_acc: bool = False,
+                 init_cfg: Optional[dict] = None):
+        super(AxesClsHead, self).__init__(loss, topk, cal_acc, init_cfg=init_cfg)
+        
+        
+    def forward(self, feats: Tuple[torch.Tensor]) -> torch.Tensor:
+        """The forward process."""
+   
+        pre_logits = self.pre_logits(feats)
+        # The ClsHead doesn't have the final classification head,
+        # just return the unpacked inputs.
+        return pre_logits
 
-        self.fp16_enabled = False
-        self.on_trace = False
-        
     
-    def forward_dummy(self, x, softmax=True):
         
-        x = self.pre_logits(x)
         
-        cls_score = self.fc(x)
-        
-        if softmax:
-            pred = F.softmax(cls_score)
-        else:
-            pred = cls_score
-            
-        
-        return pred
-            
 
