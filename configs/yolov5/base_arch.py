@@ -125,20 +125,18 @@ model = dict(
         loss_cls=dict(type='mmdet.CrossEntropyLoss',
                       use_sigmoid=True,
                       reduction='mean',
-                      loss_weight=loss_cls_weight *
-                      (num_classes / 80 * 3 / num_det_layers)),
+                      loss_weight=loss_cls_weight),
         loss_bbox=dict(type='IoULoss',
                        iou_mode='ciou',
                        bbox_format='xywh',
                        eps=1e-7,
                        reduction='mean',
-                       loss_weight=loss_bbox_weight * (3 / num_det_layers),
+                       loss_weight=loss_bbox_weight,
                        return_iou=True),
         loss_obj=dict(type='mmdet.CrossEntropyLoss',
                       use_sigmoid=True,
                       reduction='mean',
-                      loss_weight=loss_obj_weight *
-                      ((img_scale[0] / 640)**2 * 3 / num_det_layers)),
+                      loss_weight=loss_obj_weight),
         prior_match_thr=prior_match_thr,
         obj_level_weights=obj_level_weights),
     test_cfg=model_test_cfg)
