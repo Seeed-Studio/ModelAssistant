@@ -222,17 +222,19 @@ class RepBlock(BaseModule):
             weights, bias = weights + padding_weights(
                 norm_weight), norm_bias + bias
 
-        self.fused_conv.weight.data = weights
-        self.fused_conv.bias.data = bias
+        try:
+            self.fused_conv.weight.copy_(weights)
+            self.fused_conv.bias.copy_(bias)
+        except:
 
-    def eval(self):
-        self.rep()
-        return super().eval()
+            self.fused_conv.weight.data = weights
+            self.fused_conv.bias.data = bias
 
     def train(self, mode: bool = True):
+        res = super().train(mode)
         if not mode:
             self.rep()
-        return super().train(mode)
+        return res
 
 
 if __name__ == '__main__':

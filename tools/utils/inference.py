@@ -267,7 +267,7 @@ class Infernce:
         self.cfg = cfg
 
         if 'fomo' in self.cfg.visualizer:
-            self.fomo = True
+            self.fomo = self.cfg.visualizer.fomo
         else:
             self.fomo = False
 
