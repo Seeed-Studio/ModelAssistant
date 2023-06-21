@@ -9,10 +9,13 @@ from functools import partial
 import edgelab.models
 import edgelab.datasets
 import edgelab.evaluation
+import edgelab.visualization
 import edgelab.engine
 from tools.utils.config import load_config
 
 from tqdm import tqdm
+
+from tensorflow import lite as tflite
 
 
 from mmengine.analysis import get_model_complexity_info
@@ -41,7 +44,7 @@ def parse_args():
     parser.add_argument('--type', type=str, default='int8',
                         help='tflite export type', choices=['int8', 'uint8', 'float32'])
     parser.add_argument('--algorithm', type=str, default='l2', choices=['l2', 'kl'])
-    parser.add_argument('--backend', type=str, default='qnnpack', choices=['qnnpack', 'fbgemm'])
+    parser.add_argument('--backend', type=str, default='fbgemm', choices=['qnnpack', 'fbgemm'])
     parser.add_argument('--show', action='store_true',
                         help='show tflite graph')
     parser.add_argument(
@@ -122,11 +125,14 @@ def args_check():
             args.checkpoint) + '_' + args.type + '.tflite')
 
     try:
-        args.shape = [
-            3,
-            cfg.height,
-            cfg.width,
-        ]
+        if 'shape' in cfg:
+            args.shape = cfg.shape
+        elif 'width' in cfg and 'height' in cfg:
+            args.shape = [
+                3,
+                cfg.width,
+                cfg.height,
+            ]
     except:
         raise ValueError('Please specify the input shape')
 
@@ -181,8 +187,11 @@ def export_tflite(args, model, context: DLContext):
     model.cpu().eval()
     
     #model.forward = partial(model.forward, mode='tensor')
+    if type(args.shape) == int:
+        dummy_input = torch.randn(1, args.shape)
+    else:
+        dummy_input = torch.randn(1, *args.shape)
     
-    dummy_input = torch.randn(1, *args.shape)
     if args.type == 'int8' or type == 'uint8':
         with model_tracer():
             quantizer = PostQuantizer(model, dummy_input, work_dir=args.work_dir, config={
@@ -212,8 +221,7 @@ def export_tflite(args, model, context: DLContext):
                 model, dummy_input, optimize=args.simplify, tflite_path=args.tflite_file)
 
     converter.convert()
-
-
+       
 def main():
     
     args, cfg = args_check()
@@ -235,7 +243,6 @@ def main():
     context.max_iteration = args.epoch
 
     export_tflite(args, runner.model, context)
-
 
 
 if __name__ == '__main__':

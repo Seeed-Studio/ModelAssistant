@@ -1,109 +1,128 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from mmcls.models.builder import CLASSIFIERS, build_backbone, build_head, build_neck
-from mmcls.models.heads import MultiLabelClsHead
+from typing import List, Optional
+
+import torch
+import torch.nn as nn
+
+from edgelab.registry import MODELS
+from mmcls.structures import ClsDataSample
 from mmcls.models.classifiers.base import BaseClassifier
 
 
-@CLASSIFIERS.register_module()
+@MODELS.register_module()
 class AccelerometerClassifier(BaseClassifier):
+    """Accelerometer classifiers for supervised classification task.
+
+    Args:
+        backbone (dict): The backbone module. See
+            :mod:`mmcls.models.backbones`.
+        neck (dict, optional): The neck module to process features from
+            backbone. See :mod:`mmcls.models.necks`. Defaults to None.
+        head (dict, optional): The head module to do prediction and calculate
+            loss from processed features. See :mod:`mmcls.models.heads`.
+            Notice that if the head is not set, almost all methods cannot be
+            used except :meth:`extract_feat`. Defaults to None.
+        pretrained (str, optional): The pretrained checkpoint path, support
+            local path and remote path. Defaults to None.
+        train_cfg (dict, optional): The training setting. The acceptable
+            fields are:
+
+            - augments (List[dict]): The batch augmentation methods to use.
+              More details can be found in :mod:`mmcls.model.utils.augment`.
+
+            Defaults to None.
+        data_preprocessor (dict, optional): The config for preprocessing input
+            data. If None or no specified type, it will use
+            "SensorDataPreprocessor" as type. See :class:`SensorDataPreprocessor` for
+            more details. Defaults to None.
+        init_cfg (dict, optional): the config to control the initialization.
+            Defaults to None.
+    """
 
     def __init__(self,
-                 backbone,
-                 neck=None,
-                 head=None,
-                 pretrained=None,
-                 data_preprocessor = None,
-                 train_cfg=None,
-                 init_cfg=None):
-        super(AccelerometerClassifier, self).__init__(init_cfg)
+                 backbone: dict,
+                 neck: Optional[dict] = None,
+                 head: Optional[dict] = None,
+                 pretrained: Optional[str] = None,
+                 train_cfg: Optional[dict] = None,
+                 data_preprocessor: Optional[dict] = None,
+                 init_cfg: Optional[dict] = None):
+        if pretrained is not None:
+            init_cfg = dict(type='Pretrained', checkpoint=pretrained)
+
         if data_preprocessor is None:
             data_preprocessor = {}
         # The build process is in MMEngine, so we need to add scope here.
-        data_preprocessor.setdefault('type', 'mmpretrain.ClsDataPreprocessor')
-        
+        data_preprocessor.setdefault('type', 'edgelab.SensorDataPreprocessor')
+
         if train_cfg is not None and 'augments' in train_cfg:
             # Set batch augmentations by `train_cfg`
             data_preprocessor['batch_augments'] = train_cfg
 
-        if pretrained is not None:
-            self.init_cfg = dict(type='Pretrained', checkpoint=pretrained)
-        self.backbone = build_backbone(backbone)
-
-        if neck is not None:
-            self.neck = build_neck(neck)
-
-        if head is not None:
-            self.head = build_head(head)
-
-        super().__init__(
+        super(AccelerometerClassifier, self).__init__(
             init_cfg=init_cfg, data_preprocessor=data_preprocessor)
-        # self.augments = None
-        # if train_cfg is not None:
-        #     augments_cfg = train_cfg.get('augments', None)
-        #     if augments_cfg is not None:
-        #         self.augments = Augments(augments_cfg)
 
-    def forward_dummy(self, img):
-        
-        img = self.extract_feat(img , stage='backbone')
-        
-        if self.with_head:
-            return self.head.forward_dummy(img)
+        if not isinstance(backbone, nn.Module):
+            backbone = MODELS.build(backbone)
+        if neck is not None and not isinstance(neck, nn.Module):
+            neck = MODELS.build(neck)
+        if head is not None and not isinstance(head, nn.Module):
+            head = MODELS.build(head)
 
-        return img
-    
-    def extract_feat(self, img, stage='neck'):
+        self.backbone = backbone
+        self.neck = neck
+        self.head = head
+
+    def forward(self,
+                inputs: torch.Tensor,
+                data_samples: Optional[List[ClsDataSample]] = None,
+                mode: str = 'tensor'):
+
+        if mode == 'tensor':
+            feats = self.extract_feat(inputs)
+            return self.head(feats) if self.with_head else feats
+        elif mode == 'loss':
+            return self.loss(inputs, data_samples)
+        elif mode == 'predict':
+            return self.predict(inputs, data_samples)
+        else:
+            raise RuntimeError(f'Invalid mode "{mode}".')
+
+    def extract_feat(self, inputs, stage='neck'):
 
         assert stage in ['backbone', 'neck', 'pre_logits'], \
             (f'Invalid output stage "{stage}", please choose from "backbone", '
              '"neck" and "pre_logits"')
 
-        img = self.backbone(img)
+        x = self.backbone(inputs)
+        
+
 
         if stage == 'backbone':
-            return img
+            return x
 
         if self.with_neck:
-            img = self.neck(img)
+            x = self.neck(x)
         if stage == 'neck':
-            return img
+            return x
 
-        if self.with_head and hasattr(self.head, 'pre_logits'):
-            img = self.head.pre_logits(img)
-        return img
+        assert self.with_head and hasattr(self.head, 'pre_logits'), \
+            "No head or the head doesn't implement `pre_logits` method."
+        return self.head.pre_logits(x)
 
-    def forward_train(self, img, gt_label, **kwargs):
+    def loss(self, inputs: torch.Tensor,
+             data_samples: List[ClsDataSample]) -> dict:
 
-        if self.data_preprocessor is not None:
-            img, gt_label = self.data_preprocessor(img, gt_label)
 
-        img = self.extract_feat(img)
-
-        losses = dict()
-        loss = self.head.forward_train(img, gt_label)
-
-        losses.update(loss)
-
-        return losses
-
-    def simple_test(self, img, img_metas=None, **kwargs):
-
-        img = self.extract_feat(img)
-
-        if isinstance(self.head, MultiLabelClsHead):
-            assert 'softmaimg' not in kwargs, (
-                'Please use `sigmoid` instead of `softmaimg` '
-                'in multi-label tasks.')
-        res = self.head.simple_test(img, **kwargs)
-
-        return res
-
-    def forward(self, img, flag=False, return_loss=True, **kwargs):
+        feats = self.extract_feat(inputs)
         
-        if (flag):
-            return self.forward_dummy(img)
 
-        if return_loss:
-            return self.forward_train(img, **kwargs)
-        else:
-            return self.forward_test(img, **kwargs)
+        return self.head.loss(feats, data_samples)
+
+    def predict(self,
+                inputs: torch.Tensor,
+                data_samples: Optional[List[ClsDataSample]] = None,
+                **kwargs) -> List[ClsDataSample]:
+
+        feats = self.extract_feat(inputs)
+        return self.head.predict(feats, data_samples, **kwargs)

@@ -1,3 +1,3 @@
 from .pointpreprocessor import ETADataPreprocessor
-
-__all__=['ETADataPreprocessor']
+from .SensorDataPreprocessor import SensorDataPreprocessor
+__all__=['ETADataPreprocessor', 'SensorDataPreprocessor']

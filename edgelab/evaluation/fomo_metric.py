@@ -5,6 +5,7 @@ import numpy as np
 import torch
 from mmengine.registry import METRICS
 from mmengine.evaluator import BaseMetric
+from mmdet.models.utils import multi_apply
 
 
 @METRICS.register_module()
@@ -23,6 +24,7 @@ class FomoMetric(BaseMetric):
         preds, target = preds.to(torch.device('cpu')), target.to(
             torch.device('cpu'))
         preds = torch.softmax(preds, dim=-1)
+        B, H, W, C = preds.shape
         # Get the category id of each box
         target_max = torch.argmax(target, dim=-1)
         preds_max = torch.argmax(preds, dim=-1)
@@ -40,7 +42,7 @@ class FomoMetric(BaseMetric):
             for po in self.posit_offset:
                 site = ti + po
                 # Avoid index out ofAvoid index out of bounds
-                if torch.any(site < 0) or torch.any(site > 11):
+                if torch.any(site < 0) or torch.any(site >= H):
                     continue
                 # The prediction is considered to be correct if it is near the ground truth box
                 if site in preds_index and preds_max[site.chunk(
@@ -70,26 +72,24 @@ class FomoMetric(BaseMetric):
         return p, r, f1
 
     def process(self, data_batch, data_samples) -> None:
-        tmp = TP = FP = FN = []
+        TP = FP = FN = []
+        preds, target = data_samples[0]['pred_instances'][
+            'pred'], data_samples[0]['pred_instances']['labels']
+        preds = tuple([pred.permute(0, 2, 3, 1) for pred in preds])
 
-        pred, target = data_samples[0]['pred_instances']['pred'], data_samples[0]['pred_instances']['labels']
-        pred = pred.permute(0, 2, 3, 1)
-        B, H, W, C = target.shape
-        tp, fp, fn = self.compute_ftp(pred, target)
-        mask = torch.eq(pred, target)
-        acc = torch.sum(mask) / (H * W)
-        tmp.append(acc)
+        tp, fp, fn = multi_apply(self.compute_ftp, preds, target)
+
         TP.append(tp)
         FP.append(fp)
         FN.append(fn)
         self.results.append(dict(tp=tp, fp=fp, fn=fn))
 
-    def compute_metrics(self, results: Optional[list]=None) -> dict:
+    def compute_metrics(self, results: Optional[list] = None) -> dict:
         if results is None:
-            results=self.results
-        tp = sum([i['tp'] for i in results])
-        fp = sum([i['fp'] for i in results])
-        fn = sum([i['fn'] for i in results])
+            results = self.results
+        tp = sum([sum(i['tp']) for i in results])
+        fp = sum([sum(i['fp']) for i in results])
+        fn = sum([sum(i['fn']) for i in results])
         P, R, F1 = self.computer_prf(tp, fp, fn)
         return dict(
             P=P,

@@ -5,7 +5,7 @@ import torch.nn as nn
 from edgelab.registry import MODELS
 
 from mmengine.model import BaseModule
-from edgelab.models.base.general import ConvNormActivation
+from edgelab.models.base.general import ConvNormActivation, get_act
 
 
 def padding_weights(weights: Optional[torch.Tensor] = None,
@@ -77,7 +77,7 @@ def fuse_conv_norm(block: Union[nn.Sequential, nn.BatchNorm2d, nn.LayerNorm],
                         dtype=torch.float32,
                         device=norm_gamm.device)
         for idx in range(in_channels):
-            w[idx, idx % b, 0, 0] = 1
+            w[idx, idx % b, 0, 0] = 1.0
 
         std = (norm_var + norm_eps).sqrt()
         norm_weight = (norm_gamm / std).reshape(-1, 1, 1, 1)
@@ -137,19 +137,21 @@ class RepBlock(BaseModule):
                  bias: bool = False,
                  groups: int = 1,
                  norm_layer: Union[str, dict] = "BN",
-                 act_layer: Optional[str] = None,
-                 use_norm: bool = True,
+                 act_layer: Optional[str] = 'ReLU',
+                 use_norm: bool = False,
                  init_cfg: Union[dict, List[dict], None] = None) -> None:
         super().__init__(init_cfg)
 
-        if use_norm:
-            assert in_channels == out_channels, "If you use norm, the number of input channels must be equal to the number of output channels,\
-                but the input channel is {}, and the output channel is {}".format(
-                in_channels, out_channels)
+        # if use_norm:
+        #     assert in_channels == out_channels, "If you use norm, the number of input channels must be equal to the number of output channels,\
+        #         but the input channel is {}, and the output channel is {}".format(
+        #         in_channels, out_channels)
         self.use_norm = use_norm
+        self.act_layer = act_layer
         self.kernel_size = kernel_size
+        self.groups = groups
         self.conv_norm1 = ConvNormActivation(in_channels,
-                                             out_channels,
+                                             in_channels,
                                              kernel_size,
                                              stride,
                                              padding=padding,
@@ -157,9 +159,9 @@ class RepBlock(BaseModule):
                                              bias=bias,
                                              groups=groups,
                                              norm_layer=norm_layer,
-                                             activation_layer=act_layer)
+                                             activation_layer=None)
         self.conv_norm2 = ConvNormActivation(in_channels,
-                                             out_channels,
+                                             in_channels,
                                              1,
                                              stride=stride,
                                              padding=0,
@@ -167,19 +169,29 @@ class RepBlock(BaseModule):
                                              bias=bias,
                                              groups=groups,
                                              norm_layer=norm_layer,
-                                             activation_layer=act_layer)
+                                             activation_layer=None)
         if use_norm:
             self.norm = nn.BatchNorm2d(in_channels)
+        if act_layer:
+            self.act = get_act(act=act_layer)()
+        if in_channels != out_channels:
+            self.last_conv = ConvNormActivation(in_channels,
+                                                out_channels,
+                                                1,
+                                                stride=1,
+                                                padding=0,
+                                                norm_layer=norm_layer,
+                                                activation_layer=act_layer)
 
-        self.conv3 = nn.Conv2d(in_channels,
-                               out_channels,
-                               kernel_size=kernel_size,
-                               stride=stride,
-                               padding=padding,
-                               dilation=dilation,
-                               groups=groups,
-                               bias=True,
-                               padding_mode='zeros')
+        self.fused_conv = nn.Conv2d(in_channels,
+                                    in_channels,
+                                    kernel_size=kernel_size,
+                                    stride=stride,
+                                    padding=padding,
+                                    dilation=dilation,
+                                    groups=groups,
+                                    bias=True,
+                                    padding_mode='zeros')
         self.frist = True
 
     def forward(self, x):
@@ -189,25 +201,40 @@ class RepBlock(BaseModule):
             else:
                 res = self.conv_norm1(x) + self.conv_norm2(x)
             self.frist = True
-            return res
         else:
-            if self.frist:
-                self.rep()
-                self.frist = False
-            return self.conv3(x)
+            res = self.fused_conv(x)
+        if self.act_layer:
+            res = self.act(res)
+
+        if hasattr(self, 'last_conv'):
+            res = self.last_conv(res)
+
+        return res
 
     def rep(self):
 
-        kbn1, bbn1 = fuse_conv_norm(self.conv_norm1)
-        kbn2, bbn2 = fuse_conv_norm(self.conv_norm2)
+        kbn1, bbn1 = fuse_conv_norm(self.conv_norm1, self.groups)
+        kbn2, bbn2 = fuse_conv_norm(self.conv_norm2, self.groups)
 
         weights, bias = kbn1 + padding_weights(kbn2), bbn1 + bbn2
         if self.use_norm:
-            norm_weight, norm_bias = fuse_conv_norm(self.norm)
+            norm_weight, norm_bias = fuse_conv_norm(self.norm, self.groups)
             weights, bias = weights + padding_weights(
                 norm_weight), norm_bias + bias
-        self.conv3.weight.copy_(weights)
-        self.conv3.bias.copy_(bias)
+
+        try:
+            self.fused_conv.weight.copy_(weights)
+            self.fused_conv.bias.copy_(bias)
+        except:
+
+            self.fused_conv.weight.data = weights
+            self.fused_conv.bias.data = bias
+
+    def train(self, mode: bool = True):
+        res = super().train(mode)
+        if not mode:
+            self.rep()
+        return res
 
 
 if __name__ == '__main__':
@@ -216,9 +243,7 @@ if __name__ == '__main__':
     rep.eval()
     input = ii = torch.rand(4, 32, 192, 192)
     pred1 = rep(input)
-    print(pred1.shape)
     rep.eval()
     pred2 = rep(input)
-    print(pred2.shape)
     var = (pred1 - pred2).abs().sum()
     print(var)

@@ -6,7 +6,9 @@ import edgelab.models
 import edgelab.datasets
 import edgelab.evaluation
 import edgelab.engine
+import edgelab.visualization
 
+import torch
 from mmengine.analysis import get_model_complexity_info
 from mmengine.config import Config, DictAction, ConfigDict
 from mmengine.registry import RUNNERS
@@ -215,9 +217,34 @@ def main():
         runner = RUNNERS.build(cfg)
 
     # model complex anly
-    # analysis_results = get_model_complexity_info(model=runner.model,input_shape=(3,122,122))
-    # print(f"Model Flops:{analysis_results['flops_str']}")
-    # print(f"Model Parameters:{analysis_results['params_str']}")
+    try:
+        if 'shape' in cfg:
+            shape = cfg.shape
+        elif 'width' in cfg and 'height' in cfg:
+            shape = [
+                3,
+                cfg.width,
+                cfg.height,
+            ]
+    except:
+        raise ValueError('Please specify the input shape')
+
+    if type(shape) == int:
+        inputs = torch.rand(1, shape)
+    else:
+        inputs = torch.rand(1, *shape)
+        
+    if torch.cuda.is_available():
+        inputs = inputs.cuda()
+        runner.model.cuda()
+        runner.model.eval()
+    analysis_results = get_model_complexity_info(model=runner.model,
+                                                 input_shape=shape,
+                                                 inputs=(inputs, ))
+    print('=' * 30)
+    print(f"Model Flops:{analysis_results['flops_str']}")
+    print(f"Model Parameters:{analysis_results['params_str']}")
+    print('=' * 30)
 
     # start training
     runner.train()
