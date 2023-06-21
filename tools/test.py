@@ -23,6 +23,7 @@ import edgelab.models
 import edgelab.datasets
 import edgelab.evaluation
 import edgelab.engine
+import edgelab.visualization
 
 
 def parse_args():

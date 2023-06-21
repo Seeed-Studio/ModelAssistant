@@ -16,6 +16,7 @@ from tools.utils.config import load_config
 import edgelab.models
 import edgelab.datasets
 import edgelab.evaluation
+import edgelab.visualization
 
 torch.manual_seed(3)
 

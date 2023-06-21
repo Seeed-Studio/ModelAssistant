@@ -6,6 +6,7 @@ import edgelab.models
 import edgelab.datasets
 import edgelab.evaluation
 import edgelab.engine
+import edgelab.visualization
 
 import torch
 from mmengine.analysis import get_model_complexity_info
