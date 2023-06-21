@@ -3,6 +3,7 @@ from typing import Tuple, Optional, List, Union
 from torch import Tensor
 from torch.nn import functional as F
 from mmengine.config import ConfigDict
+from mmengine.model import BaseModule
 from mmdet.models.necks.fpn import FPN as _FPN
 from edgelab.registry import NECKS
 
@@ -98,3 +99,10 @@ class FPN(_FPN):
                     else:
                         outs.append(self.fpn_convs[i](outs[-1]))
         return tuple(outs)
+
+@NECKS.register_module()
+class LiteFPN(BaseModule):
+    def __init__(self, init_cfg: Union[dict,List[dict],None] = None):
+        super().__init__(init_cfg)
+        
+        
