@@ -1,7 +1,7 @@
 import os
 import time
 import os.path as osp
-from typing import List, AnyStr, Tuple, Optional, Union
+from typing import List, AnyStr, Tuple, Optional, Union, Sequence
 
 import cv2
 import mmcv
@@ -10,12 +10,14 @@ import torch
 import numpy as np
 from tqdm.std import tqdm
 from torch.utils.data import DataLoader
+from sklearn.metrics import confusion_matrix
 
 from mmdet.models.utils import samplelist_boxtype2tensor
 from mmengine.config import Config
 from mmengine.evaluator import Evaluator
 from mmengine.structures import InstanceData
 from mmengine.registry import MODELS
+from mmdet.models.utils import samplelist_boxtype2tensor
 from edgelab.models.utils.computer_acc import pose_acc, audio_acc
 
 from edgelab.utils.cv import load_image, NMS
@@ -110,9 +112,8 @@ class Inter():
             raise ValueError
         results = []
         if self.engine == 'onnx':  # onnx
-            result = self.inter.run(
-                [self.inter.get_outputs()[0].name],
-                {self.inter.get_inputs()[0].name: img})[0][0]
+            result = self.inter.run([self.inter.get_outputs()[0].name],
+                                    {self.inter.get_inputs()[0].name: img})[0]
             results.append(result)
         elif self.engine == 'ncnn':  # ncnn
             self.inter.opt.use_vulkan_compute = False
@@ -208,6 +209,28 @@ class DataStream:
         return img
 
 
+def build_target(pred_shape, ori_shape, gt_bboxs):
+    """
+    The target feature map constructed according to the size 
+    of the feature map output by the model
+    bbox: xyxy
+    """
+    H, W, C = pred_shape
+    B = len(gt_bboxs)
+
+    target_data = torch.zeros(size=(1, *pred_shape))
+    target_data[..., 0] = 1
+    for b, bboxs in enumerate(gt_bboxs):
+
+        for idx, bbox in enumerate(bboxs.bboxes):
+            w = (bbox[2] + bbox[0]) / 2 / ori_shape[1]
+            h = (bbox[3] + bbox[1]) / 2 / ori_shape[0]
+            h, w = int(h.item() * H), int(w.item() * W)
+            target_data[0, h, w, 0] = 0  # background
+            target_data[0, h, w, bboxs.labels[idx] + 1] = 1  #label
+    return target_data
+
+
 class Infernce:
     """
     Model Reasoning Test
@@ -242,6 +265,12 @@ class Infernce:
             self.dataloader = dataloader
 
         self.cfg = cfg
+
+        if 'fomo' in self.cfg.visualizer:
+            self.fomo = True
+        else:
+            self.fomo = False
+
         self.show = show
         self.task = task
         self.save_dir = save_dir
@@ -261,6 +290,9 @@ class Infernce:
         self.time_cost = 0
         self.preds = []
 
+        P = []
+        R = []
+        F1 = []
         for data in tqdm(self.dataloader):
 
             if not self.source:
@@ -283,30 +315,76 @@ class Infernce:
             if self.task == 'pose':
                 show_point(preds, data['data_samples']['image_file'][0])
             elif self.task == 'det':
-                if len(preds[0].shape) > 2:
+
+                if len(preds[0].shape) > 3:
+                    preds = preds[0]
+                elif len(preds[0].shape) > 2:
                     preds = preds[0][0]
                 elif len(preds[0].shape) == 2:
                     preds = preds[0]
                 else:
                     Warning("!!!")
+                if self.fomo:
+                    pred = preds[0]
+                    H, W, C = pred.shape
+                    mask = pred[..., 1:] > 0.7
+                    mask = np.any(mask, axis=2)
+                    mask = np.repeat(np.expand_dims(mask, -1), 3, axis=-1)
+                    pred = np.ma.array(pred,
+                                       mask=~mask,
+                                       keep_mask=True,
+                                       copy=True,
+                                       fill_value=0)
 
-                # performes nms
-                bbox, conf, classes = preds[:, :4], preds[:, 4], preds[:, 5:]
-                preds = NMS(bbox,
-                            conf,
-                            classes,
-                            conf_thres=25,
-                            bbox_format='xywh')
-                # show det result and save result
-                show_det(preds,
-                         img=img,
-                         img_file=img_path,
-                         class_name=self.class_name,
-                         shape=self.input_shape[:-1],
-                         show=self.show,
-                         save_path=self.save_dir)
+                    pred_max = np.argmax(pred, axis=-1)
 
-                if not self.source:
+                    pred_condition = np.where(pred_max > 0)
+                    pred_index = np.stack(pred_condition, axis=1)
+                    texts = []
+                    for i in pred_index:
+                        idx = pred_max[i[0], i[1]]
+                        texts.append(idx - 1)
+                    if len(pred_index):
+                        points = (pred_index + 0.5) / np.asarray(
+                            [H, W]) * np.asarray(self.input_shape[:-1])
+                        show_point(points,
+                                   img=img,
+                                   labels=texts,
+                                   show=self.show,
+                                   img_file=img_path)
+                    if not self.source:
+                        ori_shape = data['data_samples'][0].ori_shape
+                        bboxes = data['data_samples'][0].gt_instances
+                        target = build_target(preds.shape[1:], (96, 96),
+                                              bboxes)
+
+                        data['data_samples'][0].pred_instances = InstanceData(
+                            pred=tuple(
+                                [torch.from_numpy(preds).permute(0, 3, 1, 2)]),
+                            labels=tuple([target]))
+
+                        self.evaluator.process(
+                            data_batch=data, data_samples=data['data_samples'])
+
+                else:
+                    # performes nms
+                    bbox, conf, classes = preds[:, :4], preds[:, 4], preds[:,
+                                                                           5:]
+                    preds = NMS(bbox,
+                                conf,
+                                classes,
+                                conf_thres=25,
+                                bbox_format='xywh')
+                    # show det result and save result
+                    show_det(preds,
+                             img=img,
+                             img_file=img_path,
+                             class_name=self.class_name,
+                             shape=self.input_shape[:-1],
+                             show=self.show,
+                             save_path=self.save_dir)
+
+                if not self.source and not self.fomo:
 
                     ori_shape = data['data_samples'][0].ori_shape
                     tmp = preds[:, :4]
@@ -332,7 +410,13 @@ class Infernce:
             else:
                 raise ValueError
         if not self.source:
-            self.evaluator.evaluate(len(self.dataloader.dataset))
+            result = self.evaluator.evaluate(len(self.dataloader.dataset))
+            print(result)
+        if len(P):
+            print("P:", sum(P) / len(P))
+            print("R:", sum(R) / len(R))
+            print("F1:", sum(F1) / len(F1))
+
         print(f"FPS: {len(self.dataloader)/self.time_cost:2f} fram/s")
 
 
@@ -397,22 +481,32 @@ def fomo_inference(model, data_loader):
     return results
 
 
-def show_point(keypoints,
-               img_file,
-               win_name='test',
-               save_path=False,
-               not_show=False):
-    img = mmcv.imread(img_file, channel_order='bgr').copy()
-    h, w = img.shape[:-1]
-    keypoints = keypoints[0] if len(keypoints.shape) == 2 else keypoints
-    keypoints[::2] = keypoints[::2] * w
-    keypoints[1::2] = keypoints[1::2] * h
+def show_point(keypoints: Union[np.ndarray, Sequence[Sequence[int]],
+                                None] = None,
+               img: Optional[np.ndarray] = None,
+               img_file: Optional[str] = None,
+               shape: Optional[Sequence[int]] = None,
+               labels: Sequence[str] = None,
+               win_name: str = 'test',
+               save_path: bool = False,
+               show: bool = False):
+    # load image
+    if isinstance(img, np.ndarray):
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+    else:
+        img = load_image(img_file, shape=shape, mode='BGR').copy()
 
-    for idx, point in enumerate(keypoints[::2]):
-        if not isinstance(point, (float, int)):
-            img = cv2.circle(img, (int(point), int(keypoints[idx * 2 + 1])), 2,
-                             (255, 0, 0), -1)
-    if not not_show:
+    for idx, point in enumerate(keypoints):
+        img = cv2.circle(img, (int(point[0]), int(point[1])), 5, (255, 0, 0),
+                         -1)
+        if labels:
+            cv2.putText(img,
+                        str(labels[idx]), (int(point[0]), int(point[1])),
+                        1,
+                        color=(0, 0, 255),
+                        thickness=1,
+                        fontScale=1)
+    if show:
         cv2.imshow(win_name, img)
         cv2.waitKey(500)
 
