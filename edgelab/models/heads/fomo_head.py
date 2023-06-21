@@ -111,19 +111,21 @@ class FomoHead(BaseModule):
         return loss
 
     def predict(self, features, batch_data_samples, rescale=False):
+        preds = self.forward(features)
+        preds = tuple([F.softmax(pred, dim=1) for pred in preds])
 
-        pred = F.softmax(self.forward(features)[0], dim=1)
-        img_shape = batch_data_samples[0]['img_shape']
-
+        img_shape = batch_data_samples[0].metainfo['img_shape']
         batch_gt_instances = [
             data_samples.gt_instances for data_samples in batch_data_samples
         ]
 
         return [
-            InstanceData(pred=pred,
-                         labels=self.build_target(pred.shape[2:], img_shape,
-                                                  batch_gt_instances,
-                                                  torch.device("cuda:0")))
+            InstanceData(pred=preds,
+                         labels=tuple([
+                             self.build_target(pred.shape[2:], img_shape,
+                                               batch_gt_instances, pred.device)
+                             for pred in preds
+                         ]))
         ]
 
     def loss_by_feat(self, preds, batch_gt_instances, batch_img_metas,
