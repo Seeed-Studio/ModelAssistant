@@ -12,5 +12,6 @@ from .yolodataset import CustomYOLOv5CocoDataset
 __all__ = [
     'Speechcommand', 'MeterData', 'AudioAugs', 'CustomCocoDataset',
     'CustomVocdataset', 'FomoDatasets', 'AxesDataset', 'RandomResizedCrop',
-    'fomo_collate', 'ETADataPreprocessor', 'CustomYOLOv5CocoDataset'
+    'fomo_collate', 'ETADataPreprocessor', 'CustomYOLOv5CocoDataset',
+    'Bbox2FomoMask'
 ]

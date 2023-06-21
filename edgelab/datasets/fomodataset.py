@@ -1,7 +1,6 @@
 import os
 import os.path as osp
 
-import cv2
 import torch
 import torchvision
 import numpy as np
@@ -12,11 +11,12 @@ from mmengine.registry import DATASETS
 from sklearn.metrics import confusion_matrix
 
 from .pipelines.composition import AlbCompose
+from mmengine.dataset.base_dataset import BaseDataset
+from mmdet.datasets.coco import CocoDataset
 
 
 @DATASETS.register_module()
-class FomoDatasets(Dataset):
-
+class FomoDatasets(CocoDataset):
     def __init__(self,
                  data_root,
                  pipeline,
@@ -26,7 +26,7 @@ class FomoDatasets(Dataset):
                                           label_fields=['class_labels']),
                  ann_file: str = None,
                  img_prefix: str = None) -> None:
-        super().__init__()
+        super().__init__(ann_file=ann_file,data_root=data_root,pipeline=pipeline,data_prefix=dict(img='train/'))
 
         if not osp.isabs(img_prefix):
             img_dir = os.path.join(data_root, img_prefix)
@@ -73,9 +73,12 @@ class FomoDatasets(Dataset):
         """ return datasets len"""
         return len(self.data)
 
-    def __getitem__(self, index):
+    def __getitem____(self, index):
         image, ann = self.data[index]
+        
+        self.prepare_data(idx=index)
         image = np.asarray(image)
+        return self.pipeline()
 
         bboxes = []
         labels = []
@@ -112,8 +115,7 @@ class FomoDatasets(Dataset):
                 0, l, (bbox[0] + (bbox[2] / 2)) / W,
                 (bbox[1] + (bbox[3] / 2)) / H, bbox[2] / W, bbox[3] / H
             ])
-        # self.data
-        # return ToTensor()(image), torch.from_numpy(np.asarray(bbl))
+
         return {
             'inputs': ToTensor()(image),
             'data_samples': torch.from_numpy(np.asarray(bbl))
