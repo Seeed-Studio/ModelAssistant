@@ -59,14 +59,14 @@ fi
 
 
 # install optional deps
-if [ "${INSTALL_OPTIONAL}" ]; then
+if [ "${INSTALL_OPTIONAL}" == true ]; then
     ${PYTHON_PATH} -m pip install -r requirements/inference.txt
 fi
 
 
 # install docs deps
 if [ "${INSTALL_DOCS}" == true ]; then
-    npm i
+    npm ci
 fi
 
 
