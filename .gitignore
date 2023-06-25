@@ -27,7 +27,7 @@
 
 
 # Datasets
-datasets/
+./datasets/
 coco/
 coco128/
 VOC/
@@ -285,3 +285,4 @@ dist
 cache
 temp
 !docs/public/**
+
