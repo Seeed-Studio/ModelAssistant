@@ -40,11 +40,11 @@ In addition, if your ESP-IDF is not configured in a virtual environment, any ope
 **Go to the root directory of the EdgeLab project** and run the following command to get the examples and its submodules.
 
 ```sh
-# clone Seeed-Studio/edgelab-example-esp32 to example/esp32
-git clone https://github.com/Seeed-Studio/edgelab-example-esp32 example/esp32
+# clone Seeed-Studio/edgelab-example-esp32 to examples/esp32
+git clone https://github.com/Seeed-Studio/edgelab-example-esp32 examples/esp32
 
-# go to example/esp32, pull the submodules, and return to the EdgeLab project root directory
-pushd example/esp32
+# go to examples/esp32, pull the submodules, and return to the EdgeLab project root directory
+pushd examples/esp32
 git submodule init
 git submodule update
 popd

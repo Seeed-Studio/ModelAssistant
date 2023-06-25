@@ -44,11 +44,11 @@ Grove - Vision AI 使用了 [Himax HX6537](https://www.himax.com.tw/zh/products/
 **进入 EdgeLab 项目的根目录**，运行下面的命令来获取示例和。
 
 ```sh
-# 克隆 Seeed-Studio/edgelab-example-vision-ai 到 example/grove
-git clone https://github.com/Seeed-Studio/edgelab-example-vision-ai example/grove
+# 克隆 Seeed-Studio/edgelab-example-vision-ai 到 examples/grove
+git clone https://github.com/Seeed-Studio/edgelab-example-vision-ai examples/grove
 
-# 进入 example/grove，下载默认的 TFLite 模型和库数据
-pushd example/grove
+# 进入 examples/grove，下载默认的 TFLite 模型和库数据
+pushd examples/grove
 make download
 popd
 ```

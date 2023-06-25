@@ -44,11 +44,11 @@ Grove - Vision AI uses the [Himax HX6537](https://www.himax.com.tw/zh/products/i
 **Please go to the root of the EdgeLab project**, then run the following command to get the examples and download the SDK.
 
 ```sh
-# clone Seeed-Studio/edgelab-example-vision-ai to example/grove
-git clone https://github.com/Seeed-Studio/edgelab-example-vision-ai example/grove
+# clone Seeed-Studio/edgelab-example-vision-ai to examples/grove
+git clone https://github.com/Seeed-Studio/edgelab-example-vision-ai examples/grove
 
-# go to example/grove and download the default TFLite models and SDK
-pushd example/grove
+# go to examples/grove and download the default TFLite models and SDK
+pushd examples/grove
 make download
 popd
 ```

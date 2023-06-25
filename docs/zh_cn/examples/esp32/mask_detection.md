@@ -40,8 +40,8 @@
 # 激活 EdgeLab 虚拟环境
 conda activate edgelab
 
-# 进入 example/esp32 目录 (在 EdgeLab 项目根目录运行)
-cd example/esp32
+# 进入 examples/esp32 目录 (在 EdgeLab 项目根目录运行)
+cd examples/esp32
 
 # 转换 TFLite 模型为 C 文件
 python3 tools/tflite2c.py --input <TFLITE_MODEL_PATH> --name fomo --output_dir components/modules/model --classes='("unmask", "mask")'

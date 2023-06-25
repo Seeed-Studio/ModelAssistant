@@ -37,8 +37,8 @@
 在完成[导出模型](#导出模型)后，我们还需要进一步处理，将其转换为嵌入式设备支持的格式。
 
 ```sh
-# 进入 example/esp32 目录 (在 EdgeLab 项目根目录运行)
-cd example/esp32
+# 进入 examples/esp32 目录 (在 EdgeLab 项目根目录运行)
+cd examples/esp32
 
 # 转换 TFLite 模型为 C 文件
 python3 tools/tflite2c.py --input <TFLITE_MODEL_PATH> --name pfld_meter --output_dir components/modules/model
