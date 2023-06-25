@@ -106,12 +106,12 @@ Before [Compile and Deploy](#compile-and-deploy), you need to prepare the approp
 
     ```sh [fomo]
     # grove mask detection
-    make HW=grove_vision_ai APP=fomo
+    make HW=grove_vision_ai APP=fomo && make flash
     ```
 
     ```sh [meter]
     # grove meter reader
-    make HW=grove_vision_ai APP=meter
+    make HW=grove_vision_ai APP=meter && make flash
     ```
 
     :::

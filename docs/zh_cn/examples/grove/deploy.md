@@ -106,12 +106,12 @@ sudo apt-get install make -y
     
     ```sh [fomo]
     # Grove 口罩检测
-    make HW=grove_vision_ai APP=fomo
+    make HW=grove_vision_ai APP=fomo && make flash
     ```
     
     ```sh [meter]
     # Grove 表计读数
-    make HW=grove_vision_ai APP=meter
+    make HW=grove_vision_ai APP=meter && make flash
     ```
 
     ```sh [digtal meter]
