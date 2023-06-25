@@ -13,7 +13,6 @@ Before starting, we recommend that you should read [Grove - Deploy](./deploy.md)
 
 Please refer to [Grove - Deploy - Prerequisites](./deploy.md#prerequisites).
 
-
 ## Train Model
 
 The meter reading feature is based on the YOLOv5 model, in this step you need a YOLOv5 model weight with the suffix `.pth`, you have two ways to get the model weight.
@@ -39,7 +38,7 @@ This is the last and most important step to complete the meter reading, in this 
 
 ## Run Example
 
-After completing the [Grove - Deployment Tutorial - Compile and Deploy - Deployment Routines](./deploy.md#deployment-routines), you need to open [Grove Vision AI Console](https://files.seeedstudio.com/grove_ai_vision/index.html) 
+After completing the [Grove - Deployment Tutorial - Compile and Deploy - Deployment Routines](./deploy.md#deployment-routines), you need to open [Grove Vision AI Console](https://files.seeedstudio.com/grove_ai_vision/index.html).
 
 The above steps are graphically indicated in the console, and finally, you can see the real-time meter reading results as shown in the figure below.
 
