@@ -21,7 +21,7 @@ class TextLoggerHook(LoggerHook):
                  ignore_last: bool = False,
                  interval_exp_name: int = 1000,
                  out_dir: Optional[Union[str, Path]] = None,
-                 out_suffix=...,
+                 out_suffix: list(str()) = [''],
                  keep_local: bool = True,
                  file_client_args: Optional[dict] = None,
                  log_metric_by_epoch: bool = True,
