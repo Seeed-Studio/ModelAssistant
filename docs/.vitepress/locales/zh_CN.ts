@@ -97,7 +97,7 @@ function sidebar() {
             collapsed: false,
             items: [
                 {
-                    text: 'Edge Impulse Learning Blocks',
+                    text: 'Edge Impulse 机器学习块',
                     link: '/zh_cn/edgeimpulse/ei_ml_blocks',
                 },
             ]

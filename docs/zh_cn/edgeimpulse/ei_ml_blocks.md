@@ -1,90 +1,108 @@
-# Edge Impulse ML Blocks
+# Edge Impulse 机器学习块
 
-[Edge Impulse](https://www.edgeimpulse.com/) 是在边缘设备上进行机器学习的领先开发平台。
+[Edge Impulse](https://www.edgeimpulse.com/) 是边缘设备上机器学习的领先开发平台。
 
-EdgeLab中的模型支持在Edge Impulse上运行，具体信息可在[edgelab-ei-ml-blocks](https://github.com/Seeed-Studio/edgelab-ei-ml-blocks)中查阅.
+EdgeLab 中的模型支持在 Edge Impulse 上运行，具体信息见 GitHub 仓库 [edgelab-ei-ml-blocks](https://github.com/Seeed-Studio/edgelab-ei-ml-blocks)。下面使用 `edgelab-fomo` 模型进行示例，说明如何在 Edge Impulse 上运行 EdgeLab 模型。
 
-下面以 `edgelab-fomo` 模型为例，说明如何在Edge Impulse上运行EdgeLab模型。
 
-## 运行步骤
+## 运行管线
 
-通过Docker运行。这为你封装了所有的依赖性和包。
+我们的示例通过 Docker 运行整个部署流程，这为你封装了所有的依赖和包。
 
-### Running via Docker
-1. 获取 edgelab-fomo ei-ml-blocks
-    ```
-    git clone https://github.com/Seeed-Studio/edgelab-ei-ml-blocks
+### 管线在 Docker 上
+
+1. 克隆示例仓库。
+
+    ```sh
+    git clone https://github.com/Seeed-Studio/edgelab-ei-ml-blocks && \
     cd edgelab-ei-ml-blocks/edgelab-fomo
     ```
-2. 安装 [Docker Desktop](https://www.docker.com/products/docker-desktop/).
-3. 安装 [Edge Impulse CLI](https://docs.edgeimpulse.com/docs/edge-impulse-cli/cli-installation) v1.16.0 或以上版本.
-4. 创建一个新的Edge Impulse项目，并确保标签方法被设置为 'Bounding boxes'.
-    - 点击 `Create New Project`
+2. 安装 [Docker Desktop](https://www.docker.com/products/docker-desktop/)。
 
-    ![create-project-1](/static/ei/ei-ml-blocks-create-project.png)
-    - 键入项目基本信息.
+3. 安装 [Edge Impulse CLI](https://docs.edgeimpulse.com/docs/edge-impulse-cli/cli-installation) `v1.16.0` 或更高版本。
 
-    ![create-project-2](/static/ei/ei-ml-blocks-create-project2.png)
+4. 创建一个新的Edge Impulse项目，并确保标签方法被设置为 "Bounding Boxes"。
 
-5. 添加并标注一些数据.
-![dataset](/static/ei/ei-ml-blocks-dataset.png)
-6. 在 **Create impulse** 将图像大小设置为例如160x160、320x320或640x640，添加一个 "图像 "DSP块和一个 "物体检测 "学习块。
-![dataset](/static/ei/ei-ml-blocks-design.png)
-7. 打开一个命令提示符或终端窗口。.
-8. 初始化ei-ml-blocks:
+    - 点击"创建新项目"按钮。
 
-    ```
-    $ edge-impulse-blocks init
-    # Answer the questions, select "Object Detection" for 'What type of data does this model operate on?' and "FOMO" for 'What's the last layer...'
-    ```
+        ![create-project-1](/static/ei/ei-ml-blocks-create-project.png)
 
-9. 通过以下方式获取新数据:
+    - 思考一个项目名称并完成设置。
 
-    ```
-    $ edge-impulse-blocks runner --download-data data/
-    ```
+        ![create-project-2](/static/ei/ei-ml-blocks-create-project2.png)
 
-10. 构建容器:
+5. 添加标签和一些数据。
 
-    ```
-    $ docker build -t edgelab-fomo .
+    ![dataset](/static/ei/ei-ml-blocks-dataset.png)
+
+6. 在 **Create Impulse** 下设置图像大小 (例如:`160x160`，`320x320`或`640x640`)，添加一个`图像` DSP 块和一个`物体检测`学习块。
+
+    ![dataset](/static/ei/ei-ml-blocks-design.png)
+
+7. 打开一个命令提示符或终端窗口。
+
+8. 初始化该块。
+
+    ```sh
+    edge-impulse-blocks init # 回答问题，在 "这个模型对什么类型的数据进行操作？" 中选择 "Object Detection"，在 "最后一层是什么..." 中选择 "FOMO"
     ```
 
-11. 运行容器来测试脚本（如果你做了修改，你不需要重建容器）。
+9. 通过以下方式获取新数据。
 
+    ```sh
+    edge-impulse-blocks runner --download-data data/
     ```
-    $ docker run --shm-size=1024m --rm -v $PWD:/scripts edgelab-fomo --data-directory data/ --epochs 30 --learning-rate 0.00001 --out-directory out/
+
+10. 构建容器。
+
+    ```sh
+    docker build -t edgelab-fomo .
     ```
 
-12. 这将在'out'目录下创建一个.tflite文件。
+11. 运行容器来测试脚本 (如果你做了修改，你不需要重建容器)。
 
-```{note}
-如果你有额外的软件包想在容器中安装，请将它们添加到`requirements.txt`中，然后重建容器。
-```
+    ```sh
+    docker run --shm-size=1024m --rm -v $PWD:/scripts edgelab-fomo --data-directory data/ --epochs 30 --learning-rate 0.00001 --out-directory out/.
+    ```
+
+12. 这将在 `out` 目录下创建一个 `.tflite` 文件。
+
+::: tip
+
+如果你有额外的软件包想在容器内安装，把它们添加到 `requirements.txt` 中，然后重建容器。
+
+:::
+
+
 ## 获取新数据
 
-从你的项目中获得最新的数据。
+要从你的项目中获取最新的数据:
 
-1. 安装 [Edge Impulse CLI](https://docs.edgeimpulse.com/docs/edge-impulse-cli/cli-installation) v1.16 或以上版本.
-2. 打开一个命令提示符或终端窗口.
-3. 通过以下方式获取新数据:
+1. 安装 [Edge Impulse CLI](https://docs.edgeimpulse.com/docs/edge-impulse-cli/cli-installation) `v1.16` 或更高版本。
 
-    ```
-    $ edge-impulse-blocks runner --download-data data/
-    ```
+2. 打开一个命令提示符或终端窗口。
 
-## 将 block 推送到  Edge Impulse
+3. 使用下面的命令获取新数据。
 
-你也可以把这个block推回给Edge Impulse，这使得它像其他ML块一样可用，这样你就可以在新数据到来时重新训练你的模型，或者把模型部署到设备上。更多信息请参见 [Docs > Adding custom learning blocks](https://docs.edgeimpulse.com/docs/edge-impulse-studio/organizations/adding-custom-transfer-learning-models) 。
-
-1. 推送 block:
-
-    ```
-    $ edge-impulse-blocks push
+    ```sh
+    edge-impulse-blocks runner --download-data data/
     ```
 
-2. 该block现在可以在你的任何项目下使用，通过  **Create impulse > Add learning block > Object Detection (Images)**.
-![object-detection](/static/ei/ei-ml-blocks-obj-det.png)
 
-3. 下载 block 输出
-![dl](/static/ei/ei-ml-blocks-dl.png)
+## 把块推回 Edge Impulse
+
+你也可以把这个块推回 Edge Impulse，这使得它像其他 ML 块一样可用，这样你就可以在新数据进来的时候重新训练你的模型，或者把模型部署到设备上。更多信息请参见 [Docs > Adding custom learning blocks](https://docs.edgeimpulse.com/docs/edge-impulse-studio/organizations/adding-custom-transfer-learning-models)。
+
+1. 推送该块。
+
+    ```sh
+    edge-impulse-blocks push
+    ```
+
+2. 该块现在可以在你的任何项目下使用，通过 **Create impulse > Add learning block > Object Detection (Images)**。
+
+    ![object-detection](/static/ei/ei-ml-blocks-obj-det.png)
+
+3. 下载块的输出。
+
+    ![dl](/static/ei/ei-ml-blocks-dl.png)
