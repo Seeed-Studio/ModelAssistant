@@ -41,7 +41,8 @@ edgelab/tools
 # NodeJS
 node_modules/
 
-# Docs build
+# Docs (VitepPress)
+docs/.vitepress/cache
 docs/.vitepress/dist
 
 # EdgeLab examples
