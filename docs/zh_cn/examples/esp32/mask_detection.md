@@ -18,7 +18,7 @@
 
 口罩检测功能基于 FOMO 模型实现，在这一步您需要一个后缀为 `.pth` 的 FOMO 模型权重，您有两种方法获取该模型权重:
 
-- 在我们的 [Model Zoo](https://github.com/Seeed-Studio/EdgeLab/releases) 下载预训练好的模型。
+- 在我们的 [Model Zoo](https://github.com/Seeed-Studio/edgelab-model-zoo) 下载预训练好的模型。
 
 - 参考[模型训练 - FOMO 模型](../../tutorials/training/fomo.md)，基于 PyTorch 和 EdgeLab 自行训练 FOMO 模型得到模型权重。
 
@@ -27,7 +27,7 @@
 
 由于训练得到的模型并不适合直接在边缘计算设备上运行，我们首先需要将其导出为后缀是 `.tflite` 的 TFLite 格式，您有两种方法获取导出的模型 (包含模型权重):
 
-- 在我们的 [Model Zoo](https://github.com/Seeed-Studio/EdgeLab/releases) 下载导出为 TFLite 格式的模型。
+- 在我们的 [Model Zoo](https://github.com/Seeed-Studio/edgelab-model-zoo) 下载导出为 TFLite 格式的模型。
 
 - 参考[模型导出 - PyTorch 转 TFLite](../../tutorials/export/pytorch_2_tflite.md)，自行将 FOMO 模型从 PyTorch 格式转换为 TFLite 格式。
 
