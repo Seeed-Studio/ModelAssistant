@@ -43,3 +43,6 @@ node_modules/
 
 # Docs build
 docs/.vitepress/dist
+
+# EdgeLab examples
+examples/
