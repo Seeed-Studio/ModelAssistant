@@ -36,13 +36,17 @@ Since the trained model is not suitable for running directly on edge computing d
 
 After completing [Export Model](#export-model), we need a further process to convert it to a format that supported by embedded devices.
 
-```sh
-# go to the examples/esp32 directory (run at the root of the EdgeLab project)
-cd examples/esp32
+- Go to the `examples/esp32` directory (run at the root of the EdgeLab project):
 
-# convert the TFLite model to a C file
-python3 tools/tflite2c.py --input <TFLITE_MODEL_PATH> --name fomo --output_dir components/modules/model --classes='("unmask", "mask")'
-```
+    ```sh
+    cd examples/esp32
+    ```
+
+- Convert the TFLite model to binary file:
+
+    ```sh
+    python3 tools/tflite2c.py --input <TFLITE_MODEL_PATH> --name fomo --output_dir components/modules/model --classes='("unmask", "mask")'
+    ```
 
 ::: tip
 
