@@ -20,6 +20,3 @@ soundfile==0.12.1
 opencv-python==4.7.0.72
 albumentations==1.3.0
 pillow==9.4.0
-
-# export tlite
-git+https://github.com/LynnL4/TinyNeuralNetwork.git

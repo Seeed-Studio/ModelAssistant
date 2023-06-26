@@ -5,4 +5,4 @@ mmdet==3.0.0
 mmcls==1.0.0.rc6
 mmpose==1.0.0
 
-git+https://github.com/mjq2020/mmyolo
+mmyolo@git+https://github.com/mjq2020/mmyolo
