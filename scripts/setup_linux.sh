@@ -39,10 +39,10 @@ fi
 echo -en "Creating conda env and installing base deps... "
 if [ "${CUDA_AVAILABLE}" ]; then
     echo -en "${BLUE}Using CUDA${RST}\n"
-    conda env create -n edgelab -f environment.yml
+    conda env create -n edgelab -f environment_cuda.yml
 else
     echo -en "${BLUE}Using CPU${RST}\n"
-    conda env create -n edgelab -f environment_gpu.yml
+    conda env create -n edgelab -f environment.yml
 fi
 if [ "$?" != 0 ]; then
     echo -en "Conda create env failed... ${RED}Exiting${RST}\n"
@@ -68,13 +68,13 @@ fi
 
 
 # install optional deps
-if [ "${INSTALL_OPTIONAL}" ]; then
+if [ "${INSTALL_OPTIONAL}" == true ]; then
     pip3 install -r requirements/inference.txt
 fi
 
 
 # install docs deps
-if [ "${INSTALL_DOCS}" ]; then
+if [ "${INSTALL_DOCS}" == true ]; then
     npm ci
 fi
 

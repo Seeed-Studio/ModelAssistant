@@ -40,13 +40,10 @@ conda deactivate
 **进入 EdgeLab 项目的根目录**，运行下面的命令来获取示例和子模块。
 
 ```sh
-# 克隆 Seeed-Studio/edgelab-example-esp32 到 example/esp32
-git clone https://github.com/Seeed-Studio/edgelab-example-esp32 example/esp32
-
-# 进入 example/esp32，拉取子模块，并返回 EdgeLab 项目根目录
-pushd example/esp32
-git submodule init
-git submodule update
+git clone https://github.com/Seeed-Studio/edgelab-example-esp32 examples/esp32 && \
+pushd examples/esp32 && \
+git submodule init && \
+git submodule update && \
 popd
 ```
 
@@ -102,7 +99,7 @@ idf.py build
 1. 将 ESP32 MCU 连接到计算机，确定 ESP32 的串口路径。在 Linux 下，您可以使用以下命令来检查当前可用的串口 (在 Linux 上新接入的 ESP32 设备，串口路径一般为 `/dev/ttyUSB0`):
 
 ```sh
-lsusb -t
+lsusb -t && \
 ls /dev | grep tty
 ```
 

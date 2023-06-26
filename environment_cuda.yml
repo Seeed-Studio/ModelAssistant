@@ -3,6 +3,7 @@ name: edgelab
 channels:
   - defaults
   - pytorch
+  - nvidia
 
 dependencies:
   - cudatoolkit=11.7

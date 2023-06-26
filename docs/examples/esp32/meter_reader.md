@@ -18,7 +18,7 @@ Please refer to [ESP32 - Deploy - Prerequisites](./deploy.md#prerequisites).
 
 The meter reading feature is based on the PFLD model, in this step you need a PFLD model weight with the suffix `.pth`, you have two ways to get the model weight.
 
-- Download the pre-trained model from our [Model Zoo](https://github.com/Seeed-Studio/EdgeLab/releases).
+- Download the pre-trained model from our [Model Zoo](https://github.com/Seeed-Studio/edgelab-model-zoo).
 
 - Refer to [Training - PFLD Models](../../tutorials/training/pfld.md) to train the PFLD model and get the model weights using PyTorch and EdgeLab by yourself.
 
@@ -27,7 +27,7 @@ The meter reading feature is based on the PFLD model, in this step you need a PF
 
 Since the trained model is not suitable for running directly on edge computing devices, we need to export it to a TFLite format with a `.tflite` suffix, and you have two ways to get the exported model (with model weights contained).
 
-- Download the exported TFLite model from our [Model Zoo](https://github.com/Seeed-Studio/EdgeLab/releases).
+- Download the exported TFLite model from our [Model Zoo](https://github.com/Seeed-Studio/edgelab-model-zoo).
 
 - Refer to [Export - PyTorch to TFLite](../../tutorials/export/pytorch_2_tflite.md) to convert the PFLD model from PyTorch format to TFLite format by yourself.
 
@@ -36,13 +36,17 @@ Since the trained model is not suitable for running directly on edge computing d
 
 After completing [Export Model](#export-model), we need a further process to convert it to a format that supported by embedded devices.
 
-```sh
-# go to the example/esp32 directory (run at the root of the EdgeLab project)
-cd example/esp32
+- Go to the `examples/esp32` directory (run at the root of the EdgeLab project):
 
-# convert the TFLite model to a C file
-python3 tools/tflite2c.py --input <TFLITE_MODEL_PATH> --name pfld_meter --output_dir components/modules/model
-```
+    ```sh
+    cd examples/esp32
+    ```
+
+- Convert the TFLite model to binary file:
+
+    ```sh
+    python3 tools/tflite2c.py --input <TFLITE_MODEL_PATH> --name fomo --output_dir components/modules/model --classes='("unmask", "mask")'
+    ```
 
 ::: tip
 

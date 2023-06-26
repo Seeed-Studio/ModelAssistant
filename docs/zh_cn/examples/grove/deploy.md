@@ -13,6 +13,7 @@
 
 - 一根 USB 数据线
 
+
 ### 安装 Synopsys GUN Toolchain
 
 Grove - Vision AI 使用了 [Himax HX6537](https://www.himax.com.tw/zh/products/intelligent-sensing/always-on-smart-sensing/) 芯片，在这里我们需要安装 [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain) 以便之后交叉编译生成固件，其安装分为以下步骤:
@@ -20,10 +21,7 @@ Grove - Vision AI 使用了 [Himax HX6537](https://www.himax.com.tw/zh/products/
 1. 首先，从 [Synopsys GUN Toolchain - GitHub Releases](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/) 下载预编译好的工具链。
 
     ```sh
-    # 在这里我们下载 arc-2020.09-release 版本到用户主目录 ～/
-    wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2020.09-release/arc_gnu_2020.09_prebuilt_elf32_le_linux_install.tar.gz -P ~/
-
-    # 解压下载好的工具链到用户主目录 ～/
+    wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2020.09-release/arc_gnu_2020.09_prebuilt_elf32_le_linux_install.tar.gz -P ~/ && \
     tar -zxvf ~/arc_gnu_2020.09_prebuilt_elf32_le_linux_install.tar.gz --directory ~/
     ```
 
@@ -44,12 +42,9 @@ Grove - Vision AI 使用了 [Himax HX6537](https://www.himax.com.tw/zh/products/
 **进入 EdgeLab 项目的根目录**，运行下面的命令来获取示例和。
 
 ```sh
-# 克隆 Seeed-Studio/edgelab-example-vision-ai 到 example/grove
-git clone https://github.com/Seeed-Studio/edgelab-example-vision-ai example/grove
-
-# 进入 example/grove，下载默认的 TFLite 模型和库数据
-pushd example/grove
-make download
+git clone https://github.com/Seeed-Studio/edgelab-example-vision-ai examples/grove && \
+pushd examples/grove && \
+make download && \
 popd
 ```
 
@@ -58,10 +53,7 @@ popd
 如果您还没有安装 [Make](https://www.gnu.org/software/make/)，在使用 APT 为默认包管理器的 Linux 发行版操作系统上，您可以参考如下命令安装:
 
 ```sh
-# 更新源
-sudo apt-get update
-
-# 安装 make
+sudo apt-get update && \
 sudo apt-get install make -y
 ```
 
@@ -105,18 +97,15 @@ sudo apt-get install make -y
     ::: code-group
     
     ```sh [fomo]
-    # Grove 口罩检测
-    make HW=grove_vision_ai APP=fomo
+    make HW=grove_vision_ai APP=fomo && make flash
     ```
     
     ```sh [meter]
-    # Grove 表计读数
-    make HW=grove_vision_ai APP=meter
+    make HW=grove_vision_ai APP=meter && make flash
     ```
 
     ```sh [digtal meter]
-    # Grove 数字表计读数
-    make HW=grove_vision_ai APP=digtal_meter
+    make HW=grove_vision_ai APP=digtal_meter && make flash
     ```
     
     :::
@@ -196,48 +185,10 @@ Grove - Vision AI 的部署流程主要分为两个步骤，这两个步骤需�
 | Grove Vision AI | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/Edgelab/meter.zip) | 112x112 (RGB) | 320KB | 500ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/EdgeLab/releases) |
 | Grove Vision AI | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/Edgelab/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/EdgeLab/releases) |
 
-### 检查BootLoader版本
 
-你可能需要检测BootLoader的版本是否需要更新，以决定是否应该进行更新。检查版本号的方法如下。
+## 故障排除
 
-- 双击BOOT按钮，等待可移动驱动器挂载
-- 在可移动驱动器中打开INFO_UF2.TXT
-
-![check_bootloader](https://raw.githubusercontent.com/Seeed-Studio/Seeed_Arduino_GroveAI/master/assert/q2.png)
-
-你可以看到图片中的第三行是BootLoader的版本号。如果它与我们发布的版本号相同，你就不需要更新BootLoader。
-
-
-
-### 更新BootLoader
-
-如果你的Grove Vision AI没有被电脑识别，表现为没有端口号，那么你可能需要更新BootLoader。
-
-- **步骤1**. 在Windows电脑上下载BootLoader`.bin`文件。
-
-请在下面的链接中下载最新版本的BootLoader文件。BootLoader的名称通常为`tinyuf2-grove_vision_ai_vx.x.bin`。
-
-[![git_release](/static/grove/images/git_release.png)](https://github.com/Seeed-Studio/Seeed_Arduino_GroveAI/releases)
-
-这是控制BL702芯片的固件，它建立了计算机和Himax芯片之间的连接。最新版本的BootLoader现在已经修复了Vision AI无法被Mac和Linux识别的问题。
-
-- **第2步**。下载并打开[**BLDevCube.exe**]（https://files.seeedstudio.com/wiki/Grove_AI_Module/BouffaloLabDevCube-1.6.6-win32.rar）软件，选择 **BL702/704/706**，然后点击**完成**。
-
-![GroveAI01a](https://files.seeedstudio.com/wiki/Grove_AI_Module/GroveAI01a.png)
-
-- **第3步**。点击**查看**，首先选择 **MCU**。移动到**图像文件**，点击**浏览**，选择你刚下载的固件。
-
-![GroveAI01b](https://files.seeedstudio.com/wiki/Grove_AI_Module/1.png)
-
-- **第4步**。确保没有其他设备连接到PC上。然后按住模块上的启动按钮，将其连接到PC上。
-
-  ![GroveAI05](https://files.seeedstudio.com/wiki/Grove_AI_Module/GroveAI05.png)
-
-  我们可以看到模块背面的5V灯和3.3V的LED灯正在点亮，然后松开启动按钮。
-
-  ![GroveAI06](https://files.seeedstudio.com/wiki/Grove_AI_Module/GroveAI06.png)
-
-- **第5步**。回到PC上的BLDevCube软件，点击**刷新**，选择一个合适的端口。然后点击 **Open UART**，将 **Chip Erase**设置为 **True**，然后点击 **Creat&Program**，等待过程完成。
+如果您的计算机无法识别您的 Grove Vision AI，我们建议您尝试重新安装固件或更新 Bootloader，详细步骤可在 [Grove - Vision AI Module: Restore Factory Firmware](https://wiki.seeedstudio.com/Grove-Vision-AI-Module/#restore-factory-firmware) 上找到。
 
 
 ## 贡献
