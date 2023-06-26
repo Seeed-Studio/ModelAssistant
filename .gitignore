@@ -32,7 +32,10 @@ datasets/
 work_dirs/
 
 # Python packaging
+build/
+dist/
 *.egg-info/
+*.whl
 
 # Symbolic links of EdgeLab
 edgelab/configs

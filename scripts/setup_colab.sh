@@ -60,7 +60,7 @@ fi
 
 # install optional deps
 if [ "${INSTALL_OPTIONAL}" == true ]; then
-    ${PYTHON_PATH} -m pip install -r requirements/inference.txt
+    ${PYTHON_PATH} -m pip install -r requirements/inference.txt -r requirements/export.txt
 fi
 
 

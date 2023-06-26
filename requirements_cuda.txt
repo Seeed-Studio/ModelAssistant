@@ -2,6 +2,7 @@
 -r requirements/pytorch_cuda.txt
 -r requirements/base.txt
 -r requirements/inference.txt
+-r requirements/export.txt
 
 # mim
 -r requirements/mmlab.txt
