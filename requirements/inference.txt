@@ -1,6 +1,6 @@
 onnx==1.14.0
 onnxruntime==1.14.1
-onnxsim==0.4.24
+onnxsim==0.4.31
 onnxmltools==1.11.2
 
 ncnn==1.0.20230223
