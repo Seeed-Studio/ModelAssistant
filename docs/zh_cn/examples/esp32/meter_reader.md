@@ -18,7 +18,7 @@
 
 表计读数功能基于 PFLD 模型实现，在这一步您需要一个后缀为 `.pth` 的 PFLD 模型权重，您有两种方法获取该模型权重:
 
-- 在我们的 [Model Zoo](https://github.com/Seeed-Studio/EdgeLab/releases) 下载预训练好的模型。
+- 在我们的 [Model Zoo](https://github.com/Seeed-Studio/edgelab-model-zoo) 下载预训练好的模型。
 
 - 参考[模型训练 - PFLD 模型](../../tutorials/training/pfld.md)，基于 PyTorch 和 EdgeLab 自行训练 PFLD 模型得到模型权重。
 
@@ -27,7 +27,7 @@
 
 由于训练得到的模型并不适合直接在边缘计算设备上运行，我们首先需要将其导出为后缀是 `.tflite` 的 TFLite 格式，您有两种方法获取导出的模型 (包含模型权重):
 
-- 在我们的 [Model Zoo](https://github.com/Seeed-Studio/EdgeLab/releases) 下载导出为 TFLite 格式的模型。
+- 在我们的 [Model Zoo](https://github.com/Seeed-Studio/edgelab-model-zoo) 下载导出为 TFLite 格式的模型。
 
 - 参考[模型导出 - PyTorch 转 TFLite](../../tutorials/export/pytorch_2_tflite.md)，自行将 PFLD 模型从 PyTorch 格式转换为 TFLite 格式。
 
@@ -36,13 +36,17 @@
 
 在完成[导出模型](#导出模型)后，我们还需要进一步处理，将其转换为嵌入式设备支持的格式。
 
-```sh
-# 进入 example/esp32 目录 (在 EdgeLab 项目根目录运行)
-cd example/esp32
+- 进入 `examples/esp32` 目录 (在 EdgeLab 项目根目录运行):
 
-# 转换 TFLite 模型为 C 文件
-python3 tools/tflite2c.py --input <TFLITE_MODEL_PATH> --name pfld_meter --output_dir components/modules/model
-```
+    ```sh
+    cd examples/esp32
+    ```
+
+- 转换 TFLite 模型为二进制 C 文件
+
+    ```sh
+    python3 tools/tflite2c.py --input <TFLITE_MODEL_PATH> --name fomo --output_dir components/modules/model --classes='("unmask", "mask")'
+    ```
 
 ::: tip
 

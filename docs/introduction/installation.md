@@ -24,14 +24,12 @@ First, you need to clone the [EdgeLab Source Code](https://github.com/Seeed-Stud
 ::: code-group
 
 ```sh [HTTPS]
-git clone https://github.com/Seeed-Studio/EdgeLab.git
-# enter the EdgeLab project directory
+git clone https://github.com/Seeed-Studio/EdgeLab.git --depth 1 && \
 cd EdgeLab
 ```
 
 ```sh [SSH]
-git clone git@github.com:Seeed-Studio/EdgeLab.git
-# enter the EdgeLab project directory
+git clone git@github.com:Seeed-Studio/EdgeLab.git --depth 1 && \
 cd EdgeLab
 ```
 
@@ -42,8 +40,7 @@ cd EdgeLab
 Assuming you have conda installed, then **create** and **activate** a conda virtual environment.
 
 ```sh
-conda create --name edgelab python=3.8 -y
-# activate EdgeLab virtual environment
+conda create --name edgelab python=3.8 -y && \
 conda activate edgelab
 ```
 
@@ -76,7 +73,6 @@ For devices with GPUs (CUDA), we recommend installing dependencies that support 
     ```
 
     ```sh [pip]
-    # please be cautious with CUDA version if you are not in the virtual environment, here for example we use CUDA 11.7
     pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu117
     ```
 
@@ -90,12 +86,10 @@ You can find CUDA installers on [NVIDIA CUDA Toolkit Archive Website](https://de
 
 **Please confirm that you have activated the virtual environment and in the main working directory of EdgeLab source code**, and then run the following code to complete the configuration of the basic dependencies.
 
+- Install EdgeLab deps
 ```sh
-# pip install EdgeLab deps
-pip3 install -r requirements/base.txt
-# mim install OpenMMLab deps
-mim install -r requirements/mmlab.txt
-# mim install EdgeLab
+pip3 install -r requirements/base.txt && \
+mim install -r requirements/mmlab.txt && \
 mim install -e .
 ```
 
@@ -104,7 +98,6 @@ mim install -e .
 If you need to perform model transformation or inference testing, you also need to install the following additional dependencies.
 
 ```sh
-# install inference deps
 pip3 install -r requirements/inference.txt
 ```
 
@@ -122,22 +115,16 @@ Or you can do the configuration manually using Conda's configuration file.
 ::: code-group
 
 ```sh [CPU]
-conda env create -n edgelab -f environment.yml
-# activate the EdgeLab virtual environment
-conda activate edgelab
-# pip install all deps (mmcv needs to be compiled and may take some time)
-pip3 install -r requirements.txt
-# mim install EdgeLab
+conda env create -n edgelab -f environment.yml -y && \
+conda activate edgelab && \
+pip3 install -r requirements.txt && \
 mim install -e .
 ```
 
 ```sh [GPU (CUDA)]
-conda env create -n edgelab -f environment_cuda.yml
-# activate the EdgeLab virtual environment
-conda activate edgelab
-# pip install all deps (mmcv needs to be compiled and may take some time)
-pip3 install -r requirements.txt
-# mim install EdgeLab
+conda env create -n edgelab -f environment_cuda.yml -y && \
+conda activate edgelab && \
+pip3 install -r requirements_cuda.txt && \
 mim install -e .
 ```
 

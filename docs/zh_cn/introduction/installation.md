@@ -24,14 +24,12 @@ Miniconda 是一个免费的 Conda 最小安装程序，您可以从 [Miniconda 
 ::: code-group
 
 ```sh [HTTPS]
-git clone https://github.com/Seeed-Studio/EdgeLab.git
-# 进入 EdgeLab 项目目录
+git clone https://github.com/Seeed-Studio/EdgeLab.git --depth 1 && \
 cd EdgeLab
 ```
 
 ```sh [SSH]
-git clone git@github.com:Seeed-Studio/EdgeLab.git
-# 进入 EdgeLab 项目目录
+git clone git@github.com:Seeed-Studio/EdgeLab.git --depth 1 && \
 cd EdgeLab
 ```
 
@@ -42,8 +40,7 @@ cd EdgeLab
 假设您已经安装了 Conda，首先**创建**并**激活**一个 Conda 虚拟环境。
 
 ```sh
-conda create --name edgelab python=3.8 -y
-# 激活 EdgeLab 虚拟环境
+conda create --name edgelab python=3.8 -y && \
 conda activate edgelab
 ```
 
@@ -91,11 +88,8 @@ EdgeLab 依赖 PyTorch，在运行下方代码前，请再次确认你已经已�
 **请确认您已经激活了虚拟环境并处在 EdgeLab 的源代码主工作目录**，然后运行以下代码完成基本依赖项的配置。
 
 ```sh
-# pip 安装 EdgeLab 基础依赖
-pip3 install -r requirements/base.txt
-# mim 安装 OpenMMLab 依赖
-mim install -r requirements/mmlab.txt
-# mim 安装 EdgeLab 包
+pip3 install -r requirements/base.txt && \
+mim install -r requirements/mmlab.txt && \
 mim install -e .
 ```
 
@@ -104,7 +98,6 @@ mim install -e .
 如果您需要进行模型转换或者推理测试，您还需要额外安装以下依赖。
 
 ```sh
-# 安装推理依赖
 pip3 install -r requirements/inference.txt
 ```
 
@@ -122,22 +115,16 @@ bash scripts/setup_linux.sh
 ::: code-group
 
 ```sh [CPU]
-conda env create -n edgelab -f environment.yml
-# 激活 EdgeLab 虚拟环境
-conda activate edgelab
-# pip 安装全部依赖 (mmcv 需要编译，可能需要一定的时间)
-pip3 install -r requirements.txt
-# mim 安装 EdgeLab 包
+conda env create -n edgelab -f environment.yml -y && \
+conda activate edgelab && \
+pip3 install -r requirements.txt && \
 mim install -e .
 ```
 
 ```sh [GPU (CUDA)]
-conda env create -n edgelab -f environment_cuda.yml
-# 激活 EdgeLab 虚拟环境
-conda activate edgelab
-# pip 安装全部依赖 (mmcv 需要编译，可能需要一定的时间)
-pip3 install -r requirements.txt
-# mim 安装 EdgeLab 包
+conda env create -n edgelab -f environment_cuda.yml -y && \
+conda activate edgelab && \
+pip3 install -r requirements_cuda.txt && \
 mim install -e .
 ```
 

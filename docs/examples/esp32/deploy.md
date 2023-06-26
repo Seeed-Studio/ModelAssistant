@@ -40,13 +40,10 @@ In addition, if your ESP-IDF is not configured in a virtual environment, any ope
 **Go to the root directory of the EdgeLab project** and run the following command to get the examples and its submodules.
 
 ```sh
-# clone Seeed-Studio/edgelab-example-esp32 to example/esp32
-git clone https://github.com/Seeed-Studio/edgelab-example-esp32 example/esp32
-
-# go to example/esp32, pull the submodules, and return to the EdgeLab project root directory
-pushd example/esp32
-git submodule init
-git submodule update
+git clone https://github.com/Seeed-Studio/edgelab-example-esp32 examples/esp32 && \
+pushd examples/esp32 && \
+git submodule init && \
+git submodule update && \
 popd
 ```
 
@@ -102,7 +99,7 @@ idf.py build
 1. Connect the ESP32 MCU to the computer and determine the serial port path. Under Linux, you can use the following command to check the currently available serial ports (the path to the serial port is typically `/dev/ttyUSB0` for newly connected ESP32 devices on Linux):
 
 ```sh
-lsusb -t
+lsusb -t && \
 ls /dev | grep tty
 ```
 

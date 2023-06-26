@@ -20,10 +20,7 @@ Grove - Vision AI uses the [Himax HX6537](https://www.himax.com.tw/zh/products/i
 1. First, download the pre-compiled toolchain from [Synopsys GUN Toolchain - GitHub Releases](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/).
 
     ```sh
-    # download the arc-2020.09-release version to the home directory ~/
-    wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2020.09-release/arc_gnu_2020.09_prebuilt_elf32_le_linux_install.tar.gz -P ~/
-
-    # extract the downloaded toolchain to the home directory ~/
+    wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2020.09-release/arc_gnu_2020.09_prebuilt_elf32_le_linux_install.tar.gz -P ~/ && \
     tar -zxvf ~/arc_gnu_2020.09_prebuilt_elf32_le_linux_install.tar.gz --directory ~/
     ```
 
@@ -44,12 +41,9 @@ Grove - Vision AI uses the [Himax HX6537](https://www.himax.com.tw/zh/products/i
 **Please go to the root of the EdgeLab project**, then run the following command to get the examples and download the SDK.
 
 ```sh
-# clone Seeed-Studio/edgelab-example-vision-ai to example/grove
-git clone https://github.com/Seeed-Studio/edgelab-example-vision-ai example/grove
-
-# go to example/grove and download the default TFLite models and SDK
-pushd example/grove
-make download
+git clone https://github.com/Seeed-Studio/edgelab-example-vision-ai examples/grove && \
+pushd examples/grove && \
+make download && \
 popd
 ```
 
@@ -58,10 +52,7 @@ popd
 If you have not installed [Make](https://www.gnu.org/software/make/), on Linux distributions that use APT as the default package manager, you can install it with the following command.
 
 ```sh
-# update source
-sudo apt-get update
-
-# install make
+sudo apt-get update && \
 sudo apt-get install make -y
 ```
 
@@ -105,13 +96,15 @@ Before [Compile and Deploy](#compile-and-deploy), you need to prepare the approp
     ::: code-group
 
     ```sh [fomo]
-    # grove mask detection
-    make HW=grove_vision_ai APP=fomo
+    make HW=grove_vision_ai APP=fomo && make flash
     ```
 
     ```sh [meter]
-    # grove meter reader
-    make HW=grove_vision_ai APP=meter
+    make HW=grove_vision_ai APP=meter && make flash
+    ```
+
+    ```sh [digtal meter]
+    make HW=grove_vision_ai APP=digtal_meter && make flash
     ```
 
     :::
@@ -190,49 +183,11 @@ The performance of EdgeLab related models, measured on different chips, is summa
 | Grove Vision AI | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/Edgelab/meter.zip) | 112x112 (RGB) | 320KB | 500ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/EdgeLab/releases) |
 | Grove Vision AI | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/Edgelab/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/EdgeLab/releases) |
 
-### Check BootLoader Version
 
-You may need to detect if the BootLoader version needs to be updated to decide if the update should be done. The method to check the version number is as follows.
+## Troubleshoot
 
-- Double click the BOOT button and wait for the removable drive to mount
-- Open INFO_UF2.TXT in the removable drive
+If your Grove Vision AI is not recognized by your computer, we recommend your to try reinstall the firmware or update the bootloader, the detailed steps can be found on [Grove - Vision AI Module: Restore Factory Firmware](https://wiki.seeedstudio.com/Grove-Vision-AI-Module/#restore-factory-firmware).
 
-![check_bootloader](https://raw.githubusercontent.com/Seeed-Studio/Seeed_Arduino_GroveAI/master/assert/q2.png)
-
-You can see that the third line of the picture is the version number of BootLoader. If it is the same as the version number we released, you don't need to update BootLoader.
-
-
-
-### Update BootLoader
-
-If your Grove Vision AI is not recognized by your computer and behaves as no port number, then you may need to update the BootLoader.
-
-- **Step 1**. Download the BootLoader `.bin` file on the windows PC.
-
-Please download the latest version of the BootLoader file in the link below. The name of the BootLoader is usually `tinyuf2-grove_vision_ai_vx.x.x.bin`.
-
-[![git_release](/static/grove/images/git_release.png)](https://github.com/Seeed-Studio/Seeed_Arduino_GroveAI/releases)
-
-
-This is the firmware that controls the BL702 chip that builds the connection between the computer and the Himax chip. The latest version of the BootLoader has now fixed the problem of Vision AI not being able to be recognised by Mac and Linux.
-
-- **Step 2**. Download and open [**BLDevCube.exe**](https://files.seeedstudio.com/wiki/Grove_AI_Module/BouffaloLabDevCube-1.6.6-win32.rar) software, select **BL702/704/706**, and then click **Finish**.
-
-![GroveAI01a](https://files.seeedstudio.com/wiki/Grove_AI_Module/GroveAI01a.png)
-
-- **Step 3**. Click **View**, choose **MCU** first. Move to **Image file**, click **Browse** and select the firmware you just downloaded.
-
-![GroveAI01b](https://files.seeedstudio.com/wiki/Grove_AI_Module/1.png)
-
-- **Step 4**. Make sure there are no other devices connect to the PC. Then hold the Boot button on the module, connect it to the PC.
-
-  ![GroveAI05](https://files.seeedstudio.com/wiki/Grove_AI_Module/GroveAI05.png)
-
-  We can see 5V light and 3.3V LED light are lighting on the back of the module, then loose the Boot button.
-
-  ![GroveAI06](https://files.seeedstudio.com/wiki/Grove_AI_Module/GroveAI06.png)
-
-- **Step 5**. Back to the BLDevCube software on the PC, click **Refresh** and choose a proper port. Then click **Open UART** and set **Chip Erase** to **True**, then clink **Creat&Program**, wait for the process done.
 
 ## Contribute
 

@@ -18,7 +18,7 @@ Please refer to [Grove - Deploy - Prerequisites](./deploy.md#prerequisites).
 
 The meter reading feature is based on the PFLD model, in this step you need a PFLD model weight with the suffix `.pth`, you have two ways to get the model weight.
 
-- Download the pre-trained model from our [Model Zoo](https://github.com/Seeed-Studio/EdgeLab/releases).
+- Download the pre-trained model from our [Model Zoo](https://github.com/Seeed-Studio/edgelab-model-zoo).
 
 - Refer to [Training - PFLD Models](../../tutorials/training/pfld.md) to train the PFLD model and get the model weights using PyTorch and EdgeLab by yourself.
 
@@ -27,7 +27,7 @@ The meter reading feature is based on the PFLD model, in this step you need a PF
 
 Since the trained model is not suitable for running directly on edge computing devices, we need to export it to a TFLite format with a `.tflite` suffix, and you have two ways to get the exported model (with model weights contained).
 
-- Download the exported TFLite model from our [Model Zoo](https://github.com/Seeed-Studio/EdgeLab/releases).
+- Download the exported TFLite model from our [Model Zoo](https://github.com/Seeed-Studio/edgelab-model-zoo).
 
 - Refer to [Export - PyTorch to TFLite](../../tutorials/export/pytorch_2_tflite.md) to convert the PFLD model from PyTorch format to TFLite format by yourself.
 
