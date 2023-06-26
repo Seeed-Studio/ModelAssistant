@@ -98,7 +98,7 @@ mim install -e .
 如果您需要进行模型转换或者推理测试，您还需要额外安装以下依赖。
 
 ```sh
-pip3 install -r requirements/inference.txt
+pip3 install -r requirements/inference.txt -r requirements/export.txt
 ```
 
 

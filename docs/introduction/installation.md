@@ -98,7 +98,7 @@ mim install -e .
 If you need to perform model transformation or inference testing, you also need to install the following additional dependencies.
 
 ```sh
-pip3 install -r requirements/inference.txt
+pip3 install -r requirements/inference.txt -r requirements/export.txt
 ```
 
 
