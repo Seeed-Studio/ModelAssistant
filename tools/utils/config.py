@@ -6,6 +6,15 @@ from typing import Union, Sequence, Optional
 from mmengine.config import Config
 
 
+def dump_config_to_log_dir(self) -> None:
+    """Dump config to `work_dir`."""
+    if self.cfg.filename is not None:
+        filename = osp.basename(self.cfg.filename)
+    else:
+        filename = f'{self.timestamp}.py'
+    self.cfg.dump(osp.join(self.log_dir, filename))
+
+
 def replace(data: str, args: Optional[dict] = None) -> str:
     """ 
     Replace the basic configuration items in the configuration file
@@ -49,10 +58,7 @@ def replace_base_(data: str, base: Union[str, Sequence[str]]) -> str:
         data = re.sub(pattern, f"_base_ = '{base}'", data, flags=re.MULTILINE)
     elif isinstance(base, (list, tuple)):
         pattern = "_base_\s?=\s?[\[].+?[\]]"
-        data = re.sub(pattern,
-                      f"_base_ = {str(base)}",
-                      data,
-                      flags=re.S)
+        data = re.sub(pattern, f"_base_ = {str(base)}", data, flags=re.S)
 
     return data
 
