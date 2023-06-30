@@ -22,7 +22,7 @@ model = dict(
     backbone=dict(type="mmcls.MobileNetV2", widen_factor=0.35),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
-        type="mmcls.LinearClsHead",
+        type="edgelab.LinearClsHead",
         in_channels=1280,
         num_classes=num_classes,
         loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),

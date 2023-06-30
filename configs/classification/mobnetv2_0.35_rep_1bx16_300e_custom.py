@@ -8,8 +8,8 @@ num_classes = 10
 # dataset settings
 dataset_type = "mmcls.CustomDataset"
 data_root = "datasets/digit"
-height = 32
-width = 32
+height = 96
+width = 96
 batch_size = 16
 workers = 1
 
@@ -25,7 +25,7 @@ model = dict(
                   rep=True),
     neck=dict(type='mmcls.GlobalAveragePooling', dim=2),
     head=dict(
-        type="mmcls.LinearClsHead",
+        type="edgelab.LinearClsHead",
         in_channels=16,
         num_classes=num_classes,
         loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),

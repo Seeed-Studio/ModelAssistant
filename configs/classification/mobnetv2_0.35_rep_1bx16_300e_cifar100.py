@@ -25,7 +25,7 @@ model = dict(
                   rep=True),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
-        type="mmcls.LinearClsHead",
+        type="edgelab.LinearClsHead",
         in_channels=16,
         num_classes=num_classes,
         loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
