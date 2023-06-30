@@ -28,13 +28,13 @@ def replace(data: str, args: Optional[dict] = None) -> str:
     if not args: return data
     for key, value in args.items():
         if isinstance(value, (int, float)):
-            data = re.sub(f"^{key}\s?=\s?[^,{key}].*?[^,{key}]\n",
+            data = re.sub(f"^{key}\s?=\s?[^,{key}].*?[^,{key}].*?\n",
                           f'{key}={value}\n',
                           data,
                           flags=re.MULTILINE)
         else:
             value = value.replace('\\', '/')
-            data = re.sub(f"^{key}\s?=\s?['\"]{{1}}.*?['\"]{{1}}\n",
+            data = re.sub(f"^{key}\s?=\s?['\"]{{1}}.*?['\"]{{1}}.*?\n",
                           f'{key}="{value}"\n',
                           data,
                           flags=re.MULTILINE)
@@ -111,11 +111,11 @@ def load_config(filename: str,
                 _tmp_base.append(_base_path)
 
             data = replace_base_(data, _tmp_base)
-
-    with open(cfg_file, 'w', encoding='gb2312') as f:
+    p = osp.join(folder, cfg_file)
+    with open(p, 'w', encoding='gb2312') as f:
         f.write(data)
 
-    return cfg_file
+    return p
 
 
 def replace_cfg_vals(ori_cfg):
