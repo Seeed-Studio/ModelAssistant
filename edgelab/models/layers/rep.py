@@ -98,7 +98,7 @@ class RepConv1x1(BaseModule):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
-                 use_res: bool = True,
+                 use_res: bool = False,
                  use_dense: bool = False,
                  stride: int = 1,
                  depth: int = 3,
@@ -139,12 +139,7 @@ class RepConv1x1(BaseModule):
                 layer = nn.BatchNorm2d(out_channels)
                 self.norm.append(layer)
 
-        self.dense_norm = nn.ModuleList()
-        if use_dense:
-            num = sum([i for i in range(depth)])
-            for i in range(num):
-                norm = nn.BatchNorm2d(out_channels)
-                self.dense_norm(norm)
+        self.dense_norm = nn.BatchNorm2d(out_channels)
 
         self.fuse_conv = nn.Conv2d(in_channels,
                                    out_channels,
@@ -154,23 +149,25 @@ class RepConv1x1(BaseModule):
                                    bias=True)
         self.act = MODELS.build(act_cfg)
 
-    def forward(self, x) -> None:
+    def forward(self, x, test=False) -> None:
         x = self.down_sample(x)
-        if self.training:
+        if test:
             x = self.conv3x3(x)
-            self.results = []
+            if self.use_dense:
+                dense_feature = self.dense_norm(x)
             for idx, layer in enumerate(self.conv):
-                if self.use_dense or self.use_res:
-                    y = self.norm[idx](x)
-                    self.results.append(y)
-                if self.use_res:
+                if self.use_res or (self.use_dense and idx > 0):
+                    y = None
+                    if self.use_res:
+                        y = self.norm[idx](x)
+                    if self.use_dense and idx > 0:
+                        if y is not None:
+                            y += dense_feature
+                        else:
+                            y = dense_feature + 0
                     x = layer(x) + y
                 else:
                     x = layer(x)
-
-                # if self.use_dense and idx > 0:
-                #     for j in range(idx):
-                #         self.dense_norm[j](self.results[j])
 
         else:
             x = self.fuse_conv(x)
@@ -200,6 +197,11 @@ class RepConv1x1(BaseModule):
                                                   weight_).transpose(0, 1)
                     bias = bias_ + (bias.view(1, -1, 1, 1) * weight_).sum(
                         (3, 2, 1))
+                if self.use_dense:
+                    norm_weight, norm_bias = fuse_conv_norm(self.dense_norm)
+                    weight += norm_weight
+                    bias += norm_bias
+
         return weight, bias
 
     def fuse_3x3_1x1(self, weight1: torch.Tensor, bias1: torch.Tensor,
@@ -516,9 +518,9 @@ class RepBlock(BaseModule):
 
 if __name__ == '__main__':
     torch.set_grad_enabled(False)
-    rep = RepConv1x1(16, 16)
+    rep = RepConv1x1(64, 32)
     rep.eval()
-    input = torch.rand(1, 16, 192, 192)
+    input = torch.rand(1, 64, 192, 192)
     pred1 = rep(input, True)
     print("pred1::", pred1.shape)
     rep.eval()
