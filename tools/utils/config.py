@@ -1,6 +1,5 @@
 import re
 import os.path as osp
-import tempfile as tf
 from typing import Union, Sequence, Optional
 
 from mmengine.config import Config
@@ -89,8 +88,8 @@ def load_config(filename: str,
     tmp_dict = {}
     exec(data, tmp_dict)
     cfg_dir = osp.dirname(filename)
+    cfg_file = osp.basename(filename)
 
-    tmp_file = tf.NamedTemporaryFile(dir=folder, delete=False, suffix='.py')
     if '_base_' in tmp_dict.keys():
         base = tmp_dict['_base_']
         if isinstance(base, str):
@@ -113,10 +112,10 @@ def load_config(filename: str,
 
             data = replace_base_(data, _tmp_base)
 
-    with open(tmp_file.name, 'w', encoding='gb2312') as f:
+    with open(cfg_file, 'w', encoding='gb2312') as f:
         f.write(data)
 
-    return tmp_file.name
+    return cfg_file
 
 
 def replace_cfg_vals(ori_cfg):

@@ -98,10 +98,10 @@ class RepConv1x1(BaseModule):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
-                 use_res: bool = False,
-                 use_dense: bool = False,
+                 use_res: bool = True,
+                 use_dense: bool = True,
                  stride: int = 1,
-                 depth: int = 3,
+                 depth: int = 6,
                  act_cfg: dict = dict(type="LeakyReLU"),
                  init_cfg: Union[dict, List[dict], None] = None):
         super().__init__(init_cfg)
@@ -149,9 +149,9 @@ class RepConv1x1(BaseModule):
                                    bias=True)
         self.act = MODELS.build(act_cfg)
 
-    def forward(self, x, test=False) -> None:
+    def forward(self, x) -> None:
         x = self.down_sample(x)
-        if test:
+        if self.training:
             x = self.conv3x3(x)
             if self.use_dense:
                 dense_feature = self.dense_norm(x)
