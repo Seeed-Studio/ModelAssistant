@@ -92,7 +92,140 @@ def fuse_conv_norm(block: Union[nn.Sequential, nn.BatchNorm2d, nn.LayerNorm],
             .format(type(block)))
 
 
-@FUNCTIONS.register_module()
+@MODELS.register_module(force=True)
+class RepConv1x1(BaseModule):
+
+    def __init__(self,
+                 in_channels: int,
+                 out_channels: int,
+                 use_res: bool = True,
+                 use_dense: bool = False,
+                 stride: int = 1,
+                 depth: int = 3,
+                 act_cfg: dict = dict(type="LeakyReLU"),
+                 init_cfg: Union[dict, List[dict], None] = None):
+        super().__init__(init_cfg)
+
+        self.depth = depth
+        self.use_res = use_res
+        self.use_dense = use_dense
+
+        if stride > 1:
+            self.down_sample = nn.MaxPool2d(2, stride=2, padding=0)
+        else:
+            self.down_sample = nn.Identity()
+
+        self.conv3x3 = ConvNormActivation(in_channels,
+                                          out_channels,
+                                          3,
+                                          1,
+                                          1,
+                                          bias=True,
+                                          activation_layer=None)
+        self.conv = nn.ModuleList()
+
+        for i in range(depth):
+            layer = ConvNormActivation(out_channels,
+                                       out_channels,
+                                       1,
+                                       1,
+                                       0,
+                                       bias=True,
+                                       activation_layer=None)
+            self.conv.append(layer)
+        self.norm = nn.ModuleList()
+        if use_res:
+            for i in range(depth):
+                layer = nn.BatchNorm2d(out_channels)
+                self.norm.append(layer)
+
+        self.dense_norm = nn.ModuleList()
+        if use_dense:
+            num = sum([i for i in range(depth)])
+            for i in range(num):
+                norm = nn.BatchNorm2d(out_channels)
+                self.dense_norm(norm)
+
+        self.fuse_conv = nn.Conv2d(in_channels,
+                                   out_channels,
+                                   3,
+                                   padding=1,
+                                   stride=1,
+                                   bias=True)
+        self.act = MODELS.build(act_cfg)
+
+    def forward(self, x) -> None:
+        x = self.down_sample(x)
+        if self.training:
+            x = self.conv3x3(x)
+            self.results = []
+            for idx, layer in enumerate(self.conv):
+                if self.use_dense or self.use_res:
+                    y = self.norm[idx](x)
+                    self.results.append(y)
+                if self.use_res:
+                    x = layer(x) + y
+                else:
+                    x = layer(x)
+
+                # if self.use_dense and idx > 0:
+                #     for j in range(idx):
+                #         self.dense_norm[j](self.results[j])
+
+        else:
+            x = self.fuse_conv(x)
+
+        x = self.act(x)
+        return x
+
+    def fuse1x1(self) -> torch.Tensor:
+        weight, bias = fuse_conv_norm(self.conv[0])
+        if self.use_res:
+            norm_weight, norm_bias = fuse_conv_norm(self.norm[0])
+            weight += norm_weight
+            bias += norm_bias
+        if len(self.conv) > 1:
+            for idx, layer in enumerate(self.conv[1:]):
+                weight_, bias_ = fuse_conv_norm(layer)
+                if self.use_res:
+                    norm_weight, norm_bias = fuse_conv_norm(self.norm[idx + 1])
+                    weight_ += norm_weight
+                    bias_ += norm_bias
+                    weight = nn.functional.conv2d(weight.transpose(0, 1),
+                                                  weight_).transpose(0, 1)
+                    bias = bias_ + (bias.view(1, -1, 1, 1) * weight_).sum(
+                        (3, 2, 1))
+                else:
+                    weight = nn.functional.conv2d(weight.transpose(0, 1),
+                                                  weight_).transpose(0, 1)
+                    bias = bias_ + (bias.view(1, -1, 1, 1) * weight_).sum(
+                        (3, 2, 1))
+        return weight, bias
+
+    def fuse_3x3_1x1(self, weight1: torch.Tensor, bias1: torch.Tensor,
+                     weight2: torch.Tensor,
+                     bias2: torch.Tensor) -> torch.Tensor:
+        weight = nn.functional.conv2d(weight1.transpose(0, 1),
+                                      weight2).transpose(0, 1)
+        bias = bias2 + (weight2 * bias1.view(1, -1, 1, 1)).sum((1, 2, 3))
+        return weight, bias
+
+    def rep(self):
+        weight1x1, bias1x1 = self.fuse1x1()
+        weight3x3, bias3x3 = fuse_conv_norm(self.conv3x3)
+        w1, b1 = self.fuse_3x3_1x1(weight3x3, bias3x3, weight1x1, bias1x1)
+
+        self.fuse_conv.weight.data = w1
+        self.fuse_conv.bias.data = b1
+
+    def train(self, mode: bool = True):
+        res = super().train(mode)
+        if not mode:
+            self.rep()
+        return res
+
+
+@FUNCTIONS.register_module(force=True)
 class Activation(nn.ReLU):
     """
     Series informed activation from https://arxiv.org/abs/2305.12972
@@ -151,7 +284,7 @@ class Activation(nn.ReLU):
         return res
 
 
-@MODELS.register_module()
+@MODELS.register_module(force=True)
 class VanillaBlock(nn.Module):
     """
     VanillaNet Block from https://arxiv.org/abs/2305.12972
@@ -222,6 +355,9 @@ class VanillaBlock(nn.Module):
         self.fused_conv.weight.data.copy_(weight)
         self.fused_conv.bias.data.copy_(bias)
 
+    def set_act_lr(self, lr: float) -> None:
+        self.act_learn = lr
+
     def train(self, mode: bool = True):
         res = super().train(mode)
         if not mode:
@@ -229,7 +365,7 @@ class VanillaBlock(nn.Module):
         return res
 
 
-@MODELS.register_module()
+@MODELS.register_module(force=True)
 class RepLine(BaseModule):
 
     def __init__(self,
@@ -245,7 +381,7 @@ class RepLine(BaseModule):
         self.kernel_size = kernel_size
 
 
-@MODELS.register_module()
+@MODELS.register_module(force=True)
 class RepBlock(BaseModule):
     __doc__ = """
     Repeat parameter module: https://arxiv.org/abs/2101.03697
@@ -380,12 +516,14 @@ class RepBlock(BaseModule):
 
 if __name__ == '__main__':
     torch.set_grad_enabled(False)
-    rep = VanillaBlock(32, 16)
+    rep = RepConv1x1(16, 16)
     rep.eval()
-    input = torch.rand(4, 32, 192, 192)
+    input = torch.rand(1, 16, 192, 192)
     pred1 = rep(input, True)
+    print("pred1::", pred1.shape)
     rep.eval()
     pred2 = rep(input, False)
+    print("pred2::", pred2.shape)
     i2 = input
     var = (pred1 - pred2).abs().sum()
     print(var)
