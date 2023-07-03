@@ -3,7 +3,7 @@ onnxruntime==1.14.1
 onnxsim==0.4.33
 onnxmltools==1.11.2
 
-ncnn==1.0.20230223
+ncnn==1.0.20230517
 tensorflow==2.12.0
 tflite-runtime==2.12.0
 protobuf==3.20.3
