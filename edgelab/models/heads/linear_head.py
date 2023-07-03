@@ -11,7 +11,7 @@ from mmcls.models.heads.linear_head import LinearClsHead as MMLinearClsHead
 @MODELS.register_module()
 class LinearClsHead(MMLinearClsHead):
     def __init__(self,
-                 softmax: bool = True,
+                 softmax: bool = False,
                  init_cfg: Optional[dict] = dict(
                      type='Normal', layer='Linear', std=0.01),
                  **kwargs):

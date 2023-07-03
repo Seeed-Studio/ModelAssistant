@@ -29,7 +29,7 @@ class ClsHead(MMClsHead):
                  loss: dict = dict(type='CrossEntropyLoss', loss_weight=1.0),
                  topk: Union[int, Tuple[int]] = (1, ),
                  cal_acc: bool = False,
-                 softmax: bool = True,
+                 softmax: bool = False,
                  init_cfg: Optional[dict] = None):
         super(ClsHead, self).__init__(loss, topk, cal_acc, init_cfg)
         
