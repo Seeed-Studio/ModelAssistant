@@ -18,11 +18,11 @@ lr = 0.01
 epochs = 300
 
 model = dict(
-    type='mmcls.ImageClassifier',
+    type='edgelab.ImageClassifier',
     backbone=dict(type="mmcls.MobileNetV2", widen_factor=1.0),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
-        type="edgelab.LinearClsHead",
+        type="mmcls.LinearClsHead",
         in_channels=1280,
         num_classes=num_classes,
         loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
@@ -44,7 +44,7 @@ test_pipeline = [
 
 train_dataloader = dict(
     # Training dataset configurations
-     batch_size=batch_size,
+    batch_size=batch_size,
     num_workers=workers,
     dataset=dict(
         type=dataset_type,

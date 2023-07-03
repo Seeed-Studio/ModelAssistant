@@ -7,7 +7,7 @@ num_classes = 10
 
 # dataset settings
 dataset_type = "mmcls.CustomDataset"
-data_root = "datasets/fruit"
+data_root = "datasets/digit"
 height = 96 
 width = 96
 batch_size = 16
@@ -17,12 +17,19 @@ workers = 1
 lr = 0.01
 epochs = 300
 
+data_preprocessor = dict(type='mmcls.ClsDataPreprocessor',
+                         mean=[0, 0, 0],
+                         std=[255., 255., 255.],
+                         to_rgb=True,
+                    )
+
 model = dict(
-    type='mmcls.ImageClassifier',
-    backbone=dict(type="mmcls.MobileNetV2", widen_factor=0.35),
+    type='edgelab.ImageClassifier',
+    data_preprocessor=data_preprocessor,
+    backbone=dict(type="mmcls.MobileNetV2", widen_factor=1.0),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
-        type="edgelab.LinearClsHead",
+        type="mmcls.LinearClsHead",
         in_channels=1280,
         num_classes=num_classes,
         loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),

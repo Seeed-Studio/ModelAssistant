@@ -2,10 +2,29 @@ _base_ = "../_base_/default_runtime_cls.py"
 default_scope = "edgelab"
 custom_imports = dict(imports=["edgelab"], allow_failed_imports=False)
 
+# model settings
 num_classes = 10
 
+# dataset settings
+dataset_type = "mmcls.CustomDataset"
+data_root = "datasets/digit"
+height = 96
+width = 96
+batch_size = 16
+workers = 1
+
+# optimizer
+lr = 0.01
+epochs = 300
+
+data_preprocessor = dict(type='mmcls.ClsDataPreprocessor',
+                         mean=[0, 0, 0],
+                         std=[255., 255., 255.],
+                         to_rgb=True,
+                    )
 model = dict(
-    type='mmcls.ImageClassifier',
+    type='edgelab.ImageClassifier',
+    data_preprocessor=data_preprocessor,
     backbone=dict(type='mmcls.MobileNetV3', arch='small'),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
@@ -21,25 +40,18 @@ model = dict(
         topk=(1, 5))
 )
 
-# dataset settings
-dataset_type = "mmcls.CustomDataset"
-data_root = ""
-height = 96
-width = 96
-batch_size = 16
-workers = 1
-
-data_root='/home/hongtai/open-mmlab/EdgeLab/datasets/fruit/'
 
 train_pipeline = [
     dict(type='LoadImageFromFile'),
-    dict(type="mmdet.Resize", scale=(height, width)),
+    dict(type='mmcls.Rotate', angle=30., prob=0.6),
+    dict(type='mmcls.RandomFlip', prob=0.5, direction='horizontal'),
+    dict(type="mmengine.Resize", scale=(height, width)),
     dict(type='mmcls.PackClsInputs'),
 ]
 
 test_pipeline = [
     dict(type='LoadImageFromFile'),
-    dict(type="mmdet.Resize", scale=(height, width)),
+    dict(type="mmengine.Resize", scale=(height, width)),
     dict(type='mmcls.PackClsInputs'),
 ]
 
@@ -47,7 +59,6 @@ train_dataloader = dict(
     # Training dataset configurations
      batch_size=batch_size,
     num_workers=workers,
-    persistent_workers=True,
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
@@ -58,39 +69,30 @@ train_dataloader = dict(
 )
 
 val_dataloader = dict(
-     batch_size=batch_size,
+    batch_size=batch_size,
     num_workers=workers,
-    persistent_workers=True,
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
         data_prefix='valid/',
         pipeline=test_pipeline,
     ),
-    sampler=dict(type='DefaultSampler', shuffle=True),
+    sampler=dict(type='DefaultSampler', shuffle=False),
 )
 
-
 test_dataloader = val_dataloader
-
-# optimizer
-lr = 0.001
-epochs = 300
-
-find_unused_parameters = True
-
-optim_wrapper = dict(
-    optimizer=dict(type="Adam", lr=lr, weight_decay=5e-4, eps=1e-7))
 
 # evaluator
 val_evaluator = dict(type='mmcls.Accuracy', topk=(1, 5))
 test_evaluator = val_evaluator
 
-train_cfg = dict(by_epoch=True, max_epochs=epochs)
 
 val_cfg = dict()
 test_cfg = dict()
 
+# optimizer
+optim_wrapper = dict(
+    optimizer=dict(type='SGD', lr=lr, momentum=0.9, weight_decay=0.0001))
 # learning policy
 param_scheduler = [
     dict(type="LinearLR", begin=0, end=30, start_factor=0.001,
@@ -104,3 +106,8 @@ param_scheduler = [
         by_epoch=True,
     ),
 ]
+
+auto_scale_lr = dict(base_batch_size=batch_size)
+
+train_cfg = dict(by_epoch=True, max_epochs=epochs)
+

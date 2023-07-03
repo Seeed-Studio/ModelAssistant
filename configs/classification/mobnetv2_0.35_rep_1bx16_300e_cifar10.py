@@ -17,12 +17,13 @@ workers = 1
 lr = 0.01
 epochs = 300
 
+
 model = dict(
-    type='mmcls.ImageClassifier',
+    type='edgelab.ImageClassifier',
     backbone=dict(type="MobileNetv2", widen_factor=0.35, out_indices=(2, ), rep=True),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
-        type="edgelab.LinearClsHead",
+        type="mmcls.LinearClsHead",
         in_channels=16,
         num_classes=num_classes,
         loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),

@@ -18,7 +18,7 @@ lr = 0.01
 epochs = 300
 
 model = dict(
-    type='mmcls.ImageClassifier',
+    type='edgelab.ImageClassifier',
     backbone=dict(type='mmcls.MobileNetV3', arch='small'),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
