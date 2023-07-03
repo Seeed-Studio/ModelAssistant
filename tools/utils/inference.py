@@ -10,7 +10,6 @@ import torch
 import numpy as np
 from tqdm.std import tqdm
 from torch.utils.data import DataLoader
-from sklearn.metrics import confusion_matrix
 
 from mmdet.models.utils import samplelist_boxtype2tensor
 from mmengine.config import Config
@@ -19,8 +18,8 @@ from mmengine.structures import InstanceData
 from mmengine.registry import MODELS
 from mmdet.models.utils import samplelist_boxtype2tensor
 from edgelab.models.utils.computer_acc import pose_acc, audio_acc
-
 from edgelab.utils.cv import load_image, NMS
+from .iot_camera import IoTCamera
 
 
 class Inter():
@@ -141,7 +140,9 @@ class Inter():
         return results
 
 
-img_suff = ('.jpg', '.png', '.PNG', '.JPEG')
+IMG_SUFFIX = ('.jpg', '.png', '.PNG', '.jpeg')
+VIDEO_SUFFIX = ('.avi', '.mp4', '.mkv', '.flv', '.wmv', '.3gp')
+IOT_DEVICE = ('sensorcap', )
 
 
 class DataStream:
@@ -153,6 +154,7 @@ class DataStream:
             self.gray = True if shape[-1] == 1 else False
             self.shape = shape[:-1]
         else:
+            self.gray = False
             self.shape = shape
         self.file = None
         self.l = 0
@@ -161,18 +163,23 @@ class DataStream:
             if osp.isdir(source):
                 self.file = [
                     osp.join(source, f) for f in os.listdir(source)
-                    if f.endswith(img_suff)
+                    if f.lower().endswith(IMG_SUFFIX)
                 ]
-
                 self.l = len(self.file)
                 self.file = iter(self.file)
 
             elif osp.isfile(source):
-                self.file = [source]
-                self.l = len(self.file)
-                self.file = iter(self.file)
+                if any([source.lower().endswith(mat) for mat in IMG_SUFFIX]):
+                    self.file = [source]
+                    self.l = len(self.file)
+                    self.file = iter(self.file)
+                elif any(
+                    [source.lower().endswith(mat) for mat in VIDEO_SUFFIX]):
+                    self.cap = cv2.VideoCapture(source)
             elif source.isdigit():
                 self.cap = cv2.VideoCapture(int(source))
+            elif source in IOT_DEVICE:
+                self.cap = IoTCamera()
             else:
                 raise
         elif isinstance(source, int):
@@ -195,7 +202,12 @@ class DataStream:
                              normalized=True)
 
         else:
-            ret, img = self.cap.read()
+            while True:
+                ret, img = self.cap.read()
+                if ret:
+                    break
+                else:
+                    time.sleep(0.1)
 
             if self.gray:
                 img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
@@ -329,7 +341,7 @@ class Infernce:
                     H, W, C = pred.shape
                     mask = pred[..., 1:] > 0.7
                     mask = np.any(mask, axis=2)
-                    mask = np.repeat(np.expand_dims(mask, -1), 3, axis=-1)
+                    mask = np.repeat(np.expand_dims(mask, -1), C, axis=-1)
                     pred = np.ma.array(pred,
                                        mask=~mask,
                                        keep_mask=True,
