@@ -1,5 +1,5 @@
 onnx==1.14.0
-onnxruntime==1.14.1
+onnxruntime==1.15.1
 onnxsim==0.4.33
 onnxmltools==1.11.2
 
