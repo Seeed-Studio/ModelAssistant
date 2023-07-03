@@ -8,8 +8,8 @@ num_classes = 10
 # dataset settings
 dataset_type = "mmcls.CIFAR10"
 data_root = "datasets"
-height = 96 
-width = 96
+height = 32
+width = 32
 batch_size = 16
 workers = 1
 
