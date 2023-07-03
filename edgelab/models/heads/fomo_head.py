@@ -219,7 +219,7 @@ class FomoHead(BaseModule):
             F1: F1
         """
         preds = torch.softmax(preds, dim=-1)
-        B, C, H, W = preds.shape
+        B, H, W, C = preds.shape
         # Get the category id of each box
         target_max = torch.argmax(target, dim=-1)
         preds_max = torch.argmax(preds, dim=-1)

@@ -34,6 +34,4 @@ class Fomo(SingleStageDetector):
         """
         x = self.extract_feat(batch_inputs)
         results = self.bbox_head.forward(x)
-        return [
-            torch.softmax(pred, dim=1).permute(0, 2, 3, 1) for pred in results
-        ]
+        return [torch.softmax(pred, dim=1) for pred in results]
