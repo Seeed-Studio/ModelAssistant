@@ -1,31 +1,18 @@
 import argparse
-import os
 import tempfile as tf
 import os.path as osp
 import torch
-import numpy as np
-from copy import deepcopy
-from functools import partial
 import edgelab.models
 import edgelab.datasets
 import edgelab.evaluation
 import edgelab.visualization
 import edgelab.engine
 from tools.utils.config import load_config
-
 from tqdm import tqdm
 
-from tensorflow import lite as tflite
-
-
-from mmengine.analysis import get_model_complexity_info
-from mmengine.config import Config, DictAction, ConfigDict
+from mmengine.config import Config, DictAction
 from mmengine.registry import RUNNERS
 from mmengine.runner import Runner
-from mmengine.utils import digit_version
-from mmengine.utils.dl_utils import TORCH_VERSION
-
-from mmdet.utils import setup_cache_size_limit_of_dynamo
 
 from tinynn.converter import TFLiteConverter
 from tinynn.util.train_util import DLContext
@@ -41,25 +28,37 @@ def parse_args():
     parser.add_argument('--tflite-file', help='tflite file', default=None)
     parser.add_argument('--checkpoint', help='checkpoint file', default=None)
     parser.add_argument('--device', type=str, help='device used for inference')
-    parser.add_argument('--type', type=str, default='int8',
-                        help='tflite export type', choices=['int8', 'uint8', 'float32'])
-    parser.add_argument('--algorithm', type=str, default='l2', choices=['l2', 'kl'])
-    parser.add_argument('--backend', type=str, default='fbgemm', choices=['qnnpack', 'fbgemm'])
-    parser.add_argument('--show', action='store_true',
+    parser.add_argument('--type',
+                        type=str,
+                        default='int8',
+                        help='tflite export type',
+                        choices=['int8', 'uint8', 'float32'])
+    parser.add_argument('--algorithm',
+                        type=str,
+                        default='l2',
+                        choices=['l2', 'kl'])
+    parser.add_argument('--backend',
+                        type=str,
+                        default='fbgemm',
+                        choices=['qnnpack', 'fbgemm'])
+    parser.add_argument('--show',
+                        action='store_true',
                         help='show tflite graph')
-    parser.add_argument(
-        '--verify', action='store_true', default=False, help='verify the tflite model')
-    parser.add_argument(
-        '--simplify',
-        type=int,
-        default=5,
-        help='level of graph simplification, 0 to 5')
-    parser.add_argument(
-        '--shape',
-        type=int,
-        nargs='+',
-        help='input data shape, e.g. 3 224 224')
-    parser.add_argument('--epoch', type=int, default=100,
+    parser.add_argument('--verify',
+                        action='store_true',
+                        default=False,
+                        help='verify the tflite model')
+    parser.add_argument('--simplify',
+                        type=int,
+                        default=5,
+                        help='level of graph simplification, 0 to 5')
+    parser.add_argument('--shape',
+                        type=int,
+                        nargs='+',
+                        help='input data shape, e.g. 3 224 224')
+    parser.add_argument('--epoch',
+                        type=int,
+                        default=100,
                         help='max epoch number of the quantization')
     parser.add_argument(
         '--cfg-options',
@@ -76,10 +75,8 @@ def parse_args():
 
 
 def args_check():
-    
-    args = parse_args()
 
-    
+    args = parse_args()
     """Check the args."""
     assert args.checkpoint is not None, 'Please specify the checkpoint file'
     assert args.type in ['int8', 'uint8', 'float32'], \
@@ -91,7 +88,7 @@ def args_check():
 
     if args.device is None:
         args.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        
+
     # load config
     tmp_folder = tf.TemporaryDirectory()
     # Modify and create temporary configuration files
@@ -101,11 +98,10 @@ def args_check():
     # load temporary configuration files
     cfg = Config.fromfile(config_data)
     tmp_folder.cleanup()
-    
+
     if args.cfg_options is not None:
         cfg.merge_from_dict(args.cfg_options)
-        
-    
+
     # work_dir is determined in this priority: CLI > segment in file > filename
     if args.work_dir is not None:
         # update configs according to CLI args if args.work_dir is not None
@@ -114,15 +110,16 @@ def args_check():
         # use config filename as default work_dir if cfg.work_dir is None
         cfg.work_dir = osp.join('./work_dirs',
                                 osp.splitext(osp.basename(args.config))[0])
-    
+
     args.work_dir = cfg.work_dir
-    
+
     cfg.val_dataloader['batch_size'] = 1
     cfg.val_dataloader['num_workers'] = 1
-    
+
     if args.tflite_file is None:
-        args.tflite_file = osp.join(args.work_dir, osp.basename(
-            args.checkpoint) + '_' + args.type + '.tflite')
+        args.tflite_file = osp.join(
+            args.work_dir,
+            osp.basename(args.checkpoint) + '_' + args.type + '.tflite')
 
     try:
         if 'shape' in cfg:
@@ -159,23 +156,24 @@ def calibrate(model, context: DLContext):
                 #print('\rcalibration iteration: {}'.format(i+1), end='')
                 inputs = data['inputs']
                 if isinstance(inputs, (list, tuple)):
-                    input = inputs[0] # only one input
+                    input = inputs[0]  # only one input
                 else:
                     input = inputs
-                    
-                assert isinstance(input, torch.Tensor), "The input should be a tensor"
-                
+
+                assert isinstance(input,
+                                  torch.Tensor), "The input should be a tensor"
                 if input.dtype != torch.float32:
-                    input = input / 255.0 # normalize to [0, 1]
-                    
-                if input.shape[0] != 1: 
-                    input = input.unsqueeze(0) # batch size 1
-                    
+                    input = input / 255.0  # normalize to [0, 1]
+
+                if input.shape[0] != 1:
+                    input = input.unsqueeze(0)  # batch size 1
+
                 input = input.to(device=context.device)
                 model(input)
 
                 pbar.update(1)
                 context.iteration += 1
+
 
 def export_tflite(args, model, context: DLContext):
     """Export the model to tflite
@@ -185,17 +183,26 @@ def export_tflite(args, model, context: DLContext):
         context (DLContext): The dataset context object
     """
     model.cpu().eval()
-    
+
     #model.forward = partial(model.forward, mode='tensor')
     if type(args.shape) == int:
         dummy_input = torch.randn(1, args.shape)
     else:
         dummy_input = torch.randn(1, *args.shape)
-    
+
     if args.type == 'int8' or type == 'uint8':
         with model_tracer():
-            quantizer = PostQuantizer(model, dummy_input, work_dir=args.work_dir, config={
-                                      'asymmetric': True, 'set_quantizable_op_stats': True, 'per_tensor': False, 'algorithm': args.algorithm, 'backend': args.backend})
+            quantizer = PostQuantizer(model,
+                                      dummy_input,
+                                      work_dir=args.work_dir,
+                                      config={
+                                          'asymmetric': True,
+                                          'set_quantizable_op_stats': True,
+                                          'per_tensor': False,
+                                          'algorithm': args.algorithm,
+                                          'backend': args.backend,
+                                          'quantized_input_stats': [((0, 255))]
+                                      })
             ptq_model = quantizer.quantize()
             ptq_model.to(device=context.device)
 
@@ -211,22 +218,33 @@ def export_tflite(args, model, context: DLContext):
             # When converting quantized models, please ensure the quantization backend is set.
             torch.backends.quantized.engine = quantizer.backend
 
-            converter = TFLiteConverter(
-                ptq_model, dummy_input, optimize=args.simplify,  quantize_target_type=args.type, fuse_quant_dequant=True, rewrite_quantizable=True,  tflite_micro_rewrite=True, tflite_path=args.tflite_file)
+            converter = TFLiteConverter(ptq_model,
+                                        dummy_input,
+                                        optimize=args.simplify,
+                                        quantize_target_type=args.type,
+                                        fuse_quant_dequant=True,
+                                        rewrite_quantizable=True,
+                                        tflite_micro_rewrite=True,
+                                        tflite_path=args.tflite_file)
 
     else:
         with torch.no_grad():
             torch.backends.quantized.engine = 'qnnpack'
-            converter = TFLiteConverter(
-                model, dummy_input, optimize=args.simplify, tflite_path=args.tflite_file)
+            converter = TFLiteConverter(model,
+                                        dummy_input,
+                                        optimize=args.simplify,
+                                        tflite_path=args.tflite_file)
 
     converter.convert()
-       
+
+
 def main():
-    
+
     args, cfg = args_check()
-    
+
     # build the runner from config
+    if 'batch_shapes_cfg' in cfg.val_dataloader.dataset:
+        cfg.val_dataloader.dataset.batch_shapes_cfg = None
     if 'runner_type' not in cfg:
         # build the default runner
         runner = Runner.from_cfg(cfg)
