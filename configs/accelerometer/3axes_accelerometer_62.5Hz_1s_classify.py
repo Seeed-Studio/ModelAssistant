@@ -12,10 +12,9 @@ model = dict(type='AccelerometerClassifier',
                            num_axes=num_axes,
                            frequency=frequency,
                            window=window,
-                           out_channels=256,
                            num_classes=num_classes,
                            ),
-             head=dict(type='mmcls.ClsHead',
+             head=dict(type='edgelab.ClsHead',
                        loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
                        topk=(1, 5),
                        ))
@@ -73,7 +72,7 @@ test_evaluator = val_evaluator
 
 # optimizer
 lr = 0.0005
-epochs = 5
+epochs = 10
 
 optim_wrapper = dict(
     type='OptimWrapper',
