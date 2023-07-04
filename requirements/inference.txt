@@ -7,3 +7,6 @@ ncnn==1.0.20230517
 tensorflow==2.12.0
 tflite-runtime==2.12.0
 protobuf==4.23.3
+
+libusb1
+

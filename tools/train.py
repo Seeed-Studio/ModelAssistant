@@ -17,7 +17,7 @@ from mmengine.utils import digit_version
 from mmengine.utils.dl_utils import TORCH_VERSION
 from mmdet.utils import setup_cache_size_limit_of_dynamo
 
-from tools.utils.config import load_config
+from tools.utils.config import load_config, dump_config_to_log_dir
 
 
 def parse_args():
@@ -210,6 +210,7 @@ def main():
     # build the runner from config
     if 'runner_type' not in cfg:
         # build the default runner
+        Runner.dump_config = dump_config_to_log_dir
         runner = Runner.from_cfg(cfg)
     else:
         # build customized runner from the registry
@@ -222,6 +223,7 @@ def main():
             shape = cfg.shape
         elif 'width' in cfg and 'height' in cfg:
             shape = [
+                1,
                 3,
                 cfg.width,
                 cfg.height,
@@ -230,10 +232,10 @@ def main():
         raise ValueError('Please specify the input shape')
 
     if type(shape) == int:
-        inputs = torch.rand(1, shape)
+        inputs = torch.rand(shape)
     else:
-        inputs = torch.rand(1, *shape)
-        
+        inputs = torch.rand(*shape)
+
     if torch.cuda.is_available():
         inputs = inputs.cuda()
         runner.model.cuda()
@@ -241,10 +243,11 @@ def main():
     analysis_results = get_model_complexity_info(model=runner.model,
                                                  input_shape=shape,
                                                  inputs=(inputs, ))
-    print('=' * 30)
-    print(f"Model Flops:{analysis_results['flops_str']}")
-    print(f"Model Parameters:{analysis_results['params_str']}")
-    print('=' * 30)
+    print('=' * 40)
+    print(f"{'Input Shape':^20}:{str(shape):^20}")
+    print(f"{'Model Flops':^20}:{analysis_results['flops_str']:^20}")
+    print(f"{'Model Parameters':^20}:{analysis_results['params_str']:^20}")
+    print('=' * 40)
 
     # start training
     runner.train()

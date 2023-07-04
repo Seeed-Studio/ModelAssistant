@@ -1,9 +1,17 @@
 import re
 import os.path as osp
-import tempfile as tf
 from typing import Union, Sequence, Optional
 
 from mmengine.config import Config
+
+
+def dump_config_to_log_dir(self) -> None:
+    """Dump config to `work_dir`."""
+    if self.cfg.filename is not None:
+        filename = osp.basename(self.cfg.filename)
+    else:
+        filename = f'{self.timestamp}.py'
+    self.cfg.dump(osp.join(self.log_dir, filename))
 
 
 def replace(data: str, args: Optional[dict] = None) -> str:
@@ -20,13 +28,13 @@ def replace(data: str, args: Optional[dict] = None) -> str:
     if not args: return data
     for key, value in args.items():
         if isinstance(value, (int, float)):
-            data = re.sub(f"^{key}\s?=\s?[^,{key}].*?[^,{key}]\n",
+            data = re.sub(f"^{key}\s?=\s?[^,{key}].*?[^,{key}].*?$\n",
                           f'{key}={value}\n',
                           data,
                           flags=re.MULTILINE)
         else:
             value = value.replace('\\', '/')
-            data = re.sub(f"^{key}\s?=\s?['\"]{{1}}.*?['\"]{{1}}\n",
+            data = re.sub(f"^{key}\s?=\s?['\"]{{1}}.*?['\"]{{1}}.*?$\n",
                           f'{key}="{value}"\n',
                           data,
                           flags=re.MULTILINE)
@@ -49,10 +57,7 @@ def replace_base_(data: str, base: Union[str, Sequence[str]]) -> str:
         data = re.sub(pattern, f"_base_ = '{base}'", data, flags=re.MULTILINE)
     elif isinstance(base, (list, tuple)):
         pattern = "_base_\s?=\s?[\[].+?[\]]"
-        data = re.sub(pattern,
-                      f"_base_ = {str(base)}",
-                      data,
-                      flags=re.S)
+        data = re.sub(pattern, f"_base_ = {str(base)}", data, flags=re.S)
 
     return data
 
@@ -83,8 +88,8 @@ def load_config(filename: str,
     tmp_dict = {}
     exec(data, tmp_dict)
     cfg_dir = osp.dirname(filename)
+    cfg_file = osp.basename(filename)
 
-    tmp_file = tf.NamedTemporaryFile(dir=folder, delete=False, suffix='.py')
     if '_base_' in tmp_dict.keys():
         base = tmp_dict['_base_']
         if isinstance(base, str):
@@ -106,11 +111,11 @@ def load_config(filename: str,
                 _tmp_base.append(_base_path)
 
             data = replace_base_(data, _tmp_base)
-
-    with open(tmp_file.name, 'w', encoding='gb2312') as f:
+    p = osp.join(folder, cfg_file)
+    with open(p, 'w', encoding='gb2312') as f:
         f.write(data)
 
-    return tmp_file.name
+    return p
 
 
 def replace_cfg_vals(ori_cfg):
