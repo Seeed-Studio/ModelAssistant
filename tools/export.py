@@ -38,12 +38,14 @@ def parse_args():
     )
     parser.add_argument(
         "--work_dir",
+        "--work-dir",
         type=str,
         default=None,
         help="the directory to save logs and models",
     )
     parser.add_argument(
         "--output_stem",
+        "--output-stem",
         type=str,
         default=None,
         help="the stem of output file name (with path)",
@@ -56,6 +58,7 @@ def parse_args():
     )
     parser.add_argument(
         "--input_shape",
+        "--input-shape",
         type=int,
         nargs="+",
         default=None,
@@ -63,6 +66,7 @@ def parse_args():
     )
     parser.add_argument(
         "--input_type",
+        "--input-type",
         type=str,
         default="image",
         choices=["audio", "image", "sensor"],
@@ -70,6 +74,7 @@ def parse_args():
     )
     parser.add_argument(
         "--cfg_options",
+        "--cfg-options",
         nargs="+",
         action=DictAction,
         help="override some settings in the used config, the key-value pair in 'xxx=yyy' format will be merged into config file",
@@ -84,12 +89,14 @@ def parse_args():
     # ONNX specific
     parser.add_argument(
         "--opset_version",
+        "--opset-version",
         type=int,
         default=11,
         help="ONNX: operator set version of exported model",
     )
     parser.add_argument(
         "--dynamic_export",
+        "--dynamic-export",
         action="store_true",
         default=False,
         help="ONNX: export with a dynamic input shape",
@@ -111,7 +118,8 @@ def parse_args():
         help="TFLite: conveter backend",
     )
     parser.add_argument(
-        "--epoch",
+        "--calibration_epochs",
+        "--calibration-epochs",
         type=int,
         default=100,
         help="TFLite: max epoches for quantization calibration",
@@ -125,6 +133,7 @@ def parse_args():
     )
     parser.add_argument(
         "--mean_and_std",
+        "--mean-and-std",
         type=str,
         nargs="+",
         default="[((0.0,), (1.0,))]",
@@ -256,7 +265,7 @@ def export_tflite(args, model, loader):
     context = DLContext()
     context.device = args.device
     context.val_loader = loader
-    context.max_iteration = args.epoch
+    context.max_iteration = args.calibration_epochs
 
     # TODO: Support multiple inputs
     with torch.no_grad():
@@ -375,7 +384,7 @@ def export_onnx(args, model):
         logger.info("ONNX: Successfully export model: {}", onnx_file)
 
 
-@logger.catch
+@logger.catch(onerror=lambda _: os._exit(1))
 def main():
     args = parse_args()
     args = verify_args(args)

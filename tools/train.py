@@ -22,6 +22,7 @@ def parse_args():
     parser.add_argument("config", type=str, help="the model config file path")
     parser.add_argument(
         "--work_dir",
+        "--work-dir",
         type=str,
         default=None,
         help="the directory to save logs and models",
@@ -34,6 +35,7 @@ def parse_args():
     )
     parser.add_argument(
         "--auto_scale_lr",
+        "--auto-scale-lr",
         action="store_true",
         default=False,
         help="enable automatic-scale-LR during training",
@@ -47,12 +49,14 @@ def parse_args():
     )
     parser.add_argument(
         "--no_validate",
+        "--no-validate",
         action="store_true",
         default=False,
         help="disable checkpoint evaluation during training",
     )
     parser.add_argument(
         "--no_persistent_workers",
+        "--no-persistent-workers",
         action="store_true",
         default=False,
         help="disable persistent workers for dataloaders",
@@ -72,18 +76,21 @@ def parse_args():
     )
     parser.add_argument(
         "--cfg_options",
+        "--cfg-options",
         nargs="+",
         action=DictAction,
         help="override some settings in the used config, the key-value pair in 'xxx=yyy' format will be merged into config file",
     )
     parser.add_argument(
         "--local_rank",
+        "--local-rank",
         type=int,
         default=0,
         help="set local-rank for PyTorch",
     )
     parser.add_argument(
         "--dynamo_cache_size",
+        "--dynamo-cache-size",
         type=int,
         default=None,
         help="set dynamo-cache-size limit for PyTorch",
@@ -92,6 +99,7 @@ def parse_args():
     # extension
     parser.add_argument(
         "--input_shape",
+        "--input-shape",
         type=int,
         nargs="+",
         default=None,
@@ -203,7 +211,7 @@ def build_config(args):
     return args, cfg
 
 
-@logger.catch
+@logger.catch(onerror=lambda _: os._exit(1))
 def main():
     args = parse_args()
     args = verify_args(args)

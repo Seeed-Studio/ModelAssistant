@@ -36,6 +36,7 @@ def parse_args():
     )
     parser.add_argument(
         "--work_dir",
+        "--work-dir",
         type=str,
         default=None,
         help="the directory to save logs and models",
@@ -60,6 +61,7 @@ def parse_args():
     )
     parser.add_argument(
         "--out_dir",
+        "--out-dir",
         type=str,
         default=None,
         help="the folder path to save prediction results ",
@@ -72,12 +74,14 @@ def parse_args():
     )
     parser.add_argument(
         "--wait_time",
+        "--wait-time",
         type=float,
         default=0.03,
         help="the visualize duration (seconds) of each sample",
     )
     parser.add_argument(
         "--input_type",
+        "--input-type",
         type=str,
         default="image",
         choices=["audio", "image", "text"],
@@ -92,6 +96,7 @@ def parse_args():
     )
     parser.add_argument(
         "--cfg_options",
+        "--cfg-options",
         nargs="+",
         action=DictAction,
         help="override some settings in the used config, the key-value pair in 'xxx=yyy' format will be merged into config file",
@@ -254,7 +259,7 @@ def build_config(args):
     return args, cfg
 
 
-@logger.catch
+@logger.catch(onerror=lambda _: os._exit(1))
 def main():
     args = parse_args()
     args = verify_args(args)
