@@ -11,7 +11,7 @@ CUDA_AVAILABLE="$(command -v nvidia-smi)"
 # ansi colors
 RED='\033[031m'
 GREEN='\033[032m'
-BLUE='\033[034m' 
+BLUE='\033[034m'
 RST='\033[m'
 
 
@@ -69,7 +69,8 @@ fi
 
 # install optional deps
 if [ "${INSTALL_OPTIONAL}" == true ]; then
-    pip3 install -r requirements/inference.txt -r requirements/export.txt
+    pip3 install -r requirements/inference.txt -r requirements/export.txt -r requirements/tests.txt
+    pre-commit install
 fi
 
 

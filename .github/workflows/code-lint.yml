@@ -1,0 +1,39 @@
+name: code-lint
+
+on:
+  push:
+    branches:
+      - dev # should be 'main' later
+    paths:
+      - 'configs/**'
+      - 'edgelab/**'
+      - 'tools/**'
+      - 'pyproject.toml'
+      - '.pre-commit-config.yaml'
+      - '.github/workflows/code-lint.yml'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  linting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: 'dev' # should be main later
+
+      - name: setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+          cache: 'pip'
+
+      - name: install dependencies
+        run: python -m pip install -r requirements/tests.txt
+
+      - name: ruff lint
+        run: python -m ruff .

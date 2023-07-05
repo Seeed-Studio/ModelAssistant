@@ -1,5 +1,6 @@
 # VS Code
-.vscode
+.vscode/**
+!.vscode/settings.json
 
 # macOS
 .DS_Store
@@ -11,6 +12,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Ruff
+.ruff_cache
 
 # Jupyter
 .ipynb_checkpoints

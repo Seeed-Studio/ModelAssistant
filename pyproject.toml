@@ -1,0 +1,54 @@
+[tool.isort]
+profile = "black"
+
+
+[tool.pylint.messages_control]
+disable = "C0330, C0326"
+
+
+[tool.pylint.format]
+max-line-length = "120"
+
+
+[tool.black]
+line-length = 120
+target-version = ['py38', 'py39', 'py310']
+include = '\.pyi?$'
+skip-string-normalization = true
+extend-exclude = '''
+^/.git
+| ^/.github
+| ^/docs
+| ^/examples
+| ^/requirements
+| ^/scripts
+'''
+
+
+[tool.ruff]
+line-length = 120
+select = ["E", "F"]
+ignore = ["E501"]
+exclude = [
+    ".eggs",
+    ".git",
+    ".github",
+    ".ruff_cache",
+    ".venv",
+    ".vscode",
+    "build",
+    "datasets",
+    "docs",
+    "examples",
+    "dist",
+    "node_modules",
+    "scripts",
+    "examples",
+    "work_dirs",
+]
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+target-version = "py38"
+
+
+[tool.ruff.mccabe]
+max-complexity = 10
