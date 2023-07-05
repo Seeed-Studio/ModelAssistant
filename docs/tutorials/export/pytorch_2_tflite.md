@@ -55,14 +55,19 @@ Here are some model conversion examples (`int8` precision) for reference.
 python3 tools/export.py \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
     "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)" \
-    tflite
+    tflite \
+    --cfg-options \
+        data_root='datasets/mask'
+
 ```
 
 ```sh [PFLD Model Conversion]
 python3 tools/export.py \
     configs/pfld/pfld_mv2n_112.py \
     "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)" \
-    tflite
+    tflite \
+    --cfg-options \
+        data_root='datasets/meter'
 ```
 
 ```sh [YOLOv5 Model Conversion]
@@ -70,6 +75,8 @@ python3 tools/export.py \
     configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
     "$(cat work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint)" \
     tflite
+    --cfg-options \
+        data_root='datasets/digital_meter'
 ```
 
 :::
@@ -123,7 +130,7 @@ python3 tools/inference.py \
     "$(cat work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint | sed -e 's/.pth/_int8.tflite/g')" \
     --show \
     --cfg-options \
-        data_root='datasets/meter'
+        data_root='datasets/digital_meter'
 ```
 
 :::
