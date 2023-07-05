@@ -123,7 +123,6 @@ Then, in the EdgeLab project root directory, we execute the following command to
 
 ```sh
 python3 tools/train.py \
-    pose \
     configs/pfld/pfld_mv2n_112.py \
     --cfg-options \
         data_root='datasets/meter' \
@@ -148,69 +147,6 @@ conda activate edgelab
 
 :::
 
-### Parameter Description
-
-For more parameters during model training, you can refer the code below.
-
-::: code-group
-
-```sh [Model Type]
-python3 tools/train.py \
-    pose \ // [!code focus]
-    configs/pfld/pfld_mv2n_112.py \
-    --work-dir work_dir \
-    --gpu-id 0 \
-    --cfg-options \
-        data_root='datasets/meter' \
-        epochs=50
-```
-
-```sh [Config Path]
-python3 tools/train.py \
-    pose \
-    configs/pfld/pfld_mv2n_112.py \ // [!code focus]
-    --work-dir work_dir \
-    --gpu-id 0 \
-    --cfg-options \
-        data_root='datasets/meter' \
-        epochs=50
-```
-
-```sh [Working Directory]
-python3 tools/train.py \
-    pose \
-    configs/pfld/pfld_mv2n_112.py \
-    --work-dir work_dir \ // [!code focus]
-    --gpu-id 0 \
-    --cfg-options \
-        data_root='datasets/meter' \
-        epochs=50
-```
-
-```sh [GPU ID]
-python3 tools/train.py \
-    pose \
-    configs/pfld/pfld_mv2n_112.py \
-    --work-dir work_dir \
-    --gpu-id 0 \ // [!code focus]
-    --cfg-options \
-        data_root='datasets/meter' \
-        epochs=50
-```
-
-```sh [Config Override]
-python3 tools/train.py \
-    pose \
-    configs/pfld/pfld_mv2n_112.py \
-    --work-dir work_dir \
-    --gpu-id 0 \
-    --cfg-options \ // [!code focus]
-        data_root='datasets/meter' \ // [!code focus]
-        epochs=50 // [!code focus]
-```
-
-:::
-
 
 ## Testing and Evaluation
 
@@ -219,8 +155,7 @@ python3 tools/train.py \
 After have finished training the PFLD model, you can specify specific weights and test the model using the following command.
 
 ```sh
-python3 tools/test.py \
-    pose \
+python3 tools/inference.py \
     configs/pfld/pfld_mv2n_112.py \
     "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)" \
     --cfg-options \
