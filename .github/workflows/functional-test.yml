@@ -1,0 +1,73 @@
+name: functional-test
+
+on:
+  push:
+    branches:
+      - dev # should be 'main' later
+    paths:
+      - 'requirements/**'
+      - 'scripts/**'
+      - 'environment.yml'
+      - 'environment_cuda.yml'
+      - 'requirements.txt'
+      - 'requirements_cuda.txt'
+      - 'setup.py'
+      - '.github/workflows/functional-test.yml'
+
+jobs:
+  partial-test:
+    name: auto installation test for (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+        python-version:
+          - '3.8'
+        task:
+          - classfication
+          - detection
+          - pose
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: dev # should be main later
+
+      - name: setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: pip install deps
+        run: |
+            python -m pip install --upgrade pip wheel setuptools
+            python -m pip install -r requirements/pytorch_cpu.txt
+            python -m pip install -r requirements/base.txt
+            python -m pip install -r requirements/inference.txt
+            python -m pip install -r requirements/export.txt
+            python -m mim install -r requirements/mmlab.txt
+            python -m mim install -e .
+            python --version
+            python -m pip --version
+            python -m pip list
+              - name: setup deps
+
+      - name: fetch datasets (${{ matrix.task }})
+        run: |
+            bash scripts/test_functional.sh ${{ matrix.task }} fetch
+
+      - name: train models (${{ matrix.task }})
+        run: |
+            bash scripts/test_functional.sh ${{ matrix.task }} train
+
+      - name: export models (${{ matrix.task }})
+        run: |
+            bash scripts/test_functional.sh ${{ matrix.task }} export
+
+      - name: inference (${{ matrix.task }})
+        run: |
+            bash scripts/test_functional.sh ${{ matrix.task }} inference
