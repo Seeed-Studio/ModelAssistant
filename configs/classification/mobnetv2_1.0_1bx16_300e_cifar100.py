@@ -8,7 +8,7 @@ num_classes = 10
 # dataset settings
 dataset_type = "mmcls.CIFAR100"
 data_root = "datasets"
-height = 32 
+height = 32
 width = 32
 batch_size = 16
 workers = 1
@@ -19,14 +19,11 @@ epochs = 300
 
 model = dict(
     type='edgelab.ImageClassifier',
-    backbone=dict(type="MobileNetv2",
-                  widen_factor=0.35,
-                  out_indices=(2, ),
-                  rep=True),
+    backbone=dict(type="mmcls.MobileNetV2", widen_factor=1.0),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
         type="mmcls.LinearClsHead",
-        in_channels=16,
+        in_channels=1280,
         num_classes=num_classes,
         loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
         topk=(1, 5),
@@ -47,12 +44,12 @@ test_pipeline = [
 
 train_dataloader = dict(
     # Training dataset configurations
-     batch_size=batch_size,
+    batch_size=batch_size,
     num_workers=workers,
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        data_prefix='cifar10/',
+        data_prefix='cifar100/',
         test_mode=False,
         pipeline=train_pipeline,
     ),
@@ -65,7 +62,7 @@ val_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        data_prefix='cifar10/',
+        data_prefix='cifar100/',
         test_mode=True,
         pipeline=test_pipeline,
     ),
@@ -85,7 +82,6 @@ test_cfg = dict()
 # optimizer
 optim_wrapper = dict(
     optimizer=dict(type='SGD', lr=lr, momentum=0.9, weight_decay=0.0001))
-
 # learning policy
 param_scheduler = [
     dict(type="LinearLR", begin=0, end=30, start_factor=0.001,

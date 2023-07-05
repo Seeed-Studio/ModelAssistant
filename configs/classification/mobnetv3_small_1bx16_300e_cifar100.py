@@ -8,8 +8,8 @@ num_classes = 10
 # dataset settings
 dataset_type = "mmcls.CIFAR100"
 data_root = "datasets"
-height = 96 
-width = 96
+height = 32 
+width = 32
 batch_size = 16
 workers = 1
 
@@ -18,7 +18,7 @@ lr = 0.01
 epochs = 300
 
 model = dict(
-    type='mmcls.ImageClassifier',
+    type='edgelab.ImageClassifier',
     backbone=dict(type='mmcls.MobileNetV3', arch='small'),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(

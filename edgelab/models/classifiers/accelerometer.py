@@ -3,6 +3,7 @@ from typing import List, Optional
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from edgelab.registry import MODELS
 from mmcls.structures import ClsDataSample
@@ -46,6 +47,7 @@ class AccelerometerClassifier(BaseClassifier):
                  pretrained: Optional[str] = None,
                  train_cfg: Optional[dict] = None,
                  data_preprocessor: Optional[dict] = None,
+                 softmax: bool = True,
                  init_cfg: Optional[dict] = None):
         if pretrained is not None:
             init_cfg = dict(type='Pretrained', checkpoint=pretrained)
@@ -72,6 +74,8 @@ class AccelerometerClassifier(BaseClassifier):
         self.backbone = backbone
         self.neck = neck
         self.head = head
+        
+        self.softmax = softmax
 
     def forward(self,
                 inputs: torch.Tensor,
@@ -80,7 +84,8 @@ class AccelerometerClassifier(BaseClassifier):
 
         if mode == 'tensor':
             feats = self.extract_feat(inputs)
-            return self.head(feats) if self.with_head else feats
+            head_out = self.head(feats) if self.with_head else feats
+            return F.softmax(head_out, dim=1) if self.softmax else head_out
         elif mode == 'loss':
             return self.loss(inputs, data_samples)
         elif mode == 'predict':
