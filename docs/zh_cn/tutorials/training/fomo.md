@@ -128,7 +128,6 @@ param_scheduler=[
 
 ```sh
 python3 tools/train.py \
-    det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
     --cfg-options \
         data_root='datasets/mask' \
@@ -153,69 +152,6 @@ conda activate edgelab
 
 :::
 
-### 参数描述
-
-在模型训练时，关于更多的参数，您可以参考:
-
-::: code-group
-
-```sh [模型类型]
-python3 tools/train.py \
-    det \ // [!code focus]
-    configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    --work-dir work_dir \
-    --gpu-id 0 \
-    --cfg-options \
-        data_root='datasets/mask' \
-        epochs=50
-```
-
-```sh [配置路径]
-python3 tools/train.py \
-    det \
-    configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \ // [!code focus]
-    --work-dir work_dir \
-    --gpu-id 0 \
-    --cfg-options \
-        data_root='datasets/mask' \
-        epochs=50
-```
-
-```sh [工作目录]
-python3 tools/train.py \
-    det \
-    configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    --work-dir work_dir \ // [!code focus]
-    --gpu-id 0 \
-    --cfg-options \
-        data_root='datasets/mask' \
-        epochs=50
-```
-
-```sh [GPU ID]
-python3 tools/train.py \
-    det \
-    configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    --work-dir work_dir \
-    --gpu-id 0 \ // [!code focus]
-    --cfg-options \
-        data_root='datasets/mask' \
-        epochs=50
-```
-
-```sh [配置覆写]
-python3 tools/train.py \
-    det \
-    configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    --work-dir work_dir \
-    --gpu-id 0 \
-    --cfg-options \ // [!code focus]
-        data_root='datasets/mask' \ // [!code focus]
-        epochs=50 // [!code focus]
-```
-
-:::
-
 
 ## 测试和评估
 
@@ -224,8 +160,7 @@ python3 tools/train.py \
 在完成了 FOMO 模型的训练后，您可以使用以下命令，指定特定权重并测试模型:
 
 ```sh
-python3 tools/test.py \
-    det \
+python3 tools/inference.py \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
     "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)" \
     --cfg-options \

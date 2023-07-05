@@ -1,7 +1,6 @@
-# Yolo Model Training
+# YOLO Model Training
 
-This section describes how to train the digital meter  model on the COCO digital meter datasets. the implementations of yolo digital meter detection model is based on the [yolov5](https://github.com/ultralytics/yolov5) and power by [mmyolo](https://github.com/open-mmlab/mmyolo)
-
+This section describes how to train the digital meter model on the COCO digital meter datasets. The implementations of yolo digital meter detection model is based on the [yolov5](https://github.com/ultralytics/yolov5) and power by [mmyolo](https://github.com/open-mmlab/mmyolo)
 
 
 ## Prepare Datasets
@@ -17,11 +16,11 @@ EdgeLab uses [Digital Meter Datasets](https://universe.roboflow.com/seeeddataset
 
 We will choose a appropriate configuration file depending on the type of training task we need to perform, which we have already introduced in [Config](../config.md), for a brief description of the functions, structure, and principles of the configuration file.
 
-For the yolov5 model example, we use `yolov5tiny.py` as the configuration file, which is located in the folder under the EdgeLab root directory `configs/yolov5` and its additionally inherits the `base_arch.py` configuration file.
+For the yolov5 model example, we use `yolov5_tiny_1xb16_300e_coco.py` as the configuration file, which is located in the folder under the EdgeLab root directory `configs/yolov5` and its additionally inherits the `base_arch.py` configuration file.
 
 For beginners, we recommend to pay attention to the `data_root` and `epochs` parameters in this configuration file at first.
 
-::: details `yolov5tiny.py`
+::: details `yolov5_tiny_1xb16_300e_coco.py`
 
 ```python
 _base_='../_base_/default_runtime_det.py'
@@ -71,20 +70,19 @@ Then, in the EdgeLab project root directory, we execute the following command to
 
 ```sh
 python3 tools/train.py \
-    det \
-    configs/yolov5/yolov5tiny.py \
+    configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
     --cfg-options \
         data_root='datasets/digital_meter' \
         epochs=50
 ```
 
-During training, the model weights and related log information are saved to the path `work_dirs/yolov5tiny` by default, and you can use tools such as [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) to monitor for training.
+During training, the model weights and related log information are saved to the path `work_dirs/yolov5_tiny_1xb16_300e_coco` by default, and you can use tools such as [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) to monitor for training.
 
 ```sh
-tensorboard --logdir work_dirs/word_dirs/yolov5tiny
+tensorboard --logdir work_dirs/yolov5_tiny_1xb16_300e_coco
 ```
 
-After the training is completed, the path of the latest yolov5 model weights file is saved in the `work_dirs/yolov5tiny/last_checkpoint` file. Please take care of the path of the weight file, as it is needed when converting the model to other formats.
+After the training is completed, the path of the latest yolov5 model weights file is saved in the `work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint` file. Please take care of the path of the weight file, as it is needed when converting the model to other formats.
 
 ::: tip
 
@@ -92,69 +90,6 @@ If you have a virtual environment configured but not activated, you can activate
 
 ```sh
 conda activate edgelab
-```
-
-:::
-
-### Parameter Description
-
-For more parameters during model training, you can refer the code below.
-
-::: code-group
-
-```sh [Model Type]
-python3 tools/train.py \
-    det \ // [!code focus]
-    configs/yolov5/yolov5tiny.py \
-    --work-dir work_dir \
-    --gpu-id 0 \
-    --cfg-options \
-        data_root='datasets/digital_meter' \
-        epochs=50
-```
-
-```sh [Config Path]
-python3 tools/train.py \
-    det \
-    configs/yolov5/yolov5tiny \ // [!code focus]
-    --work-dir work_dir \
-    --gpu-id 0 \
-    --cfg-options \
-        data_root='datasets/digital_meter' \
-        epochs=50
-```
-
-```sh [Working Directory]
-python3 tools/train.py \
-    det \
-    configs/yolov5/yolov5tiny.py \
-    --work-dir work_dir \ // [!code focus]
-    --gpu-id 0 \
-    --cfg-options \
-        data_root='datasets/digital_meter' \
-        epochs=50
-```
-
-```sh [GPU ID]
-python3 tools/train.py \
-    det \
-    configs/yolov5/yolov5tiny.py \
-    --work-dir work_dir \
-    --gpu-id 0 \ // [!code focus]
-    --cfg-options \
-        data_root='datasets/digital_meter' \
-        epochs=50
-```
-
-```sh [Config Override]
-python3 tools/train.py \
-    det \
-    configs/yolov5/yolov5tiny.py \
-    --work-dir work_dir \
-    --gpu-id 0 \
-    --cfg-options \ // [!code focus]
-        data_root='datasets/digital_meter' \ // [!code focus]
-        epochs=50 // [!code focus]
 ```
 
 :::
@@ -167,17 +102,17 @@ python3 tools/train.py \
 After have finished training the yolov5 model, you can specify specific weights and test the model using the following command.
 
 ```sh
-python3 tools/test.py \
-    det \
-    configs/yolov5/yolov5tiny.py \
-    "$(cat work_dirs/yolov5tiny/last_checkpoint)" \
+python3 tools/inference.py \
+    configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
+    "$(cat work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint)" \
+    --show \
     --cfg-options \
         data_root='datasets/digital_meter'
 ```
 
 ::: tip
 
-If you want a real-time preview while testing, you can append a parameter `--show` to the test command to show the predicted results. For more optional parameters, please refer to the source code `tools/test.py`.
+If you want a real-time preview while testing, you can append a parameter `--show` to the test command to show the predicted results. For more optional parameters, please refer to the source code `tools/inference.py`.
 
 :::
 

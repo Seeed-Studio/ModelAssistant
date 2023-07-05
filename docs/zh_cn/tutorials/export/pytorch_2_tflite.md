@@ -39,42 +39,11 @@ TFLite 模型导出需要训练集作为代表数据集，如果没有找到，�
 关于模型转换导出，相关的工具脚本指令和一些常用参数已经列出:
 
 ```sh
-python3 tools/torch2tflite.py \
-    <CONFIG_FILE_PATH> \
-    --checkpoint <CHECKPOINT_FILE_PATH> \
-    --type <TYPE> \
-    --simplify <SIMPLIFY> \
-    --algorithm <ALGORITHM> \
-    --backend <BACKEND> \
-    --shape <SHAPE> \
-    --cfg-options <CFG_OPTIONS>
+python3 tools/export.py \
+    "<CONFIG_FILE_PATH>" \
+    "<CHECKPOINT_FILE_PATH>" \
+    "<TARGETS>"
 ```
-
-### 导出参数
-
-您需要将以上参数根据实际情况进行替换，各个不同参数的具体说明如下:
-
-- `<CONFIG_FILE_PATH>` - 模型配置文件的路径
-
-- `<CHECKPOINT_FILE_PATH>` - 模型权重文件的路径
-
-- `<TYPE>` - TFlite 模型的精度，可选参数: `['int8', 'uint8', 'float32']`，默认 `int8`
-
-- `<SIMPLIFY>` - (可选) 是否简化模型，默认 `False`
-
-- `<ALGORITHM>` - (可选) 模型量化算法，可选参数: `['l2', 'kl']`，默认 `l2`
-
-- `<BACKEND>` - (可选) 模型量化后端，可选参数: `['qnnpack', 'fbgemm']`，默认 `qnnpack`
-
-- `<SHAPE>` - (可选) 模型的输入张量的维度
-
-- `<CFG_OPTIONS>` - (可选) 配置文件参数覆写，具体请参考[模型配置 - EdgeLab 参数化配置](../config.md#edgelab-参数化配置)
-
-::: tip
-
-对于支持的更多参数，请参考代码源文件 `tools/torch2tflite.py`。
-
-:::
 
 ### 导出示例
 
@@ -82,22 +51,25 @@ python3 tools/torch2tflite.py \
 
 ::: code-group
 
-```sh [FOMO 模型导出]
-python3 tools/torch2tflite.py \
+```sh [FOMO Model Conversion]
+python3 tools/export.py \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    --checkpoint "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)" \
-    --type int8 \
-    --cfg-options \
-        data_root='datasets/mask'
+    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)" \
+    tflite
 ```
 
-```sh [PFLD 模型导出]
-python3 tools/torch2tflite.py \
+```sh [PFLD Model Conversion]
+python3 tools/export.py \
     configs/pfld/pfld_mv2n_112.py \
-    --checkpoint "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)" \
-    --type int8 \
-    --cfg-options \
-        data_root='datasets/meter'
+    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)" \
+    tflite
+```
+
+```sh [YOLOv5 Model Conversion]
+python3 tools/export.py \
+    configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
+    "$(cat work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint)" \
+    tflite
 ```
 
 :::
@@ -108,34 +80,16 @@ python3 tools/torch2tflite.py \
 由于在导出模型的过程中，EdgeLab 会借助一些工具对模型进行一些优化，如模型的剪枝、蒸馏等，虽然我们在训练过程中已经对模型权重进行了测试和评估，我们建议您对导出后的模型进行再次验证。
 
 ```sh
-python3 tools/test.py \
-    <TASK> \
-    <CONFIG_FILE_PATH> \
-    <CHECKPOINT_FILE_PATH> \
-    --out <OUT_FILE_PATH> \
-    --work-dir <WORK_DIR_PATH> \
-    --cfg-options <CFG_OPTIONS>
+python3 tools/inference.py \
+    "<CONFIG_FILE_PATH>" \
+    "<CHECKPOINT_FILE_PATH>" \
+    --show \
+    --cfg-options "<CFG_OPTIONS>"
 ```
-
-### 验证参数
-
-您需要将以上参数根据实际情况进行替换，各个不同参数的具体说明如下:
-
-- `<TASK>` - 模型的类型，可选参数: `['det', 'cls', 'pose']`
-
-- `<CONFIG_FILE_PATH>` - 模型配置文件的路径
-
-- `<CHECKPOINT_FILE_PATH>` - 模型权重文件的路径
-
-- `<OUT_FILE_PATH>` - (可选) 验证结果输出的文件路径
-
-- `<WORK_DIR_PATH>` - (可选) 工作目录的路径
-
-- `<CFG_OPTIONS>` - (可选) 配置文件参数覆写，具体请参考[模型配置 - EdgeLab 参数化配置](../config.md#edgelab-参数化配置)
 
 ::: tip
 
-对于支持的更多参数，请参考代码源文件 `tools/test.py`。
+对于支持的更多参数，请参考代码源文件 `tools/inference.py` 或运行命令 `python3 tools/inference.py --help`。
 
 :::
 
@@ -145,20 +99,29 @@ python3 tools/test.py \
 
 ::: code-group
 
-```sh [FOMO 模型评估]
-python3 tools/test.py \
-    det \
+```sh [FOMO Model Validation]
+python3 tools/inference.py \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)_int8.tflite" \
+    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint | sed -e 's/.pth/_int8.tflite/g')" \
+    --show \
     --cfg-options \
         data_root='datasets/mask'
 ```
 
-```sh [PFLD 模型评估]
-python3 tools/test.py \
-    pose \
+```sh [PFLD Model Validation]
+python3 tools/inference.py \
     configs/pfld/pfld_mv2n_112.py \
-    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)_int8.tflite" \
+    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint | sed -e 's/.pth/_int8.tflite/g')" \
+    --show \
+    --cfg-options \
+        data_root='datasets/meter'
+```
+
+```sh [YOLOv5 Model Validation]
+python3 tools/inference.py \
+    configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
+    "$(cat work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint | sed -e 's/.pth/_int8.tflite/g')" \
+    --show \
     --cfg-options \
         data_root='datasets/meter'
 ```

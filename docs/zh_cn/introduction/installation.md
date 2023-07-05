@@ -101,6 +101,13 @@ mim install -e .
 pip3 install -r requirements/inference.txt -r requirements/export.txt
 ```
 
+如果您希望对 EdgeLab 作出修改并向我们提交修改，我们建议您额外运行以下指令，以方便在提交时检查您的代码:
+
+```sh
+pip3 install -r requirements/tests.txt
+pre-commit install
+```
+
 
 ## 其他方法
 

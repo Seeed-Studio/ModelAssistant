@@ -39,42 +39,11 @@ Export TFLite model requires a training set as a representative dataset, if it n
 For model transformation (convert and export), the relevant commands with some common parameters are listed.
 
 ```sh
-python3 tools/torch2tflite.py \
-    <CONFIG_FILE_PATH> \
-    --checkpoint <CHECKPOINT_FILE_PATH> \
-    --type <TYPE> \
-    --simplify <SIMPLIFY> \
-    --algorithm <ALGORITHM> \
-    --backend <BACKEND> \
-    --shape <SHAPE> \
-    --cfg-options <CFG_OPTIONS>
+python3 tools/export.py \
+    "<CONFIG_FILE_PATH>" \
+    "<CHECKPOINT_FILE_PATH>" \
+    "<TARGETS>"
 ```
-
-### Transform Parameters
-
-You need to replace the above parameters according to the actual scenario, the details of parameters are described as follows.
-
-- `<CONFIG_FILE_PATH>` - Path to the model config file
-
-- `<CHECKPOINT_FILE_PATH>` - Path to the model weights file
-
-- `<TYPE>` - Precision of the TFlite model, choose from: `['int8', 'uint8', 'float32']`, default `int8`
-
-- `<SIMPLIFY>` - (Optional) Whether to simplify the model, default `False`
-
-- `<algorithm>` - (Optional) Algorithm used for model quantization, choose from: `['l2', 'kl']`, default `kl`
-
-- `<BACKEND>` - (Optional) Backend used for model quantization, choose from: `['qnnpack', 'fbgemm']`, default `qnnpack`
-
-- `<SHAPE>` - (Optional) The dimensionality of the model's input tensor
-
-- `<CFG_OPTIONS>` - (Optional) Configuration file parameter override, please refer to [Config - Parameterized Configuration](../config.md#parameterized-configuration)
-
-::: tip
-
-For more parameters supported, please refer to the source code `tools/torch2tflite.py`.
-
-:::
 
 ### Transform Examples
 
@@ -83,21 +52,24 @@ Here are some model conversion examples (`int8` precision) for reference.
 ::: code-group
 
 ```sh [FOMO Model Conversion]
-python3 tools/torch2tflite.py \
+python3 tools/export.py \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    --checkpoint "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)" \
-    --type int8 \
-    --cfg-options \
-        data_root='datasets/mask'
+    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)" \
+    tflite
 ```
 
 ```sh [PFLD Model Conversion]
-python3 tools/torch2tflite.py \
+python3 tools/export.py \
     configs/pfld/pfld_mv2n_112.py \
-    --checkpoint "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)" \
-    --type int8 \
-    --cfg-options \
-        data_root='datasets/meter'
+    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)" \
+    tflite
+```
+
+```sh [YOLOv5 Model Conversion]
+python3 tools/export.py \
+    configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
+    "$(cat work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint)" \
+    tflite
 ```
 
 :::
@@ -108,34 +80,16 @@ python3 tools/torch2tflite.py \
 Since in the process of exporting the model, EdgeLab will do some optimization for the model using some tools, such as model pruning, distillation, etc. Although we have tested and evaluated the model weights during the training process, we recommend you to validate the exported model again.
 
 ```sh
-python3 tools/test.py \
-    <TASK> \
-    <CONFIG_FILE_PATH> \
-    <CHECKPOINT_FILE_PATH> \
-    --out <OUT_FILE_PATH> \
-    --work-dir <WORK_DIR_PATH> \
-    --cfg-options <CFG_OPTIONS>
+python3 tools/inference.py \
+    "<CONFIG_FILE_PATH>" \
+    "<CHECKPOINT_FILE_PATH>" \
+    --show \
+    --cfg-options "<CFG_OPTIONS>"
 ```
-
-### Validation Parameters
-
-You need to replace the above parameters according to the actual scenario, and descriptions of different parameters are as follows.
-
-- `<TASK>` - Type of model, choose from: `['det', 'cls', 'pose']`
-
-- `<CONFIG_FILE_PATH>` - Path to the model configuration file
-
-- `<CHECKPOINT_FILE_PATH>` - Path to the model weights file
-
-- `<OUT_FILE_PATH>` - (Optional) Path to the output folder for the validation results
-
-- `<WORK_DIR_PATH>` - (Optional) Path to the working directory
-
-- `<CFG_OPTIONS>` - (Optional) Configuration file parameter override, please refer to [Config - Parameterized Configuration](../config.md#parameterized-configuration)
 
 ::: tip
 
-For more parameters supported, please refer to the source code `tools/test.py`.
+For more parameters supported, please refer to the source code `tools/inference.py` or run `python3 tools/inference.py --help`.
 
 :::
 
@@ -146,19 +100,28 @@ Here are some examples for validating converted model (`int8` precision), for re
 ::: code-group
 
 ```sh [FOMO Model Validation]
-python3 tools/test.py \
-    det \
+python3 tools/inference.py \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)_int8.tflite" \
+    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint | sed -e 's/.pth/_int8.tflite/g')" \
+    --show \
     --cfg-options \
         data_root='datasets/mask'
 ```
 
 ```sh [PFLD Model Validation]
-python3 tools/test.py \
-    pose \
+python3 tools/inference.py \
     configs/pfld/pfld_mv2n_112.py \
-    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)_int8.tflite" \
+    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint | sed -e 's/.pth/_int8.tflite/g')" \
+    --show \
+    --cfg-options \
+        data_root='datasets/meter'
+```
+
+```sh [YOLOv5 Model Validation]
+python3 tools/inference.py \
+    configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
+    "$(cat work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint | sed -e 's/.pth/_int8.tflite/g')" \
+    --show \
     --cfg-options \
         data_root='datasets/meter'
 ```

@@ -123,7 +123,6 @@ param_scheduler=[
 
 ```sh
 python3 tools/train.py \
-    pose \
     configs/pfld/pfld_mv2n_112.py \
     --cfg-options \
         data_root='datasets/meter' \
@@ -148,69 +147,6 @@ conda activate edgelab
 
 :::
 
-### 参数描述
-
-在模型训练时，关于更多的参数，您可以参考:
-
-::: code-group
-
-```sh [模型类型]
-python3 tools/train.py \
-    pose \ // [!code focus]
-    configs/pfld/pfld_mv2n_112.py \
-    --work-dir work_dir \
-    --gpu-id 0 \
-    --cfg-options \
-        data_root='datasets/meter' \
-        epochs=50
-```
-
-```sh [配置路径]
-python3 tools/train.py \
-    pose \
-    configs/pfld/pfld_mv2n_112.py \ // [!code focus]
-    --work-dir work_dir \
-    --gpu-id 0 \
-    --cfg-options \
-        data_root='datasets/meter' \
-        epochs=50
-```
-
-```sh [工作目录]
-python3 tools/train.py \
-    pose \
-    configs/pfld/pfld_mv2n_112.py \
-    --work-dir work_dir \ // [!code focus]
-    --gpu-id 0 \
-    --cfg-options \
-        data_root='datasets/meter' \
-        epochs=50
-```
-
-```sh [GPU ID]
-python3 tools/train.py \
-    pose \
-    configs/pfld/pfld_mv2n_112.py \
-    --work-dir work_dir \
-    --gpu-id 0 \ // [!code focus]
-    --cfg-options \
-        data_root='datasets/meter' \
-        epochs=50
-```
-
-```sh [配置覆写]
-python3 tools/train.py \
-    pose \
-    configs/pfld/pfld_mv2n_112.py \
-    --work-dir work_dir \
-    --gpu-id 0 \
-    --cfg-options \ // [!code focus]
-        data_root='datasets/meter' \ // [!code focus]
-        epochs=50 // [!code focus]
-```
-
-:::
-
 
 ## 测试和评估
 
@@ -219,8 +155,7 @@ python3 tools/train.py \
 在完成了 PFLD 模型的训练后，您可以使用以下命令，指定特定权重并对模型进行简单测试:
 
 ```sh
-python3 tools/test.py \
-    pose \
+python3 tools/inference.py \
     configs/pfld/pfld_mv2n_112.py \
     "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)" \
     --cfg-options \

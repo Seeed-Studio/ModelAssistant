@@ -128,7 +128,6 @@ Then, in the EdgeLab project root directory, we execute the following command to
 
 ```sh
 python3 tools/train.py \
-    det \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
     --cfg-options \
         data_root='datasets/mask' \
@@ -153,69 +152,6 @@ conda activate edgelab
 
 :::
 
-### Parameter Description
-
-For more parameters during model training, you can refer the code below.
-
-::: code-group
-
-```sh [Model Type]
-python3 tools/train.py \
-    det \ // [!code focus]
-    configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    --work-dir work_dir \
-    --gpu-id 0 \
-    --cfg-options \
-        data_root='datasets/mask' \
-        epochs=50
-```
-
-```sh [Config Path]
-python3 tools/train.py \
-    det \
-    configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \ // [!code focus]
-    --work-dir work_dir \
-    --gpu-id 0 \
-    --cfg-options \
-        data_root='datasets/mask' \
-        epochs=50
-```
-
-```sh [Working Directory]
-python3 tools/train.py \
-    det \
-    configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    --work-dir work_dir \ // [!code focus]
-    --gpu-id 0 \
-    --cfg-options \
-        data_root='datasets/mask' \
-        epochs=50
-```
-
-```sh [GPU ID]
-python3 tools/train.py \
-    det \
-    configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    --work-dir work_dir \
-    --gpu-id 0 \ // [!code focus]
-    --cfg-options \
-        data_root='datasets/mask' \
-        epochs=50
-```
-
-```sh [Config Override]
-python3 tools/train.py \
-    det \
-    configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    --work-dir work_dir \
-    --gpu-id 0 \
-    --cfg-options \ // [!code focus]
-        data_root='datasets/mask' \ // [!code focus]
-        epochs=50 // [!code focus]
-```
-
-:::
-
 
 ## Testing and Evaluation
 
@@ -224,8 +160,7 @@ python3 tools/train.py \
 After have finished training the FOMO model, you can specify specific weights and test the model using the following command.
 
 ```sh
-python3 tools/test.py \
-    det \
+python3 tools/inference.py \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
     "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)" \
     --cfg-options \
