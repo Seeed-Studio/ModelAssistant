@@ -18,6 +18,7 @@ jobs:
   partial-test:
     name: functional test for (${{ matrix.task }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
