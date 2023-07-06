@@ -65,7 +65,7 @@ def parse_args():
         "--device",
         type=str,
         default="cpu",
-        help="the device used for convert & export",
+        help="the device used for model training",
     )
     parser.add_argument(
         "--launcher",
