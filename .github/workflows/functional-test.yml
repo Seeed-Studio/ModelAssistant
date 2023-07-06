@@ -16,7 +16,7 @@ on:
 
 jobs:
   partial-test:
-    name: auto installation test for (${{ matrix.os }})
+    name: functional test for (${{ matrix.task }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
