@@ -38,7 +38,7 @@ python3 tools/train.py --help
 #                         disable checkpoint evaluation during training
 #   --no_persistent_workers, --no-persistent-workers
 #                         disable persistent workers for dataloaders
-#   --device DEVICE       the device used for convert & export
+#   --device DEVICE       the device used for model training
 #   --launcher {none,pytorch,slurm,mpi}
 #                         the job launcher for MMEngine
 #   --cfg_options CFG_OPTIONS [CFG_OPTIONS ...], --cfg-options CFG_OPTIONS [CFG_OPTIONS ...]

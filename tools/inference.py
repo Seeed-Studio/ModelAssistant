@@ -6,11 +6,11 @@ import torch
 from loguru import logger
 
 # TODO: Move to config file
-# import edgelab.datasets
-# import edgelab.engine
-# import edgelab.evaluation
-# import edgelab.models
-# import edgelab.visualization
+import edgelab.datasets  # noqa
+import edgelab.engine  # noqa
+import edgelab.evaluation  # noqa
+import edgelab.models  # noqa
+import edgelab.visualization  # noqa
 
 
 def parse_args():
@@ -51,7 +51,7 @@ def parse_args():
         "--device",
         type=str,
         default="cpu",
-        help="the device used for convert & export",
+        help="the device used for inference",
     )
     parser.add_argument(
         "--show",
