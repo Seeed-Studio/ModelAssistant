@@ -50,6 +50,10 @@ functional_test_core()
     DATASETS_DIR="${DATASETS_PATH%.*}"
     LAST_CHECKPOINT="work_dirs/${CONFIG_FILE_NAME%.*}/last_checkpoint"
 
+    echo -e "CONFIG_FILE=${CONFIG_FILE}"
+    echo -e "DATASETS_DIR=${DATASETS_DIR}"
+    echo -e "LAST_CHECKPOINT=${LAST_CHECKPOINT}"
+
     case "$1" in
         "fetch")
             mkdir -p datasets && \
