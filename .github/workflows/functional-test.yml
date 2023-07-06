@@ -16,8 +16,9 @@ on:
 
 jobs:
   partial-test:
-    name: auto installation test for (${{ matrix.os }})
+    name: functional test for (${{ matrix.task }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -26,7 +27,7 @@ jobs:
         python-version:
           - '3.8'
         task:
-          - classfication
+          - classification
           - detection
           - pose
 
@@ -54,7 +55,6 @@ jobs:
             python --version
             python -m pip --version
             python -m pip list
-              - name: setup deps
 
       - name: fetch datasets (${{ matrix.task }})
         run: |

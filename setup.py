@@ -4,8 +4,8 @@ import shutil
 import subprocess
 import sys
 import warnings
-
 from distutils import spawn
+
 from setuptools import find_packages, setup
 
 
@@ -69,15 +69,12 @@ def parse_requirements(fpath: str = ""):
 
 
 def add_mim_extension():
-    if "develop" in sys.argv:
-        if platform.system() == "Windows":
-            mode = "copy"
-        else:
-            mode = "symlink"
-    elif "sdist" in sys.argv or "bdist_wheel" in sys.argv:
+    if platform.system() == "Windows":
         mode = "copy"
     else:
-        return
+        mode = "symlink"
+    if "sdist" in sys.argv or "bdist_wheel" in sys.argv:
+        mode = "copy"
 
     filenames = ["tools", "configs"]
     repo_path = os.path.dirname(__file__)

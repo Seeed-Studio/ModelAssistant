@@ -3,7 +3,6 @@ import os
 import tempfile
 
 import torch
-from loguru import logger
 
 # TODO: Move to config file
 import edgelab.datasets  # noqa
@@ -213,7 +212,7 @@ def build_config(args):
         task = {"mmcls", "mmdet", "mmpose"}.intersection(get_task_from_config(args.config))
         assert len(task) == 1, "Unable to get task from configs, please manually specify in arguments"
         args.task = list(task)[0]
-        logger.warning("Using task type from config: {}", args.task)
+        print("Using task type from config: {}".format(args.task))
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         cfg_data = load_config(args.config, folder=tmp_dir, cfg_options=args.cfg_options)
@@ -259,7 +258,6 @@ def build_config(args):
     return args, cfg
 
 
-@logger.catch(onerror=lambda _: os._exit(1))
 def main():
     args = parse_args()
     args = verify_args(args)
