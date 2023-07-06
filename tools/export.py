@@ -3,7 +3,6 @@ import os
 import tempfile
 
 import torch
-from loguru import logger
 from tqdm import tqdm
 
 # TODO: Move to config file
@@ -204,10 +203,10 @@ def build_config(args):
                 ]
         except Exception as exc:
             raise ValueError("Please specify the input shape") from exc
-        logger.warning(
-            "Using automatically generated input shape (from config '{}'): {}",
-            os.path.basename(args.config),
-            args.input_shape,
+        print(
+            "Using automatically generated input shape (from config '{}'): {}".format(
+                os.path.basename(args.config), args.input_shape
+            )
         )
 
     args.mean_and_std = [t for t in eval(args.mean_and_std)]
@@ -274,7 +273,7 @@ def export_tflite(args, model, loader):
 
     for precision in args.precisions:
         if precision not in ["int8", "uint8", "int16", "float32"]:
-            logger.warning("TFLite: Ignoring unsupported precision: {}", precision)
+            print("TFLite: Ignoring unsupported precision: {}".format(precision))
             continue
 
         tflite_file = get_exported_file_name_from_precision(args, precision, ".tflite")
@@ -334,7 +333,7 @@ def export_tflite(args, model, loader):
         except Exception as exp:
             raise RuntimeError("TFLite: Failed exporting the model") from exp
 
-        logger.info("TFLite: Successfully export model: {}", tflite_file)
+        print("TFLite: Successfully export model: {}".format(tflite_file))
 
 
 def export_onnx(args, model):
@@ -344,7 +343,7 @@ def export_onnx(args, model):
 
     for precision in args.precisions:
         if precision not in ["float32"]:
-            logger.warning("ONNX: Ignoring unsupported precision: {}", precision)
+            print("ONNX: Ignoring unsupported precision: {}".format(precision))
             continue
 
         onnx_file = get_exported_file_name_from_precision(args, precision, ".onnx")
@@ -377,14 +376,10 @@ def export_onnx(args, model):
             if check:
                 onnx.save(model_simp, onnx_file)
             else:
-                logger.warning(
-                    "ONNX: Faile to simplify the model: '{}', revert to the original",
-                    onnx_file,
-                )
-        logger.info("ONNX: Successfully export model: {}", onnx_file)
+                print("ONNX: Faile to simplify the model: '{}', revert to the original".format(onnx_file))
+        print("ONNX: Successfully export model: {}".format(onnx_file))
 
 
-@logger.catch(onerror=lambda _: os._exit(1))
 def main():
     args = parse_args()
     args = verify_args(args)

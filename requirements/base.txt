@@ -8,7 +8,6 @@ scikit-learn==1.2.2
 # visualize
 tensorboard==2.12.3
 tqdm==4.65.0
-loguru==0.7.0
 
 # openmmlab package manager
 openmim==0.3.7

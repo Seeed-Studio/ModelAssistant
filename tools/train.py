@@ -3,7 +3,6 @@ import os
 import tempfile
 
 import torch
-from loguru import logger
 
 # TODO: Move to config file
 import edgelab.datasets  # noqa
@@ -168,16 +167,15 @@ def build_config(args):
                 ]
         except Exception as exc:
             raise ValueError("Please specify the input shape") from exc
-        logger.warning(
-            "Using automatically generated input shape (from config '{}'): {}",
-            os.path.basename(args.config),
-            args.input_shape,
+        print(
+            "Using automatically generated input shape (from config '{}'): {}".format(
+                os.path.basename(args.config), args.input_shape
+            )
         )
 
     return args, cfg
 
 
-@logger.catch(onerror=lambda _: os._exit(1))
 def main():
     from mmengine.analysis import get_model_complexity_info
     from mmengine.device import get_device
@@ -202,8 +200,8 @@ def main():
 
     analysis_results = get_model_complexity_info(model=model, input_shape=args.input_shape, inputs=(dummy_inputs,))
 
-    logger.info("Model Flops:{}", analysis_results["flops_str"])
-    logger.info("Model Parameters:{}", analysis_results["params_str"])
+    print("Model Flops:{}".format(analysis_results["flops_str"]))
+    print("Model Parameters:{}".fomat(analysis_results["params_str"]))
 
     runner.train()
 
