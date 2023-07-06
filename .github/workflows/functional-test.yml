@@ -54,7 +54,6 @@ jobs:
             python --version
             python -m pip --version
             python -m pip list
-              - name: setup deps
 
       - name: fetch datasets (${{ matrix.task }})
         run: |
