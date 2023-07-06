@@ -55,19 +55,6 @@ def parse_args():
         help="disable checkpoint evaluation during training",
     )
     parser.add_argument(
-        "--no_persistent_workers",
-        "--no-persistent-workers",
-        action="store_true",
-        default=False,
-        help="disable persistent workers for dataloaders",
-    )
-    parser.add_argument(
-        "--device",
-        type=str,
-        default="cpu",
-        help="the device used for model training",
-    )
-    parser.add_argument(
         "--launcher",
         type=str,
         default="none",
@@ -122,7 +109,7 @@ def verify_args(args):
 def build_config(args):
     from mmengine.config import Config
 
-    from tools.utils.config import load_config
+    from edgelab.tools.utils.config import load_config
 
     if "LOCAL_RANK" not in os.environ:
         os.environ["LOCAL_RANK"] = str(args.local_rank)
@@ -143,9 +130,6 @@ def build_config(args):
         cfg.work_dir = args.work_dir
     elif cfg.get("work_dir", None) is None:
         args.work_dir = cfg.work_dir = os.path.join("work_dirs", os.path.splitext(os.path.basename(args.config))[0])
-
-    if args.device.startswith("cuda"):
-        args.device = args.device if torch.cuda.is_available() else "cpu"
 
     if args.amp is True:
         optim_wrapper = cfg.optim_wrapper.get("type", "OptimWrapper")
@@ -171,24 +155,6 @@ def build_config(args):
         cfg.val_dataloader = None
         cfg.val_evaluator = None
 
-    for dataloader in ["train_dataloader", "val_dataloader", "test_dataloader"]:
-        if cfg.get(dataloader, None) is None:
-            logger.warning("Skipped setting parms for empty dataloader: {}", dataloader)
-            continue
-        for k, i_v in {
-            "persistent_workers": args.no_persistent_workers,
-        }.items():
-            if i_v is None:
-                continue
-            if cfg.get(cfg[dataloader][k], None) is None:
-                logger.warning(
-                    "Skipped setting dataloader parms for missing attribute: {}.{}",
-                    dataloader,
-                    k,
-                )
-                continue
-            cfg[dataloader][k] = not i_v
-
     if args.input_shape is None:
         try:
             if "shape" in cfg:
@@ -213,6 +179,9 @@ def build_config(args):
 
 @logger.catch(onerror=lambda _: os._exit(1))
 def main():
+    from mmengine.analysis import get_model_complexity_info
+    from mmengine.device import get_device
+
     args = parse_args()
     args = verify_args(args)
     args, cfg = build_config(args)
@@ -226,10 +195,10 @@ def main():
 
         runner = RUNNERS.build(cfg)
 
-    dummy_inputs = torch.randn(*args.input_shape, device=args.device)
-    model = runner.model.to(device=args.device)
+    device = get_device()
+    dummy_inputs = torch.randn(*args.input_shape, device=device)
+    model = runner.model.to(device=device)
     model.eval()
-    from mmengine.analysis import get_model_complexity_info
 
     analysis_results = get_model_complexity_info(model=model, input_shape=args.input_shape, inputs=(dummy_inputs,))
 
