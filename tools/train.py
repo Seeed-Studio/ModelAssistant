@@ -201,7 +201,7 @@ def main():
     analysis_results = get_model_complexity_info(model=model, input_shape=args.input_shape, inputs=(dummy_inputs,))
 
     print("Model Flops:{}".format(analysis_results["flops_str"]))
-    print("Model Parameters:{}".fomat(analysis_results["params_str"]))
+    print("Model Parameters:{}".format(analysis_results["params_str"]))
 
     runner.train()
 
