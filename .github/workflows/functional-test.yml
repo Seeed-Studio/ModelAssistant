@@ -5,8 +5,11 @@ on:
     branches:
       - dev # should be 'main' later
     paths:
+      - 'configs/**'
+      - 'edgelab/**'
       - 'requirements/**'
       - 'scripts/**'
+      - 'tools/**'
       - 'environment.yml'
       - 'environment_cuda.yml'
       - 'requirements.txt'

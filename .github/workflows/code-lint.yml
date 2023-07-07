@@ -22,8 +22,6 @@ jobs:
     steps:
       - name: checkout repository
         uses: actions/checkout@v3
-        with:
-          ref: 'dev' # should be main later
 
       - name: setup python
         uses: actions/setup-python@v4
