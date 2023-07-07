@@ -16,17 +16,16 @@ from edgelab.registry import MODELS
 
 @MODELS.register_module()
 class DetHead(BaseModel):
-
-    def __init__(self,
-                 num_classes: int,
-                 in_channels: Union[int, Sequence],
-                 widen_factor: float = 1.0,
-                 num_base_priors: int = 3,
-                 featmap_strides: Sequence[int] = (8, 16, 32),
-                 anchors=[[(10, 13), (16, 30), (33, 23)],
-                          [(30, 61), (62, 45), (59, 119)],
-                          [(116, 90), (156, 198), (373, 326)]],
-                 init_cfg: OptMultiConfig = None):
+    def __init__(
+        self,
+        num_classes: int,
+        in_channels: Union[int, Sequence],
+        widen_factor: float = 1.0,
+        num_base_priors: int = 3,
+        featmap_strides: Sequence[int] = (8, 16, 32),
+        anchors=[[(10, 13), (16, 30), (33, 23)], [(30, 61), (62, 45), (59, 119)], [(116, 90), (156, 198), (373, 326)]],
+        init_cfg: OptMultiConfig = None,
+    ):
         super().__init__(init_cfg=init_cfg)
         self.num_classes = num_classes
         self.widen_factor = widen_factor
@@ -40,12 +39,9 @@ class DetHead(BaseModel):
         self.num_base_priors = num_base_priors
 
         if isinstance(in_channels, int):
-            self.in_channels = [make_divisible(in_channels, widen_factor)
-                                ] * self.num_levels
+            self.in_channels = [make_divisible(in_channels, widen_factor)] * self.num_levels
         else:
-            self.in_channels = [
-                make_divisible(i, widen_factor) for i in in_channels
-            ]
+            self.in_channels = [make_divisible(i, widen_factor) for i in in_channels]
 
         self._init_layers()
 
@@ -53,9 +49,7 @@ class DetHead(BaseModel):
         """initialize conv layers in YOLOv5 head."""
         self.convs_pred = nn.ModuleList()
         for i in range(self.num_levels):
-            conv_pred = nn.Conv2d(self.in_channels[i],
-                                  self.num_base_priors * self.num_out_attrib,
-                                  1)
+            conv_pred = nn.Conv2d(self.in_channels[i], self.num_base_priors * self.num_out_attrib, 1)
 
             self.convs_pred.append(conv_pred)
 
@@ -65,7 +59,7 @@ class DetHead(BaseModel):
         for mi, s in zip(self.convs_pred, self.featmap_strides):  # from
             b = mi.bias.data.view(self.num_base_priors, -1)
             # obj (8 objects per 640 image)
-            b.data[:, 4] += math.log(8 / (640 / s)**2)
+            b.data[:, 4] += math.log(8 / (640 / s) ** 2)
             b.data[:, 5:] += math.log(0.6 / (self.num_classes - 0.999999))
 
             mi.bias.data = b.view(-1)
@@ -94,36 +88,32 @@ class DetHead(BaseModel):
     def forward_split(self, x: Tensor, convs: nn.Module):
         pred_map = convs(x)
         bs, _, ny, nx = pred_map.shape
-        pred_map = pred_map.view(bs, self.num_base_priors, self.num_out_attrib,
-                                 ny, nx)
+        pred_map = pred_map.view(bs, self.num_base_priors, self.num_out_attrib, ny, nx)
         cls_score = pred_map[:, :, 5:, ...].reshape(bs, -1, ny, nx)
         bbox_pred = pred_map[:, :, :4, ...].reshape(bs, -1, ny, nx)
         objectness = pred_map[:, :, 4:5, ...].reshape(bs, -1, ny, nx)
         return cls_score, bbox_pred, objectness
 
-    def forward_single(self, x: Tensor,
-                       convs: nn.Module) -> Tensor:
+    def forward_single(self, x: Tensor, convs: nn.Module) -> Tensor:
         """Forward feature of a single scale level."""
         pred_map = convs(x)
         pred_map = pred_map.sigmoid()
         bs, _, ny, nx = pred_map.shape
-        pred_map = pred_map.view(bs, self.num_base_priors, self.num_out_attrib,
-                                 ny*nx)
+        pred_map = pred_map.view(bs, self.num_base_priors, self.num_out_attrib, ny * nx)
         return pred_map.permute(0, 1, 3, 2).contiguous(), nx, ny
 
-    def process(self, pred_map) -> Tuple[Tensor,Tensor]:
+    def process(self, pred_map) -> Tuple[Tensor, Tensor]:
         res = []
-        
+
         for idx, (feat_, nx, ny) in enumerate(pred_map):
             bs = feat_.shape[0]
             grid, grid_ = self.get_grid(nx, ny, idx, feat_.device)
-        
-            feat_xy, feat_wh, feat_cls = torch.split(feat_, [2, 2, self.num_classes+1], dim=-1)
+
+            feat_xy, feat_wh, feat_cls = torch.split(feat_, [2, 2, self.num_classes + 1], dim=-1)
             xy = (feat_xy * 2 - 0.5 + grid) * torch.as_tensor(
-                self.featmap_strides[idx],
-                dtype=torch.float,
-                device=feat_.device) 
-            wh = 2 * feat_wh 
+                self.featmap_strides[idx], dtype=torch.float, device=feat_.device
+            )
+            wh = 2 * feat_wh
             wh *= wh
             wh *= grid_
             cls = feat_cls * 100
@@ -131,24 +121,22 @@ class DetHead(BaseModel):
             res.append(out.view(bs, -1, self.num_out_attrib))
 
         return torch.cat(res, 1)
-    
+
     def get_grid(self, x, y, idx, device):
         if torch.__version__ > '1.10.0':
-            dy, dx = torch.meshgrid([
-                torch.arange(y, device=device),
-                torch.arange(x, device=device)
-            ],
-                                    indexing='ij')
+            dy, dx = torch.meshgrid([torch.arange(y, device=device), torch.arange(x, device=device)], indexing='ij')
         else:
-            dy, dx = torch.meshgrid([
-                torch.arange(y, device=device),
-                torch.arange(x, device=device)
-            ])
+            dy, dx = torch.meshgrid([torch.arange(y, device=device), torch.arange(x, device=device)])
 
         grid = torch.stack((dx, dy), dim=2).expand(1, 1, y, x, 2).view(1, 1, -1, 2).float().to(device)
-        grid_ = self.anchors[idx].clone().view(
-            (1, self.num_base_priors,  1, 2)).expand(
-                (1, self.num_base_priors, y*x, 2)).float().to(device)
+        grid_ = (
+            self.anchors[idx]
+            .clone()
+            .view((1, self.num_base_priors, 1, 2))
+            .expand((1, self.num_base_priors, y * x, 2))
+            .float()
+            .to(device)
+        )
 
         return grid, grid_
 
@@ -157,30 +145,20 @@ class DetHead(BaseModel):
 class YOLOV5Head(YOLOv5Head):
     head_module: DetHead
 
-    def loss(self, x: Tuple[Tensor], batch_data_samples: Union[list,
-                                                               dict]) -> dict:
+    def loss(self, x: Tuple[Tensor], batch_data_samples: Union[list, dict]) -> dict:
         outs = self.head_module(x)
 
         outputs = unpack_gt_instances(batch_data_samples)
-        (batch_gt_instances, batch_gt_instances_ignore,
-         batch_img_metas) = outputs
+        (batch_gt_instances, batch_gt_instances_ignore, batch_img_metas) = outputs
 
-        loss_inputs = outs + (batch_gt_instances, batch_img_metas,
-                              batch_gt_instances_ignore)
+        loss_inputs = outs + (batch_gt_instances, batch_img_metas, batch_gt_instances_ignore)
         losses = self.loss_by_feat(*loss_inputs)
         return losses
 
-    def predict(self,
-                x: Tuple[Tensor],
-                batch_data_samples: SampleList,
-                rescale: bool = False) -> InstanceList:
-        batch_img_metas = [
-            data_samples.metainfo for data_samples in batch_data_samples
-        ]
+    def predict(self, x: Tuple[Tensor], batch_data_samples: SampleList, rescale: bool = False) -> InstanceList:
+        batch_img_metas = [data_samples.metainfo for data_samples in batch_data_samples]
         outs = self.head_module(x)
-        predictions = self.predict_by_feat(*outs,
-                                           batch_img_metas=batch_img_metas,
-                                           rescale=rescale)
+        predictions = self.predict_by_feat(*outs, batch_img_metas=batch_img_metas, rescale=rescale)
         return predictions
 
     def forward(self, x) -> Tuple[Tensor, Tensor]:

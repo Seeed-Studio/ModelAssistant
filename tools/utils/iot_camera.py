@@ -14,8 +14,7 @@ VendorId = 0x2886  # seeed studio
 ProductId = [0x8060, 0x8061]
 
 
-class IoTCamera():
-
+class IoTCamera:
     def __init__(self, device_id=0):
         self.ProductId = []
 
@@ -43,25 +42,16 @@ class IoTCamera():
             break
 
     def read_data(self):
-
         # Device not present, or user is not allowed to access device.
         with self.handle.claimInterface(2):
             # Do stuff with endpoints on claimed interface.
             self.handle.setInterfaceAltSetting(2, 0)
-            self.handle.controlRead(0x01 << 5,
-                                    request=0x22,
-                                    value=0x01,
-                                    index=2,
-                                    length=2048,
-                                    timeout=1000)
+            self.handle.controlRead(0x01 << 5, request=0x22, value=0x01, index=2, length=2048, timeout=1000)
             # Build a list of transfer objects and submit them to prime the pump.
             transfer_list = []
             for _ in range(1):
                 transfer = self.handle.getTransfer()
-                transfer.setBulk(usb1.ENDPOINT_IN | 2,
-                                 2048,
-                                 callback=self.processReceivedData,
-                                 timeout=1000)
+                transfer.setBulk(usb1.ENDPOINT_IN | 2, 2048, callback=self.processReceivedData, timeout=1000)
                 transfer.submit()
                 transfer_list.append(transfer)
             # Loop as long as there is at least one submitted transfer.
@@ -70,13 +60,10 @@ class IoTCamera():
                 self.context.handleEvents()
 
     def pare_data(self, data: bytearray):
-
-        if len(data) == 8 and int.from_bytes(bytes(data[:4]),
-                                             'big') == WEBUSB_JPEG_MAGIC:
+        if len(data) == 8 and int.from_bytes(bytes(data[:4]), 'big') == WEBUSB_JPEG_MAGIC:
             self.expect_size = int.from_bytes(bytes(data[4:]), 'big')
             self.buff = bytearray()
-        elif len(data) == 8 and int.from_bytes(bytes(data[:4]),
-                                               'big') == WEBUSB_TEXT_MAGIC:
+        elif len(data) == 8 and int.from_bytes(bytes(data[:4]), 'big') == WEBUSB_TEXT_MAGIC:
             self.expect_size = int.from_bytes(bytes(data[4:]), 'big')
             self.buff = bytearray()
         else:
@@ -113,7 +100,7 @@ class IoTCamera():
             # transfer.close()
             return
 
-        data = transfer.getBuffer()[:transfer.getActualLength()]
+        data = transfer.getBuffer()[: transfer.getActualLength()]
         # Process data...
         self.pare_data(data)
         # Resubmit transfer once data is processed.
@@ -127,12 +114,7 @@ class IoTCamera():
             return False
         with self.handle.claimInterface(2):
             self.handle.setInterfaceAltSetting(2, 0)
-            self.handle.controlRead(0x01 << 5,
-                                    request=0x22,
-                                    value=0x01,
-                                    index=2,
-                                    length=2048,
-                                    timeout=1000)
+            self.handle.controlRead(0x01 << 5, request=0x22, value=0x01, index=2, length=2048, timeout=1000)
             print('device is connected')
         return True
 
@@ -141,15 +123,9 @@ class IoTCamera():
             print('Resetting device...')
             with usb1.USBContext() as context:
                 handle = context.getByVendorIDAndProductID(
-                    VendorId,
-                    self.ProductId[self.device_id],
-                    skip_on_error=False).open()
-                handle.controlRead(0x01 << 5,
-                                   request=0x22,
-                                   value=0x00,
-                                   index=2,
-                                   length=2048,
-                                   timeout=1000)
+                    VendorId, self.ProductId[self.device_id], skip_on_error=False
+                ).open()
+                handle.controlRead(0x01 << 5, request=0x22, value=0x00, index=2, length=2048, timeout=1000)
                 handle.close()
                 print('Device has been reset!')
             return True
@@ -165,30 +141,24 @@ class IoTCamera():
             product_id = device.getProductID()
             vendor_id = device.getVendorID()
             device_addr = device.getDeviceAddress()
-            bus = '->'.join(
-                str(x) for x in ['Bus %03i' % (device.getBusNumber(), )] +
-                device.getPortNumberList())
+            bus = '->'.join(str(x) for x in ['Bus %03i' % (device.getBusNumber(),)] + device.getPortNumberList())
             if vendor_id == VendorId and product_id in ProductId and tmp == did:
                 self.ProductId.append(product_id)
                 print(
-                    '\r' +
-                    f'\033[4;31mID {vendor_id:04x}:{product_id:04x} {bus} Device {device_addr} \033[0m',
-                    end='')
+                    '\r' + f'\033[4;31mID {vendor_id:04x}:{product_id:04x} {bus} Device {device_addr} \033[0m', end=''
+                )
                 if get:
                     return device.open()
                 else:
                     device.close()
                     print(
-                        '\r' +
-                        f'\033[4;31mID {vendor_id:04x}:{product_id:04x} {bus} Device {device_addr} CLOSED\033[0m',
-                        flush=True)
+                        '\r'
+                        + f'\033[4;31mID {vendor_id:04x}:{product_id:04x} {bus} Device {device_addr} CLOSED\033[0m',
+                        flush=True,
+                    )
             elif vendor_id == VendorId and product_id in ProductId:
                 self.ProductId.append(product_id)
-                print(
-                    f'\033[0;31mID {vendor_id:04x}:{product_id:04x} {bus} Device {device_addr}\033[0m'
-                )
+                print(f'\033[0;31mID {vendor_id:04x}:{product_id:04x} {bus} Device {device_addr}\033[0m')
                 tmp = tmp + 1
             else:
-                print(
-                    f'ID {vendor_id:04x}:{product_id:04x} {bus} Device {device_addr}'
-                )
+                print(f'ID {vendor_id:04x}:{product_id:04x} {bus} Device {device_addr}')

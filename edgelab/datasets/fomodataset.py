@@ -17,16 +17,17 @@ from mmdet.datasets.coco import CocoDataset
 
 @DATASETS.register_module()
 class FomoDatasets(CocoDataset):
-    def __init__(self,
-                 data_root,
-                 pipeline,
-                 classes=None,
-                 use_alb=True,
-                 bbox_params: dict = dict(format='coco',
-                                          label_fields=['class_labels']),
-                 ann_file: str = None,
-                 img_prefix: str = None) -> None:
-        super().__init__(ann_file=ann_file,data_root=data_root,pipeline=pipeline,data_prefix=dict(img='train/'))
+    def __init__(
+        self,
+        data_root,
+        pipeline,
+        classes=None,
+        use_alb=True,
+        bbox_params: dict = dict(format='coco', label_fields=['class_labels']),
+        ann_file: str = None,
+        img_prefix: str = None,
+    ) -> None:
+        super().__init__(ann_file=ann_file, data_root=data_root, pipeline=pipeline, data_prefix=dict(img='train/'))
 
         if not osp.isabs(img_prefix):
             img_dir = os.path.join(data_root, img_prefix)
@@ -35,8 +36,7 @@ class FomoDatasets(CocoDataset):
 
         self.bbox_params = bbox_params
 
-        self.transform = AlbCompose(pipeline,
-                                    bbox_params=A.BboxParams(**bbox_params))
+        self.transform = AlbCompose(pipeline, bbox_params=A.BboxParams(**bbox_params))
         # load data with coco format
         self.data = torchvision.datasets.CocoDetection(
             img_dir,
@@ -46,9 +46,9 @@ class FomoDatasets(CocoDataset):
         self.parse_cats()
         # Offset of the ground truth box
         self.posit_offset = torch.tensor(
-            [[0, -1, 0], [0, -1, -1], [0, 0, -1], [0, 1, 0], [0, 1, 1],
-             [0, 0, 1], [0, 1, -1], [0, -1, 1], [0, 0, 0]],
-            dtype=torch.long)
+            [[0, -1, 0], [0, -1, -1], [0, 0, -1], [0, 1, 0], [0, 1, 1], [0, 0, 1], [0, 1, -1], [0, -1, 1], [0, 0, 0]],
+            dtype=torch.long,
+        )
 
         # TODO
         self.flag = np.zeros(len(self), dtype=np.uint8)
@@ -56,7 +56,7 @@ class FomoDatasets(CocoDataset):
             self.flag[i] = 1
 
     def parse_cats(self):
-        """ parse dataset is roboflow """
+        """parse dataset is roboflow"""
         self.roboflow = False
         self.CLASSES = []
 
@@ -70,12 +70,12 @@ class FomoDatasets(CocoDataset):
             self.CLASSES.append(value['name'])
 
     def __len__(self):
-        """ return datasets len"""
+        """return datasets len"""
         return len(self.data)
 
     def __getitem____(self, index):
         image, ann = self.data[index]
-        
+
         self.prepare_data(idx=index)
         image = np.asarray(image)
         return self.pipeline()
@@ -97,11 +97,7 @@ class FomoDatasets(CocoDataset):
         bboxes = np.array(bboxes)
         labels = np.array(labels)
 
-        trans_param = {
-            'image': image,
-            'bboxes': bboxes,
-            self.bbox_params['label_fields'][0]: labels
-        }
+        trans_param = {'image': image, 'bboxes': bboxes, self.bbox_params['label_fields'][0]: labels}
 
         result = self.transform(**trans_param)
         image = result['image']
@@ -111,22 +107,16 @@ class FomoDatasets(CocoDataset):
         H, W, C = image.shape
         bbl = []
         for bbox, l in zip(bboxes, labels):
-            bbl.append([
-                0, l, (bbox[0] + (bbox[2] / 2)) / W,
-                (bbox[1] + (bbox[3] / 2)) / H, bbox[2] / W, bbox[3] / H
-            ])
+            bbl.append([0, l, (bbox[0] + (bbox[2] / 2)) / W, (bbox[1] + (bbox[3] / 2)) / H, bbox[2] / W, bbox[3] / H])
 
-        return {
-            'inputs': ToTensor()(image),
-            'data_samples': torch.from_numpy(np.asarray(bbl))
-        }
+        return {'inputs': ToTensor()(image), 'data_samples': torch.from_numpy(np.asarray(bbl))}
 
     def get_ann_info(self, idx):
         ann = self.__getitem__[idx]["target"]
         return ann
 
     def bboxe2cell(self, bboxe, img_h, img_w, H, W):
-        """ transform the bbox to ground cell """
+        """transform the bbox to ground cell"""
         w = bboxe[0] + (bboxe[2] / 2)
         h = bboxe[1] + (bboxe[3] / 2)
         w = w / img_w
@@ -157,7 +147,7 @@ class FomoDatasets(CocoDataset):
         for i in targets:
             h, w = int(i[3].item() * H), int(i[2].item() * W)
             target_data[int(i[0]), h, w, 0] = 0  # background
-            target_data[int(i[0]), h, w, int(i[1])] = 1  #label
+            target_data[int(i[0]), h, w, int(i[1])] = 1  # label
 
         return target_data
 
@@ -183,14 +173,13 @@ class FomoDatasets(CocoDataset):
                 if torch.any(site < 0) or torch.any(site >= H):
                     continue
                 # The prediction is considered to be correct if it is near the ground truth box
-                if site in preds_index and preds_max[site.chunk(
-                        3)] == target_max[ti.chunk(3)]:
+                if site in preds_index and preds_max[site.chunk(3)] == target_max[ti.chunk(3)]:
                     preds_max[site.chunk(3)] = target_max[ti.chunk(3)]
                     target_max[site.chunk(3)] = target_max[ti.chunk(3)]
         # Calculate the confusion matrix
-        confusion = confusion_matrix(target_max.flatten().cpu().numpy(),
-                                     preds_max.flatten().cpu().numpy(),
-                                     labels=range(preds.shape[-1]))
+        confusion = confusion_matrix(
+            target_max.flatten().cpu().numpy(), preds_max.flatten().cpu().numpy(), labels=range(preds.shape[-1])
+        )
         # Calculate the value of P, R, F1 based on the confusion matrix
         tn = confusion[0, 0]
         tp = np.diagonal(confusion).sum() - tn

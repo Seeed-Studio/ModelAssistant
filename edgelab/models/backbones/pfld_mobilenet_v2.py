@@ -6,27 +6,11 @@ from ..base.general import InvertedResidual, CBR
 
 @BACKBONES.register_module()
 class PfldMobileNetV2(nn.Module):
-
-    def __init__(self,
-                 inchannel=3,
-                 layer1=[16, 16, 16, 16, 16],
-                 layer2=[32, 32, 32, 32, 32, 32],
-                 out_channel=16):
+    def __init__(self, inchannel=3, layer1=[16, 16, 16, 16, 16], layer2=[32, 32, 32, 32, 32, 32], out_channel=16):
         super(PfldMobileNetV2, self).__init__()
         inp = 32
-        self.conv1 = CBR(inchannel,
-                         inp,
-                         kernel=3,
-                         stride=2,
-                         padding=1,
-                         bias=False)
-        self.conv2 = CBR(inp,
-                         inp,
-                         kernel=3,
-                         stride=1,
-                         padding=1,
-                         groups=inp,
-                         bias=False)
+        self.conv1 = CBR(inchannel, inp, kernel=3, stride=2, padding=1, bias=False)
+        self.conv2 = CBR(inp, inp, kernel=3, stride=1, padding=1, groups=inp, bias=False)
 
         layer = []
         for idx, oup in enumerate(layer1):
@@ -47,7 +31,6 @@ class PfldMobileNetV2(nn.Module):
         self.block2 = InvertedResidual(inp, out_channel, 1, False, 2)
 
     def forward(self, x):
-        
         x = self.conv1(x)
         x = self.conv2(x)
 

@@ -19,20 +19,13 @@ from tools.utils.config import load_config
 def parse_args():
     parser = argparse.ArgumentParser(description='Get a detector flops')
     parser.add_argument('config', help='train config file path')
+    parser.add_argument('--shape', type=int, nargs='+', default=[], help='input image size')
     parser.add_argument(
-        '--shape',
-        type=int,
-        nargs='+',
-        default=[],
-        help='input image size')
+        '--show-arch', action='store_true', help='whether return the statistics in the form of network layers'
+    )
     parser.add_argument(
-        '--show-arch',
-        action='store_true',
-        help='whether return the statistics in the form of network layers')
-    parser.add_argument(
-        '--not-show-table',
-        action='store_true',
-        help='whether return the statistics in the form of table'),
+        '--not-show-table', action='store_true', help='whether return the statistics in the form of table'
+    ),
     parser.add_argument(
         '--cfg-options',
         nargs='+',
@@ -42,7 +35,8 @@ def parse_args():
         'be overwritten is a list, it should be like key="[a,b]" or key=a,b '
         'It also allows nested list/tuple values, e.g. key="[(a,b),(c,d)]" '
         'Note that the quotation marks are necessary and that no white space '
-        'is allowed.')
+        'is allowed.',
+    )
     return parser.parse_args()
 
 
@@ -54,20 +48,18 @@ def inference(args, logger):
     # load config
     tmp_folder = tempfile.TemporaryDirectory()
     # Modify and create temporary configuration files
-    config_data = load_config(args.config,
-                              folder=tmp_folder.name,
-                              cfg_options=args.cfg_options)
+    config_data = load_config(args.config, folder=tmp_folder.name, cfg_options=args.cfg_options)
     # load temporary configuration files
     cfg = Config.fromfile(config_data)
     tmp_folder.cleanup()
-    
+
     cfg.work_dir = tempfile.TemporaryDirectory().name
     cfg.log_level = 'WARN'
     if args.cfg_options is not None:
         cfg.merge_from_dict(args.cfg_options)
 
     init_default_scope(cfg.get('default_scope', 'mmyolo'))
-    
+
     if len(args.shape) == 1:
         h = w = args.shape[0]
     elif len(args.shape) == 2:
@@ -95,17 +87,18 @@ def inference(args, logger):
         inputs = data['inputs'][0]
     else:
         inputs = data['inputs']
-        
-    if inputs.shape[0] != 1: 
-        inputs = inputs.unsqueeze(0) # batch size 1
-        
+
+    if inputs.shape[0] != 1:
+        inputs = inputs.unsqueeze(0)  # batch size 1
+
     result = {'ori_shape': (h, w), 'pad_shape': inputs.shape[-2:]}
     outputs = get_model_complexity_info(
         model,
         input_shape=None,
         inputs=inputs,  # the input tensor of the model
         show_table=not args.not_show_table,  # show the complexity table
-        show_arch=args.show_arch)  # show the complexity arch
+        show_arch=args.show_arch,
+    )  # show the complexity arch
 
     result['flops'] = outputs['flops_str']
     result['params'] = outputs['params_str']
@@ -131,15 +124,18 @@ def main():
     print(result['out_arch'])  # print related information by network layers
 
     if pad_shape != ori_shape:
-        print(f'{split_line}\nUse size divisor set input shape '
-              f'from {ori_shape} to {pad_shape}')
+        print(f'{split_line}\nUse size divisor set input shape ' f'from {ori_shape} to {pad_shape}')
 
-    print(f'{split_line}\n'
-          f'Input shape: {pad_shape}\nModel Flops: {flops}\n'
-          f'Model Parameters: {params}\n{split_line}')
-    print('!!!Please be cautious if you use the results in papers. '
-          'You may need to check if all ops are supported and verify '
-          'that the flops computation is correct.')
+    print(
+        f'{split_line}\n'
+        f'Input shape: {pad_shape}\nModel Flops: {flops}\n'
+        f'Model Parameters: {params}\n{split_line}'
+    )
+    print(
+        '!!!Please be cautious if you use the results in papers. '
+        'You may need to check if all ops are supported and verify '
+        'that the flops computation is correct.'
+    )
 
 
 if __name__ == '__main__':

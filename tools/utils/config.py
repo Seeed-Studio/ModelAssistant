@@ -15,42 +15,36 @@ def dump_config_to_log_dir(self) -> None:
 
 
 def replace(data: str, args: Optional[dict] = None) -> str:
-    """ 
+    """
     Replace the basic configuration items in the configuration file
-    
+
     Args:
         data(str): the string to be replaced
         args(dict): the replaced value
-        
+
     Returns:
         data(str): the replaced string
     """
-    if not args: 
+    if not args:
         return data
     for key, value in args.items():
         if isinstance(value, (int, float)):
-            data = re.sub(f"^{key}\s?=\s?[^,{key}].*?[^,{key}].*?$\n",
-                          f'{key}={value}\n',
-                          data,
-                          flags=re.MULTILINE)
+            data = re.sub(f"^{key}\s?=\s?[^,{key}].*?[^,{key}].*?$\n", f'{key}={value}\n', data, flags=re.MULTILINE)
         else:
             value = value.replace('\\', '/')
-            data = re.sub(f"^{key}\s?=\s?['\"]{{1}}.*?['\"]{{1}}.*?$\n",
-                          f'{key}="{value}"\n',
-                          data,
-                          flags=re.MULTILINE)
+            data = re.sub(f"^{key}\s?=\s?['\"]{{1}}.*?['\"]{{1}}.*?$\n", f'{key}="{value}"\n', data, flags=re.MULTILINE)
     return data
 
 
 def replace_base_(data: str, base: Union[str, Sequence[str]]) -> str:
     """
     Replace the _base_ configuration item in the configuration file
-    
+
     Args:
         data(str): the string to be replaced
         base(str|[str]): the replaced value
-        
-    Returns: 
+
+    Returns:
         data(str): the replaced string
     """
     if isinstance(base, str):
@@ -63,23 +57,21 @@ def replace_base_(data: str, base: Union[str, Sequence[str]]) -> str:
     return data
 
 
-def load_config(filename: str,
-                folder: str,
-                cfg_options: Optional[dict] = None) -> str:
+def load_config(filename: str, folder: str, cfg_options: Optional[dict] = None) -> str:
     """
-    Load the configuration file and modify the value in cfg-options at the 
-    same time, write the modified file to the temporary file, and finally store 
+    Load the configuration file and modify the value in cfg-options at the
+    same time, write the modified file to the temporary file, and finally store
     the modified file in the temporary path and return the corresponding path
-    
+
     Args:
         filename: configuration file path
-        cfg_options: Parameters passed on the command line to modify the 
+        cfg_options: Parameters passed on the command line to modify the
             configuration file
-        folder: The path to the temporary folder, all temporary files in 
+        folder: The path to the temporary folder, all temporary files in
             the function will be stored in this folder
-            
+
     Returns:
-        cfg_path: The path of the replaced temporary file is equal to the 
+        cfg_path: The path of the replaced temporary file is equal to the
             path of the corresponding file after filename is modified
     """
     with open(filename, 'r', encoding='gb2312') as f:
@@ -162,12 +154,13 @@ def replace_cfg_vals(ori_cfg):
                 for key, value in zip(keys, values):
                     # the format of string cfg is
                     # "xxx${key}xxx" or "xxx${key1}xxx${key2}xxx"
-                    assert not isinstance(value, (dict, list, tuple)), \
-                        f'for the format of string cfg is ' \
-                        f"'xxxxx${key}xxxxx' or 'xxx${key}xxx${key}xxx', " \
-                        f"the type of the value of '${key}' " \
-                        f'can not be dict, list, or tuple' \
+                    assert not isinstance(value, (dict, list, tuple)), (
+                        f'for the format of string cfg is '
+                        f"'xxxxx${key}xxxxx' or 'xxx${key}xxx${key}xxx', "
+                        f"the type of the value of '${key}' "
+                        f'can not be dict, list, or tuple'
                         f'but you input {type(value)} in {cfg}'
+                    )
                     cfg = cfg.replace(key, str(value))
             return cfg
         else:
@@ -176,8 +169,7 @@ def replace_cfg_vals(ori_cfg):
     # the pattern of string "${key}"
     pattern_key = re.compile(r'\$\{[a-zA-Z\d_.]*\}')
     # the type of ori_cfg._cfg_dict is mmcv.utils.config.ConfigDict
-    updated_cfg = Config(replace_value(ori_cfg._cfg_dict),
-                         cfg_text=ori_cfg._text)
+    updated_cfg = Config(replace_value(ori_cfg._cfg_dict), cfg_text=ori_cfg._text)
     # replace the model with model_wrapper
     if updated_cfg.get('model_wrapper', None) is not None:
         updated_cfg.model = updated_cfg.model_wrapper

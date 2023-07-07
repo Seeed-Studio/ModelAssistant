@@ -3,6 +3,4 @@ from .pfld_loss import PFLDLoss
 from .nll_loss import NLLLoss
 from .bce_withlogits_loss import BCEWithLogitsLoss
 
-__all__ = [
-    'LabelSmoothCrossEntropyLoss', 'PFLDLoss', 'NLLLoss', 'BCEWithLogitsLoss'
-]
+__all__ = ['LabelSmoothCrossEntropyLoss', 'PFLDLoss', 'NLLLoss', 'BCEWithLogitsLoss']

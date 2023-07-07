@@ -10,19 +10,15 @@ from mmdet.models.utils import multi_apply
 
 @METRICS.register_module()
 class FomoMetric(BaseMetric):
-
-    def __init__(self,
-                 collect_device: str = 'cpu',
-                 prefix: Optional[str] = None) -> None:
+    def __init__(self, collect_device: str = 'cpu', prefix: Optional[str] = None) -> None:
         super().__init__(collect_device, prefix)
         self.posit_offset = torch.tensor(
-            [[0, -1, 0], [0, -1, -1], [0, 0, -1], [0, 1, 0], [0, 1, 1],
-             [0, 0, 1], [0, 1, -1], [0, -1, 1], [0, 0, 0]],
-            dtype=torch.long)
+            [[0, -1, 0], [0, -1, -1], [0, 0, -1], [0, 1, 0], [0, 1, 1], [0, 0, 1], [0, 1, -1], [0, -1, 1], [0, 0, 0]],
+            dtype=torch.long,
+        )
 
     def compute_ftp(self, preds, target):
-        preds, target = preds.to(torch.device('cpu')), target.to(
-            torch.device('cpu'))
+        preds, target = preds.to(torch.device('cpu')), target.to(torch.device('cpu'))
         preds = torch.softmax(preds, dim=-1)
         B, H, W, C = preds.shape
         # Get the category id of each box
@@ -45,14 +41,13 @@ class FomoMetric(BaseMetric):
                 if torch.any(site < 0) or torch.any(site >= H):
                     continue
                 # The prediction is considered to be correct if it is near the ground truth box
-                if site in preds_index and preds_max[site.chunk(
-                        3)] == target_max[ti.chunk(3)]:
+                if site in preds_index and preds_max[site.chunk(3)] == target_max[ti.chunk(3)]:
                     preds_max[site.chunk(3)] = target_max[ti.chunk(3)]
                     target_max[site.chunk(3)] = target_max[ti.chunk(3)]
         # Calculate the confusion matrix
-        confusion = confusion_matrix(target_max.flatten().cpu().numpy(),
-                                     preds_max.flatten().cpu().numpy(),
-                                     labels=range(preds.shape[-1]))
+        confusion = confusion_matrix(
+            target_max.flatten().cpu().numpy(), preds_max.flatten().cpu().numpy(), labels=range(preds.shape[-1])
+        )
         # Calculate the value of P、R、F1 based on the confusion matrix
         tn = confusion[0, 0]
         tp = np.diagonal(confusion).sum() - tn
@@ -73,8 +68,7 @@ class FomoMetric(BaseMetric):
 
     def process(self, data_batch, data_samples) -> None:
         TP = FP = FN = []
-        preds, target = data_samples[0]['pred_instances'][
-            'pred'], data_samples[0]['pred_instances']['labels']
+        preds, target = data_samples[0]['pred_instances']['pred'], data_samples[0]['pred_instances']['labels']
         preds = tuple([pred.permute(0, 2, 3, 1) for pred in preds])
 
         tp, fp, fn = multi_apply(self.compute_ftp, preds, target)

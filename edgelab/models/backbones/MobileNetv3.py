@@ -12,15 +12,21 @@ from torchvision.ops.misc import SqueezeExcitation as SElayer
 
 class InvertedResidualConfig:
     # Analytic model configuration table
-    def __init__(self, input_channels: int, kernel: int,
-                 expanded_channels: int, out_channels: int, use_se: bool,
-                 activation: str, stride: int, dilation: int,
-                 widen_factor: float):
-        self.input_channels = self.adjust_channels(input_channels,
-                                                   widen_factor)
+    def __init__(
+        self,
+        input_channels: int,
+        kernel: int,
+        expanded_channels: int,
+        out_channels: int,
+        use_se: bool,
+        activation: str,
+        stride: int,
+        dilation: int,
+        widen_factor: float,
+    ):
+        self.input_channels = self.adjust_channels(input_channels, widen_factor)
         self.kernel = kernel
-        self.expanded_channels = self.adjust_channels(expanded_channels,
-                                                      widen_factor)
+        self.expanded_channels = self.adjust_channels(expanded_channels, widen_factor)
         self.out_channels = self.adjust_channels(out_channels, widen_factor)
         self.use_se = use_se
         self.use_hs = activation == "HS"
@@ -34,11 +40,12 @@ class InvertedResidualConfig:
 
 class InvertedResidual(nn.Module):
     # Main details of MobileNetV3
-    def __init__(self,
-                 cnf: InvertedResidualConfig,
-                 norm_layer: Callable[..., nn.Module],
-                 se_layer: Callable[..., nn.Module] = partial(
-                     SElayer, scale_activation=nn.Hardsigmoid)):
+    def __init__(
+        self,
+        cnf: InvertedResidualConfig,
+        norm_layer: Callable[..., nn.Module],
+        se_layer: Callable[..., nn.Module] = partial(SElayer, scale_activation=nn.Hardsigmoid),
+    ):
         super().__init__()
 
         if not (1 <= cnf.stride <= 2):
@@ -52,34 +59,39 @@ class InvertedResidual(nn.Module):
         # expand
         if cnf.expanded_channels != cnf.input_channels:
             layers.append(
-                ConvNormActivation(cnf.input_channels,
-                                   cnf.expanded_channels,
-                                   kernel_size=1,
-                                   norm_layer=norm_layer,
-                                   activation_layer=activation_layer))
+                ConvNormActivation(
+                    cnf.input_channels,
+                    cnf.expanded_channels,
+                    kernel_size=1,
+                    norm_layer=norm_layer,
+                    activation_layer=activation_layer,
+                )
+            )
 
         # depthwise
         stride = 1 if cnf.dilation > 1 else cnf.stride
         layers.append(
-            ConvNormActivation(cnf.expanded_channels,
-                               cnf.expanded_channels,
-                               kernel_size=cnf.kernel,
-                               stride=stride,
-                               dilation=cnf.dilation,
-                               groups=cnf.expanded_channels,
-                               norm_layer=norm_layer,
-                               activation_layer=activation_layer))
+            ConvNormActivation(
+                cnf.expanded_channels,
+                cnf.expanded_channels,
+                kernel_size=cnf.kernel,
+                stride=stride,
+                dilation=cnf.dilation,
+                groups=cnf.expanded_channels,
+                norm_layer=norm_layer,
+                activation_layer=activation_layer,
+            )
+        )
         if cnf.use_se:
             squeeze_channels = make_divisible(cnf.expanded_channels // 4, 8)
             layers.append(se_layer(cnf.expanded_channels, squeeze_channels))
 
         # project
         layers.append(
-            ConvNormActivation(cnf.expanded_channels,
-                               cnf.out_channels,
-                               kernel_size=1,
-                               norm_layer=norm_layer,
-                               activation_layer=None))
+            ConvNormActivation(
+                cnf.expanded_channels, cnf.out_channels, kernel_size=1, norm_layer=norm_layer, activation_layer=None
+            )
+        )
 
         self.block = nn.Sequential(*layers)
         self.out_channels = cnf.out_channels
@@ -94,22 +106,23 @@ class InvertedResidual(nn.Module):
 
 @VISBACKENDS.register_module()
 class MobileNetV3(BaseModule):
-
-    def __init__(self,
-                 arch='small',
-                 widen_factor=1,
-                 out_indices=(1, ),
-                 frozen_stages=-1,
-                 input_channels: int = 3,
-                 conv_cfg=dict(type='Conv'),
-                 norm_cfg=None,
-                 act_cfg=dict(type='Hardswish'),
-                 norm_eval=False,
-                 reduced_tail: bool = False,
-                 dilated: bool = False,
-                 pretrained=None,
-                 init_cfg=None,
-                 **kwargs):
+    def __init__(
+        self,
+        arch='small',
+        widen_factor=1,
+        out_indices=(1,),
+        frozen_stages=-1,
+        input_channels: int = 3,
+        conv_cfg=dict(type='Conv'),
+        norm_cfg=None,
+        act_cfg=dict(type='Hardswish'),
+        norm_eval=False,
+        reduced_tail: bool = False,
+        dilated: bool = False,
+        pretrained=None,
+        init_cfg=None,
+        **kwargs,
+    ):
         super(MobileNetV3, self).__init__(init_cfg)
 
         reduce_divider = 2 if reduced_tail else 1
@@ -130,12 +143,13 @@ class MobileNetV3(BaseModule):
                 ir_conf(80, 3, 184, 80, False, "HS", 1, 1),
                 ir_conf(80, 3, 480, 112, True, "HS", 1, 1),
                 ir_conf(112, 3, 672, 112, True, "HS", 1, 1),
-                ir_conf(112, 5, 672, 160 // reduce_divider, True, "HS", 2,
-                        dilation),  # C4
-                ir_conf(160 // reduce_divider, 5, 960 // reduce_divider,
-                        160 // reduce_divider, True, "HS", 1, dilation),
-                ir_conf(160 // reduce_divider, 5, 960 // reduce_divider,
-                        160 // reduce_divider, True, "HS", 1, dilation),
+                ir_conf(112, 5, 672, 160 // reduce_divider, True, "HS", 2, dilation),  # C4
+                ir_conf(
+                    160 // reduce_divider, 5, 960 // reduce_divider, 160 // reduce_divider, True, "HS", 1, dilation
+                ),
+                ir_conf(
+                    160 // reduce_divider, 5, 960 // reduce_divider, 160 // reduce_divider, True, "HS", 1, dilation
+                ),
             ]
         elif arch == "small":
             inverted_residual_setting = [
@@ -147,12 +161,9 @@ class MobileNetV3(BaseModule):
                 ir_conf(40, 5, 240, 40, True, "HS", 1, 1),
                 ir_conf(40, 5, 120, 48, True, "HS", 1, 1),
                 ir_conf(48, 5, 144, 48, True, "HS", 1, 1),
-                ir_conf(48, 5, 288, 96 // reduce_divider, True, "HS", 2,
-                        dilation),  # C4
-                ir_conf(96 // reduce_divider, 5, 576 // reduce_divider,
-                        96 // reduce_divider, True, "HS", 1, dilation),
-                ir_conf(96 // reduce_divider, 5, 576 // reduce_divider,
-                        96 // reduce_divider, True, "HS", 1, dilation),
+                ir_conf(48, 5, 288, 96 // reduce_divider, True, "HS", 2, dilation),  # C4
+                ir_conf(96 // reduce_divider, 5, 576 // reduce_divider, 96 // reduce_divider, True, "HS", 1, dilation),
+                ir_conf(96 // reduce_divider, 5, 576 // reduce_divider, 96 // reduce_divider, True, "HS", 1, dilation),
             ]
         else:
             raise ValueError("Unsupported model type {}".format(arch))
@@ -176,7 +187,8 @@ class MobileNetV3(BaseModule):
             kernel_size=3,
             stride=2,
             norm_layer=norm_layer,
-            activation_layer=act_cfg if act_cfg else nn.Hardswish)
+            activation_layer=act_cfg if act_cfg else nn.Hardswish,
+        )
 
         self.layers = []
 

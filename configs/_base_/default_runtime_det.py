@@ -6,8 +6,8 @@ default_hooks = dict(
     param_scheduler=dict(type='ParamSchedulerHook'),
     checkpoint=dict(type='CheckpointHook', interval=1),
     sampler_seed=dict(type='DistSamplerSeedHook'),
-    visualization=dict(type='mmdet.DetVisualizationHook')
-    )
+    visualization=dict(type='mmdet.DetVisualizationHook'),
+)
 
 env_cfg = dict(
     cudnn_benchmark=False,
@@ -16,11 +16,12 @@ env_cfg = dict(
 )
 
 
-vis_backends = [dict(type='LocalVisBackend'),
-                # dict(type='WandbVisBackend'),
-                dict(type='TensorboardVisBackend')]
-visualizer = dict(
-    type='edgelab.FomoLocalVisualizer', vis_backends=vis_backends, name='visualizer')
+vis_backends = [
+    dict(type='LocalVisBackend'),
+    # dict(type='WandbVisBackend'),
+    dict(type='TensorboardVisBackend'),
+]
+visualizer = dict(type='edgelab.FomoLocalVisualizer', vis_backends=vis_backends, name='visualizer')
 
 
 log_processor = dict(type='LogProcessor', window_size=50, by_epoch=True)
@@ -29,7 +30,6 @@ log_level = 'INFO'
 load_from = None
 resume = False
 
-train_cfg = dict(by_epoch=True,max_epochs=300)
+train_cfg = dict(by_epoch=True, max_epochs=300)
 val_cfg = dict()
 test_cfg = dict()
-

@@ -7,24 +7,24 @@ from mmengine.registry import MODELS
 
 @MODELS.register_module()
 class FastestDet(SingleStageDetector):
-
     def __init__(
         self,
         backbone,
         neck=None,
         bbox_head=None,
         train_cfg=None,
-        test_cfg=dict(nms_pre=1000,
-                      min_bbox_size=0,
-                      score_thr=0.05,
-                      conf_thr=0.005,
-                      nms=dict(type='nms', iou_threshold=0.45),
-                      max_per_img=100),
+        test_cfg=dict(
+            nms_pre=1000,
+            min_bbox_size=0,
+            score_thr=0.05,
+            conf_thr=0.005,
+            nms=dict(type='nms', iou_threshold=0.45),
+            max_per_img=100,
+        ),
         pretrained=None,
         init_cfg=None,
     ):
-        super().__init__(backbone, neck, bbox_head, train_cfg, test_cfg,
-                         pretrained, init_cfg)
+        super().__init__(backbone, neck, bbox_head, train_cfg, test_cfg, pretrained, init_cfg)
         self.backbone = MODELS.build(backbone)
         self.neck = MODELS.build(neck)
         self.bbox_head = MODELS.build(bbox_head)
@@ -64,10 +64,8 @@ class FastestDet(SingleStageDetector):
         if 'fomo' in kwargs.keys():
             return self.bbox_head.post_handle(result)
 
-        results_list = self.bbox_head.handle_preds(
-            result, result.device, img_metas[0][0]['ori_shape'][:2])
+        results_list = self.bbox_head.handle_preds(result, result.device, img_metas[0][0]['ori_shape'][:2])
         bbox_results = [
-            bbox2result(det_bboxes, det_labels, self.bbox_head.num_classes)
-            for det_bboxes, det_labels in results_list
+            bbox2result(det_bboxes, det_labels, self.bbox_head.num_classes) for det_bboxes, det_labels in results_list
         ]
         return bbox_results

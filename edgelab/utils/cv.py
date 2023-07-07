@@ -27,19 +27,18 @@ def xyxy2cocoxywh(x, coco_format: bool = False):
     return y
 
 
-def NMS(bbox: Union[np.ndarray, torch.Tensor],
-        confiden: Union[np.ndarray, torch.Tensor],
-        classer: Union[np.ndarray, torch.Tensor],
-        bbox_format="xyxy",
-        max_det=300,
-        iou_thres=0.4,
-        conf_thres=0.25):
-
+def NMS(
+    bbox: Union[np.ndarray, torch.Tensor],
+    confiden: Union[np.ndarray, torch.Tensor],
+    classer: Union[np.ndarray, torch.Tensor],
+    bbox_format="xyxy",
+    max_det=300,
+    iou_thres=0.4,
+    conf_thres=0.25,
+):
     bbox = bbox if isinstance(bbox, torch.Tensor) else torch.from_numpy(bbox)
-    confiden = confiden if isinstance(
-        confiden, torch.Tensor) else torch.from_numpy(confiden)
-    classer = classer if isinstance(
-        classer, torch.Tensor) else torch.from_numpy(classer)
+    confiden = confiden if isinstance(confiden, torch.Tensor) else torch.from_numpy(confiden)
+    classer = classer if isinstance(classer, torch.Tensor) else torch.from_numpy(classer)
 
     assert bbox.shape[0] == confiden.shape[0] == classer.shape[0]
 
@@ -54,8 +53,7 @@ def NMS(bbox: Union[np.ndarray, torch.Tensor],
     elif bbox_format == "xywh":
         bbox = xywh2xyxy(bbox)
 
-    pred = torch.cat((bbox, confiden.view(
-        -1, 1), torch.argmax(classer, dim=1, keepdim=True)), 1)
+    pred = torch.cat((bbox, confiden.view(-1, 1), torch.argmax(classer, dim=1, keepdim=True)), 1)
 
     if pred.shape[0] > max_det:
         pred = pred[pred[:, 4].argsort(descending=True)[:max_det]]
@@ -76,7 +74,6 @@ def load_image(
     normalized: bool = False,
     format: str = 'np',
 ) -> Union[np.ndarray, Image.Image]:
-
     assert format in ['np', "pil"], ValueError
 
     img = cv2.imread(path)

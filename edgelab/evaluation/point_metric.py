@@ -19,7 +19,7 @@ def pose_acc(pred, target, hw, th=10):
     th = th
     acc = []
     for p, t in zip(pred, target):
-        distans = ((t[0] - p[0])**2 + (t[1] - p[1])**2)**0.5
+        distans = ((t[0] - p[0]) ** 2 + (t[1] - p[1]) ** 2) ** 0.5
         if distans > th:
             acc.append(0)
         elif distans > 1:
@@ -31,29 +31,17 @@ def pose_acc(pred, target, hw, th=10):
 
 @METRICS.register_module()
 class PointMetric(BaseMetric):
-
-    def __init__(self,
-                 collect_device: str = 'cpu',
-                 prefix: Optional[str] = 'keypoint') -> None:
+    def __init__(self, collect_device: str = 'cpu', prefix: Optional[str] = 'keypoint') -> None:
         super().__init__(collect_device, prefix)
 
     def process(self, data_batch: Any, data_samples: Sequence[dict]) -> None:
         target = data_batch['data_samples']['keypoints']
-        size = data_batch['data_samples']['hw']  #.cpu().numpy()
-        result = np.array(
-            [i.cpu().numpy() for i in data_samples[0]['results']])
+        size = data_batch['data_samples']['hw']  # .cpu().numpy()
+        result = np.array([i.cpu().numpy() for i in data_samples[0]['results']])
 
-        result = result if len(result.shape) == 2 else result[
-            None, :]  # onnx shape(2,), tflite shape(1,2)
+        result = result if len(result.shape) == 2 else result[None, :]  # onnx shape(2,), tflite shape(1,2)
         acc = pose_acc(result.copy(), target, size)
-        self.results.append({
-            'Acc':
-            acc,
-            'pred':
-            result,
-            'image_file':
-            data_batch['data_samples']['image_file']
-        })
+        self.results.append({'Acc': acc, 'pred': result, 'image_file': data_batch['data_samples']['image_file']})
 
     def compute_metrics(self, results: list) -> dict:
         return {'Acc': sum([i['Acc'] for i in results]) / len(results)}

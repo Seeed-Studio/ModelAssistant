@@ -8,8 +8,8 @@ import copy
 
 epsilon = 1e-8
 
-class AugBasic:
 
+class AugBasic:
     def __init__(self, fs):
         super().__init__()
         self.fs = fs
@@ -39,7 +39,7 @@ def make_weights_for_balanced_classes(samples, nclasses):
     count = [0] * nclasses
     for item in samples:
         count[item[1]] += 1
-    weight_per_class = [0.] * nclasses
+    weight_per_class = [0.0] * nclasses
     N = float(sum(count))
     for i in range(nclasses):
         weight_per_class[i] = N / float(count[i])
@@ -105,7 +105,7 @@ def find_first_nnz(t, q, dim=1):
     return mask_max_indices
 
 
-def accuracy(output, target, topk=(1, )):
+def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
     maxk = max(topk)
     batch_size = target.size(0)
@@ -113,9 +113,7 @@ def accuracy(output, target, topk=(1, )):
     pred = pred.t()
     with torch.no_grad():
         correct = pred.eq(target.view(1, -1).expand_as(pred))
-    return [
-        correct[:k].view(-1).float().sum(0) * 100. / batch_size for k in topk
-    ]
+    return [correct[:k].view(-1).float().sum(0) * 100.0 / batch_size for k in topk]
 
 
 def average_precision(output, target):
@@ -156,7 +154,7 @@ def pad_sample_seq(x, n_samples):
     if x.size(-1) >= n_samples:
         max_x_start = x.size(-1) - n_samples
         x_start = random.randint(0, max_x_start)
-        x = x[x_start:x_start + n_samples]
+        x = x[x_start : x_start + n_samples]
     else:
         x = F.pad(x, (0, n_samples - x.size(-1)), "constant").data
     return x
@@ -166,7 +164,7 @@ def pad_sample_seq_batch(x, n_samples):
     if x.size(0) >= n_samples:
         max_x_start = x.size(0) - n_samples
         x_start = random.randint(0, max_x_start)
-        x = x[:, x_start:x_start + n_samples]
+        x = x[:, x_start : x_start + n_samples]
     else:
         x = F.pad(x, (0, n_samples - x.size(1)), "constant").data
     return x
@@ -183,21 +181,14 @@ def add_weight_decay(model, weight_decay=1e-5, skip_list=()):
             no_decay.append(param)
         else:
             decay.append(param)
-    return [{
-        'params': no_decay,
-        'weight_decay': 0.
-    }, {
-        'params': decay,
-        'weight_decay': weight_decay
-    }]
+    return [{'params': no_decay, 'weight_decay': 0.0}, {'params': decay, 'weight_decay': weight_decay}]
 
 
 def _get_bn_param_ids(net):
     bn_ids = []
     for m in net.modules():
         print(m)
-        if isinstance(m, torch.nn.BatchNorm1d) or isinstance(
-                m, torch.nn.LayerNorm):
+        if isinstance(m, torch.nn.BatchNorm1d) or isinstance(m, torch.nn.LayerNorm):
             bn_ids.append(id(m.weight))
             bn_ids.append(id(m.bias))
         elif isinstance(m, torch.nn.Conv1d) or isinstance(m, torch.nn.Linear):
@@ -215,10 +206,7 @@ def reduce_tensor(tensor, n):
 
 def gather_tensor(tensor, n):
     rt = tensor.clone()
-    tensor_list = [
-        torch.zeros(n, device=tensor.device, dtype=torch.cuda.float())
-        for _ in range(n)
-    ]
+    tensor_list = [torch.zeros(n, device=tensor.device, dtype=torch.cuda.float()) for _ in range(n)]
     dist.all_gather(tensor_list, rt)
     return tensor_list
 
@@ -234,7 +222,7 @@ def representative_dataset(dataset):
     for i, fn in enumerate(dataset):
         if 'img' in fn.keys():
             data = fn['img']
-            if not isinstance(data, torch.Tensor): # for yolov3
+            if not isinstance(data, torch.Tensor):  # for yolov3
                 data = data[0].data
             data = data.permute(1, 2, 0)
         else:

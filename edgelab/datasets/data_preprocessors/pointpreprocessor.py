@@ -10,21 +10,21 @@ from edgelab.registry import MODELS
 
 @MODELS.register_module()
 class ETADataPreprocessor(BaseDataPreprocessor):
-
-    def __init__(self,
-                 n_cls,
-                 multilabel,
-                 seq_len,
-                 sampling_rate,
-                 augs_mix,
-                 mix_ratio,
-                 local_rank,
-                 epoch_mix,
-                 mix_loss,
-                 non_blocking: Optional[bool] = False):
+    def __init__(
+        self,
+        n_cls,
+        multilabel,
+        seq_len,
+        sampling_rate,
+        augs_mix,
+        mix_ratio,
+        local_rank,
+        epoch_mix,
+        mix_loss,
+        non_blocking: Optional[bool] = False,
+    ):
         self.n_cls = n_cls
-        self._device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu")
+        self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         ba_params = {
             'seq_len': seq_len,
             'fs': sampling_rate,
@@ -35,7 +35,7 @@ class ETADataPreprocessor(BaseDataPreprocessor):
             'epoch_mix': epoch_mix,
             'resample_factors': [0.8, 0.9, 1.1, 1.2],
             'multilabel': True if multilabel else False,
-            'mix_loss': mix_loss
+            'mix_loss': mix_loss,
         }
         super().__init__(non_blocking)
 
@@ -50,8 +50,7 @@ class ETADataPreprocessor(BaseDataPreprocessor):
 
         epoch = MessageHub.get_current_instance().get_info('epoch')
 
-        x, target, ismixed = self.audio_augs(x.to(self.device),
-                                             y.to(self.device), epoch)
+        x, target, ismixed = self.audio_augs(x.to(self.device), y.to(self.device), epoch)
 
         self.messbus.update_info('target', target)
         self.messbus.update_info('ismixed', ismixed)

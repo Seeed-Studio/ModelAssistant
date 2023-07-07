@@ -17,8 +17,7 @@ def log_init():
 
     hd = logging.StreamHandler()
     hd.setLevel(logging.INFO)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     hd.setFormatter(formatter)
     loger.addHandler(hd)
     return loger
@@ -38,28 +37,24 @@ def command(cmd, retry_num=3):
 def onnx_quant_static(onnx_path):
     onnx_dir = osp.dirname(onnx_path)
     onnx_name = osp.basename(onnx_path)
-    quant_file = osp.join(onnx_dir,
-                          onnx_name.replace('.onnx', '_quant_static.onnx'))
+    quant_file = osp.join(onnx_dir, onnx_name.replace('.onnx', '_quant_static.onnx'))
 
-    quantize_static(onnx_path,
-                    quant_file,
-                    quant_format=QuantFormat.QDQ,
-                    optimize_model=False,
-                    calibration_data_reader=Quan_Reader(
-                        './img_e', (112, 112), 'images'),
-                    weight_type=QuantType.QInt8)
+    quantize_static(
+        onnx_path,
+        quant_file,
+        quant_format=QuantFormat.QDQ,
+        optimize_model=False,
+        calibration_data_reader=Quan_Reader('./img_e', (112, 112), 'images'),
+        weight_type=QuantType.QInt8,
+    )
     loger.info('onnx static succeeded!\nfile in: {}'.format(quant_file))
 
 
 def onnx_quant_dynamic(onnx_path):
     onnx_dir = osp.dirname(onnx_path)
     onnx_name = osp.basename(onnx_path)
-    quant_file = osp.join(onnx_dir,
-                          onnx_name.replace('.onnx', '_quant_dynamic.onnx'))
-    quantize_dynamic(onnx_path,
-                     quant_file,
-                     per_channel=True,
-                     weight_type=QuantType.QUInt8)
+    quant_file = osp.join(onnx_dir, onnx_name.replace('.onnx', '_quant_dynamic.onnx'))
+    quantize_dynamic(onnx_path, quant_file, per_channel=True, weight_type=QuantType.QUInt8)
     loger.info('onnx dynamic succeeded!\nfile in: {}'.format(quant_file))
 
 
@@ -77,12 +72,10 @@ def ncnn_quant(onnx_path, image_dir='./img_e', img_size=[112, 112, 3]):
     onnx_name = osp.basename(onnx_path)
     ncnn_param = osp.join(onnx_dir, onnx_name.replace('.onnx', '.param'))
     ncnn_bin = osp.join(onnx_dir, onnx_name.replace('.onnx', '.bin'))
-    ncnn_param_opt = osp.join(onnx_dir,
-                              onnx_name.replace('.onnx', '_opt.param'))
+    ncnn_param_opt = osp.join(onnx_dir, onnx_name.replace('.onnx', '_opt.param'))
     ncnn_bin_opt = osp.join(onnx_dir, onnx_name.replace('.onnx', '_opt.bin'))
     ncnn_table = osp.join(onnx_dir, onnx_name.replace('.onnx', '.table'))
-    ncnn_param_int8 = osp.join(onnx_dir,
-                               onnx_name.replace('.onnx', '_int8.param'))
+    ncnn_param_int8 = osp.join(onnx_dir, onnx_name.replace('.onnx', '_int8.param'))
     ncnn_bin_int8 = osp.join(onnx_dir, onnx_name.replace('.onnx', '_int8.bin'))
 
     # check ncnn's .bin and param
@@ -90,9 +83,7 @@ def ncnn_quant(onnx_path, image_dir='./img_e', img_size=[112, 112, 3]):
         export_ncnn(onnx_path)
 
     # optimizer model
-    if command(
-            f"{ncnnoptimize} {ncnn_param} {ncnn_bin} {ncnn_param_opt} {ncnn_bin_opt} 0"
-    ):
+    if command(f"{ncnnoptimize} {ncnn_param} {ncnn_bin} {ncnn_param_opt} {ncnn_bin_opt} 0"):
         loger.info('export optimizer ncnn succeeded!')
     else:
         loger.warning('export optimizer ncnn fail!')
@@ -110,7 +101,7 @@ def ncnn_quant(onnx_path, image_dir='./img_e', img_size=[112, 112, 3]):
         return
 
     if command(
-            f"{ncnn2int8} {ncnn_param_opt} {ncnn_bin_opt} {ncnn_param_int8} {ncnn_bin_int8} {ncnn_table}"
+        f"{ncnn2int8} {ncnn_param_opt} {ncnn_bin_opt} {ncnn_param_int8} {ncnn_bin_int8} {ncnn_table}"
     ):  # quantize model
         loger.info('ncnn quantize succeeded!')
 
@@ -134,17 +125,14 @@ def ncnn_fp16(onnx_path):
     onnx_name = osp.basename(onnx_path)
     ncnn_param = osp.join(onnx_dir, onnx_name.replace('.onnx', '.param'))
     ncnn_bin = osp.join(onnx_dir, onnx_name.replace('.onnx', '.bin'))
-    ncnn_param_opt = osp.join(onnx_dir,
-                              onnx_name.replace('.onnx', '_fp16.param'))
+    ncnn_param_opt = osp.join(onnx_dir, onnx_name.replace('.onnx', '_fp16.param'))
     ncnn_bin_opt = osp.join(onnx_dir, onnx_name.replace('.onnx', '_fp16.bin'))
 
     # check ncnn's .bin and param
     if os.path.exists(ncnn_bin) and os.path.exists(ncnn_param):
         export_ncnn(onnx_path)
 
-    if command(
-            f"{ncnnoptimize} {ncnn_param} {ncnn_bin} {ncnn_param_opt} {ncnn_bin_opt} 65536"
-    ):
+    if command(f"{ncnnoptimize} {ncnn_param} {ncnn_bin} {ncnn_param_opt} {ncnn_bin_opt} 65536"):
         loger.info('export ncnn fp16 format succeeded!')
     else:
         loger.error('export ncnn fp16 format fail!')
@@ -152,23 +140,22 @@ def ncnn_fp16(onnx_path):
 
 
 def main(args):
-    global onnx2ncnn, ncnnoptimize, ncnn2table,ncnn2int8,ncnnmerge,ncnn
+    global onnx2ncnn, ncnnoptimize, ncnn2table, ncnn2int8, ncnnmerge, ncnn
     func_dict = {
         'onnx_fp16': onnx_fp16,
         'onnx_quan_st': onnx_quant_static,
         'onnx_quan_dy': onnx_quant_dynamic,
         'ncnn': export_ncnn,
         'ncnn_fp16': ncnn_fp16,
-        'ncnn_quan': ncnn_quant
+        'ncnn_quan': ncnn_quant,
     }
-    home=os.environ['HOME']
+    home = os.environ['HOME']
     ncnn_dir = f"{home}/software/ncnn/build"
-    onnx2ncnn = osp.join(ncnn_dir,'tools','onnx','onnx2ncnn')
-    ncnnoptimize = osp.join(ncnn_dir,'tools','ncnnoptimize')
-    ncnn2table = osp.join(ncnn_dir,'tools','quantize','ncnn2table')
-    ncnn2int8 = osp.join(ncnn_dir,'tools','quantize','ncnn2int8')
-    ncnnmerge = osp.join(ncnn_dir,'tools','ncnnmerge')
-    
+    onnx2ncnn = osp.join(ncnn_dir, 'tools', 'onnx', 'onnx2ncnn')
+    ncnnoptimize = osp.join(ncnn_dir, 'tools', 'ncnnoptimize')
+    ncnn2table = osp.join(ncnn_dir, 'tools', 'quantize', 'ncnn2table')
+    ncnn2int8 = osp.join(ncnn_dir, 'tools', 'quantize', 'ncnn2int8')
+    ncnnmerge = osp.join(ncnn_dir, 'tools', 'ncnnmerge')
 
     onnx_path = onnx_path = osp.abspath(args.onnx)
     export_type = args.type
@@ -178,9 +165,7 @@ def main(args):
 
     for f in export_type:
         if f not in func_dict.keys():
-            loger.error(
-                f'{f} not in {func_dict.keys()},Please enter the correct export type'
-            )
+            loger.error(f'{f} not in {func_dict.keys()},Please enter the correct export type')
         if f == 'ncnn_quan' and imags_dir:
             func_dict[f](onnx_path, imags_dir)
         else:
@@ -189,16 +174,13 @@ def main(args):
 
 def args_parse():
     args = argparse.ArgumentParser(description='export onnx to othaer.')
-    args.add_argument('--onnx',
-                      default='./weights/best.onnx',
-                      help='onnx model file path')
+    args.add_argument('--onnx', default='./weights/best.onnx', help='onnx model file path')
     args.add_argument('--images', help='celacrater data file path')
     args.add_argument(
         '--type',
         nargs='+',
         default=['onnx_quan_dy', 'onnx_quan_st'],
-        help=
-        'from [onnx_fp16, onnx_quan_st, onnx_quan_dy, ncnn, ncnn_fp16, ncnn_quan]'
+        help='from [onnx_fp16, onnx_quan_st, onnx_quan_dy, ncnn, ncnn_fp16, ncnn_quan]',
     )
 
     return args.parse_args()

@@ -17,36 +17,50 @@ def show_result(result, img_path, classes):
         w, h, label = i
         label = classes[label - 1]
         cv2.circle(img, (int(W * w), int(H * h)), 5, (0, 0, 255), 1)
-        cv2.putText(img,
-                    str(label),
-                    org=(int(W * w), int(H * h)),
-                    color=(255, 0, 0),
-                    fontScale=1,
-                    fontFace=cv2.FONT_HERSHEY_SIMPLEX)
+        cv2.putText(
+            img,
+            str(label),
+            org=(int(W * w), int(H * h)),
+            color=(255, 0, 0),
+            fontScale=1,
+            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+        )
     cv2.imshow('img', img)
     cv2.waitKey(0)
 
 
 @HOOKS.register_module()
 class Feval(EvalHook):
-
-    def __init__(self,
-                 dataloader: DataLoader,
-                 start: Optional[int] = None,
-                 interval: int = 1,
-                 by_epoch: bool = True,
-                 fomo: bool = False,
-                 save_best: Optional[str] = None,
-                 rule: Optional[str] = None,
-                 test_fn: Optional[Callable] = None,
-                 greater_keys: Optional[List[str]] = None,
-                 less_keys: Optional[List[str]] = None,
-                 out_dir: Optional[str] = None,
-                 file_client_args: Optional[dict] = None,
-                 **eval_kwargs):
-        super().__init__(dataloader, start, interval, by_epoch, save_best,
-                         rule, test_fn, greater_keys, less_keys, out_dir,
-                         file_client_args, **eval_kwargs)
+    def __init__(
+        self,
+        dataloader: DataLoader,
+        start: Optional[int] = None,
+        interval: int = 1,
+        by_epoch: bool = True,
+        fomo: bool = False,
+        save_best: Optional[str] = None,
+        rule: Optional[str] = None,
+        test_fn: Optional[Callable] = None,
+        greater_keys: Optional[List[str]] = None,
+        less_keys: Optional[List[str]] = None,
+        out_dir: Optional[str] = None,
+        file_client_args: Optional[dict] = None,
+        **eval_kwargs,
+    ):
+        super().__init__(
+            dataloader,
+            start,
+            interval,
+            by_epoch,
+            save_best,
+            rule,
+            test_fn,
+            greater_keys,
+            less_keys,
+            out_dir,
+            file_client_args,
+            **eval_kwargs,
+        )
         self.gts, self.pts = [], []
         self.fomo = fomo
 
@@ -65,10 +79,7 @@ class Feval(EvalHook):
             runner (:obj:`mmcv.Runner`): The underlined training runner.
             results (list): Output results.
         """
-        eval_res = self.dataloader.dataset.evaluate(results,
-                                                    logger=runner.logger,
-                                                    fomo=self.fomo,
-                                                    **self.eval_kwargs)
+        eval_res = self.dataloader.dataset.evaluate(results, logger=runner.logger, fomo=self.fomo, **self.eval_kwargs)
 
         for name, val in eval_res.items():
             runner.log_buffer.output[name] = val
@@ -82,7 +93,8 @@ class Feval(EvalHook):
             if not eval_res:
                 warnings.warn(
                     'Since `eval_res` is an empty dict, the behavior to save '
-                    'the best checkpoint will be skipped in this evaluation.')
+                    'the best checkpoint will be skipped in this evaluation.'
+                )
                 return None
 
             if self.key_indicator == 'auto':

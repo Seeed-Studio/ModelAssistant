@@ -8,7 +8,6 @@ from scipy.sparse import coo_matrix
 
 
 class AugBasic:
-
     def __init__(self, fs):
         super().__init__()
         self.fs = fs
@@ -30,7 +29,6 @@ class AugBasic:
 
 
 class RandomRIR(AugBasic):
-
     def __init__(self, fs, p=0.5):
         self.p = p
         self.fs = fs
@@ -44,7 +42,7 @@ class RandomRIR(AugBasic):
         zk = srcs * src[2] + rms * rm[2] - mic[2]
         [i, j, k] = np.meshgrid(xi, yj, zk)
         d = np.sqrt(i**2 + j**2 + k**2)
-        t = np.round(self.fs * d / 343.) + 1
+        t = np.round(self.fs * d / 343.0) + 1
         [e, f, g] = np.meshgrid(nn, nn, nn)
         c = np.power(r, np.abs(e) + np.abs(f) + np.abs(g))
         e = c / d
@@ -82,20 +80,14 @@ class RandomRIR(AugBasic):
             h = self.rir(mic, n, r, rm, src)
             h = torch.from_numpy(h).float()
             sample = sample[None, None, :]
-            sample = F.pad(sample, (h.shape[-1] // 2, h.shape[-1] // 2),
-                           "reflect")
-            sample = F.conv1d(sample,
-                              h[None, None, :],
-                              bias=None,
-                              stride=1,
-                              padding=0,
-                              dilation=1,
-                              groups=sample.shape[1])
+            sample = F.pad(sample, (h.shape[-1] // 2, h.shape[-1] // 2), "reflect")
+            sample = F.conv1d(
+                sample, h[None, None, :], bias=None, stride=1, padding=0, dilation=1, groups=sample.shape[1]
+            )
         return sample, h
 
 
 class RandomLPHPFilter(AugBasic):
-
     def __init__(self, fs, p=0.5, fc_lp=None, fc_hp=None):
         self.p = p
         self.fs = fs
@@ -111,22 +103,16 @@ class RandomLPHPFilter(AugBasic):
                 filt = scipy.signal.firwin(self.num_taps, fc, window='hamming')
             else:
                 fc = random.random() * 0.25
-                filt = scipy.signal.firwin(self.num_taps,
-                                           fc,
-                                           window='hamming',
-                                           pass_zero=False)
+                filt = scipy.signal.firwin(self.num_taps, fc, window='hamming', pass_zero=False)
             filt = torch.from_numpy(filt).float()
             filt = filt / filt.sum()
-            sample = F.pad(sample.view(1, 1, -1),
-                           (filt.shape[0] // 2, filt.shape[0] // 2),
-                           mode="reflect")
+            sample = F.pad(sample.view(1, 1, -1), (filt.shape[0] // 2, filt.shape[0] // 2), mode="reflect")
             sample = F.conv1d(sample, filt.view(1, 1, -1), stride=1, groups=1)
             sample = sample.view(-1)
         return sample
 
 
 class RandomTimeShift(AugBasic):
-
     def __init__(self, p=0.5, max_time_shift=None):
         self.p = p
         self.max_time_shift = max_time_shift
@@ -135,8 +121,7 @@ class RandomTimeShift(AugBasic):
         if random.random() < self.p:
             if self.max_time_shift is None:
                 self.max_time_shift = sample.shape[-1] // 10
-            int_d = 2 * random.randint(
-                0, self.max_time_shift) - self.max_time_shift
+            int_d = 2 * random.randint(0, self.max_time_shift) - self.max_time_shift
             frac_d = np.round(100 * (random.random() - 0.5)) / 100
             if int_d + frac_d == 0:
                 return sample
@@ -154,19 +139,17 @@ class RandomTimeShift(AugBasic):
             dw = 2 * np.pi / n
             if n % 2 == 1:
                 wp = torch.arange(0, np.pi, dw)
-                wn = torch.arange(-dw, -np.pi, -dw).flip(dims=(-1, ))
+                wn = torch.arange(-dw, -np.pi, -dw).flip(dims=(-1,))
             else:
                 wp = torch.arange(0, np.pi, dw)
-                wn = torch.arange(-dw, -np.pi - dw, -dw).flip(dims=(-1, ))
+                wn = torch.arange(-dw, -np.pi - dw, -dw).flip(dims=(-1,))
             w = torch.cat((wp, wn), dim=-1)
             phi = frac_d * w
-            sample = torch.fft.ifft(
-                torch.fft.fft(sample) * torch.exp(-1j * phi)).real
+            sample = torch.fft.ifft(torch.fft.fft(sample) * torch.exp(-1j * phi)).real
         return sample
 
 
 class RandomTimeMasking(AugBasic):
-
     def __init__(self, p=0.5, n_mask=None):
         self.n_mask = n_mask
         self.p = p
@@ -177,13 +160,11 @@ class RandomTimeMasking(AugBasic):
         if random.random() < self.p:
             max_start = sample.size(-1) - self.n_mask
             idx_rand = random.randint(0, max_start)
-            sample[idx_rand:idx_rand +
-                   self.n_mask] = torch.randn(self.n_mask) * 1e-6
+            sample[idx_rand : idx_rand + self.n_mask] = torch.randn(self.n_mask) * 1e-6
         return sample
 
 
 class RandomMuLawCompression(AugBasic):
-
     def __init__(self, p=0.5, n_channels=256):
         self.n_channels = n_channels
         self.p = p
@@ -196,7 +177,6 @@ class RandomMuLawCompression(AugBasic):
 
 
 class RandomAmp(AugBasic):
-
     def __init__(self, low, high, p=0.5):
         self.low = low
         self.high = high
@@ -210,20 +190,21 @@ class RandomAmp(AugBasic):
 
 
 class RandomFlip(AugBasic):
-
     def __init__(self, p=0.5):
         self.p = p
 
     def __call__(self, sample):
         if random.random() < self.p:
-            sample.data = torch.flip(sample.data, dims=[
-                -1,
-            ])
+            sample.data = torch.flip(
+                sample.data,
+                dims=[
+                    -1,
+                ],
+            )
         return sample
 
 
 class RandomAdd180Phase(AugBasic):
-
     def __init__(self, p=0.5):
         self.p = p
 
@@ -234,7 +215,6 @@ class RandomAdd180Phase(AugBasic):
 
 
 class RandomAdditiveWhiteGN(AugBasic):
-
     def __init__(self, p=0.5, snr_db=30):
         self.snr_db = snr_db
         self.min_snr_db = 30
@@ -243,16 +223,14 @@ class RandomAdditiveWhiteGN(AugBasic):
     def __call__(self, sample):
         if random.random() < self.p:
             s = torch.sqrt(torch.mean(sample**2))
-            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db -
-                                                        self.min_snr_db)
-            sgm = s * 10**(-snr_db / 20.)
+            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db - self.min_snr_db)
+            sgm = s * 10 ** (-snr_db / 20.0)
             w = torch.randn_like(sample).mul_(sgm)
             sample.add_(w)
         return sample
 
 
 class RandomAdditiveUN(AugBasic):
-
     def __init__(self, snr_db=35, p=0.5):
         self.snr_db = snr_db
         self.min_snr_db = 30
@@ -261,16 +239,14 @@ class RandomAdditiveUN(AugBasic):
     def __call__(self, sample):
         if random.random() < self.p:
             s = torch.sqrt(torch.mean(sample**2))
-            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db -
-                                                        self.min_snr_db)
-            sgm = s * 10**(-snr_db / 20.) * np.sqrt(3)
+            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db - self.min_snr_db)
+            sgm = s * 10 ** (-snr_db / 20.0) * np.sqrt(3)
             w = torch.rand_like(sample).mul_(2 * sgm).add_(-sgm)
             sample.add_(w)
         return sample
 
 
 class RandomAdditivePinkGN(AugBasic):
-
     def __init__(self, snr_db=35, p=0.5):
         self.snr_db = snr_db
         self.min_snr_db = 30
@@ -285,18 +261,16 @@ class RandomAdditivePinkGN(AugBasic):
             k = torch.arange(1, nn + 1, 1).float()
             W = torch.fft.fft(w)
             W = W[:nn] / k.sqrt()
-            W = torch.cat((W, W.flip(dims=(-1, ))[1:-1].conj()), dim=-1)
+            W = torch.cat((W, W.flip(dims=(-1,))[1:-1].conj()), dim=-1)
             w = torch.fft.ifft(W).real
             w.add_(w.mean()).div_(w.std())
-            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db -
-                                                        self.min_snr_db)
-            sgm = s * 10**(-snr_db / 20.)
+            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db - self.min_snr_db)
+            sgm = s * 10 ** (-snr_db / 20.0)
             sample.add_(w.mul_(sgm))
         return sample
 
 
 class RandomAdditiveVioletGN(AugBasic):
-
     def __init__(self, p=0.5, snr_db=35):
         self.snr_db = snr_db
         self.min_snr_db = 30
@@ -311,18 +285,16 @@ class RandomAdditiveVioletGN(AugBasic):
             k = torch.arange(1, nn + 1, 1).float()
             W = torch.fft.fft(w)
             W = W[:nn] * k
-            W = torch.cat((W, W.flip(dims=(-1, ))[1:-1].conj()), dim=-1)
+            W = torch.cat((W, W.flip(dims=(-1,))[1:-1].conj()), dim=-1)
             w = torch.fft.ifft(W).real
             w.add_(w.mean()).div_(w.std())
-            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db -
-                                                        self.min_snr_db)
-            sgm = s * 10**(-snr_db / 20.)
+            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db - self.min_snr_db)
+            sgm = s * 10 ** (-snr_db / 20.0)
             sample.add_(w.mul_(sgm))
         return sample
 
 
 class RandomAdditiveRedGN(AugBasic):
-
     def __init__(self, p=0.5, snr_db=35):
         self.snr_db = snr_db
         self.min_snr_db = 30
@@ -337,18 +309,16 @@ class RandomAdditiveRedGN(AugBasic):
             k = torch.arange(1, nn + 1, 1).float()
             W = torch.fft.fft(w)
             W = W[:nn] / k
-            W = torch.cat((W, W.flip(dims=(-1, ))[1:-1].conj()), dim=-1)
+            W = torch.cat((W, W.flip(dims=(-1,))[1:-1].conj()), dim=-1)
             w = torch.fft.ifft(W).real
             w.add_(w.mean()).div_(w.std())
-            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db -
-                                                        self.min_snr_db)
-            sgm = s * 10**(-snr_db / 20.)
+            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db - self.min_snr_db)
+            sgm = s * 10 ** (-snr_db / 20.0)
             sample.add_(w.mul_(sgm))
         return sample
 
 
 class RandomAdditiveBlueGN(AugBasic):
-
     def __init__(self, p=0.5, snr_db=35):
         self.snr_db = snr_db
         self.min_snr_db = 30
@@ -363,18 +333,16 @@ class RandomAdditiveBlueGN(AugBasic):
             k = torch.arange(1, nn + 1, 1).float()
             W = torch.fft.fft(w)
             W = W[:nn] * k.sqrt()
-            W = torch.cat((W, W.flip(dims=(-1, ))[1:-1].conj()), dim=-1)
+            W = torch.cat((W, W.flip(dims=(-1,))[1:-1].conj()), dim=-1)
             w = torch.fft.ifft(W).real
             w.add_(w.mean()).div_(w.std())
-            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db -
-                                                        self.min_snr_db)
-            sgm = s * 10**(-snr_db / 20.)
+            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db - self.min_snr_db)
+            sgm = s * 10 ** (-snr_db / 20.0)
             sample.add_(w.mul_(sgm))
         return sample
 
 
 class RandomFreqShift(AugBasic):
-
     def __init__(self, sgm, fs, p=0.5):
         super().__init__(fs=fs)
         self.sgm = sgm
@@ -387,23 +355,25 @@ class RandomFreqShift(AugBasic):
             f_shift = torch.randn(1).mul_(self.sgm * df)
             t = torch.arange(0, self.fft_params['win_len'][win_idx], 1).float()
             w = torch.real(torch.exp(-1j * 2 * np.pi * t * f_shift))
-            X = torch.stft(sample,
-                           win_length=self.fft_params['win_len'][win_idx],
-                           hop_length=self.fft_params['hop_len'][win_idx],
-                           n_fft=self.fft_params['n_fft'][win_idx],
-                           window=w,
-                           return_complex=True)
+            X = torch.stft(
+                sample,
+                win_length=self.fft_params['win_len'][win_idx],
+                hop_length=self.fft_params['hop_len'][win_idx],
+                n_fft=self.fft_params['n_fft'][win_idx],
+                window=w,
+                return_complex=True,
+            )
             sample = torch.istft(
                 X,
                 win_length=self.fft_params['win_len'][win_idx],
                 hop_length=self.fft_params['hop_len'][win_idx],
-                n_fft=self.fft_params['n_fft'][win_idx])
+                n_fft=self.fft_params['n_fft'][win_idx],
+            )
 
         return sample
 
 
 class RandomAddSine(AugBasic):
-
     def __init__(self, fs, snr_db=35, max_freq=50, p=0.5):
         self.snr_db = snr_db
         self.max_freq = max_freq
@@ -415,11 +385,10 @@ class RandomAddSine(AugBasic):
         n = torch.arange(0, sample.shape[-1], 1)
         f = self.max_freq * torch.rand(1) + 3 * torch.randn(1)
         if random.random() < self.p:
-            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db -
-                                                        self.min_snr_db)
-            t = n * 1. / self.fs
+            snr_db = self.min_snr_db + torch.rand(1) * (self.snr_db - self.min_snr_db)
+            t = n * 1.0 / self.fs
             s = (sample**2).mean().sqrt()
-            sgm = s * np.sqrt(2) * 10**(-snr_db / 20.)
+            sgm = s * np.sqrt(2) * 10 ** (-snr_db / 20.0)
             b = sgm * torch.sin(2 * np.pi * f * t + torch.rand(1) * np.pi)
             sample.add_(b)
 
@@ -427,7 +396,6 @@ class RandomAddSine(AugBasic):
 
 
 class RandomAmpSegment(AugBasic):
-
     def __init__(self, low, high, max_len=None, p=0.5):
         self.low = low
         self.high = high
@@ -440,12 +408,11 @@ class RandomAmpSegment(AugBasic):
                 self.max_len = sample.shape[-1] // 10
             idx = random.randint(0, self.max_len)
             amp = torch.FloatTensor(1).uniform_(self.low, self.high)
-            sample[idx:idx + self.max_len].mul_(amp)
+            sample[idx : idx + self.max_len].mul_(amp)
         return sample
 
 
 class RandomPhNoise(AugBasic):
-
     def __init__(self, fs, sgm=0.01, p=0.5):
         super().__init__(fs=fs)
         self.sgm = sgm
@@ -455,11 +422,13 @@ class RandomPhNoise(AugBasic):
         if random.random() < self.p:
             win_idx = random.randint(0, len(self.fft_params['win_len']) - 1)
             sgm_noise = self.sgm + 0.01 * torch.rand(1)
-            X = torch.stft(sample,
-                           win_length=self.fft_params['win_len'][win_idx],
-                           hop_length=self.fft_params['hop_len'][win_idx],
-                           n_fft=self.fft_params['n_fft'][win_idx],
-                           return_complex=True)
+            X = torch.stft(
+                sample,
+                win_length=self.fft_params['win_len'][win_idx],
+                hop_length=self.fft_params['hop_len'][win_idx],
+                n_fft=self.fft_params['n_fft'][win_idx],
+                return_complex=True,
+            )
             w = sgm_noise * torch.rand_like(X)
             phn = torch.exp(1j * w)
             X.mul_(phn)
@@ -467,12 +436,12 @@ class RandomPhNoise(AugBasic):
                 X,
                 win_length=self.fft_params['win_len'][win_idx],
                 hop_length=self.fft_params['hop_len'][win_idx],
-                n_fft=self.fft_params['n_fft'][win_idx])
+                n_fft=self.fft_params['n_fft'][win_idx],
+            )
         return sample
 
 
 class RandomCyclicShift(AugBasic):
-
     def __init__(self, max_time_shift=None, p=0.5):
         self.max_time_shift = max_time_shift
         self.p = p
@@ -489,12 +458,9 @@ class RandomCyclicShift(AugBasic):
         return sample
 
 
-class AudioAugs():
-
+class AudioAugs:
     def __init__(self, k_augs, fs, p=0.5, snr_db=30):
-        self.noise_vec = [
-            'awgn', 'abgn', 'apgn', 'argn', 'avgn', 'aun', 'phn', 'sine'
-        ]
+        self.noise_vec = ['awgn', 'abgn', 'apgn', 'argn', 'avgn', 'aun', 'phn', 'sine']
         augs = {}
         for aug in k_augs:
             if aug == 'amp':
@@ -518,17 +484,13 @@ class AudioAugs():
             elif aug == 'tmask':
                 augs['tmask'] = RandomTimeMasking(p=p, n_mask=int(0.1 * fs))
             elif aug == 'tshift':
-                augs['tshift'] = RandomTimeShift(p=p,
-                                                 max_time_shift=int(0.1 * fs))
+                augs['tshift'] = RandomTimeShift(p=p, max_time_shift=int(0.1 * fs))
             elif aug == 'sine':
                 augs['sine'] = RandomAddSine(p=p, fs=fs)
             elif aug == 'cycshift':
                 augs['cycshift'] = RandomCyclicShift(p=p, max_time_shift=None)
             elif aug == 'ampsegment':
-                augs['ampsegment'] = RandomAmpSegment(p=p,
-                                                      low=0.5,
-                                                      high=1.3,
-                                                      max_len=int(0.1 * fs))
+                augs['ampsegment'] = RandomAmpSegment(p=p, low=0.5, high=1.3, max_len=int(0.1 * fs))
             elif aug == 'aun':
                 augs['aun'] = RandomAdditiveUN(p=p, snr_db=snr_db)
             elif aug == 'phn':

@@ -21,8 +21,7 @@ from edgelab.utils.cv import load_image, NMS
 from .iot_camera import IoTCamera
 
 
-class Inter():
-
+class Inter:
     def __init__(self, model: List or AnyStr or Tuple):
         if isinstance(model, list):
             try:
@@ -33,9 +32,9 @@ class Inter():
                 )
             net = ncnn.Net()
             for p in model:
-                if p.endswith('param'): 
+                if p.endswith('param'):
                     param = p
-                if p.endswith('bin'): 
+                if p.endswith('bin'):
                     bin = p
             net.load_param(param)
             net.load_model(bin)
@@ -52,11 +51,12 @@ class Inter():
                 net = onnx.load(model)
                 onnx.checker.check_model(net)
             except Exception:
-                raise ValueError(
-                    'onnx file have error,please check your onnx export code!')
-            providers = [
-                'CUDAExecutionProvider', 'CPUExecutionProvider'
-            ] if torch.cuda.is_available() else ['CPUExecutionProvider']
+                raise ValueError('onnx file have error,please check your onnx export code!')
+            providers = (
+                ['CUDAExecutionProvider', 'CPUExecutionProvider']
+                if torch.cuda.is_available()
+                else ['CPUExecutionProvider']
+            )
             net = onnxruntime.InferenceSession(model, providers=providers)
 
             self._input_shape = net.get_inputs()[0].shape[1:]
@@ -84,11 +84,13 @@ class Inter():
     def input_shape(self):
         return self._input_shape
 
-    def __call__(self,
-                 img: Union[np.array, torch.Tensor],
-                 input_name: AnyStr = 'input',
-                 output_name: AnyStr = 'output',
-                 result_num=1):
+    def __call__(
+        self,
+        img: Union[np.array, torch.Tensor],
+        input_name: AnyStr = 'input',
+        output_name: AnyStr = 'output',
+        result_num=1,
+    ):
         # img.resize_(3,192,192)
         if len(img.shape) == 2:  # audio
             if img.shape[1] > 10:  # (1, 8192) to (8192, 1)
@@ -112,18 +114,18 @@ class Inter():
             raise ValueError
         results = []
         if self.engine == 'onnx':  # onnx
-            result = self.inter.run([self.inter.get_outputs()[0].name],
-                                    {self.inter.get_inputs()[0].name: img})[0]
+            result = self.inter.run([self.inter.get_outputs()[0].name], {self.inter.get_inputs()[0].name: img})[0]
             results.append(result)
         elif self.engine == 'ncnn':  # ncnn
             self.inter.opt.use_vulkan_compute = False
             extra = self.inter.create_extractor()
-            extra.input(input_name, ncnn.Mat(img[0]))       # noqa
+            extra.input(input_name, ncnn.Mat(img[0]))  # noqa
             result = extra.extract(output_name)[1]
             result = [result[i] for i in range(len(result))]
         else:  # tf
             input_, outputs = self.inter.get_input_details()[0], (
-                self.inter.get_output_details()[0] for i in range(result_num))
+                self.inter.get_output_details()[0] for i in range(result_num)
+            )
             int8 = input_['dtype'] == np.int8 or input_['dtype'] == np.uint8
             img = img.transpose(0, 2, 3, 1) if len(img.shape) == 4 else img
             if int8:
@@ -143,14 +145,11 @@ class Inter():
 
 IMG_SUFFIX = ('.jpg', '.png', '.PNG', '.jpeg')
 VIDEO_SUFFIX = ('.avi', '.mp4', '.mkv', '.flv', '.wmv', '.3gp')
-IOT_DEVICE = ('sensorcap', )
+IOT_DEVICE = ('sensorcap',)
 
 
 class DataStream:
-
-    def __init__(self,
-                 source: Union[int, str],
-                 shape: Optional[int or Tuple[int, int]] = None) -> None:
+    def __init__(self, source: Union[int, str], shape: Optional[int or Tuple[int, int]] = None) -> None:
         if shape:
             self.gray = True if shape[-1] == 1 else False
             self.shape = shape[:-1]
@@ -162,10 +161,7 @@ class DataStream:
 
         if isinstance(source, str):
             if osp.isdir(source):
-                self.file = [
-                    osp.join(source, f) for f in os.listdir(source)
-                    if f.lower().endswith(IMG_SUFFIX)
-                ]
+                self.file = [osp.join(source, f) for f in os.listdir(source) if f.lower().endswith(IMG_SUFFIX)]
                 self.l = len(self.file)
                 self.file = iter(self.file)
 
@@ -174,8 +170,7 @@ class DataStream:
                     self.file = [source]
                     self.l = len(self.file)
                     self.file = iter(self.file)
-                elif any(
-                    [source.lower().endswith(mat) for mat in VIDEO_SUFFIX]):
+                elif any([source.lower().endswith(mat) for mat in VIDEO_SUFFIX]):
                     self.cap = cv2.VideoCapture(source)
             elif source.isdigit():
                 self.cap = cv2.VideoCapture(int(source))
@@ -197,10 +192,7 @@ class DataStream:
     def __next__(self):
         if self.file:
             f = next(self.file)
-            img = load_image(f,
-                             shape=self.shape,
-                             mode='GRAY' if self.gray else 'RGB',
-                             normalized=True)
+            img = load_image(f, shape=self.shape, mode='GRAY' if self.gray else 'RGB', normalized=True)
 
         else:
             while True:
@@ -224,7 +216,7 @@ class DataStream:
 
 def build_target(pred_shape, ori_shape, gt_bboxs):
     """
-    The target feature map constructed according to the size 
+    The target feature map constructed according to the size
     of the feature map output by the model
     bbox: xyxy
     """
@@ -233,13 +225,12 @@ def build_target(pred_shape, ori_shape, gt_bboxs):
     target_data = torch.zeros(size=(1, *pred_shape))
     target_data[..., 0] = 1
     for b, bboxs in enumerate(gt_bboxs):
-
         for idx, bbox in enumerate(bboxs.bboxes):
             w = (bbox[2] + bbox[0]) / 2 / ori_shape[1]
             h = (bbox[3] + bbox[1]) / 2 / ori_shape[0]
             h, w = int(h.item() * H), int(w.item() * W)
             target_data[0, h, w, 0] = 0  # background
-            target_data[0, h, w, bboxs.labels[idx] + 1] = 1  #label
+            target_data[0, h, w, bboxs.labels[idx] + 1] = 1  # label
     return target_data
 
 
@@ -249,20 +240,20 @@ class Infernce:
     Reasonable onnx, tflite, ncnn and other models
     """
 
-    def __init__(self,
-                 model: List or AnyStr or Tuple,
-                 dataloader: Union[DataLoader, str, int, None] = None,
-                 cfg: Optional[Config] = None,
-                 runner=None,
-                 source: Optional[str] = None,
-                 task: str = 'det',
-                 show: bool = False,
-                 save_dir: Optional[str] = None,
-                 audio: bool = False) -> None:
-
+    def __init__(
+        self,
+        model: List or AnyStr or Tuple,
+        dataloader: Union[DataLoader, str, int, None] = None,
+        cfg: Optional[Config] = None,
+        runner=None,
+        source: Optional[str] = None,
+        task: str = 'det',
+        show: bool = False,
+        save_dir: Optional[str] = None,
+        audio: bool = False,
+    ) -> None:
         # chaeck source data
-        assert not (source is None and dataloader is None
-                    ), 'Both source and dataload cannot be None'
+        assert not (source is None and dataloader is None), 'Both source and dataload cannot be None'
 
         self.class_name = dataloader.dataset.METAINFO['classes']
         # load model
@@ -290,8 +281,7 @@ class Infernce:
         self.init(cfg)
 
     def init(self, cfg):
-        self.evaluator: Evaluator = self.runner.build_evaluator(
-            self.cfg.get('val_evaluator'))
+        self.evaluator: Evaluator = self.runner.build_evaluator(self.cfg.get('val_evaluator'))
         if hasattr(cfg.model, "data_preprocessor"):
             self.data_preprocess = MODELS.build(cfg.model.data_preprocessor)
 
@@ -306,7 +296,6 @@ class Infernce:
         R = []
         F1 = []
         for data in tqdm(self.dataloader):
-
             if not self.source:
                 if hasattr(self, "data_preprocess"):
                     data = self.data_preprocess(data, True)
@@ -328,7 +317,6 @@ class Infernce:
             if self.task == 'pose':
                 show_point(preds, data['data_samples']['image_file'][0])
             elif self.task == 'det':
-
                 if len(preds[0].shape) > 3:
                     preds = preds[0]
                 elif len(preds[0].shape) > 2:
@@ -343,11 +331,7 @@ class Infernce:
                     mask = pred[..., 1:] > 0.7
                     mask = np.any(mask, axis=2)
                     mask = np.repeat(np.expand_dims(mask, -1), C, axis=-1)
-                    pred = np.ma.array(pred,
-                                       mask=~mask,
-                                       keep_mask=True,
-                                       copy=True,
-                                       fill_value=0)
+                    pred = np.ma.array(pred, mask=~mask, keep_mask=True, copy=True, fill_value=0)
 
                     pred_max = np.argmax(pred, axis=-1)
 
@@ -358,67 +342,49 @@ class Infernce:
                         idx = pred_max[i[0], i[1]]
                         texts.append(idx - 1)
                     if len(pred_index):
-                        points = (pred_index + 0.5) / np.asarray(
-                            [H, W]) * np.asarray(self.input_shape[:-1])
-                        show_point(points,
-                                   img=img,
-                                   labels=texts,
-                                   show=self.show,
-                                   img_file=img_path)
+                        points = (pred_index + 0.5) / np.asarray([H, W]) * np.asarray(self.input_shape[:-1])
+                        show_point(points, img=img, labels=texts, show=self.show, img_file=img_path)
                     if not self.source:
                         ori_shape = data['data_samples'][0].ori_shape
                         bboxes = data['data_samples'][0].gt_instances
-                        target = build_target(preds.shape[1:], (96, 96),
-                                              bboxes)
+                        target = build_target(preds.shape[1:], (96, 96), bboxes)
 
                         data['data_samples'][0].pred_instances = InstanceData(
-                            pred=tuple(
-                                [torch.from_numpy(preds).permute(0, 3, 1, 2)]),
-                            labels=tuple([target]))
+                            pred=tuple([torch.from_numpy(preds).permute(0, 3, 1, 2)]), labels=tuple([target])
+                        )
 
-                        self.evaluator.process(
-                            data_batch=data, data_samples=data['data_samples'])
+                        self.evaluator.process(data_batch=data, data_samples=data['data_samples'])
 
                 else:
                     # performes nms
-                    bbox, conf, classes = preds[:, :4], preds[:, 4], preds[:,
-                                                                           5:]
-                    preds = NMS(bbox,
-                                conf,
-                                classes,
-                                conf_thres=50,
-                                bbox_format='xywh')
+                    bbox, conf, classes = preds[:, :4], preds[:, 4], preds[:, 5:]
+                    preds = NMS(bbox, conf, classes, conf_thres=50, bbox_format='xywh')
                     # show det result and save result
-                    show_det(preds,
-                             img=img,
-                             img_file=img_path,
-                             class_name=self.class_name,
-                             shape=self.input_shape[:-1],
-                             show=self.show,
-                             save_path=self.save_dir)
+                    show_det(
+                        preds,
+                        img=img,
+                        img_file=img_path,
+                        class_name=self.class_name,
+                        shape=self.input_shape[:-1],
+                        show=self.show,
+                        save_path=self.save_dir,
+                    )
 
                 if not self.source and not self.fomo:
-
                     ori_shape = data['data_samples'][0].ori_shape
                     tmp = preds[:, :4]
-                    tmp[:,
-                        0::2] = tmp[:,
-                                    0::2] / self.input_shape[1] * ori_shape[1]
-                    tmp[:,
-                        1::2] = tmp[:,
-                                    1::2] / self.input_shape[0] * ori_shape[0]
+                    tmp[:, 0::2] = tmp[:, 0::2] / self.input_shape[1] * ori_shape[1]
+                    tmp[:, 1::2] = tmp[:, 1::2] / self.input_shape[0] * ori_shape[0]
                     result.bboxes = tmp
                     result.scores = preds[:, 4]
                     result.labels = preds[:, 5].type(torch.int)
                     # result.img_id = str(data['data_samples'][0].img_id)
 
-                    for data_sample, pred_instances in zip(
-                            data['data_samples'], [result]):
+                    for data_sample, pred_instances in zip(data['data_samples'], [result]):
                         data_sample.pred_instances = pred_instances
                     samplelist_boxtype2tensor(data)
 
-                    self.evaluator.process(data_batch=data,
-                                           data_samples=data['data_samples'])
+                    self.evaluator.process(data_batch=data, data_samples=data['data_samples'])
 
             else:
                 raise ValueError
@@ -440,18 +406,13 @@ def pfld_inference(model, data_loader):
         # parse data
         input = data.dataset['img']
         target = np.expand_dims(data.dataset['keypoints'], axis=0)
-        size = data.dataset['hw']  #.cpu().numpy()
+        size = data.dataset['hw']  # .cpu().numpy()
         input = input.cpu().numpy()
         result = model(input)
         result = np.array(result)
-        result = result if len(result.shape) == 2 else result[
-            None, :]  # onnx shape(2,), tflite shape(1,2)
+        result = result if len(result.shape) == 2 else result[None, :]  # onnx shape(2,), tflite shape(1,2)
         acc = pose_acc(result.copy(), target, size)
-        results.append({
-            'Acc': acc,
-            'pred': result,
-            'image_file': data.dataset['image_file'].data
-        })
+        results.append({'Acc': acc, 'pred': result, 'image_file': data.dataset['image_file'].data})
 
         prog_bar.update()
     return results
@@ -469,11 +430,7 @@ def audio_inference(model, data_loader):
         # result = result if len(result.shape)==2 else np.expand_dims(result, 0) # onnx shape(d,), tflite shape(1,d)
         # result = result[0] if len(result.shape)==2 else result
         acc = audio_acc(result, target)
-        results.append({
-            'acc': acc,
-            'pred': result,
-            'image_file': data.dataset['audio_file']
-        })
+        results.append({'acc': acc, 'pred': result, 'image_file': data.dataset['audio_file']})
         prog_bar.update()
     return results
 
@@ -486,23 +443,26 @@ def fomo_inference(model, data_loader):
         input = input.cpu().numpy()
         target = data.dataset['target']
         result = model(input)
-        results.append({
-            'pred': result,
-            'target': target,
-        })
+        results.append(
+            {
+                'pred': result,
+                'target': target,
+            }
+        )
         prog_bar.update()
     return results
 
 
-def show_point(keypoints: Union[np.ndarray, Sequence[Sequence[int]],
-                                None] = None,
-               img: Optional[np.ndarray] = None,
-               img_file: Optional[str] = None,
-               shape: Optional[Sequence[int]] = None,
-               labels: Sequence[str] = None,
-               win_name: str = 'test',
-               save_path: bool = False,
-               show: bool = False):
+def show_point(
+    keypoints: Union[np.ndarray, Sequence[Sequence[int]], None] = None,
+    img: Optional[np.ndarray] = None,
+    img_file: Optional[str] = None,
+    shape: Optional[Sequence[int]] = None,
+    labels: Sequence[str] = None,
+    win_name: str = 'test',
+    save_path: bool = False,
+    show: bool = False,
+):
     # load image
     if isinstance(img, np.ndarray):
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
@@ -510,15 +470,11 @@ def show_point(keypoints: Union[np.ndarray, Sequence[Sequence[int]],
         img = load_image(img_file, shape=shape, mode='BGR').copy()
 
     for idx, point in enumerate(keypoints):
-        img = cv2.circle(img, (int(point[0]), int(point[1])), 5, (255, 0, 0),
-                         -1)
+        img = cv2.circle(img, (int(point[0]), int(point[1])), 5, (255, 0, 0), -1)
         if labels:
-            cv2.putText(img,
-                        str(labels[idx]), (int(point[0]), int(point[1])),
-                        1,
-                        color=(0, 0, 255),
-                        thickness=1,
-                        fontScale=1)
+            cv2.putText(
+                img, str(labels[idx]), (int(point[0]), int(point[1])), 1, color=(0, 0, 255), thickness=1, fontScale=1
+            )
     if show:
         cv2.imshow(win_name, img)
         cv2.waitKey(500)
@@ -528,17 +484,17 @@ def show_point(keypoints: Union[np.ndarray, Sequence[Sequence[int]],
         cv2.imwrite(osp.join(save_path, img_name), img)
 
 
-def show_det(pred: np.ndarray,
-             img: Optional[np.ndarray] = None,
-             img_file: Optional[str] = None,
-             win_name='Detection',
-             class_name=None,
-             shape=None,
-             save_path=False,
-             show=False) -> np.ndarray:
-
-    assert not (img is None and img_file is None
-                ), "The img and img_file parameters cannot both be None"
+def show_det(
+    pred: np.ndarray,
+    img: Optional[np.ndarray] = None,
+    img_file: Optional[str] = None,
+    win_name='Detection',
+    class_name=None,
+    shape=None,
+    save_path=False,
+    show=False,
+) -> np.ndarray:
+    assert not (img is None and img_file is None), "The img and img_file parameters cannot both be None"
 
     # load image
     if isinstance(img, np.ndarray):
@@ -550,18 +506,8 @@ def show_det(pred: np.ndarray,
     for i in pred:
         x1, y1, x2, y2 = map(int, i[:4])
         img = cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 1)
-        cv2.putText(img,
-                    class_name[int(i[5])], (x1, y1),
-                    1,
-                    color=(0, 0, 255),
-                    thickness=1,
-                    fontScale=1)
-        cv2.putText(img,
-                    str(round(i[4].item(), 2)), (x1, y1 - 15),
-                    1,
-                    color=(0, 0, 255),
-                    thickness=1,
-                    fontScale=1)
+        cv2.putText(img, class_name[int(i[5])], (x1, y1), 1, color=(0, 0, 255), thickness=1, fontScale=1)
+        cv2.putText(img, str(round(i[4].item(), 2)), (x1, y1 - 15), 1, color=(0, 0, 255), thickness=1, fontScale=1)
     print(pred)
     if show:
         cv2.imshow(win_name, img)
@@ -570,7 +516,7 @@ def show_det(pred: np.ndarray,
     if save_path:
         img_name = osp.basename(img_file)
         cv2.imwrite(osp.join(save_path, img_name), img)
-    
+
     return pred
 
 

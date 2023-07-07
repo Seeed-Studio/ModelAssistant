@@ -9,7 +9,6 @@ LOSSES._register_module(nn.MSELoss, 'MSELoss')
 
 @LOSSES.register_module()
 class PFLDLoss(nn.Module):
-
     def __init__(self):
         super(PFLDLoss, self).__init__()
 

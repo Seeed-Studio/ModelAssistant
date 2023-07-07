@@ -4,7 +4,4 @@ from .wandb import WandbLoggerHook
 from .clearml import ClearMLLoggerHook
 from .tensorboard import TensorboardLoggerHook
 
-__all__ = [
-    'TextLoggerHook', 'PaviLoggerHook', 'WandbLoggerHook', 'ClearMLLoggerHook',
-    'TensorboardLoggerHook'
-]
+__all__ = ['TextLoggerHook', 'PaviLoggerHook', 'WandbLoggerHook', 'ClearMLLoggerHook', 'TensorboardLoggerHook']

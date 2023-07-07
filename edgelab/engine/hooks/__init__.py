@@ -2,7 +2,11 @@ from .logger import TextLoggerHook, TensorboardLoggerHook, WandbLoggerHook, Clea
 from .visualization_hook import Posevisualization, DetFomoVisualizationHook
 
 __all__ = [
-    'TextLoggerHook', 'TensorboardLoggerHook', 'WandbLoggerHook',
-    'PaviLoggerHook', 'ClearMLLoggerHook', 'Posevisualization',
-    'DetFomoVisualizationHook'
+    'TextLoggerHook',
+    'TensorboardLoggerHook',
+    'WandbLoggerHook',
+    'PaviLoggerHook',
+    'ClearMLLoggerHook',
+    'Posevisualization',
+    'DetFomoVisualizationHook',
 ]

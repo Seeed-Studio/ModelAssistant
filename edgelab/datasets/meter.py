@@ -17,12 +17,11 @@ from .pipelines.composition import AlbCompose
 
 
 def calc_angle(x1, y1, x2, y2):
-    x = (x1 - x2)
-    y = (y1 - y2)
+    x = x1 - x2
+    y = y1 - y2
     z = math.sqrt(x * x + y * y)
     try:
-        angle = math.acos(
-            (z**2 + 1 - (x - 1)**2 - y**2) / (2 * z * 1)) / math.pi * 180
+        angle = math.acos((z**2 + 1 - (x - 1) ** 2 - y**2) / (2 * z * 1)) / math.pi * 180
     except:
         angle = 0
 
@@ -35,35 +34,38 @@ def calc_angle(x1, y1, x2, y2):
 @DATASETS.register_module()
 class MeterData(Dataset, metaclass=ABCMeta):
     """
-    The meter data set class, this class is mainly for the data set of 
-    the pointer table, the data set is marked in a format similar to the 
+    The meter data set class, this class is mainly for the data set of
+    the pointer table, the data set is marked in a format similar to the
     key point detection
-    
+
     Args:
         data_root: The root path of the dataset
         index_file: The path of the annotation file or the folder path
             of the annotation file
-        img_dir: The folder path of the image data, which needs to be 
-            the image file name that can be found in the corresponding 
+        img_dir: The folder path of the image data, which needs to be
+            the image file name that can be found in the corresponding
             annotation file
         pipeline: The option to do data enhancement on image data, which
             needs to be in list format
         format: format of keypoints. Should be 'xy', 'yx', 'xya', 'xys', 'xyas', 'xysa'
-    
-    """
-    CLASSES = ('meter')
 
-    def __init__(self,
-                 data_root: str,
-                 index_file: str,
-                 img_dir: Optional[str] = None,
-                 pipeline: Optional[Sequence[dict]] = None,
-                 format: str = 'xy'):
+    """
+
+    CLASSES = 'meter'
+
+    def __init__(
+        self,
+        data_root: str,
+        index_file: str,
+        img_dir: Optional[str] = None,
+        pipeline: Optional[Sequence[dict]] = None,
+        format: str = 'xy',
+    ):
         super(MeterData, self).__init__()
         self.metainfo = dict()
 
         self.data_root = check_file(data_root)
-        self.img_dir = img_dir  #todo
+        self.img_dir = img_dir  # todo
 
         if img_dir and not osp.isabs(img_dir) and self.data_root:
             self.img_dir = osp.join(self.data_root, img_dir)
@@ -88,7 +90,8 @@ class MeterData(Dataset, metaclass=ABCMeta):
             raise ValueError(
                 'The parameter index_file must be a folder path',
                 ' or a file in txt or json format, but the received ',
-                f'value is {index_file}')
+                f'value is {index_file}',
+            )
 
         self.transforms = AlbCompose(pipeline, keypoint_params=format)
         self.totensor = transforms.Compose([transforms.ToTensor()])
@@ -108,8 +111,7 @@ class MeterData(Dataset, metaclass=ABCMeta):
             result = self.transforms(image=self.img, keypoints=landmark)
             if len(result['keypoints']) == point_num:
                 break
-        img, keypoints = self.totensor(result['image']), np.asarray(
-            result['keypoints']).flatten()
+        img, keypoints = self.totensor(result['image']), np.asarray(result['keypoints']).flatten()
         h, w = img.shape[1:]
         keypoints[::2] = keypoints[::2] / w
         keypoints[1::2] = keypoints[1::2] / h
@@ -162,11 +164,7 @@ class MeterData(Dataset, metaclass=ABCMeta):
             img_file = os.path.join(self.img_dir, line[0])
             points = np.asarray(line[1:], dtype=np.float32)
             point_num = len(points) // 2
-            self.ann_ls.append({
-                'image_file': img_file,
-                'keypoints': points,
-                'point_num': point_num
-            })
+            self.ann_ls.append({'image_file': img_file, 'keypoints': points, 'point_num': point_num})
 
     def parse_json(self, json_path: str) -> None:
-        pass  #todo
+        pass  # todo

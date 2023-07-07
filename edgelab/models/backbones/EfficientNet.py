@@ -13,9 +13,17 @@ from edgelab.models.layers.rep import RepConv1x1
 
 class MBConvConfig:
     # Stores information listed at Table 1 of the EfficientNet paper
-    def __init__(self, expand_ratio: float, kernel: int, stride: int,
-                 input_channels: int, out_channels: int, num_layers: int,
-                 width_mult: float, depth_mult: float) -> None:
+    def __init__(
+        self,
+        expand_ratio: float,
+        kernel: int,
+        stride: int,
+        input_channels: int,
+        out_channels: int,
+        num_layers: int,
+        width_mult: float,
+        depth_mult: float,
+    ) -> None:
         self.expand_ratio = expand_ratio
         self.kernel = kernel
         self.stride = stride
@@ -24,9 +32,7 @@ class MBConvConfig:
         self.num_layers = self.adjust_depth(num_layers, depth_mult)
 
     @staticmethod
-    def adjust_channels(channels: int,
-                        width_mult: float,
-                        min_value: Optional[int] = None) -> int:
+    def adjust_channels(channels: int, width_mult: float, min_value: Optional[int] = None) -> int:
         return make_divisible(channels * width_mult, 8, min_value)
 
     @staticmethod
@@ -35,13 +41,14 @@ class MBConvConfig:
 
 
 class MBConv(nn.Module):
-
-    def __init__(self,
-                 cnf: MBConvConfig,
-                 stochastic_depth_prob: float,
-                 norm_layer: Callable[..., nn.Module],
-                 se_layer: Callable[..., nn.Module] = SqueezeExcitation,
-                 rep: bool = False) -> None:
+    def __init__(
+        self,
+        cnf: MBConvConfig,
+        stochastic_depth_prob: float,
+        norm_layer: Callable[..., nn.Module],
+        se_layer: Callable[..., nn.Module] = SqueezeExcitation,
+        rep: bool = False,
+    ) -> None:
         super().__init__()
 
         if not (1 <= cnf.stride <= 2):
@@ -53,48 +60,45 @@ class MBConv(nn.Module):
         activation_layer = nn.ReLU
 
         # expand
-        expanded_channels = cnf.adjust_channels(cnf.input_channels,
-                                                cnf.expand_ratio)
+        expanded_channels = cnf.adjust_channels(cnf.input_channels, cnf.expand_ratio)
         if expanded_channels != cnf.input_channels:
             layers.append(
-                ConvNormActivation(cnf.input_channels,
-                                   expanded_channels,
-                                   kernel_size=1,
-                                   norm_layer=norm_layer,
-                                   activation_layer=activation_layer))
+                ConvNormActivation(
+                    cnf.input_channels,
+                    expanded_channels,
+                    kernel_size=1,
+                    norm_layer=norm_layer,
+                    activation_layer=activation_layer,
+                )
+            )
 
         # depthwise
         if rep:
-            layers.append(
-                RepConv1x1(expanded_channels,
-                           expanded_channels,
-                           stride=cnf.stride,
-                           act_cfg=activation_layer))
+            layers.append(RepConv1x1(expanded_channels, expanded_channels, stride=cnf.stride, act_cfg=activation_layer))
 
         else:
             layers.append(
-                ConvNormActivation(expanded_channels,
-                                   expanded_channels,
-                                   kernel_size=cnf.kernel,
-                                   stride=cnf.stride,
-                                   groups=expanded_channels,
-                                   norm_layer=norm_layer,
-                                   activation_layer=activation_layer))
+                ConvNormActivation(
+                    expanded_channels,
+                    expanded_channels,
+                    kernel_size=cnf.kernel,
+                    stride=cnf.stride,
+                    groups=expanded_channels,
+                    norm_layer=norm_layer,
+                    activation_layer=activation_layer,
+                )
+            )
 
             # squeeze and excitation
             squeeze_channels = max(1, cnf.input_channels // 4)
-            layers.append(
-                se_layer(expanded_channels,
-                         squeeze_channels,
-                         activation=partial(nn.ReLU, inplace=True)))
+            layers.append(se_layer(expanded_channels, squeeze_channels, activation=partial(nn.ReLU, inplace=True)))
 
         # project
         layers.append(
-            ConvNormActivation(expanded_channels,
-                               cnf.out_channels,
-                               kernel_size=1,
-                               norm_layer=norm_layer,
-                               activation_layer=None))
+            ConvNormActivation(
+                expanded_channels, cnf.out_channels, kernel_size=1, norm_layer=norm_layer, activation_layer=None
+            )
+        )
 
         self.block = nn.Sequential(*layers)
         self.stochastic_depth = StochasticDepth(stochastic_depth_prob, "row")
@@ -130,18 +134,20 @@ class EfficientNet(BaseModule):
         'b4': [1.4, 1.8, 0.4],
         'b5': [1.6, 2.2, 0.5],
         'b6': [1.8, 2.6, 0.5],
-        'b7': [2.0, 3.1, 0.5]
+        'b7': [2.0, 3.1, 0.5],
     }
 
-    def __init__(self,
-                 arch='b0',
-                 input_channels=3,
-                 out_indices=(2, ),
-                 norm_cfg='BN',
-                 frozen_stages=-1,
-                 norm_eval=False,
-                 rep=False,
-                 init_cfg: Optional[dict] = None):
+    def __init__(
+        self,
+        arch='b0',
+        input_channels=3,
+        out_indices=(2,),
+        norm_cfg='BN',
+        frozen_stages=-1,
+        norm_eval=False,
+        rep=False,
+        init_cfg: Optional[dict] = None,
+    ):
         super().__init__(init_cfg)
 
         assert arch in self.width_depth_mult.keys()
@@ -153,20 +159,15 @@ class EfficientNet(BaseModule):
         width_depth_setting = self.width_depth_mult[arch]
 
         self.layer_name = [f'layer{i}' for i in range(1, len(self.arch) + 1)]
-        block_conf = partial(MBConvConfig,
-                             width_mult=width_depth_setting[0],
-                             depth_mult=width_depth_setting[1])
+        block_conf = partial(MBConvConfig, width_mult=width_depth_setting[0], depth_mult=width_depth_setting[1])
 
         stochastic_depth_prob = width_depth_setting[-1]
 
         arch_param = [block_conf(*i) for i in self.arch]
 
-        self.conv1 = ConvNormActivation(input_channels,
-                                        arch_param[0].input_channels,
-                                        3,
-                                        2,
-                                        norm_layer=norm_cfg,
-                                        activation_layer='ReLU')
+        self.conv1 = ConvNormActivation(
+            input_channels, arch_param[0].input_channels, 3, 2, norm_layer=norm_cfg, activation_layer='ReLU'
+        )
 
         total_stage_blocks = sum([cnf.num_layers for cnf in arch_param])
         stage_block_id = 0
@@ -178,10 +179,8 @@ class EfficientNet(BaseModule):
                 if layer:
                     conf.input_channels = conf.out_channels
                     conf.stride = 1
-                sd_prob = stochastic_depth_prob * float(
-                    stage_block_id) / total_stage_blocks
-                layer.append(
-                    MBConv(conf, sd_prob, norm_layer=norm_cfg, rep=rep))
+                sd_prob = stochastic_depth_prob * float(stage_block_id) / total_stage_blocks
+                layer.append(MBConv(conf, sd_prob, norm_layer=norm_cfg, rep=rep))
                 stage_block_id += 1
 
             self.add_module(name, nn.Sequential(*layer))

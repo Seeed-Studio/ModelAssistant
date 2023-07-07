@@ -103,7 +103,8 @@ model = dict(
         a=2.23606797749979,  # math.sqrt(5)
         distribution='uniform',
         mode='fan_in',
-        nonlinearity='leaky_relu'),
+        nonlinearity='leaky_relu',
+    ),
     data_preprocessor=dict(
         type="mmdet.DetDataPreprocessor",
         mean=[0.0, 0.0, 0.0],
@@ -161,9 +162,7 @@ model = dict(
             reduction="sum",
             loss_weight=loss_obj_weight,
         ),
-        loss_bbox_aux=dict(
-            type="mmdet.L1Loss", reduction="sum", loss_weight=loss_bbox_aux_weight
-        ),
+        loss_bbox_aux=dict(type="mmdet.L1Loss", reduction="sum", loss_weight=loss_bbox_aux_weight),
     ),
     train_cfg=dict(
         assigner=dict(
@@ -189,9 +188,7 @@ pre_transform = [
 
 train_pipeline = [
     *pre_transform,
-    dict(
-        type="Mosaic", img_scale=img_scale, pad_val=114.0, pre_transform=pre_transform
-    ),
+    dict(type="Mosaic", img_scale=img_scale, pad_val=114.0, pre_transform=pre_transform),
     dict(
         type="YOLOv5RandomAffine",
         max_rotate_degree=0.0,

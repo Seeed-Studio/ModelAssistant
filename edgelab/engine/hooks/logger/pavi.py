@@ -8,6 +8,7 @@ from typing import Optional, Union, Dict
 import mmcv
 from edgelab.registry import HOOKS
 from mmengine.dist.utils import master_only
+
 # from mmcv.runner import HOOKS
 
 # from mmcv.parallel.scatter_gather import scatter
@@ -18,27 +19,37 @@ from .text import TextLoggerHook
 
 @HOOKS.register_module(force=True)
 class PaviLoggerHook(TextLoggerHook):
-
-    def __init__(self,
-                 init_kwargs: Optional[Dict] = None,
-                 add_graph: Optional[bool] = None,
-                 img_key: Optional[str] = None,
-                 add_last_ckpt: bool = False,
-                 interval: int = 10,
-                 ignore_last: bool = True,
-                 reset_flag: bool = False,
-                 by_epoch: bool = True,
-                 add_graph_kwargs: Optional[Dict] = None,
-                 add_ckpt_kwargs: Optional[Dict] = None,
-                 interval_exp_name: int = 1000,
-                 out_dir: Optional[str] = None,
-                 out_suffix: Union[str, tuple] = ...,
-                 keep_local: bool = True,
-                 ndigits: int = 4,
-                 file_client_args: Optional[Dict] = None):
-        super().__init__(by_epoch, interval, ignore_last, reset_flag,
-                         interval_exp_name, out_dir, out_suffix, keep_local,
-                         ndigits, file_client_args)
+    def __init__(
+        self,
+        init_kwargs: Optional[Dict] = None,
+        add_graph: Optional[bool] = None,
+        img_key: Optional[str] = None,
+        add_last_ckpt: bool = False,
+        interval: int = 10,
+        ignore_last: bool = True,
+        reset_flag: bool = False,
+        by_epoch: bool = True,
+        add_graph_kwargs: Optional[Dict] = None,
+        add_ckpt_kwargs: Optional[Dict] = None,
+        interval_exp_name: int = 1000,
+        out_dir: Optional[str] = None,
+        out_suffix: Union[str, tuple] = ...,
+        keep_local: bool = True,
+        ndigits: int = 4,
+        file_client_args: Optional[Dict] = None,
+    ):
+        super().__init__(
+            by_epoch,
+            interval,
+            ignore_last,
+            reset_flag,
+            interval_exp_name,
+            out_dir,
+            out_suffix,
+            keep_local,
+            ndigits,
+            file_client_args,
+        )
 
         self.init_kwargs = init_kwargs
 
@@ -48,19 +59,20 @@ class PaviLoggerHook(TextLoggerHook):
         self.add_graph_interval = add_graph_kwargs.get('interval', 1)
         self.img_key = add_graph_kwargs.get('img_key', 'img')
         self.opset_version = add_graph_kwargs.get('opset_version', 11)
-        self.dummy_forward_kwargs = add_graph_kwargs.get(
-            'dummy_forward_kwargs', {})
+        self.dummy_forward_kwargs = add_graph_kwargs.get('dummy_forward_kwargs', {})
         if add_graph is not None:
             warnings.warn(
                 '"add_graph" is deprecated in `PaviLoggerHook`, please use '
                 'the key "active" of add_graph_kwargs instead',
-                DeprecationWarning)
+                DeprecationWarning,
+            )
             self.add_graph = add_graph
         if img_key is not None:
             warnings.warn(
                 '"img_key" is deprecated in `PaviLoggerHook`, please use '
                 'the key "img_key" of add_graph_kwargs instead',
-                DeprecationWarning)
+                DeprecationWarning,
+            )
             self.img_key = img_key
 
         add_ckpt_kwargs = {} if add_ckpt_kwargs is None else add_ckpt_kwargs
@@ -76,8 +88,8 @@ class PaviLoggerHook(TextLoggerHook):
             from pavi import SummaryWriter
         except ImportError:
             raise ImportError(
-                'No module named pavi, please contact pavi team or visit'
-                'document for pavi installation instructions.')
+                'No module named pavi, please contact pavi team or visit' 'document for pavi installation instructions.'
+            )
 
         self.run_name = runner.work_dir.split('/')[-1]
 
@@ -88,10 +100,9 @@ class PaviLoggerHook(TextLoggerHook):
         if runner.meta is not None:
             if 'config_dict' in runner.meta:
                 config_dict = runner.meta['config_dict']
-                assert isinstance(
-                    config_dict,
-                    dict), ('meta["config_dict"] has to be of a dict, '
-                            f'but got {type(config_dict)}')
+                assert isinstance(config_dict, dict), (
+                    'meta["config_dict"] has to be of a dict, ' f'but got {type(config_dict)}'
+                )
             elif 'config_file' in runner.meta:
                 config_file = runner.meta['config_file']
                 config_dict = dict(mmcv.Config.fromfile(config_file))
@@ -104,8 +115,7 @@ class PaviLoggerHook(TextLoggerHook):
                 config_dict.setdefault('max_iter', runner.max_iters)
                 # non-serializable values are first converted in
                 # mmcv.dump to json
-                config_dict = json.loads(
-                    mmcv.dump(config_dict, file_format='json'))
+                config_dict = json.loads(mmcv.dump(config_dict, file_format='json'))
                 session_text = yaml.dump(config_dict)
                 self.init_kwargs.setdefault('session_text', session_text)
         self.writer = SummaryWriter(**self.init_kwargs)
@@ -118,14 +128,11 @@ class PaviLoggerHook(TextLoggerHook):
             return self.get_iter(runner)
 
     def _add_ckpt(self, runner, ckpt_path: str, step: int) -> None:
-
         if osp.islink(ckpt_path):
             ckpt_path = osp.join(runner.work_dir, os.readlink(ckpt_path))
 
         if osp.isfile(ckpt_path):
-            self.writer.add_snapshot_file(tag=self.run_name,
-                                          snapshot_file_path=ckpt_path,
-                                          iteration=step)
+            self.writer.add_snapshot_file(tag=self.run_name, snapshot_file_path=ckpt_path, iteration=step)
 
     # def _add_graph(self, runner, step: int) -> None:
     #     from mmcv.runner.iter_based_runner import IterLoader
@@ -159,8 +166,7 @@ class PaviLoggerHook(TextLoggerHook):
     def log(self, runner) -> None:
         tags = self.get_loggable_tags(runner, add_mode=False)
         if tags:
-            self.writer.add_scalars(self.get_mode(runner), tags,
-                                    self.get_step(runner))
+            self.writer.add_scalars(self.get_mode(runner), tags, self.get_step(runner))
         return super().log(runner)
 
     @master_only
@@ -182,9 +188,11 @@ class PaviLoggerHook(TextLoggerHook):
             return None
 
         step = self.get_epoch(runner)
-        if (self.add_graph and step >= self.add_graph_start
-                and ((step - self.add_graph_start) % self.add_graph_interval
-                     == 0)):  # noqa: E129
+        if (
+            self.add_graph
+            and step >= self.add_graph_start
+            and ((step - self.add_graph_start) % self.add_graph_interval == 0)
+        ):  # noqa: E129
             self._add_graph(runner, step)
 
     @master_only
@@ -195,9 +203,11 @@ class PaviLoggerHook(TextLoggerHook):
             return None
 
         step = self.get_iter(runner)
-        if (self.add_graph and step >= self.add_graph_start
-                and ((step - self.add_graph_start) % self.add_graph_interval
-                     == 0)):  # noqa: E129
+        if (
+            self.add_graph
+            and step >= self.add_graph_start
+            and ((step - self.add_graph_start) % self.add_graph_interval == 0)
+        ):  # noqa: E129
             self._add_graph(runner, step)
 
     @master_only
@@ -209,10 +219,11 @@ class PaviLoggerHook(TextLoggerHook):
 
         step = self.get_epoch(runner)
 
-        if (self.add_ckpt and step >= self.add_ckpt_start
-                and ((step - self.add_ckpt_start) % self.add_ckpt_interval
-                     == 0)):  # noqa: E129
-
+        if (
+            self.add_ckpt
+            and step >= self.add_ckpt_start
+            and ((step - self.add_ckpt_start) % self.add_ckpt_interval == 0)
+        ):  # noqa: E129
             ckpt_path = osp.join(runner.work_dir, f'epoch_{step}.pth')
 
             self._add_ckpt(runner, ckpt_path, step)
@@ -226,10 +237,11 @@ class PaviLoggerHook(TextLoggerHook):
 
         step = self.get_iter(runner)
 
-        if (self.add_ckpt and step >= self.add_ckpt_start
-                and ((step - self.add_ckpt_start) % self.add_ckpt_interval
-                     == 0)):  # noqa: E129
-
+        if (
+            self.add_ckpt
+            and step >= self.add_ckpt_start
+            and ((step - self.add_ckpt_start) % self.add_ckpt_interval == 0)
+        ):  # noqa: E129
             ckpt_path = osp.join(runner.work_dir, f'iter_{step}.pth')
 
             self._add_ckpt(runner, ckpt_path, step)

@@ -8,16 +8,17 @@ from mmpose.models.backbones.shufflenet_v2 import ShuffleNetV2
 
 @BACKBONES.register_module()
 class CustomShuffleNetV2(ShuffleNetV2):
-
-    def __init__(self,
-                 widen_factor=1.0,
-                 out_indices=(3, ),
-                 frozen_stages=-1,
-                 conv_cfg=None,
-                 norm_cfg=dict(type='BN'),
-                 act_cfg=dict(type='ReLU'),
-                 norm_eval=False,
-                 with_cp=False):
+    def __init__(
+        self,
+        widen_factor=1.0,
+        out_indices=(3,),
+        frozen_stages=-1,
+        conv_cfg=None,
+        norm_cfg=dict(type='BN'),
+        act_cfg=dict(type='ReLU'),
+        norm_eval=False,
+        with_cp=False,
+    ):
         # super().__init__(widen_factor, out_indices, frozen_stages, conv_cfg,
         #                  norm_cfg, act_cfg, norm_eval, with_cp)
 
@@ -27,12 +28,10 @@ class CustomShuffleNetV2(ShuffleNetV2):
         self.stage_blocks = [4, 8, 4]
         for index in out_indices:
             if index not in range(0, 4):
-                raise ValueError('the item in out_indices must in '
-                                 f'range(0, 4). But received {index}')
+                raise ValueError('the item in out_indices must in ' f'range(0, 4). But received {index}')
 
         if frozen_stages not in range(-1, 4):
-            raise ValueError('frozen_stages must be in range(-1, 4). '
-                             f'But received {frozen_stages}')
+            raise ValueError('frozen_stages must be in range(-1, 4). ' f'But received {frozen_stages}')
         self.out_indices = out_indices
         self.frozen_stages = frozen_stages
         self.conv_cfg = conv_cfg
@@ -52,19 +51,19 @@ class CustomShuffleNetV2(ShuffleNetV2):
         elif widen_factor == 2.0:
             channels = [244, 488, 976, 2048]
         else:
-            raise ValueError(
-                'widen_factor must be in [0.25, 0.5, 1.0, 1.5, 2.0]. '
-                f'But received {widen_factor}')
+            raise ValueError('widen_factor must be in [0.25, 0.5, 1.0, 1.5, 2.0]. ' f'But received {widen_factor}')
 
         self.in_channels = 24
-        self.conv1 = ConvModule(in_channels=3,
-                                out_channels=self.in_channels,
-                                kernel_size=3,
-                                stride=2,
-                                padding=1,
-                                conv_cfg=conv_cfg,
-                                norm_cfg=norm_cfg,
-                                act_cfg=act_cfg)
+        self.conv1 = ConvModule(
+            in_channels=3,
+            out_channels=self.in_channels,
+            kernel_size=3,
+            stride=2,
+            padding=1,
+            conv_cfg=conv_cfg,
+            norm_cfg=norm_cfg,
+            act_cfg=act_cfg,
+        )
 
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
@@ -75,9 +74,12 @@ class CustomShuffleNetV2(ShuffleNetV2):
 
         output_channels = channels[-1]
         self.layers.append(
-            ConvModule(in_channels=self.in_channels,
-                       out_channels=output_channels,
-                       kernel_size=1,
-                       conv_cfg=conv_cfg,
-                       norm_cfg=norm_cfg,
-                       act_cfg=act_cfg))
+            ConvModule(
+                in_channels=self.in_channels,
+                out_channels=output_channels,
+                kernel_size=1,
+                conv_cfg=conv_cfg,
+                norm_cfg=norm_cfg,
+                act_cfg=act_cfg,
+            )
+        )

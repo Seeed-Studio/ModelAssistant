@@ -1,3 +1,3 @@
-from .visualizer import (FomoLocalVisualizer, SensorClsVisualizer)
+from .visualizer import FomoLocalVisualizer, SensorClsVisualizer
 
 __all__ = ['FomoLocalVisualizer', 'SensorClsVisualizer']

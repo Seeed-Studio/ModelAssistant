@@ -40,15 +40,17 @@ class AccelerometerClassifier(BaseClassifier):
             Defaults to None.
     """
 
-    def __init__(self,
-                 backbone: dict,
-                 neck: Optional[dict] = None,
-                 head: Optional[dict] = None,
-                 pretrained: Optional[str] = None,
-                 train_cfg: Optional[dict] = None,
-                 data_preprocessor: Optional[dict] = None,
-                 softmax: bool = True,
-                 init_cfg: Optional[dict] = None):
+    def __init__(
+        self,
+        backbone: dict,
+        neck: Optional[dict] = None,
+        head: Optional[dict] = None,
+        pretrained: Optional[str] = None,
+        train_cfg: Optional[dict] = None,
+        data_preprocessor: Optional[dict] = None,
+        softmax: bool = True,
+        init_cfg: Optional[dict] = None,
+    ):
         if pretrained is not None:
             init_cfg = dict(type='Pretrained', checkpoint=pretrained)
 
@@ -61,8 +63,7 @@ class AccelerometerClassifier(BaseClassifier):
             # Set batch augmentations by `train_cfg`
             data_preprocessor['batch_augments'] = train_cfg
 
-        super(AccelerometerClassifier, self).__init__(
-            init_cfg=init_cfg, data_preprocessor=data_preprocessor)
+        super(AccelerometerClassifier, self).__init__(init_cfg=init_cfg, data_preprocessor=data_preprocessor)
 
         if not isinstance(backbone, nn.Module):
             backbone = MODELS.build(backbone)
@@ -74,14 +75,10 @@ class AccelerometerClassifier(BaseClassifier):
         self.backbone = backbone
         self.neck = neck
         self.head = head
-        
+
         self.softmax = softmax
 
-    def forward(self,
-                inputs: torch.Tensor,
-                data_samples: Optional[List[ClsDataSample]] = None,
-                mode: str = 'tensor'):
-
+    def forward(self, inputs: torch.Tensor, data_samples: Optional[List[ClsDataSample]] = None, mode: str = 'tensor'):
         if mode == 'tensor':
             feats = self.extract_feat(inputs)
             head_out = self.head(feats) if self.with_head else feats
@@ -94,14 +91,11 @@ class AccelerometerClassifier(BaseClassifier):
             raise RuntimeError(f'Invalid mode "{mode}".')
 
     def extract_feat(self, inputs, stage='neck'):
-
-        assert stage in ['backbone', 'neck', 'pre_logits'], \
-            (f'Invalid output stage "{stage}", please choose from "backbone", '
-             '"neck" and "pre_logits"')
+        assert stage in ['backbone', 'neck', 'pre_logits'], (
+            f'Invalid output stage "{stage}", please choose from "backbone", ' '"neck" and "pre_logits"'
+        )
 
         x = self.backbone(inputs)
-        
-
 
         if stage == 'backbone':
             return x
@@ -111,23 +105,18 @@ class AccelerometerClassifier(BaseClassifier):
         if stage == 'neck':
             return x
 
-        assert self.with_head and hasattr(self.head, 'pre_logits'), \
-            "No head or the head doesn't implement `pre_logits` method."
+        assert self.with_head and hasattr(
+            self.head, 'pre_logits'
+        ), "No head or the head doesn't implement `pre_logits` method."
         return self.head.pre_logits(x)
 
-    def loss(self, inputs: torch.Tensor,
-             data_samples: List[ClsDataSample]) -> dict:
-
-
+    def loss(self, inputs: torch.Tensor, data_samples: List[ClsDataSample]) -> dict:
         feats = self.extract_feat(inputs)
-        
 
         return self.head.loss(feats, data_samples)
 
-    def predict(self,
-                inputs: torch.Tensor,
-                data_samples: Optional[List[ClsDataSample]] = None,
-                **kwargs) -> List[ClsDataSample]:
-
+    def predict(
+        self, inputs: torch.Tensor, data_samples: Optional[List[ClsDataSample]] = None, **kwargs
+    ) -> List[ClsDataSample]:
         feats = self.extract_feat(inputs)
         return self.head.predict(feats, data_samples, **kwargs)

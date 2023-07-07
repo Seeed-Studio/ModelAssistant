@@ -6,18 +6,16 @@ from edgelab.registry import TRANSFORMS
 
 @TRANSFORMS.register_module()
 class Bbox2FomoMask(BaseTransform):
-
     def __init__(
         self,
-        downsample_factor: Tuple[int, ...] = (8, ),
+        downsample_factor: Tuple[int, ...] = (8,),
         classes_num: int = 80,
     ) -> None:
         super().__init__()
         self.downsample_factor = downsample_factor
         self.classes_num = classes_num
 
-    def transform(self,
-                  results: Dict) -> Optional[Union[Dict, Tuple[List, List]]]:
+    def transform(self, results: Dict) -> Optional[Union[Dict, Tuple[List, List]]]:
         H, W = results['img_shape']
         bbox = results['gt_bboxes']
         print(bbox)
@@ -38,6 +36,6 @@ class Bbox2FomoMask(BaseTransform):
         for i in targets:
             h, w = int(i[3].item() * H), int(i[2].item() * W)
             target_data[int(i[0]), h, w, 0] = 0  # background
-            target_data[int(i[0]), h, w, int(i[1])] = 1  #label
+            target_data[int(i[0]), h, w, int(i[1])] = 1  # label
 
         return target_data

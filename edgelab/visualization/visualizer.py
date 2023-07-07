@@ -15,7 +15,7 @@ from edgelab.registry import VISUALIZERS
 class FomoLocalVisualizer(DetLocalVisualizer):
     """
     Unified Fomo and target detection visualization classes
-    
+
     """
 
     def __init__(self, name='v', *args, fomo=False, **kwargs) -> None:
@@ -59,19 +59,14 @@ class FomoLocalVisualizer(DetLocalVisualizer):
         if draw_gt and data_sample is not None:
             gt_img = image
             if 'gt_instances' in data_sample:
-                gt_img = self._draw_fomo_instances(gt_img,
-                                                   data_sample,
-                                                   classes=classes,
-                                                   plaettle=plaettle)
+                gt_img = self._draw_fomo_instances(gt_img, data_sample, classes=classes, plaettle=plaettle)
 
         if draw_pred and data_sample is not None:
             pred_img = image
             if 'pred_instances' in data_sample:
-                pred_img = self._draw_fomo_instances(pred_img,
-                                                     data_sample,
-                                                     bbox=False,
-                                                     classes=classes,
-                                                     plaettle=plaettle)
+                pred_img = self._draw_fomo_instances(
+                    pred_img, data_sample, bbox=False, classes=classes, plaettle=plaettle
+                )
         if gt_img is not None and pred_img is not None:
             drawn_img = np.concatenate((gt_img, pred_img), axis=1)
 
@@ -92,14 +87,13 @@ class FomoLocalVisualizer(DetLocalVisualizer):
             self.add_image(name, drawn_img, step)
 
     def _draw_fomo_instances(
-            self,
-            img: np.ndarray,
-            data_sample: DetDataSample,
-            bbox: bool = True,
-            classes: Optional[Sequence[str]] = None,
-            plaettle: Optional[Sequence[Tuple[int,
-                                              ...]]] = None) -> np.ndarray:
-
+        self,
+        img: np.ndarray,
+        data_sample: DetDataSample,
+        bbox: bool = True,
+        classes: Optional[Sequence[str]] = None,
+        plaettle: Optional[Sequence[Tuple[int, ...]]] = None,
+    ) -> np.ndarray:
         self.set_image(img)
         if bbox:
             instances: InstanceData = data_sample.gt_instances
@@ -134,11 +128,7 @@ class FomoLocalVisualizer(DetLocalVisualizer):
                 mask = pred[..., 1:] > self.pred_score_thr
                 mask = np.any(mask, axis=2)
                 mask = np.repeat(np.expand_dims(mask, -1), 3, axis=-1)
-                pred = np.ma.array(pred,
-                                   mask=~mask,
-                                   keep_mask=True,
-                                   copy=True,
-                                   fill_value=0)
+                pred = np.ma.array(pred, mask=~mask, keep_mask=True, copy=True, fill_value=0)
 
                 pred_max = np.argmax(pred, axis=-1)
 
@@ -149,8 +139,7 @@ class FomoLocalVisualizer(DetLocalVisualizer):
                     idx = pred_max[i[0], i[1]]
                     texts.append(classes[idx - 1])
                 if len(pred_index):
-                    points = (pred_index + 0.5) / np.asarray(
-                        [H, W]) * np.asarray(ori_shape)
+                    points = (pred_index + 0.5) / np.asarray([H, W]) * np.asarray(ori_shape)
                     self.draw_points(points, colors='r')
                     self.draw_texts(texts, points, font_sizes=30, colors='r')
 
@@ -203,18 +192,20 @@ class SensorClsVisualizer(Visualizer):
     """
 
     @master_only
-    def add_datasample(self,
-                       name: str,
-                       data: np.ndarray,
-                       data_sample: Optional[ClsDataSample] = None,
-                       draw_gt: bool = True,
-                       draw_pred: bool = True,
-                       draw_score: bool = True,
-                       show: bool = False,
-                       text_cfg: dict = dict(),
-                       wait_time: float = 0,
-                       out_file: Optional[str] = None,
-                       step: int = 0) -> None:
+    def add_datasample(
+        self,
+        name: str,
+        data: np.ndarray,
+        data_sample: Optional[ClsDataSample] = None,
+        draw_gt: bool = True,
+        draw_pred: bool = True,
+        draw_score: bool = True,
+        show: bool = False,
+        text_cfg: dict = dict(),
+        wait_time: float = 0,
+        out_file: Optional[str] = None,
+        step: int = 0,
+    ) -> None:
         """Draw datasample and save to all backends.
 
         - If ``out_file`` is specified, all storage backends are ignored
@@ -251,13 +242,10 @@ class SensorClsVisualizer(Visualizer):
 
         sensors = data_sample.sensors
         uints = []
-        uints = [
-            sensor['units'] for sensor in sensors
-            if sensor['units'] not in uints
-        ]
+        uints = [sensor['units'] for sensor in sensors if sensor['units'] not in uints]
 
         # slice the data into different sensors
-        inputs = [data[i::len(sensors)] for i in range(len(sensors))]
+        inputs = [data[i :: len(sensors)] for i in range(len(sensors))]
 
         _, axs = plt.subplots(len(uints), 1)
 
@@ -288,17 +276,12 @@ class SensorClsVisualizer(Visualizer):
             score_labels = [''] * len(idx)
             class_labels = [''] * len(idx)
             if draw_score and 'score' in pred_label:
-                score_labels = [
-                    f', {pred_label.score[i].item():.2f}' for i in idx
-                ]
+                score_labels = [f', {pred_label.score[i].item():.2f}' for i in idx]
 
             if classes is not None:
                 class_labels = [f' ({classes[i]})' for i in idx]
 
-            labels = [
-                str(idx[i]) + score_labels[i] + class_labels[i]
-                for i in range(len(idx))
-            ]
+            labels = [str(idx[i]) + score_labels[i] + class_labels[i] for i in range(len(idx))]
             prefix = 'Prediction: '
             texts.append(prefix + ('\n' + ' ' * len(prefix)).join(labels))
 
@@ -309,8 +292,7 @@ class SensorClsVisualizer(Visualizer):
         fig.canvas.draw()
         buf = fig.canvas.tostring_rgb()
         w, h = fig.canvas.get_width_height()
-        image = np.frombuffer(buf, dtype=np.uint8,
-                              count=h * w * 3).reshape(h, w, 3)
+        image = np.frombuffer(buf, dtype=np.uint8, count=h * w * 3).reshape(h, w, 3)
         self.set_image(image)
         drawn_img = self.get_image()
 

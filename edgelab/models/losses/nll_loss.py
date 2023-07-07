@@ -12,20 +12,13 @@ def nll_loss(pred, target):
 
 @LOSSES.register_module()
 class NLLLoss(nn.Module):
-
     def __init__(self, reduction='mean', loss_weight=1.0) -> None:
         super().__init__()
         self.reduction = reduction
         self.loss_weight = loss_weight
 
-    def forward(self,
-                pred,
-                target,
-                weight=None,
-                reduction_override=None,
-                avg_factor=None):
+    def forward(self, pred, target, weight=None, reduction_override=None, avg_factor=None):
         assert reduction_override in (None, 'none', 'mean', 'sum')
         reduction = reduction_override if reduction_override else self.reduction
-        loss = self.loss_weight * nll_loss(
-            pred, target, weight, reduction=reduction, avg_factor=avg_factor)
+        loss = self.loss_weight * nll_loss(pred, target, weight, reduction=reduction, avg_factor=avg_factor)
         return loss

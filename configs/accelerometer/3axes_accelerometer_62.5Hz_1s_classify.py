@@ -5,19 +5,23 @@ default_scope = "edgelab"
 num_classes = 3
 num_axes = 3
 frequency = 62.5
-window=1000
+window = 1000
 
-model = dict(type='AccelerometerClassifier',
-             backbone=dict(type='AxesNet',
-                           num_axes=num_axes,
-                           frequency=frequency,
-                           window=window,
-                           num_classes=num_classes,
-                           ),
-             head=dict(type='edgelab.ClsHead',
-                       loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
-                       topk=(1, 5),
-                       ))
+model = dict(
+    type='AccelerometerClassifier',
+    backbone=dict(
+        type='AxesNet',
+        num_axes=num_axes,
+        frequency=frequency,
+        window=window,
+        num_classes=num_classes,
+    ),
+    head=dict(
+        type='edgelab.ClsHead',
+        loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
+        topk=(1, 5),
+    ),
+)
 
 # dataset settings
 dataset_type = 'edgelab.SensorDataset'
@@ -25,16 +29,18 @@ data_root = './datasets/aixs-export'
 batch_size = 1
 workers = 1
 
-shape = (num_classes * int(62.5 * 1000 / 1000))
+shape = num_classes * int(62.5 * 1000 / 1000)
 
-train_pipeline = [ dict(type='edgelab.LoadSensorFromFile'),
-                   dict(type='edgelab.PackSensorInputs'),
+train_pipeline = [
+    dict(type='edgelab.LoadSensorFromFile'),
+    dict(type='edgelab.PackSensorInputs'),
 ]
 
-test_pipeline = [ dict(type='edgelab.LoadSensorFromFile'),
-                 dict(type='edgelab.PackSensorInputs'),
+test_pipeline = [
+    dict(type='edgelab.LoadSensorFromFile'),
+    dict(type='edgelab.PackSensorInputs'),
 ]
-    
+
 train_dataloader = dict(
     batch_size=batch_size,
     num_workers=workers,
@@ -74,9 +80,7 @@ test_evaluator = val_evaluator
 lr = 0.0005
 epochs = 10
 
-optim_wrapper = dict(
-    type='OptimWrapper',
-    optimizer=dict(type='Adam', lr=lr, betas=[0.9, 0.99], weight_decay=0))
+optim_wrapper = dict(type='OptimWrapper', optimizer=dict(type='Adam', lr=lr, betas=[0.9, 0.99], weight_decay=0))
 
 
 train_cfg = dict(by_epoch=True, max_epochs=epochs)

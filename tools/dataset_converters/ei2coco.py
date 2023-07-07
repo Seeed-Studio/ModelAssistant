@@ -6,8 +6,7 @@ import time
 from PIL import Image
 from datetime import datetime
 
-parser = argparse.ArgumentParser(
-    description='Edge Impulse => Coco format converter')
+parser = argparse.ArgumentParser(description='Edge Impulse => Coco format converter')
 parser.add_argument('--data-directory', type=str, required=True)
 parser.add_argument('--out-directory', type=str, required=True)
 
@@ -23,8 +22,8 @@ print('Transforming Edge Impulse data format into something compatible with Edge
 def current_ms():
     return round(time.time() * 1000)
 
-last_printed = current_ms()
 
+last_printed = current_ms()
 
 
 def convert(path, category):
@@ -34,7 +33,7 @@ def convert(path, category):
     converted_images = 0
 
     print('Converting ' + category + ' data...')
-    
+
     with open(os.path.join(path, 'info.labels'), 'r') as f:
         X = json.loads(f.read())
 
@@ -49,14 +48,10 @@ def convert(path, category):
             "year": datetime.now().strftime("%Y"),
             "version": "1.0",
             "description": "Custom model",
-            "date_created": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            "date_created": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         },
         "images": [],
-        "licenses": [{
-            "id": 1,
-            "name": "Proprietary",
-            "url": "https://seeedstduio.com"
-        }],
+        "licenses": [{"id": 1, "name": "Proprietary", "url": "https://seeedstduio.com"}],
         "type": "instances",
         "annotations": [],
         "categories": [],
@@ -76,7 +71,6 @@ def convert(path, category):
         img_id = len(metadata['images']) + 1
 
         for lable in labels:
-            
             if lable['label'] not in classes:
                 classes.append(lable['label'])
                 class_count = class_count + 1
@@ -85,44 +79,43 @@ def convert(path, category):
             y = lable['y']
             w = lable['width']
             h = lable['height']
-            
 
-            metadata['annotations'].append({
-                "id": len(metadata['annotations']) + 1,
-                "image_id": img_id,
-                "category_id": classes.index(lable['label']) + 1,
-                "bbox": [x, y, w, h],
-                "area": w * h,
-                "segmentation": [],
-                "iscrowd": 0
-            })
-        
+            metadata['annotations'].append(
+                {
+                    "id": len(metadata['annotations']) + 1,
+                    "image_id": img_id,
+                    "category_id": classes.index(lable['label']) + 1,
+                    "bbox": [x, y, w, h],
+                    "area": w * h,
+                    "segmentation": [],
+                    "iscrowd": 0,
+                }
+            )
+
         im = Image.open(os.path.join(path, img_file))
         image_height = im.height
         image_width = im.width
-        new_img_file = os.path.join(out_dir, category,  str(ix + 1).zfill(12) + '.jpg')
+        new_img_file = os.path.join(out_dir, category, str(ix + 1).zfill(12) + '.jpg')
         im.save(new_img_file)
         im.close()
-        
-        metadata['images'].append({
-            "id": img_id,
-            "file_name": os.path.basename(new_img_file),
-            "height": image_height,
-            "width": image_width,
-            "date_captured": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        })
+
+        metadata['images'].append(
+            {
+                "id": img_id,
+                "file_name": os.path.basename(new_img_file),
+                "height": image_height,
+                "width": image_width,
+                "date_captured": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            }
+        )
 
         converted_images = converted_images + 1
-        if (converted_images == 1 or current_ms() - last_printed > 3000):
+        if converted_images == 1 or current_ms() - last_printed > 3000:
             print('[' + str(converted_images).rjust(zf) + '/' + str(total_images) + '] Converting images...')
             last_printed = current_ms()
 
     for c in range(0, class_count):
-        metadata['categories'].append({
-            "id": c + 1,
-            "name": classes[c],
-            "supercategory": ""
-        })
+        metadata['categories'].append({"id": c + 1, "name": classes[c], "supercategory": ""})
 
     with open(annotations_file, 'w') as f:
         f.write(json.dumps(metadata, indent=4))

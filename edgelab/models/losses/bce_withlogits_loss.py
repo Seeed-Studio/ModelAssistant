@@ -15,13 +15,14 @@ def bcewithlogits_loss(pred, target):
 
 @LOSSES.register_module()
 class BCEWithLogitsLoss(nn.BCEWithLogitsLoss):
-
-    def __init__(self,
-                 weight: Union[Tuple[int or float, ...], Tensor, None] = None,
-                 size_average=None,
-                 reduce=None,
-                 reduction: str = 'mean',
-                 pos_weight: Tensor or int or None = None) -> None:
+    def __init__(
+        self,
+        weight: Union[Tuple[int or float, ...], Tensor, None] = None,
+        size_average=None,
+        reduce=None,
+        reduction: str = 'mean',
+        pos_weight: Tensor or int or None = None,
+    ) -> None:
         if isinstance(weight, (int, float)):
             weight = Tensor([weight])
 

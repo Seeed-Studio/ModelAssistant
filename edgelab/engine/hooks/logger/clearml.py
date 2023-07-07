@@ -2,6 +2,7 @@ from typing import Optional, Union, Dict
 
 from edgelab.registry import HOOKS
 from mmengine.dist.utils import master_only
+
 # from mmcv.runner import HOOKS
 # from mmcv.runner.dist_utils import master_only
 
@@ -10,27 +11,36 @@ from .text import TextLoggerHook
 
 @HOOKS.register_module(force=True)
 class ClearMLLoggerHook(TextLoggerHook):
-
-    def __init__(self,
-                 by_epoch: bool = True,
-                 interval: int = 10,
-                 ignore_last: bool = True,
-                 reset_flag: bool = False,
-                 interval_exp_name: int = 1000,
-                 out_dir: Optional[str] = None,
-                 out_suffix: Union[str, tuple] = ...,
-                 keep_local: bool = True,
-                 ndigits: int = 4,
-                 init_kwargs: Optional[Dict] = None,
-                 file_client_args: Optional[Dict] = None):
-        super().__init__(by_epoch, interval, ignore_last, reset_flag,
-                         interval_exp_name, out_dir, out_suffix, keep_local,
-                         ndigits, file_client_args)
+    def __init__(
+        self,
+        by_epoch: bool = True,
+        interval: int = 10,
+        ignore_last: bool = True,
+        reset_flag: bool = False,
+        interval_exp_name: int = 1000,
+        out_dir: Optional[str] = None,
+        out_suffix: Union[str, tuple] = ...,
+        keep_local: bool = True,
+        ndigits: int = 4,
+        init_kwargs: Optional[Dict] = None,
+        file_client_args: Optional[Dict] = None,
+    ):
+        super().__init__(
+            by_epoch,
+            interval,
+            ignore_last,
+            reset_flag,
+            interval_exp_name,
+            out_dir,
+            out_suffix,
+            keep_local,
+            ndigits,
+            file_client_args,
+        )
         try:
             import clearml
         except ImportError:
-            raise ImportError(
-                'Please run "pip install clearml" to install clearml')
+            raise ImportError('Please run "pip install clearml" to install clearml')
         self.clearml = clearml
         self.init_kwargs = init_kwargs
 
@@ -45,7 +55,6 @@ class ClearMLLoggerHook(TextLoggerHook):
     def log(self, runner) -> None:
         tags = self.get_loggable_tags(runner)
         for tag, val in tags.items():
-            self.task_logger.report_scalar(tag, tag, val,
-                                           self.get_iter(runner))
+            self.task_logger.report_scalar(tag, tag, val, self.get_iter(runner))
 
         return super().log(runner)

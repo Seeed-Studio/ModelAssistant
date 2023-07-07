@@ -9,28 +9,18 @@ from edgelab.models.base.general import ConvNormActivation
 
 
 class Squeeze(nn.Module):
-
-    def __init__(self, inplanes: int, squeeze_planes: int,
-                 expand_planes: int) -> None:
+    def __init__(self, inplanes: int, squeeze_planes: int, expand_planes: int) -> None:
         super(Squeeze, self).__init__()
         self.inplanes = inplanes
         expand1x1_planes = expand_planes // 2
         expand3x3_planes = expand_planes // 2
-        self.squeeze = ConvNormActivation(inplanes,
-                                          squeeze_planes,
-                                          kernel_size=1,
-                                          activation_layer='ReLU')
+        self.squeeze = ConvNormActivation(inplanes, squeeze_planes, kernel_size=1, activation_layer='ReLU')
 
-        self.expand1x1 = ConvNormActivation(squeeze_planes,
-                                            expand1x1_planes,
-                                            kernel_size=1,
-                                            activation_layer='ReLU')
+        self.expand1x1 = ConvNormActivation(squeeze_planes, expand1x1_planes, kernel_size=1, activation_layer='ReLU')
 
-        self.expand3x3 = ConvNormActivation(squeeze_planes,
-                                            expand3x3_planes,
-                                            kernel_size=3,
-                                            padding=1,
-                                            activation_layer='ReLU')
+        self.expand3x3 = ConvNormActivation(
+            squeeze_planes, expand3x3_planes, kernel_size=3, padding=1, activation_layer='ReLU'
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.squeeze(x)
@@ -39,16 +29,25 @@ class Squeeze(nn.Module):
 
 @BACKBONES.register_module()
 class SqueezeNet(BaseModule):
-    arch = [[128, 16, 128], [128, 32, 256], [256, 32, 256], [256, 48, 384],
-            [384, 48, 384], [384, 64, 512], [512, 64, 512]]
+    arch = [
+        [128, 16, 128],
+        [128, 32, 256],
+        [256, 32, 256],
+        [256, 48, 384],
+        [384, 48, 384],
+        [384, 64, 512],
+        [512, 64, 512],
+    ]
 
-    def __init__(self,
-                 input_channels: int = 3,
-                 widen_factor: float = 1.0,
-                 out_indices=(1, ),
-                 frozen_stages=-1,
-                 norm_eval=False,
-                 init_cfg: Optional[dict] = None):
+    def __init__(
+        self,
+        input_channels: int = 3,
+        widen_factor: float = 1.0,
+        out_indices=(1,),
+        frozen_stages=-1,
+        norm_eval=False,
+        init_cfg: Optional[dict] = None,
+    ):
         super().__init__(init_cfg)
         arch_setting = self.arch
         if widen_factor == 1.0:
@@ -66,10 +65,9 @@ class SqueezeNet(BaseModule):
             arch_setting.insert(0, frist_setting)
             for i, setting in enumerate(arch_setting):
                 arch_setting[i] = [
-                    make_divisible(setting[0] *
-                                   widen_factor, 8) if i != 0 else frist_out,
+                    make_divisible(setting[0] * widen_factor, 8) if i != 0 else frist_out,
                     setting[1],
-                    make_divisible(setting[-1] * widen_factor, 8)
+                    make_divisible(setting[-1] * widen_factor, 8),
                 ]
 
         self.out_indices = out_indices
@@ -80,12 +78,8 @@ class SqueezeNet(BaseModule):
         self.conv1 = ConvNormActivation(*frist_conv, activation_layer='ReLU')
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, ceil_mode=True)
 
-        self.layer_name = [
-            f'layer{i}' for i in range(1,
-                                       len(arch_setting) + 1)
-        ]
+        self.layer_name = [f'layer{i}' for i in range(1, len(arch_setting) + 1)]
         for name, param in zip(self.layer_name, arch_setting):
-
             layer = Squeeze(*param)
 
             self.add_module(name, layer)

@@ -3,10 +3,12 @@ from typing import Optional, Dict, Union
 
 from edgelab.registry import HOOKS
 from mmengine.dist.utils import master_only
+
 # from mmcv.runner import HOOKS
 
 # from mmcv.runner.dist_utils import master_only
 from mmengine.utils.dl_utils import TORCH_VERSION
+
 # from mmcv.runner.hooks.logger.text import TextLoggerHook
 
 from .text import TextLoggerHook
@@ -14,21 +16,31 @@ from .text import TextLoggerHook
 
 @HOOKS.register_module(force=True)
 class TensorboardLoggerHook(TextLoggerHook):
-
-    def __init__(self,
-                 by_epoch: bool = True,
-                 interval: int = 10,
-                 ignore_last: bool = True,
-                 reset_flag: bool = False,
-                 interval_exp_name: int = 1000,
-                 out_dir: Optional[str] = None,
-                 out_suffix: Union[str, tuple] = ...,
-                 keep_local: bool = True,
-                 ndigits: int = 4,
-                 file_client_args: Optional[Dict] = None):
-        super().__init__(by_epoch, interval, ignore_last, reset_flag,
-                         interval_exp_name, out_dir, out_suffix, keep_local,
-                         ndigits, file_client_args)
+    def __init__(
+        self,
+        by_epoch: bool = True,
+        interval: int = 10,
+        ignore_last: bool = True,
+        reset_flag: bool = False,
+        interval_exp_name: int = 1000,
+        out_dir: Optional[str] = None,
+        out_suffix: Union[str, tuple] = ...,
+        keep_local: bool = True,
+        ndigits: int = 4,
+        file_client_args: Optional[Dict] = None,
+    ):
+        super().__init__(
+            by_epoch,
+            interval,
+            ignore_last,
+            reset_flag,
+            interval_exp_name,
+            out_dir,
+            out_suffix,
+            keep_local,
+            ndigits,
+            file_client_args,
+        )
 
         self.log_dir = out_dir
 
@@ -41,8 +53,7 @@ class TensorboardLoggerHook(TextLoggerHook):
             try:
                 from tensorboardX import SummaryWriter
             except ImportError:
-                raise ImportError('Please install tensorboardX to use '
-                                  'TensorboardLoggerHook.')
+                raise ImportError('Please install tensorboardX to use ' 'TensorboardLoggerHook.')
         else:
             try:
                 from torch.utils.tensorboard import SummaryWriter
@@ -50,7 +61,8 @@ class TensorboardLoggerHook(TextLoggerHook):
                 raise ImportError(
                     'Please run "pip install future tensorboard" to install '
                     'the dependencies to use torch.utils.tensorboard '
-                    '(applicable to PyTorch 1.1 or higher)')
+                    '(applicable to PyTorch 1.1 or higher)'
+                )
         self._tensorboard = SummaryWriter(self.log_dir)
 
     @master_only

@@ -5,19 +5,14 @@ default_scope = 'edgelab'
 default_hooks = dict(
     # record the time of every iteration.
     timer=dict(type='IterTimerHook'),
-
     # print log every 100 iterations.
     logger=dict(type='TextLoggerHook', interval=100),
-
     # enable the parameter scheduler.
     param_scheduler=dict(type='ParamSchedulerHook'),
-
     # save checkpoint per epoch.
     checkpoint=dict(type='CheckpointHook', save_best='auto', interval=1),
-
     # set sampler seed in distributed evrionment.
     sampler_seed=dict(type='DistSamplerSeedHook'),
-
     # validation results visualization, set True to enable it.
     visualization=dict(type='mmcls.VisualizationHook', enable=False),
 )
@@ -26,10 +21,8 @@ default_hooks = dict(
 env_cfg = dict(
     # whether to enable cudnn benchmark
     cudnn_benchmark=False,
-
     # set multi process parameters
     mp_cfg=dict(mp_start_method='fork', opencv_num_threads=0),
-
     # set distributed parameters
     dist_cfg=dict(backend='nccl'),
 )

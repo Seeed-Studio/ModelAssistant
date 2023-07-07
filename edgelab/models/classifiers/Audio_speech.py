@@ -13,15 +13,17 @@ class Audio_classify(BaseClassifier):
     CLASSIFICATION NETWORK
     """
 
-    def __init__(self,
-                 backbone,
-                 n_cls,
-                 loss=dict(),
-                 multilabel=False,
-                 data_preprocessor=None,
-                 head=None,
-                 loss_cls=None,
-                 pretrained=None):
+    def __init__(
+        self,
+        backbone,
+        n_cls,
+        loss=dict(),
+        multilabel=False,
+        data_preprocessor=None,
+        head=None,
+        loss_cls=None,
+        pretrained=None,
+    ):
         super(BaseClassifier, self).__init__()
         self.backbone = MODELS.build(backbone)
         self.cls_head = MODELS.build(head)
@@ -48,11 +50,11 @@ class Audio_classify(BaseClassifier):
 
         if MessageHub.get_current_instance().get_info('ismixed'):
             target = MessageHub.get_current_instance().get_info('target')
-            loss = MessageHub.get_current_instance().get_info(
-                'audio_loss').mix_loss(result,
-                                       target,
-                                       self.n_cls,
-                                       pred_one_hot=self.mutilabel)
+            loss = (
+                MessageHub.get_current_instance()
+                .get_info('audio_loss')
+                .mix_loss(result, target, self.n_cls, pred_one_hot=self.mutilabel)
+            )
         else:
             loss = self._loss(result, kwargs['labels'])
 
@@ -62,11 +64,4 @@ class Audio_classify(BaseClassifier):
         features = self.backbone(img)
         result = self.sm(self.cls_head(features))
         # return [{'pred_label':{"score":result},"gt_label":{"label":kwargs['labels']}}]
-        return [{
-            'pred_label': {
-                "label": torch.max(result, dim=1)[1]
-            },
-            "gt_label": {
-                "label": kwargs['labels']
-            }
-        }]
+        return [{'pred_label': {"label": torch.max(result, dim=1)[1]}, "gt_label": {"label": kwargs['labels']}}]

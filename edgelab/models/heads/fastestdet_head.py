@@ -5,7 +5,7 @@ import torchvision
 import torch.nn as nn
 from mmcv.cnn import is_norm
 from mmengine.model import BaseModule
-from mmengine.model  import normal_init, constant_init
+from mmengine.model import normal_init, constant_init
 from edgelab.registry import MODELS
 
 from ..base.general import CBR
@@ -14,7 +14,6 @@ from ..utils.metrics import bbox_iou
 
 @MODELS.register_module()
 class Fastest_Head(BaseModule):
-
     def __init__(
         self,
         input_channels,
@@ -23,7 +22,7 @@ class Fastest_Head(BaseModule):
         loss_cls: dict = dict(type='NLLLoss'),
         train_cfg: dict = None,
         test_cfg: dict = None,
-        init_cfg: Optional[dict] = dict(type='Normal', std=0.01)
+        init_cfg: Optional[dict] = dict(type='Normal', std=0.01),
     ) -> None:
         super(Fastest_Head, self).__init__(init_cfg)
 
@@ -44,9 +43,11 @@ class Fastest_Head(BaseModule):
     def _make_layer(self, inp, oup):
         return nn.Sequential(
             nn.Conv2d(inp, inp, 5, 1, 2, groups=inp, bias=False),
-            nn.BatchNorm2d(inp), nn.ReLU(inplace=True),
+            nn.BatchNorm2d(inp),
+            nn.ReLU(inplace=True),
             nn.Conv2d(inp, oup, 1, stride=1, padding=0, bias=False),
-            nn.BatchNorm2d(oup))
+            nn.BatchNorm2d(oup),
+        )
 
     def forward(self, x):
         x = self.conv1(x)
@@ -55,38 +56,22 @@ class Fastest_Head(BaseModule):
         cls = self.softmax(self.cls_layers(x))
         return torch.concat((obj, reg, cls), dim=1)
 
-    def forward_train(self,
-                      x,
-                      img_metas,
-                      gt_bboxes,
-                      gt_labels=None,
-                      gt_bboxes_ignore=None,
-                      proposal_cfg=None,
-                      **kwargs):
+    def forward_train(
+        self, x, img_metas, gt_bboxes, gt_labels=None, gt_bboxes_ignore=None, proposal_cfg=None, **kwargs
+    ):
         results = self(x)
-        loss = self.loss(results,
-                         gt_bboxes=gt_bboxes,
-                         gt_labels=gt_labels,
-                         gt_bbox_ignore=gt_bboxes_ignore,
-                         img_metas=img_metas)
+        loss = self.loss(
+            results, gt_bboxes=gt_bboxes, gt_labels=gt_labels, gt_bbox_ignore=gt_bboxes_ignore, img_metas=img_metas
+        )
         return loss
 
     def simple_test(self, img, img_metas, rescale=False):
         result = self(img)
-        results_list = self.handle_preds(result, result.device,
-                                         img_metas[0][0]['ori_shape'][:2])
+        results_list = self.handle_preds(result, result.device, img_metas[0][0]['ori_shape'][:2])
         return results_list
 
-    def loss(self,
-             pred_maps,
-             gt_bboxes,
-             gt_labels,
-             img_metas,
-             gt_bbox_ignore=None):
-
-        target = self.merge_gt(gt_bboxes=gt_bboxes,
-                               gt_labels=gt_labels,
-                               img_metas=img_metas)
+    def loss(self, pred_maps, gt_bboxes, gt_labels, img_metas, gt_bbox_ignore=None):
+        target = self.merge_gt(gt_bboxes=gt_bboxes, gt_labels=gt_labels, img_metas=img_metas)
         gt_box, gt_cls, ps_index = self.build_target(pred_maps, target)
 
         ft = torch.cuda.FloatTensor if pred_maps[0].is_cuda else torch.Tensor
@@ -128,27 +113,26 @@ class Fastest_Head(BaseModule):
             tobj[b, gy, gx] = iou.float()
             # Count the number of positive samples for each image
             n = torch.bincount(b)
-            factor[b, gy, gx] = (1. / (n[b] / (H * W))) * 0.25
+            factor[b, gy, gx] = (1.0 / (n[b] / (H * W))) * 0.25
 
-        obj_loss = (self.loss_conf(
-            pobj,
-            tobj,
-        ) * factor).mean()
+        obj_loss = (
+            self.loss_conf(
+                pobj,
+                tobj,
+            )
+            * factor
+        ).mean()
 
         loss = (iou_loss * 8) + (obj_loss * 16) + cls_loss
 
-        return dict(loss=loss,
-                    iou_loss=iou_loss,
-                    cls_loss=cls_loss,
-                    obj_loss=obj_loss)
+        return dict(loss=loss, iou_loss=iou_loss, cls_loss=cls_loss, obj_loss=obj_loss)
 
     def build_target(self, preds, targets):
         N, C, H, W = preds.shape
 
         gt_box, gt_cls, ps_index = [], [], []
         # The four vertices of each grid are the reference points where the center point of the box will return
-        quadrant = torch.tensor([[0, 0], [1, 0], [0, 1], [1, 1]],
-                                device=preds.device)
+        quadrant = torch.tensor([[0, 0], [1, 0], [0, 1], [1, 1]], device=preds.device)
         if targets.shape[0] > 0:
             # Map the coordinates onto the feature map scale
             scale = torch.ones(6).to(preds.device)
@@ -202,12 +186,7 @@ class Fastest_Head(BaseModule):
 
         return target
 
-    def handle_preds(self,
-                     preds,
-                     device,
-                     shape,
-                     conf_thresh=0.25,
-                     nms_thresh=0.45):
+    def handle_preds(self, preds, device, shape, conf_thresh=0.25, nms_thresh=0.45):
         total_bboxes, output_bboxes = [], []
         # Convert the feature map to the coordinates of the detection box
         N, C, H, W = preds.shape
@@ -222,7 +201,7 @@ class Fastest_Head(BaseModule):
         pcls = pred[:, :, :, 5:]
 
         # bboxe confidence
-        bboxes[..., 4] = (pobj.squeeze(-1)**0.6) * (pcls.max(dim=-1)[0]**0.4)
+        bboxes[..., 4] = (pobj.squeeze(-1) ** 0.6) * (pcls.max(dim=-1)[0] ** 0.4)
         bboxes[..., 5] = pcls.argmax(dim=-1)
 
         # bboxes coordinate
@@ -267,14 +246,15 @@ class Fastest_Head(BaseModule):
                 coord = torch.Tensor(coord).to(device)
                 idxs = torch.Tensor(idxs).squeeze(1).to(device)
                 scores = torch.Tensor(scores).squeeze(1).to(device)
-                keep = torchvision.ops.batched_nms(coord, scores, idxs,
-                                                   nms_thresh)
+                keep = torchvision.ops.batched_nms(coord, scores, idxs, nms_thresh)
                 for i in keep:
                     output.append(temp[i])
             output_bboxes.append(
-                (torch.Tensor(output)[..., :5] *
-                 torch.Tensor([shape[1], shape[0], shape[1], shape[0], 1]),
-                 torch.Tensor(output)[..., 5]))
+                (
+                    torch.Tensor(output)[..., :5] * torch.Tensor([shape[1], shape[0], shape[1], shape[0], 1]),
+                    torch.Tensor(output)[..., 5],
+                )
+            )
 
         return output_bboxes
 

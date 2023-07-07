@@ -30,12 +30,10 @@ vis_backends = [
     # dict(type='TensorboardVisBackend'),
     # dict(type='WandbVisBackend'),
 ]
-visualizer = dict(
-    type='mmpose.PoseLocalVisualizer',radius=1, vis_backends=vis_backends, name='visualizer')
+visualizer = dict(type='mmpose.PoseLocalVisualizer', radius=1, vis_backends=vis_backends, name='visualizer')
 
 # logger
-log_processor = dict(
-    type='LogProcessor', window_size=50, by_epoch=True, num_digits=6)
+log_processor = dict(type='LogProcessor', window_size=50, by_epoch=True, num_digits=6)
 log_level = 'INFO'
 load_from = None
 resume = False
@@ -44,6 +42,6 @@ resume = False
 backend_args = dict(backend='local')
 
 # training/validation/testing progress
-train_cfg = dict(by_epoch=True,max_epochs=210,val_interval=5)
+train_cfg = dict(by_epoch=True, max_epochs=210, val_interval=5)
 val_cfg = dict()
 test_cfg = dict()

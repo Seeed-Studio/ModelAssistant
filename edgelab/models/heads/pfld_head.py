@@ -11,9 +11,9 @@ from edgelab.models.utils.computer_acc import pose_acc
 class PFLDhead(nn.Module):
     """
     The head of the pfld model mainly uses convolution and global average pooling
-    
+
     Args:
-        num_point: The model needs to predict the number of key points, 
+        num_point: The model needs to predict the number of key points,
             and set the output of the model according to this value
         input_channel: The number of channels of the head input feature map
         feature_num: Number of channels in the middle feature map of the head
@@ -27,24 +27,12 @@ class PFLDhead(nn.Module):
         input_channel: int = 16,
         feature_num: Sequence[int] = [32, 32],
         act_cfg: Union[dict, str, None] = "ReLU",
-        loss_cfg: dict = dict(type='PFLDLoss')
+        loss_cfg: dict = dict(type='PFLDLoss'),
     ) -> None:
         super().__init__()
 
-        self.conv1 = CBR(input_channel,
-                         feature_num[0],
-                         3,
-                         2,
-                         padding=1,
-                         bias=False,
-                         act=act_cfg)
-        self.conv2 = CBR(feature_num[0],
-                         feature_num[1],
-                         2,
-                         1,
-                         bias=False,
-                         padding=0,
-                         act=act_cfg)
+        self.conv1 = CBR(input_channel, feature_num[0], 3, 2, padding=1, bias=False, act=act_cfg)
+        self.conv2 = CBR(feature_num[0], feature_num[1], 2, 1, bias=False, padding=0, act=act_cfg)
 
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.fc = nn.Linear(input_channel + sum(feature_num), num_point * 2)
@@ -73,12 +61,9 @@ class PFLDhead(nn.Module):
 
     def loss(self, features, data_samples):
         preds = self.forward(features)
-        labels = torch.as_tensor(data_samples['keypoints'],
-                                 device=preds.device,
-                                 dtype=torch.float32)
+        labels = torch.as_tensor(data_samples['keypoints'], device=preds.device, dtype=torch.float32)
         loss = self.lossFunction(preds, labels)
-        acc = pose_acc(preds.cpu().detach().numpy(), labels,
-                       data_samples['hw'])
+        acc = pose_acc(preds.cpu().detach().numpy(), labels, data_samples['hw'])
         return {"loss": loss, "Acc": torch.as_tensor(acc, dtype=torch.float32)}
 
     def predict(self, features):

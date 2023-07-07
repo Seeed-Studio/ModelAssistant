@@ -9,8 +9,9 @@ class TAggregate(nn.Module):
         super(TAggregate, self).__init__()
         self.num_tokens = 1
         drop_rate = 0.1
-        enc_layer = nn.TransformerEncoderLayer(d_model=embed_dim, nhead=nhead, activation="gelu",
-                                               dim_feedforward=dim_feedforward, dropout=drop_rate)
+        enc_layer = nn.TransformerEncoderLayer(
+            d_model=embed_dim, nhead=nhead, activation="gelu", dim_feedforward=dim_feedforward, dropout=drop_rate
+        )
         self.transformer_enc = nn.TransformerEncoder(enc_layer, num_layers=n_layers, norm=nn.LayerNorm(embed_dim))
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
         self.pos_embed = nn.Parameter(torch.zeros(1, clip_length + self.num_tokens, embed_dim))

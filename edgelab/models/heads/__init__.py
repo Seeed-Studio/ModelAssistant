@@ -7,6 +7,11 @@ from .axes_head import AxesClsHead
 from .yolo_head import YOLOV5Head
 
 __all__ = [
-    'Audio_head', 'TAggregate', 'PFLDhead', 'Fastest_Head', 'FomoHead',
-    'AxesClsHead', 'YOLOV5Head',
+    'Audio_head',
+    'TAggregate',
+    'PFLDhead',
+    'Fastest_Head',
+    'FomoHead',
+    'AxesClsHead',
+    'YOLOV5Head',
 ]

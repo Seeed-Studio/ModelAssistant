@@ -1,5 +1,5 @@
 import os
-from typing import List,AnyStr
+from typing import List, AnyStr
 import ncnn
 import numpy as np
 
@@ -8,7 +8,7 @@ import tqdm.std
 from PIL import Image
 import onnxruntime
 import tensorflow as tf
-from torchvision.transforms import ToTensor,Resize,Grayscale,Compose
+from torchvision.transforms import ToTensor, Resize, Grayscale, Compose
 
 input_name = 'images'
 output_name = 'output'
@@ -23,14 +23,14 @@ def read_img(p):
     return img, mat_img
 
 
-class Inter():
+class Inter:
     def __init__(self, model: List or AnyStr):
         if isinstance(model, list):
             net = ncnn.Net()
             for p in model:
-                if p.endswith('param'): 
+                if p.endswith('param'):
                     param = p
-                if p.endswith('bin'): 
+                if p.endswith('bin'):
                     bin = p
             net.load_param(param)
             net.load_model(bin)
@@ -66,7 +66,7 @@ class Inter():
             extra = self.inter.create_extractor()
             extra.input(input_name, ncnn.Mat(img[0]))
             result = extra.extract(output_name)[1]
-            result = [result[i]for i in range(len(result))]
+            result = [result[i] for i in range(len(result))]
         else:  # tf
             input_, output = self.inter.get_input_details()[0], self.inter.get_output_details()[0]
             int8 = input_['dtype'] == np.int8 or input_['dtype'] == np.uint8

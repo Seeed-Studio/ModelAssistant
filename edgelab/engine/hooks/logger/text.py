@@ -14,20 +14,29 @@ from mmengine.structures.base_data_element import BaseDataElement
 
 @HOOKS.register_module(force=True)
 class TextLoggerHook(LoggerHook):
-
-    def __init__(self,
-                 interval: int = 10,
-                 ignore_last: bool = False,
-                 interval_exp_name: int = 1000,
-                 out_dir: Optional[Union[str, Path]] = None,
-                 out_suffix: list(str()) = [''],
-                 keep_local: bool = True,
-                 file_client_args: Optional[dict] = None,
-                 log_metric_by_epoch: bool = True,
-                 backend_args: Optional[dict] = None):
-        super().__init__(interval, ignore_last, interval_exp_name, out_dir,
-                         out_suffix, keep_local, file_client_args,
-                         log_metric_by_epoch, backend_args)
+    def __init__(
+        self,
+        interval: int = 10,
+        ignore_last: bool = False,
+        interval_exp_name: int = 1000,
+        out_dir: Optional[Union[str, Path]] = None,
+        out_suffix: list(str()) = [''],
+        keep_local: bool = True,
+        file_client_args: Optional[dict] = None,
+        log_metric_by_epoch: bool = True,
+        backend_args: Optional[dict] = None,
+    ):
+        super().__init__(
+            interval,
+            ignore_last,
+            interval_exp_name,
+            out_dir,
+            out_suffix,
+            keep_local,
+            file_client_args,
+            log_metric_by_epoch,
+            backend_args,
+        )
 
         self.ndigits = 4
         self.handltype = []
@@ -56,36 +65,21 @@ class TextLoggerHook(LoggerHook):
         print('-' * 120)
         super().before_train_epoch(runner)
 
-    def after_train_iter(self,
-                         runner: Runner,
-                         batch_idx: int,
-                         data_batch: Optional[Union[dict, tuple, list]] = None,
-                         outputs: Optional[dict] = None) -> None:
+    def after_train_iter(
+        self,
+        runner: Runner,
+        batch_idx: int,
+        data_batch: Optional[Union[dict, tuple, list]] = None,
+        outputs: Optional[dict] = None,
+    ) -> None:
         super().after_train_iter(runner, batch_idx, data_batch, outputs)
-        self._progress_log(outputs,
-                           runner,
-                           runner.train_dataloader,
-                           batch_idx,
-                           mode='train')
+        self._progress_log(outputs, runner, runner.train_dataloader, batch_idx, mode='train')
 
-    def after_val_iter(self,
-                       runner: Runner,
-                       batch_idx: int,
-                       data_batch=None,
-                       outputs=None) -> None:
-        super().after_val_iter(runner=runner,
-                               batch_idx=batch_idx,
-                               data_batch=data_batch,
-                               outputs=outputs)
-        parsed_cfg = runner.log_processor._parse_windows_size(
-            runner, batch_idx, runner.log_processor.custom_cfg)
-        log_tag = runner.log_processor._collect_scalars(
-            parsed_cfg, runner, 'val')
-        self._progress_log(log_tag,
-                           runner,
-                           runner.val_dataloader,
-                           batch_idx,
-                           mode='val')
+    def after_val_iter(self, runner: Runner, batch_idx: int, data_batch=None, outputs=None) -> None:
+        super().after_val_iter(runner=runner, batch_idx=batch_idx, data_batch=data_batch, outputs=outputs)
+        parsed_cfg = runner.log_processor._parse_windows_size(runner, batch_idx, runner.log_processor.custom_cfg)
+        log_tag = runner.log_processor._collect_scalars(parsed_cfg, runner, 'val')
+        self._progress_log(log_tag, runner, runner.val_dataloader, batch_idx, mode='val')
 
     def after_train_epoch(self, runner) -> None:
         super().after_train_epoch(runner)
@@ -93,15 +87,9 @@ class TextLoggerHook(LoggerHook):
         print('')
 
     def _after_epoch(self, runner, mode: str = 'train') -> None:
-
         return super()._after_epoch(runner, mode)
 
-    def _progress_log(self,
-                      log_dict: dict,
-                      runner: Runner,
-                      dataloader,
-                      idx: int,
-                      mode='train'):
+    def _progress_log(self, log_dict: dict, runner: Runner, dataloader, idx: int, mode='train'):
         head = '\n'
         end = ''
         current_epoch = runner.epoch
@@ -113,8 +101,7 @@ class TextLoggerHook(LoggerHook):
         head += "Mode".center(10)
         end += f"{mode:^10}"
         head += "Epoch".center(10)
-        end += f"{(current_epoch+1) if mode=='train' else current_epoch}/{max_epochs}".center(
-            10)
+        end += f"{(current_epoch+1) if mode=='train' else current_epoch}/{max_epochs}".center(10)
 
         for key, value in log_dict.items():
             if isinstance(value, torch.Tensor):
@@ -127,8 +114,7 @@ class TextLoggerHook(LoggerHook):
                 value = sum(self.logData.get(key)) / len(self.logData.get(key))
 
             head += f'{key:^10}'
-            end += f'{self._round_float(value):^10}' if isinstance(
-                value, float) else f'{value:^10}'
+            end += f'{self._round_float(value):^10}' if isinstance(value, float) else f'{value:^10}'
 
         eta_sec = runner.message_hub.get_info('eta')
         eta_str = str(datetime.timedelta(seconds=int(eta_sec)))
@@ -149,10 +135,7 @@ class TextLoggerHook(LoggerHook):
         if self.bar.n == len(dataloader):
             del self.bar
 
-    def setloglevel(self,
-                    runner: Runner,
-                    handler: logging.Handler = logging.StreamHandler,
-                    level: int = logging.ERROR):
+    def setloglevel(self, runner: Runner, handler: logging.Handler = logging.StreamHandler, level: int = logging.ERROR):
         if handler in self.handltype:
             return
         for i, hand in enumerate(runner.logger.handlers):
@@ -173,9 +156,7 @@ class TextLoggerHook(LoggerHook):
     def _get_max_memory(self, runner: Runner) -> int:
         device = getattr(runner.model, 'output_device', None)
         mem = torch.cuda.max_memory_allocated(device=device)
-        mem_mb = torch.tensor([int(mem) // (1048576)],
-                              dtype=torch.int,
-                              device=device)
+        mem_mb = torch.tensor([int(mem) // (1048576)], dtype=torch.int, device=device)
         if runner.world_size > 1:
             dist.reduce(mem_mb, 0, op=dist.ReduceOp.MAX)
         return f'{mem_mb.item()}MB'

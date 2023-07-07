@@ -12,7 +12,6 @@ from edgelab.registry import LOOPS
 
 @LOOPS.register_module()
 class GetEpochBasedTrainLoop(EpochBasedTrainLoop):
-
     def run_iter(self, idx, data_batch: Sequence[dict]) -> None:
         """Iterate one min-batch.
 
@@ -20,36 +19,30 @@ class GetEpochBasedTrainLoop(EpochBasedTrainLoop):
             data_batch (Sequence[dict]): Batch of data from dataloader.
         """
         self.data_batch = data_batch
-        self.runner.call_hook('before_train_iter',
-                              batch_idx=idx,
-                              data_batch=self.data_batch)
+        self.runner.call_hook('before_train_iter', batch_idx=idx, data_batch=self.data_batch)
         # Enable gradient accumulation mode and avoid unnecessary gradient
         # synchronization during gradient accumulation process.
         # outputs should be a dict of loss.
-        self.outputs = self.runner.model.train_step(
-            self.data_batch, optim_wrapper=self.runner.optim_wrapper)
+        self.outputs = self.runner.model.train_step(self.data_batch, optim_wrapper=self.runner.optim_wrapper)
 
-        self.runner.call_hook('after_train_iter',
-                              batch_idx=idx,
-                              data_batch=self.data_batch,
-                              outputs=self.outputs)
+        self.runner.call_hook('after_train_iter', batch_idx=idx, data_batch=self.data_batch, outputs=self.outputs)
         self._iter += 1
 
 
 @LOOPS.register_module()
 class EdgeTestLoop(BaseLoop):
-
-    def __init__(self,
-                 runner: Runner,
-                 dataloader: Union[DataLoader, Dict],
-                 evaluator: Union[Evaluator, Dict, List],
-                 fp16: bool = False):
+    def __init__(
+        self,
+        runner: Runner,
+        dataloader: Union[DataLoader, Dict],
+        evaluator: Union[Evaluator, Dict, List],
+        fp16: bool = False,
+    ):
         super().__init__(runner, dataloader)
 
 
 @LOOPS.register_module()
 class EdgeTestRunner:
-
     def __init__(
         self,
         model: Union[str, List],
@@ -63,9 +56,9 @@ class EdgeTestRunner:
                 )
             net = ncnn.Net()
             for p in model:
-                if p.endswith('param'): 
+                if p.endswith('param'):
                     param = p
-                if p.endswith('bin'): 
+                if p.endswith('bin'):
                     bin = p
             net.load_param(param)
             net.load_model(bin)
@@ -82,11 +75,12 @@ class EdgeTestRunner:
                 net = onnx.load(model)
                 onnx.checker.check_model(net)
             except ValueError:
-                raise ValueError(
-                    'onnx file have error,please check your onnx export code!')
-            providers = [
-                'CUDAExecutionProvider', 'CPUExecutionProvider'
-            ] if torch.cuda.is_available() else ['CPUExecutionProvider']
+                raise ValueError('onnx file have error,please check your onnx export code!')
+            providers = (
+                ['CUDAExecutionProvider', 'CPUExecutionProvider']
+                if torch.cuda.is_available()
+                else ['CPUExecutionProvider']
+            )
             net = onnxruntime.InferenceSession(model, providers=providers)
             self.engine = 'onnx'
         elif model.endswith('tflite'):
@@ -106,7 +100,7 @@ class EdgeTestRunner:
 
     def show(self):
         pass
-    
+
     def metric(self):
         pass
 
