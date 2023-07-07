@@ -29,7 +29,7 @@ anchors = [
 # -----train val related-----
 # Base learning rate for optim_wrapper. Corresponding to 8xb16=128 bs
 base_lr = 0.01
-max_epochs = 300  # Maximum training epochs
+epochs = 300  # Maximum training epochs
 
 model_test_cfg = dict(
     # The config of multi-label for multi-class prediction.
@@ -292,7 +292,7 @@ default_hooks = dict(
         type="YOLOv5ParamSchedulerHook",
         scheduler_type="linear",
         lr_factor=lr_factor,
-        max_epochs=max_epochs,
+        max_epochs=epochs,
     ),
     checkpoint=dict(
         type="CheckpointHook",
@@ -323,7 +323,7 @@ test_evaluator = val_evaluator
 
 train_cfg = dict(
     type="EpochBasedTrainLoop",
-    max_epochs=max_epochs,
+    max_epochs=epochs,
     val_interval=save_checkpoint_intervals,
     _delete_=True,
 )

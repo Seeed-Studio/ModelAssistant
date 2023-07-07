@@ -103,7 +103,7 @@ optim_wrapper=dict(optimizer=dict(type='Adam', lr=lr, weight_decay=5e-4,eps=1e-7
 #evaluator
 val_evaluator=dict(type='FomoMetric')
 test_evaluator=val_evaluator
-train_cfg=dict(by_epoch=True,max_epochs=70)
+train_cfg=dict(by_epoch=True, max_epochs=70)
 
 # learning policy
 param_scheduler=[
