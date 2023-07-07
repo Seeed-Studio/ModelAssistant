@@ -74,7 +74,7 @@ functional_test_core()
             tree work_dirs
             python3 tools/export.py \
                 "${CONFIG_FILE}" \
-                "$(cat \"${LAST_CHECKPOINT} \")" \
+                "$(cat ${LAST_CHECKPOINT})" \
                 tflite onnx \
                 --calibration_epochs 1 \
                 --cfg-options \
