@@ -11,7 +11,6 @@ import numpy as np
 from tqdm.std import tqdm
 from torch.utils.data import DataLoader
 
-from mmdet.models.utils import samplelist_boxtype2tensor
 from mmengine.config import Config
 from mmengine.evaluator import Evaluator
 from mmengine.structures import InstanceData
@@ -28,14 +27,16 @@ class Inter():
         if isinstance(model, list):
             try:
                 import ncnn
-            except:
+            except ImportError:
                 raise ImportError(
                     'You have not installed ncnn yet, please execute the "pip install ncnn" command to install and run again'
                 )
             net = ncnn.Net()
             for p in model:
-                if p.endswith('param'): param = p
-                if p.endswith('bin'): bin = p
+                if p.endswith('param'): 
+                    param = p
+                if p.endswith('bin'): 
+                    bin = p
             net.load_param(param)
             net.load_model(bin)
             # net.opt.use_vulkan_compute = True
@@ -43,14 +44,14 @@ class Inter():
         elif model.endswith('onnx'):
             try:
                 import onnxruntime
-            except:
+            except ImportError:
                 raise ImportError(
                     'You have not installed onnxruntime yet, please execute the "pip install onnxruntime" command to install and run again'
                 )
             try:
                 net = onnx.load(model)
                 onnx.checker.check_model(net)
-            except:
+            except Exception:
                 raise ValueError(
                     'onnx file have error,please check your onnx export code!')
             providers = [
@@ -66,7 +67,7 @@ class Inter():
         elif model.endswith('tflite'):
             try:
                 import tensorflow as tf
-            except:
+            except ImportError:
                 raise ImportError(
                     'You have not installed tensorflow yet, please execute the "pip install tensorflow" command to install and run again'
                 )
@@ -117,7 +118,7 @@ class Inter():
         elif self.engine == 'ncnn':  # ncnn
             self.inter.opt.use_vulkan_compute = False
             extra = self.inter.create_extractor()
-            extra.input(input_name, ncnn.Mat(img[0]))
+            extra.input(input_name, ncnn.Mat(img[0]))       # noqa
             result = extra.extract(output_name)[1]
             result = [result[i] for i in range(len(result))]
         else:  # tf
@@ -228,7 +229,6 @@ def build_target(pred_shape, ori_shape, gt_bboxs):
     bbox: xyxy
     """
     H, W, C = pred_shape
-    B = len(gt_bboxs)
 
     target_data = torch.zeros(size=(1, *pred_shape))
     target_data[..., 0] = 1
@@ -320,6 +320,7 @@ class Infernce:
                 img_path = None
 
             t0 = time.time()
+            # print(inputs.shape)
             preds = self.model(inputs)
             self.time_cost += time.time() - t0
 
@@ -385,7 +386,7 @@ class Infernce:
                     preds = NMS(bbox,
                                 conf,
                                 classes,
-                                conf_thres=25,
+                                conf_thres=50,
                                 bbox_format='xywh')
                     # show det result and save result
                     show_det(preds,
@@ -561,14 +562,15 @@ def show_det(pred: np.ndarray,
                     color=(0, 0, 255),
                     thickness=1,
                     fontScale=1)
-
+    print(pred)
     if show:
         cv2.imshow(win_name, img)
-        cv2.waitKey(500)
+        cv2.waitKey(0)
 
     if save_path:
         img_name = osp.basename(img_file)
         cv2.imwrite(osp.join(save_path, img_name), img)
+    
     return pred
 
 

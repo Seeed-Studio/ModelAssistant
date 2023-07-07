@@ -1,6 +1,5 @@
 import tensorflow as tf
 from tensorflow import keras
-import numpy as np
 import torch.nn as nn
 
 
@@ -189,7 +188,7 @@ class TFActivation(keras.layers.Layer):
         elif isinstance(w, nn.LeakyReLU):
             act = keras.layers.LeakyReLU(w.negative_slope)
         elif isinstance(w, nn.Sigmoid):
-            act = lambda x: keras.activations.sigmoid(x)
+            act = lambda x: keras.activations.sigmoid(x)    # noqa
         else:
             raise Exception(f'no matching TensorFlow activation found for PyTorch activation {w}')
         self.act = act

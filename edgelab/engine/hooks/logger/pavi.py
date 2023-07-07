@@ -3,15 +3,13 @@ import yaml
 import json
 import warnings
 import os.path as osp
-from functools import partial
 from typing import Optional, Union, Dict
 
 import mmcv
-import torch
 from edgelab.registry import HOOKS
 from mmengine.dist.utils import master_only
 # from mmcv.runner import HOOKS
-from mmengine.dist.utils import master_only
+
 # from mmcv.parallel.scatter_gather import scatter
 # from mmcv.parallel.utils import is_module_wrapper
 
@@ -129,33 +127,33 @@ class PaviLoggerHook(TextLoggerHook):
                                           snapshot_file_path=ckpt_path,
                                           iteration=step)
 
-    def _add_graph(self, runner, step: int) -> None:
-        from mmcv.runner.iter_based_runner import IterLoader
-        if is_module_wrapper(runner.model):
-            _model = runner.model.module
-        else:
-            _model = runner.model
-        device = next(_model.parameters()).device
-        # Note that if your sampler indices is generated in init method, your
-        # dataset may be one less.
-        if isinstance(runner.data_loader, IterLoader):
-            data = next(iter(runner.data_loader._dataloader))
-        else:
-            data = next(iter(runner.data_loader))
-        data = scatter(data, [device.index])[0]
-        img = data[self.img_key]
-        with torch.no_grad():
-            origin_forward = _model.forward
-            if hasattr(_model, 'forward_dummy'):
-                _model.forward = _model.forward_dummy
-            if self.dummy_forward_kwargs:
-                _model.forward = partial(_model.forward,
-                                         **self.dummy_forward_kwargs)
-            self.writer.add_graph(_model,
-                                  img,
-                                  tag=f'{self.run_name}_{step}',
-                                  opset_version=self.opset_version)
-            _model.forward = origin_forward
+    # def _add_graph(self, runner, step: int) -> None:
+    #     from mmcv.runner.iter_based_runner import IterLoader
+    #     if is_module_wrapper(runner.model):
+    #         _model = runner.model.module
+    #     else:
+    #         _model = runner.model
+    #     device = next(_model.parameters()).device
+    #     # Note that if your sampler indices is generated in init method, your
+    #     # dataset may be one less.
+    #     if isinstance(runner.data_loader, IterLoader):
+    #         data = next(iter(runner.data_loader._dataloader))
+    #     else:
+    #         data = next(iter(runner.data_loader))
+    #     data = scatter(data, [device.index])[0]
+    #     img = data[self.img_key]
+    #     with torch.no_grad():
+    #         origin_forward = _model.forward
+    #         if hasattr(_model, 'forward_dummy'):
+    #             _model.forward = _model.forward_dummy
+    #         if self.dummy_forward_kwargs:
+    #             _model.forward = partial(_model.forward,
+    #                                      **self.dummy_forward_kwargs)
+    #         self.writer.add_graph(_model,
+    #                               img,
+    #                               tag=f'{self.run_name}_{step}',
+    #                               opset_version=self.opset_version)
+    #         _model.forward = origin_forward
 
     @master_only
     def log(self, runner) -> None:

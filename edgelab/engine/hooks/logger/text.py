@@ -1,8 +1,7 @@
 import logging
 import datetime
 from pathlib import Path
-from collections import OrderedDict
-from typing import Optional, Union, Dict
+from typing import Optional, Union
 
 import torch
 import torch.distributed as dist
@@ -154,7 +153,8 @@ class TextLoggerHook(LoggerHook):
                     runner: Runner,
                     handler: logging.Handler = logging.StreamHandler,
                     level: int = logging.ERROR):
-        if handler in self.handltype: return
+        if handler in self.handltype:
+            return
         for i, hand in enumerate(runner.logger.handlers):
             if type(hand) is handler:
                 hand.setLevel(level)

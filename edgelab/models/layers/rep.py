@@ -4,7 +4,6 @@ import torch
 import torch.nn as nn
 from mmengine.model import BaseModule
 
-# from ..base.general import ConvNormActivation,get_act
 from edgelab.models.base.general import ConvNormActivation, get_act
 from edgelab.registry import FUNCTIONS, MODELS
 
@@ -80,7 +79,9 @@ def fuse_conv_norm(
 
         std = (norm_var + norm_eps).sqrt()
         t = (norm_gamm / std).reshape(-1, 1, 1, 1)
-        return conv_weight * t, norm_beta + ((0 if conv_bias is None else conv_bias) - norm_mean) * norm_gamm / std
+        return conv_weight * t, norm_beta + (
+            (0 if conv_bias is None else conv_bias) -
+            norm_mean) * norm_gamm / std
     elif isinstance(block, nn.BatchNorm2d):
         in_channels = block.num_features
         b = in_channels // groups
@@ -105,29 +106,30 @@ def fuse_conv_norm(
 
 @MODELS.register_module(force=True)
 class RepConv1x1(BaseModule):
-    def __init__(
-        self,
-        in_channels: int,
-        out_channels: int,
-        use_res: bool = True,
-        use_dense: bool = True,
-        stride: int = 1,
-        depth: int = 6,
-        act_cfg: dict = dict(type="LeakyReLU"),
-        init_cfg: Union[dict, List[dict], None] = None,
-    ):
+    def __init__(self,
+                 in_channels: int,
+                 out_channels: int,
+                 use_res: bool = True,
+                 use_dense: bool = True,
+                 stride: int = 1,
+                 depth: int = 6,
+                 groups: int = 1,
+                 act_cfg: dict = dict(type="ReLU"),
+                 init_cfg: Union[dict, List[dict], None] = None):
         super().__init__(init_cfg)
 
         self.depth = depth
         self.use_res = use_res
         self.use_dense = use_dense
+        self.groups = groups
 
-        if stride > 1:
-            self.down_sample = nn.MaxPool2d(2, stride=2, padding=0)
-        else:
-            self.down_sample = nn.Identity()
-
-        self.conv3x3 = ConvNormActivation(in_channels, out_channels, 3, 1, 1, bias=True, activation_layer=None)
+        self.conv3x3 = ConvNormActivation(in_channels,
+                                          out_channels,
+                                          3,
+                                          stride,
+                                          1,
+                                          bias=True,
+                                          activation_layer=None)
         self.conv = nn.ModuleList()
 
         for i in range(depth):
@@ -141,11 +143,15 @@ class RepConv1x1(BaseModule):
 
         self.dense_norm = nn.BatchNorm2d(out_channels)
 
-        self.fuse_conv = nn.Conv2d(in_channels, out_channels, 3, padding=1, stride=1, bias=True)
-        self.act = MODELS.build(act_cfg)
+        self.fuse_conv = nn.Conv2d(in_channels,
+                                   out_channels,
+                                   3,
+                                   padding=1,
+                                   stride=stride,
+                                   bias=True)
+        self.act = get_act(act_cfg)()
 
     def forward(self, x) -> None:
-        x = self.down_sample(x)
         if self.training:
             x = self.conv3x3(x)
             if self.use_dense:
@@ -496,7 +502,7 @@ if __name__ == '__main__':
     input = torch.rand(1, 64, 192, 192)
     pred1 = rep(input, True)
     print("pred1::", pred1.shape)
-    rep.eval()
+    # rep.eval()
     pred2 = rep(input, False)
     print("pred2::", pred2.shape)
     i2 = input

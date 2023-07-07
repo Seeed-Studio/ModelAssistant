@@ -23,7 +23,6 @@ def pose_acc(pred, target, hw, th=10):
 
 
 def audio_acc(pred, target):
-    import numpy as np
     pred = pred[0] if len(pred.shape)==2 else pred # onnx shape(d,), tflite shape(1,d)
     pred = pred.argsort()[::-1][:5]
     correct = (target==pred).astype(float)

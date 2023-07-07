@@ -1,6 +1,4 @@
-import numpy as np
 import argparse
-import math
 import shutil
 import os
 import json

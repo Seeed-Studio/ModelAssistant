@@ -1,4 +1,3 @@
-from mmcv.runner import BaseModule
 from mmtrack.models.builder import MODELS
 from mmtrack.models.mot.base import BaseMultiObjectTracker
 from mmdet.models.detectors.base import BaseDetector

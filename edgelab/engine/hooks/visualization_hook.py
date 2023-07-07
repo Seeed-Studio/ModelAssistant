@@ -85,7 +85,6 @@ class Posevisualization(Hook):
                 ])
                 out_file = f'{out_file_name}_{index}.{postfix}'
                 out_file = os.path.join(self.out_dir, out_file)
-            from mmpose.visualization import PoseLocalVisualizer
             self._visualizer.add_datasample(
                 os.path.basename(img_path) if self.show else 'test_img',
                 img,

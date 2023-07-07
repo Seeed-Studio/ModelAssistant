@@ -1,4 +1,4 @@
-from typing import List, Optional, Union, Tuple
+from typing import List, Union, Tuple
 from mmengine.model.base_module import BaseModule
 from edgelab.models.base.general import ConvNormActivation
 import torch.nn as nn

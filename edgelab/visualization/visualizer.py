@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import List, Optional, Sequence, Tuple
 from mmengine.dist import master_only
 from mmengine.structures import InstanceData
 from mmdet.structures import DetDataSample
@@ -126,7 +126,7 @@ class FomoLocalVisualizer(DetLocalVisualizer):
 
         elif 'pred' in instances:
             preds = instances.pred
-            labelss = instances.labels
+            # labelss = instances.labels
             points = []
             for pred in preds:
                 pred = pred.permute(0, 2, 3, 1).cpu().numpy()[0]
@@ -250,25 +250,28 @@ class SensorClsVisualizer(Visualizer):
             classes = self.dataset_meta.get('classes', None)
 
         sensors = data_sample.sensors
-        uints = [sensor['units'] for sensor in sensors if sensor['units'] not in uints]
-        
+        uints = []
+        uints = [
+            sensor['units'] for sensor in sensors
+            if sensor['units'] not in uints
+        ]
+
         # slice the data into different sensors
         inputs = [data[i::len(sensors)] for i in range(len(sensors))]
-        
+
         _, axs = plt.subplots(len(uints), 1)
-        
+
         texts = []
         for j, input in enumerate(inputs):
             if len(uints) > 1:
                 index = uints.index(sensors[j]['units'])
-                ax =  axs[index]
+                ax = axs[index]
             else:
                 ax = axs
-            
+
             ax.plot(input, label=sensors[j]['name'])
             ax.set_ylabel(sensors[j]['units'])
-        
-    
+
         if draw_gt and 'gt_label' in data_sample:
             gt_label = data_sample.gt_label
             idx = gt_label.label.tolist()
@@ -298,7 +301,7 @@ class SensorClsVisualizer(Visualizer):
             ]
             prefix = 'Prediction: '
             texts.append(prefix + ('\n' + ' ' * len(prefix)).join(labels))
-        
+
         plt.set_title(texts)
         plt.tight_layout()
         plt.legend()
@@ -306,7 +309,8 @@ class SensorClsVisualizer(Visualizer):
         fig.canvas.draw()
         buf = fig.canvas.tostring_rgb()
         w, h = fig.canvas.get_width_height()
-        image = np.frombuffer(buf, dtype=np.uint8, count=h*w*3).reshape(h, w, 3)
+        image = np.frombuffer(buf, dtype=np.uint8,
+                              count=h * w * 3).reshape(h, w, 3)
         self.set_image(image)
         drawn_img = self.get_image()
 

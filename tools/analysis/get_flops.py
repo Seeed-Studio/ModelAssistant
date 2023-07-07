@@ -75,8 +75,8 @@ def inference(args, logger):
     else:
         try:
             h, w = cfg.height, cfg.width
-        except:
-            raise ValueError('invalid input shape')
+        except Exception as e:
+            raise ValueError('invalid input shape') from e
 
     # model
     model = MODELS.build(cfg.model)

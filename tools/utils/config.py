@@ -25,7 +25,8 @@ def replace(data: str, args: Optional[dict] = None) -> str:
     Returns:
         data(str): the replaced string
     """
-    if not args: return data
+    if not args: 
+        return data
     for key, value in args.items():
         if isinstance(value, (int, float)):
             data = re.sub(f"^{key}\s?=\s?[^,{key}].*?[^,{key}].*?$\n",
