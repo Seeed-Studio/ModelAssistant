@@ -16,6 +16,10 @@ on:
     branches:
       - dev # should be 'main' later
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   linting:
     runs-on: ubuntu-latest
