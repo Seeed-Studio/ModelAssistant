@@ -3,7 +3,7 @@ name: functional-test
 on:
   push:
     branches:
-      - dev # should be 'main' later
+      - main
     paths:
       - 'configs/**'
       - 'edgelab/**'
@@ -16,6 +16,27 @@ on:
       - 'requirements_cuda.txt'
       - 'setup.py'
       - '.github/workflows/functional-test.yml'
+
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - 'configs/**'
+      - 'edgelab/**'
+      - 'requirements/**'
+      - 'scripts/**'
+      - 'tools/**'
+      - 'environment.yml'
+      - 'environment_cuda.yml'
+      - 'requirements.txt'
+      - 'requirements_cuda.txt'
+      - 'setup.py'
+      - '.github/workflows/functional-test.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 
 jobs:
   partial-test:
@@ -37,8 +58,6 @@ jobs:
     steps:
       - name: checkout repository
         uses: actions/checkout@v3
-        with:
-          ref: dev # should be main later
 
       - name: setup python
         uses: actions/setup-python@v4

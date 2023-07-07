@@ -21,8 +21,6 @@ jobs:
     steps:
       - name: checkout repository
         uses: actions/checkout@v3
-        with:
-          ref: 'main' # should be main later
 
       - name: setup node
         uses: actions/setup-node@v3

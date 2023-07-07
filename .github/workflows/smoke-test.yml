@@ -3,7 +3,8 @@ name: smoke-test
 on:
   push:
     branches:
-      - dev # should be 'main' later
+      - dev
+      - main
     paths:
       - 'requirements/**'
       - 'scripts/**'
@@ -16,6 +17,10 @@ on:
 
   schedule:
     - cron: '0 0 * * *'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   manual-installation:
@@ -39,8 +44,6 @@ jobs:
     steps:
       - name: checkout repository
         uses: actions/checkout@v3
-        with:
-          ref: dev # should be main later
 
       - name: setup python
         uses: actions/setup-python@v4
@@ -73,8 +76,6 @@ jobs:
     steps:
       - name: checkout repository
         uses: actions/checkout@v3
-        with:
-          ref: dev # should be main later
 
       - name: setup deps
         run: |
