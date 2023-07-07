@@ -206,7 +206,7 @@ def get_task_from_config(config_path):
 def build_config(args):
     from mmengine.config import Config
 
-    from tools.utils.config import load_config
+    from edgelab.tools.utils.config import load_config
 
     if args.task == "auto":
         task = {"mmcls", "mmdet", "mmpose"}.intersection(get_task_from_config(args.config))
