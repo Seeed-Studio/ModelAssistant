@@ -73,7 +73,7 @@ functional_test_core()
         "export")
             python3 tools/export.py \
                 "${CONFIG_FILE}" \
-                "$(cat \"${LAST_CHECKPOINT} \")" \
+                "$(cat \"${LAST_CHECKPOINT}\")" \
                 tflite onnx \
                 --calibration_epochs 1 \
                 --cfg-options \
@@ -83,13 +83,13 @@ functional_test_core()
         "inference")
             python3 tools/inference.py \
                 "${CONFIG_FILE}" \
-                "$(cat \"${LAST_CHECKPOINT} \" | sed -e 's/.pth/_int8.tflite/g')" \
+                "$(cat \"${LAST_CHECKPOINT}\" | sed -e 's/.pth/_int8.tflite/g')" \
                 --cfg-options \
                     data_root="${DATASETS_DIR}" \
             && \
             python3 tools/inference.py \
                 "${CONFIG_FILE}" \
-                "$(cat \"${LAST_CHECKPOINT} \" | sed -e 's/.pth/_float32.onnx/g')" \
+                "$(cat \"${LAST_CHECKPOINT}\" | sed -e 's/.pth/_float32.onnx/g')" \
                 --cfg-options \
                     data_root="${DATASETS_DIR}"
             return $?
