@@ -109,6 +109,7 @@ class CustomYOLOv5CocoDataset(YOLOv5CocoDataset):
         if metainfo is None and not self.METAINFO['classes']:
             if not osp.isabs(ann_file) and ann_file:
                 self.ann_file = osp.join(data_root, ann_file)
+                print("=" * 30, self.ann_file)
             with open(self.ann_file, 'r') as f:
                 data = json.load(f)
             if filter_supercat:

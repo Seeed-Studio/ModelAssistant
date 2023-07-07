@@ -18,7 +18,7 @@ We will choose a appropriate configuration file depending on the type of trainin
 
 For the meter PFLD model example, we use `pfld_mv2n_112.py` as the configuration file, which is located in the folder under the EdgeLab root directory `configs/pfld` and its additionally inherits the `default_runtime_pose.py` configuration file.
 
-For beginners, we recommend to pay attention to the `data_root` and `epochs` parameters in this configuration file at first.
+For beginners, we recommend to pay attention to the `data_root` and `max_epochs` parameters in this configuration file at first.
 
 ::: details `pfld_mv2n_112.py`
 
@@ -89,7 +89,7 @@ val_dataloader=dict(
 test_dataloader=val_dataloader
 
 lr=0.0001
-epochs=300
+max_epochs=300
 evaluation=dict(save_best='loss')
 optim_wrapper=dict(
     optimizer=dict(type='Adam', lr=lr, betas=(0.9, 0.99), weight_decay=1e-6))
@@ -126,7 +126,7 @@ python3 tools/train.py \
     configs/pfld/pfld_mv2n_112.py \
     --cfg-options \
         data_root='datasets/meter' \
-        epochs=50
+        max_epochs=50
 ```
 
 During training, the model weights and related log information are saved to the path `work_dirs/pfld_mv2n_112` by default, and you can use tools such as [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) to monitor for training.

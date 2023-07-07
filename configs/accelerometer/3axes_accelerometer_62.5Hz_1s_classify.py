@@ -78,12 +78,12 @@ test_evaluator = val_evaluator
 
 # optimizer
 lr = 0.0005
-epochs = 10
+max_epochs = 10
 
 optim_wrapper = dict(type='OptimWrapper', optimizer=dict(type='Adam', lr=lr, betas=[0.9, 0.99], weight_decay=0))
 
 
-train_cfg = dict(by_epoch=True, max_epochs=epochs)
+train_cfg = dict(by_epoch=True, max_epochs=max_epochs)
 
 val_cfg = dict()
 test_cfg = dict()

@@ -124,7 +124,7 @@ test_evaluator = val_evaluator
 train_cfg = dict(max_epochs=200, val_interval=1)
 # optimizer
 lr = 0.001
-epochs = 300
+max_epochs = 300
 
 find_unused_parameters = True
 

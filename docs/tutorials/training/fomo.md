@@ -20,7 +20,7 @@ We will choose a appropriate configuration file depending on the type of trainin
 
 For the FOMO model example, we use `fomo_mobnetv2_0.35_x8_abl_coco.py` as the configuration file, which is located in the folder under the EdgeLab root directory `configs/fomo` and its additionally inherits the `default_runtime_det.py` configuration file.
 
-For beginners, we recommend to pay attention to the `data_root` and `epochs` parameters in this configuration file at first.
+For beginners, we recommend to pay attention to the `data_root` and `max_epochs` parameters in this configuration file at first.
 
 ::: details `fomo_mobnetv2_0.35_x8_abl_coco.py`
 
@@ -96,7 +96,7 @@ test_dataloader=val_dataloader
 
 # optimizer
 lr=0.001
-epochs=300
+max_epochs=300
 find_unused_parameters=True
 optim_wrapper=dict(optimizer=dict(type='Adam', lr=lr, weight_decay=5e-4,eps=1e-7))
 
@@ -131,7 +131,7 @@ python3 tools/train.py \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
     --cfg-options \
         data_root='datasets/mask' \
-        epochs=50
+        max_epochs=50
 ```
 
 During training, the model weights and related log information are saved to the path `work_dirs/fomo_mobnetv2_0.35_x8_abl_coco` by default, and you can use tools such as [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) to monitor for training.

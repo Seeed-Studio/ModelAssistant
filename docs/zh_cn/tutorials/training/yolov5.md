@@ -19,7 +19,7 @@
 
 对于 YOLOv5 模型的例子，我们使用 `yolov5_tiny_1xb16_300e_coco.py` 作为配置文件，它位于EdgeLab根目录 `configs/yolov5` 下的文件夹中，其另外继承了 `base_arch.py` 配置文件。
 
-对于初学者，我们建议首先注意这个配置文件中的 `data_root` 和 `epochs` 参数。
+对于初学者，我们建议首先注意这个配置文件中的 `data_root` 和 `max_epochs` 参数。
 
 ::: details `yolov5_tiny_1xb16_300e_coco.py`
 
@@ -74,7 +74,7 @@ python3 tools/train.py \
     configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
     --cfg-options \
         data_root='datasets/digital_meter' \
-        epochs=50
+        max_epochs=50
 ```
 
 在训练过程中，模型权重和相关日志信息默认保存在 `work_dirs/yolov5_tiny_1xb16_300e_coco` 路径下，你可以使用 [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) 等工具来监测训练情况。

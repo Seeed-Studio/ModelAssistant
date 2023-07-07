@@ -136,7 +136,7 @@ data_preprocessor = dict(
 
 # optimizer
 lr = 0.0003
-epochs = 1500
+max_epochs = 1500
 find_unused_parameters = True
 
 optim_wrapper = dict(optimizer=dict(type='AdamW', lr=lr, betas=(0.9, 0.99), weight_decay=5e-4, eps=1e-7))

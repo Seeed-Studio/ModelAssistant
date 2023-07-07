@@ -85,7 +85,7 @@ test_dataloader = val_dataloader
 
 # optimizer
 lr = 0.001
-epochs = 300
+max_epochs = 300
 
 find_unused_parameters = True
 

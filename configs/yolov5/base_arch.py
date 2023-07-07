@@ -29,7 +29,7 @@ anchors = [
 # -----train val related-----
 # Base learning rate for optim_wrapper. Corresponding to 8xb16=128 bs
 base_lr = 0.01
-max_epochs = 300  # Maximum training epochs
+max_epochs = 300  # Maximum training max_epochs
 
 model_test_cfg = dict(
     # The config of multi-label for multi-class prediction.

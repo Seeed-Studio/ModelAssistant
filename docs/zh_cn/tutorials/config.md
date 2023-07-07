@@ -220,9 +220,9 @@ log_config=dict(                   # 配置注册记录器 Hook
                 dict(type='TextLoggerHook', ndigits=4),       # TXT 文本日志
                 dict(type='TensorboardLoggerHook', ndigits=4) # Tensorboard 日志
             ])                                                # 记录训练过程的日志
-epochs=300
+max_epochs=300
 runner=dict(type='EpochBasedRunner',  # 使用的 runner 类型 (例如 IterBasedRunner 或者 EpochBasedRunner)
-            max_epochs=epochs)        # runner 运行 max_epochs 次工作流，对于 IterBasedRunner 使用 max_iters
+            max_epochs=max_epochs)        # runner 运行 max_epochs 次工作流，对于 IterBasedRunner 使用 max_iters
 dist_params=dict(backend='nccl')      # 设置分布式训练的参数，也可以设置端口
 log_level='INFO'                      # 日志等级
 load_from=None                        # 从给定路径加载模型作为预训练模型，不会恢复训练

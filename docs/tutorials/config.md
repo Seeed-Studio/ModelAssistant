@@ -109,7 +109,7 @@ height=96       # Input image height
 width=96        # Input image width
 batch_size=16   # Batch size of a single GPU during validation
 workers=4       # Worker to pre-fetch data for each single GPU during validation
-epoches=300     # Maximum training epochs: 300 epochs
+epoches=300     # Maximum training max_epochs: 300 max_epochs
 lr=0.001        # Learn rate
 ```
 
@@ -220,14 +220,14 @@ log_config=dict(                   # Config to register logger hook
                 dict(type='TextLoggerHook', ndigits=4),       # TXT logger
                 dict(type='TensorboardLoggerHook', ndigits=4) # Tensorboard logger
             ])                                                # The logger used to record the training process
-epochs=300
+max_epochs=300
 runner=dict(type='EpochBasedRunner',  # Type of runner to use (i.e. IterBasedRunner or EpochBasedRunner)
-            max_epochs=epochs)        # Runner that runs the workflow in total max_epochs. For IterBasedRunner use `max_iters`
+            max_epochs=max_epochs)        # Runner that runs the workflow in total max_epochs. For IterBasedRunner use `max_iters`
 dist_params=dict(backend='nccl')      # Parameters to setup distributed training, the port can also be set
 log_level = 'INFO'                    # The level of logging
 load_from = None                      # Load models as a pre-trained model from a given path, this will not resume training
 resume_from = None                    # Resume checkpoints from a given path, the training will be resumed from the epoch when the checkpoint's is saved
-workflow = [('train', 1)]             # Workflow for runner. [('train', 1)] means there is only one workflow and the workflow named 'train' is executed once. The workflow trains the model by 300 epochs according to the total_epochs
+workflow = [('train', 1)]             # Workflow for runner. [('train', 1)] means there is only one workflow and the workflow named 'train' is executed once. The workflow trains the model by 300 max_epochs according to the total_max_epochs
 opencv_num_threads = 1                # Disable OpenCV multi-threads to save memory
 work_dir = './work_dirs'              # Directory to save the model checkpoints and logs for the current experiments
 ```

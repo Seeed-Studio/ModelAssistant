@@ -99,7 +99,7 @@ test_dataloader = val_dataloader
 # data_preprocessor=dict(type='mmdet.DetDataPreprocessor')
 # optimizer
 lr = 0.001
-epochs = 100
+max_epochs = 100
 
 find_unused_parameters = True
 
@@ -109,7 +109,7 @@ optim_wrapper = dict(optimizer=dict(type="Adam", lr=lr, weight_decay=5e-4, eps=1
 val_evaluator = dict(type="FomoMetric")
 test_evaluator = val_evaluator
 
-train_cfg = dict(by_epoch=True, max_epochs=epochs)
+train_cfg = dict(by_epoch=True, max_epochs=max_epochs)
 
 # learning policy
 param_scheduler = [

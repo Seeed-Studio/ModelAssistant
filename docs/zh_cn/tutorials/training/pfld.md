@@ -18,7 +18,7 @@
 
 对于表计 PFLD 模型示例，我们使用 `pfld_mv2n_112.py` 作为配置文件，它位于 EdgeLab 主目录路径 `configs/pfld` 下的文件夹中，并额外继承了 `default_runtime_pose.py` 配置文件。
 
-配置文件内容如下，对于初学者，我们建议首先注意该配置文件中 `data_root` 和 `epochs` 这两个参数。
+配置文件内容如下，对于初学者，我们建议首先注意该配置文件中 `data_root` 和 `max_epochs` 这两个参数。
 
 ::: details `pfld_mv2n_112.py`
 
@@ -89,7 +89,7 @@ val_dataloader=dict(
 test_dataloader=val_dataloader
 
 lr=0.0001
-epochs=300
+max_epochs=300
 evaluation=dict(save_best='loss')
 optim_wrapper=dict(
     optimizer=dict(type='Adam', lr=lr, betas=(0.9, 0.99), weight_decay=1e-6))
@@ -126,7 +126,7 @@ python3 tools/train.py \
     configs/pfld/pfld_mv2n_112.py \
     --cfg-options \
         data_root='datasets/meter' \
-        epochs=50
+        max_epochs=50
 ```
 
 在训练期间，训练得到的模型权重和相关的日志信息会默认保存至路径 `work_dirs/pfld_mv2n_112` 下，您可以使用 [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) 等工具事实监测训练情况。

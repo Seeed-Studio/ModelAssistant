@@ -62,7 +62,7 @@ EdgeLab 中的模型支持在 Edge Impulse 上运行，具体信息见 GitHub �
 11. 运行容器来测试脚本 (如果你做了修改，你不需要重建容器)。
 
     ```sh
-    docker run --shm-size=1024m --rm -v $PWD:/scripts edgelab-fomo --data-directory data/ --epochs 30 --learning-rate 0.00001 --out-directory out/.
+    docker run --shm-size=1024m --rm -v $PWD:/scripts edgelab-fomo --data-directory data/ --max_epochs 30 --learning-rate 0.00001 --out-directory out/.
     ```
 
 12. 这将在 `out` 目录下创建一个 `.tflite` 文件。

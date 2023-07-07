@@ -18,7 +18,7 @@ We will choose a appropriate configuration file depending on the type of trainin
 
 For the yolov5 model example, we use `yolov5_tiny_1xb16_300e_coco.py` as the configuration file, which is located in the folder under the EdgeLab root directory `configs/yolov5` and its additionally inherits the `base_arch.py` configuration file.
 
-For beginners, we recommend to pay attention to the `data_root` and `epochs` parameters in this configuration file at first.
+For beginners, we recommend to pay attention to the `data_root` and `max_epochs` parameters in this configuration file at first.
 
 ::: details `yolov5_tiny_1xb16_300e_coco.py`
 
@@ -73,7 +73,7 @@ python3 tools/train.py \
     configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
     --cfg-options \
         data_root='datasets/digital_meter' \
-        epochs=50
+        max_epochs=50
 ```
 
 During training, the model weights and related log information are saved to the path `work_dirs/yolov5_tiny_1xb16_300e_coco` by default, and you can use tools such as [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) to monitor for training.

@@ -98,7 +98,7 @@ data = dict(
 
 # optimizer
 lr = 0.001
-epochs = 300
+max_epochs = 300
 optimizer = dict(type='SGD', lr=lr, momentum=0.949, weight_decay=0.0005)
 
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))

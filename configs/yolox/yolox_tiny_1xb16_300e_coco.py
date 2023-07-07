@@ -17,7 +17,7 @@ workers = 2
 
 # training
 lr = 0.01
-epochs = 300  # Maximum training epochs
+max_epochs = 300  # Maximum training max_epochs
 
 # ======================modify end======================
 

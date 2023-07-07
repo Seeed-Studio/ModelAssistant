@@ -16,7 +16,7 @@ persistent_workers = True
 
 # optimizer
 lr = 0.01
-epochs = 300
+max_epochs = 300
 
 data_preprocessor = dict(
     type='mmcls.ClsDataPreprocessor',
@@ -108,4 +108,4 @@ param_scheduler = [
 
 auto_scale_lr = dict(base_batch_size=batch_size)
 
-train_cfg = dict(by_epoch=True, max_epochs=epochs)
+train_cfg = dict(by_epoch=True, max_epochs=max_epochs)

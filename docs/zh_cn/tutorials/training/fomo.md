@@ -20,7 +20,7 @@
 
 对于 FOMO 模型示例，我们使用 `fomo_mobnetv2_0.35_x8_abl_coco.py` 作为配置文件，它位于 EdgeLab 主目录路径 `configs/fomo` 下的文件夹中，并额外继承了 `default_runtime_det.py` 配置文件。
 
-配置文件内容如下，对于初学者，我们建议首先注意该配置文件中 `data_root` 和 `epochs` 这两个参数。
+配置文件内容如下，对于初学者，我们建议首先注意该配置文件中 `data_root` 和 `max_epochs` 这两个参数。
 
 ::: details `fomo_mobnetv2_0.35_x8_abl_coco.py`
 
@@ -96,7 +96,7 @@ test_dataloader=val_dataloader
 
 # optimizer
 lr=0.001
-epochs=300
+max_epochs=300
 find_unused_parameters=True
 optim_wrapper=dict(optimizer=dict(type='Adam', lr=lr, weight_decay=5e-4,eps=1e-7))
 
@@ -131,7 +131,7 @@ python3 tools/train.py \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
     --cfg-options \
         data_root='datasets/mask' \
-        epochs=50
+        max_epochs=50
 ```
 
 在训练期间，训练得到的模型权重和相关的日志信息会默认保存至路径 `work_dirs/fomo_mobnetv2_0.35_x8_abl_coco` 下，您可以使用 [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) 等工具事实监测训练情况。

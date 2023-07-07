@@ -49,7 +49,7 @@ python3 tools/export.py --help
 #   --algorithm {l2,kl}   TFLite: conversion algorithm
 #   --backend {qnnpack,fbgemm}
 #                         TFLite: conveter backend
-#   --calibration_epochs CALIBRATION_EPOCHS, --calibration-epochs CALIBRATION_EPOCHS
+#   --calibration_epochs CALIBRATION_EPOCHS, --calibration-max_epochs CALIBRATION_EPOCHS
 #                         TFLite: max epoches for quantization calibration
 #   --mean MEAN [MEAN ...]
 #                         TFLite: mean for model input (quantization), range: [0, 1], applied to all channels, using the average if multiple values are provided

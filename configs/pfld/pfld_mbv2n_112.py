@@ -71,7 +71,7 @@ val_dataloader = dict(
 test_dataloader = val_dataloader
 
 lr = 0.0001
-epochs = 1000
+max_epochs = 1000
 evaluation = dict(save_best='loss')
 optim_wrapper = dict(optimizer=dict(type='Adam', lr=lr, betas=(0.9, 0.99), weight_decay=1e-6))
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
@@ -80,7 +80,7 @@ test_evaluator = val_evaluator
 
 find_unused_parameters = True
 
-train_cfg = dict(by_epoch=True, max_epochs=epochs)
+train_cfg = dict(by_epoch=True, max_epochs=max_epochs)
 # learning policy
 param_scheduler = [
     dict(type='LinearLR', begin=0, end=500, start_factor=0.001, by_epoch=False),  # warm-up

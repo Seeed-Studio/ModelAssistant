@@ -61,7 +61,7 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
 11. Run the container to test the script (you don't need to rebuild the container if you make changes).
 
     ```sh
-    docker run --shm-size=1024m --rm -v $PWD:/scripts edgelab-fomo --data-directory data/ --epochs 30 --learning-rate 0.00001 --out-directory out/
+    docker run --shm-size=1024m --rm -v $PWD:/scripts edgelab-fomo --data-directory data/ --max_epochs 30 --learning-rate 0.00001 --out-directory out/
     ```
 
 12. This creates a `.tflite` file in the `out` directory.
