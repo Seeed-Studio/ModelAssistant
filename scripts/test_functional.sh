@@ -47,7 +47,7 @@ functional_test_core()
 
     CONFIG_FILE_NAME="$(basename -- ${CONFIG_FILE})"
     DATASETS_PATH="datasets/$(basename -- ${DATASETS_URL})"
-    DATASETS_DIR="${DATASETS_PATH%.*}"
+    DATASETS_DIR="${DATASETS_PATH%.*}/"
     LAST_CHECKPOINT="work_dirs/${CONFIG_FILE_NAME%.*}/last_checkpoint"
 
     echo -e "CONFIG_FILE=${CONFIG_FILE}"
@@ -67,7 +67,7 @@ functional_test_core()
                 --no-validate \
                 --cfg-options \
                     data_root="${DATASETS_DIR}" \
-                    max_epochs=10
+                    epochs=3
             return $?
             ;;
         "export")
@@ -76,7 +76,7 @@ functional_test_core()
                 "${CONFIG_FILE}" \
                 "$(cat ${LAST_CHECKPOINT})" \
                 tflite onnx \
-                --calibration_epochs 1 \
+                --calibration-epochs 1 \
                 --cfg-options \
                     data_root="${DATASETS_DIR}"
             return $?
