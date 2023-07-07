@@ -3,7 +3,7 @@ name: code-lint
 on:
   push:
     branches:
-      - dev # should be 'main' later
+      - main
     paths:
       - 'configs/**'
       - 'edgelab/**'
@@ -14,7 +14,14 @@ on:
 
   pull_request:
     branches:
-      - dev # should be 'main' later
+      - dev
+    paths:
+      - 'configs/**'
+      - 'edgelab/**'
+      - 'tools/**'
+      - 'pyproject.toml'
+      - '.pre-commit-config.yaml'
+      - '.github/workflows/code-lint.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
