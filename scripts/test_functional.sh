@@ -67,10 +67,11 @@ functional_test_core()
                 --no-validate \
                 --cfg-options \
                     data_root="${DATASETS_DIR}" \
-                    epochs=1
+                    max_epochs=10
             return $?
             ;;
         "export")
+            tree work_dirs
             python3 tools/export.py \
                 "${CONFIG_FILE}" \
                 "$(cat \"${LAST_CHECKPOINT}\")" \
