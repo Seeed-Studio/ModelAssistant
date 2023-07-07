@@ -304,7 +304,7 @@ def main():
                 runner.register_hook(SaveMetricHook(), "LOWEST")
 
     elif checkpoint_ext in {".tflite", ".onnx"}:
-        from tools.utils.inference import Infernce
+        from edgelab.tools.utils.inference import Infernce
 
         # TODO: Support inference '.tflite', '.onnx' model on different devices
         # TODO: Support MMEngine metric hooks
