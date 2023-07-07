@@ -1,7 +1,6 @@
 from typing import Optional, List, Callable
 from functools import partial
 import copy
-import math
 from torch import nn
 import torch
 from torchvision.ops import StochasticDepth
@@ -9,6 +8,7 @@ from edgelab.registry import BACKBONES
 from mmdet.models.utils.make_divisible import make_divisible
 from mmengine.model import BaseModule
 from edgelab.models.base.general import ConvNormActivation, SqueezeExcitation
+from edgelab.models.layers.rep import RepConv1x1
 
 
 class MBConvConfig:
@@ -36,12 +36,12 @@ class MBConvConfig:
 
 class MBConv(nn.Module):
 
-    def __init__(
-            self,
-            cnf: MBConvConfig,
-            stochastic_depth_prob: float,
-            norm_layer: Callable[..., nn.Module],
-            se_layer: Callable[..., nn.Module] = SqueezeExcitation) -> None:
+    def __init__(self,
+                 cnf: MBConvConfig,
+                 stochastic_depth_prob: float,
+                 norm_layer: Callable[..., nn.Module],
+                 se_layer: Callable[..., nn.Module] = SqueezeExcitation,
+                 rep: bool = False) -> None:
         super().__init__()
 
         if not (1 <= cnf.stride <= 2):
@@ -50,7 +50,7 @@ class MBConv(nn.Module):
         self.use_res_connect = cnf.stride == 1 and cnf.input_channels == cnf.out_channels
 
         layers: List[nn.Module] = []
-        activation_layer = nn.SiLU
+        activation_layer = nn.ReLU
 
         # expand
         expanded_channels = cnf.adjust_channels(cnf.input_channels,
@@ -64,21 +64,29 @@ class MBConv(nn.Module):
                                    activation_layer=activation_layer))
 
         # depthwise
-        layers.append(
-            ConvNormActivation(expanded_channels,
-                               expanded_channels,
-                               kernel_size=cnf.kernel,
-                               stride=cnf.stride,
-                               groups=expanded_channels,
-                               norm_layer=norm_layer,
-                               activation_layer=activation_layer))
+        if rep:
+            layers.append(
+                RepConv1x1(expanded_channels,
+                           expanded_channels,
+                           stride=cnf.stride,
+                           act_cfg=activation_layer))
 
-        # squeeze and excitation
-        squeeze_channels = max(1, cnf.input_channels // 4)
-        layers.append(
-            se_layer(expanded_channels,
-                     squeeze_channels,
-                     activation=partial(nn.SiLU, inplace=True)))
+        else:
+            layers.append(
+                ConvNormActivation(expanded_channels,
+                                   expanded_channels,
+                                   kernel_size=cnf.kernel,
+                                   stride=cnf.stride,
+                                   groups=expanded_channels,
+                                   norm_layer=norm_layer,
+                                   activation_layer=activation_layer))
+
+            # squeeze and excitation
+            squeeze_channels = max(1, cnf.input_channels // 4)
+            layers.append(
+                se_layer(expanded_channels,
+                         squeeze_channels,
+                         activation=partial(nn.ReLU, inplace=True)))
 
         # project
         layers.append(
@@ -114,7 +122,8 @@ class EfficientNet(BaseModule):
     ]
 
     width_depth_mult = {
-        'b0': [0.15, 0.35, 0.2],
+        'bt': [0.35, 0.35, 0.2],
+        'b0': [1.0, 1.0, 0.2],
         'b1': [1.0, 1.1, 0.2],
         'b2': [1.1, 1.2, 0.3],
         'b3': [1.2, 1.4, 0.3],
@@ -131,6 +140,7 @@ class EfficientNet(BaseModule):
                  norm_cfg='BN',
                  frozen_stages=-1,
                  norm_eval=False,
+                 rep=False,
                  init_cfg: Optional[dict] = None):
         super().__init__(init_cfg)
 
@@ -156,7 +166,7 @@ class EfficientNet(BaseModule):
                                         3,
                                         2,
                                         norm_layer=norm_cfg,
-                                        activation_layer='SiLU')
+                                        activation_layer='ReLU')
 
         total_stage_blocks = sum([cnf.num_layers for cnf in arch_param])
         stage_block_id = 0
@@ -170,7 +180,8 @@ class EfficientNet(BaseModule):
                     conf.stride = 1
                 sd_prob = stochastic_depth_prob * float(
                     stage_block_id) / total_stage_blocks
-                layer.append(MBConv(conf, sd_prob, norm_layer=norm_cfg))
+                layer.append(
+                    MBConv(conf, sd_prob, norm_layer=norm_cfg, rep=rep))
                 stage_block_id += 1
 
             self.add_module(name, nn.Sequential(*layer))
