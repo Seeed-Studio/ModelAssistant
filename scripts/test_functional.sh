@@ -82,6 +82,7 @@ functional_test_core()
             return $?
             ;;
         "inference")
+            tree work_dirs
             python3 tools/inference.py \
                 "${CONFIG_FILE}" \
                 "$(cat ${LAST_CHECKPOINT} | sed -e 's/.pth/_int8.tflite/g')" \
