@@ -1,10 +1,7 @@
 from typing import Optional, Callable, Dict, AnyStr, Any
 import torch
 import torch.nn as nn
-
-from mmcv.cnn.bricks.norm import MODELS
-from mmcv.cnn.bricks.activation import MODELS
-from mmcv.cnn.bricks.conv import MODELS
+from mmengine.registry import MODELS
 
 
 def get_conv(conv):

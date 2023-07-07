@@ -1,9 +1,7 @@
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 from edgelab.registry import MODELS
 from mmcls.models.heads import ClsHead
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Tuple, Union
 
 @MODELS.register_module()
 class AxesClsHead(ClsHead):

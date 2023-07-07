@@ -5,7 +5,7 @@ import torch.nn as nn
 from mmengine.model import BaseModule
 from edgelab.registry import BACKBONES, MODELS
 from torchvision.models._utils import _make_divisible
-from edgelab.models.layers.rep import RepBlock
+from edgelab.models.layers.rep import RepBlock,RepConv1x1
 from ..base.general import InvertedResidual, ConvNormActivation
 
 
@@ -27,7 +27,8 @@ class MobileNetv2(BaseModule):
         if block is None and not rep:
             block = InvertedResidual
         elif rep:
-            block = RepBlock
+            # block = RepBlock
+            block = RepConv1x1
         elif isinstance(block, dict):
             block = MODELS.build(rep)
 
@@ -76,6 +77,9 @@ class MobileNetv2(BaseModule):
                                   stride=stride,
                                   groups=in_channels,
                                   norm_layer=norm_layer)
+                    
+                elif block is RepConv1x1:
+                    layer=block(in_channels,out_channels,stride=stride,depth=6)
                 else:
                     layer = block(in_channels,
                                   out_channels,

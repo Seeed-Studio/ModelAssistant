@@ -1,9 +1,11 @@
 from typing import Dict, Sequence, Union, List
 
+import onnx
+import torch
+from torch.utils.data import DataLoader
 from mmengine.runner import Runner
 from mmengine.evaluator.evaluator import Evaluator
 from mmengine.runner.loops import EpochBasedTrainLoop, BaseLoop
-from torch.utils.data import DataLoader
 
 from edgelab.registry import LOOPS
 from mmengine.registry import RUNNERS
@@ -56,14 +58,16 @@ class EdgeTestRunner:
         if isinstance(model, list):
             try:
                 import ncnn
-            except:
+            except ImportError:
                 raise ImportError(
                     'You have not installed ncnn yet, please execute the "pip install ncnn" command to install and run again'
                 )
             net = ncnn.Net()
             for p in model:
-                if p.endswith('param'): param = p
-                if p.endswith('bin'): bin = p
+                if p.endswith('param'): 
+                    param = p
+                if p.endswith('bin'): 
+                    bin = p
             net.load_param(param)
             net.load_model(bin)
             # net.opt.use_vulkan_compute = True
@@ -71,14 +75,14 @@ class EdgeTestRunner:
         elif model.endswith('onnx'):
             try:
                 import onnxruntime
-            except:
+            except ImportError:
                 raise ImportError(
                     'You have not installed onnxruntime yet, please execute the "pip install onnxruntime" command to install and run again'
                 )
             try:
                 net = onnx.load(model)
                 onnx.checker.check_model(net)
-            except:
+            except ValueError:
                 raise ValueError(
                     'onnx file have error,please check your onnx export code!')
             providers = [
@@ -89,7 +93,7 @@ class EdgeTestRunner:
         elif model.endswith('tflite'):
             try:
                 import tensorflow as tf
-            except:
+            except ImportError:
                 raise ImportError(
                     'You have not installed tensorflow yet, please execute the "pip install tensorflow" command to install and run again'
                 )

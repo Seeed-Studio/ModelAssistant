@@ -33,7 +33,7 @@ class Quan_Reader(CalibrationDataReader):
                 raise StopIteration
             img =self.process_data(a)
             return {self.input_name:np.array([img])}
-        except:
+        except Exception:
             return None
 
 

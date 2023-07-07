@@ -3,6 +3,7 @@ from typing import Optional
 import torch
 import torchvision
 import torch.nn as nn
+from mmcv.cnn import is_norm
 from mmengine.model import BaseModule
 from mmengine.model  import normal_init, constant_init
 from edgelab.registry import MODELS

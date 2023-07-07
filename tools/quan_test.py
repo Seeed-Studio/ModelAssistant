@@ -1,5 +1,5 @@
 import os
-from typing import *
+from typing import List,AnyStr
 import ncnn
 import numpy as np
 
@@ -7,8 +7,8 @@ import onnx
 import tqdm.std
 from PIL import Image
 import onnxruntime
-from torchvision.transforms import *
 import tensorflow as tf
+from torchvision.transforms import ToTensor,Resize,Grayscale,Compose
 
 input_name = 'images'
 output_name = 'output'
@@ -28,15 +28,17 @@ class Inter():
         if isinstance(model, list):
             net = ncnn.Net()
             for p in model:
-                if p.endswith('param'): param = p
-                if p.endswith('bin'): bin = p
+                if p.endswith('param'): 
+                    param = p
+                if p.endswith('bin'): 
+                    bin = p
             net.load_param(param)
             net.load_model(bin)
         elif model.endswith('onnx'):
             try:
                 net = onnx.load(model)
                 onnx.checker.check_model(net)
-            except:
+            except Exception:
                 raise 'onnx file have error,please check your onnx export code!'
             net = onnxruntime.InferenceSession(model)
         elif model.endswith('tflite'):

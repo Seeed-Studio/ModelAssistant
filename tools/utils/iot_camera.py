@@ -86,7 +86,7 @@ class IoTCamera():
             try:
                 img = Image.open(BytesIO(self.buff))
                 self.img = np.array(img)
-            except:
+            except Exception:
                 self.buff = bytearray()
                 return
 
@@ -153,7 +153,7 @@ class IoTCamera():
                 handle.close()
                 print('Device has been reset!')
             return True
-        except:
+        except Exception:
             return False
 
     def get_rlease_device(self, did, get=True):

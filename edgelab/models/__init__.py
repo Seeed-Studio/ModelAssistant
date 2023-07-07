@@ -1,13 +1,6 @@
-from .backbones import *
-from .detectors import *
-from .classifiers import *
-from .heads import *
-from .losses import *
-from .necks import *
-
-__all__ = [
-    'SoundNetRaw', 'Speechcommand', 'PFLD', 'Audio_head', 'Audio_classify',
-    'LabelSmoothCrossEntropyLoss', 'PFLDLoss', 'PFLDhead', 'FastestDet', 'SPP',
-    'NLLLoss', 'BCEWithLogitsLoss', 'Fomo_Head', 'CustomShuffleNetV2',
-    'FomoLoss','Fomo', 'AxesNet', 'AccelerometerClassifier','FPN','MobileNetv2'
-]
+from .backbones import *  #noqa
+from .detectors import *  #noqa
+from .classifiers import *  #noqa
+from .heads import *  #noqa
+from .losses import *  #noqa
+from .necks import *  #noqa

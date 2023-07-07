@@ -86,7 +86,6 @@ class SoundNetRaw(nn.Module):
                  factors=[4, 4, 4],
                  out_channel=32):
         super().__init__()
-        base_ = 4
         model = [
             # nn.ReflectionPad1d(3),
             nn.Conv1d(1, nf, kernel_size=11, stride=6, padding=5, bias=False),
