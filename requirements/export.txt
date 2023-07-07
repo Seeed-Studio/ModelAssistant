@@ -1,0 +1,2 @@
+# tlite export dep
+TinyNeuralNetwork@git+https://github.com/LynnL4/TinyNeuralNetwork.git

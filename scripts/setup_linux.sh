@@ -69,7 +69,7 @@ fi
 
 # install optional deps
 if [ "${INSTALL_OPTIONAL}" == true ]; then
-    pip3 install -r requirements/inference.txt
+    pip3 install -r requirements/inference.txt -r requirements/export.txt
 fi
 
 
