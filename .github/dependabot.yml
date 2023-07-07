@@ -15,4 +15,3 @@ updates:
     target-branch: "dev"
     labels:
       - "npm dependencies"
-      

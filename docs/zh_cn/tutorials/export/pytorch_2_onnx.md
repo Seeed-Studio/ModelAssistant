@@ -33,33 +33,11 @@ conda activate edgelab
 关于模型转换导出，相关的工具脚本指令和一些常用参数已经列出:
 
 ```sh
-python3 tools/torch2onnx.py \
-    <TASK> \
-    <CONFIG_FILE_PATH> \
-    --checkpoint <CHECKPOINT_FILE_PATH> \
-    --simplify <SIMPLIFY> \
-    --shape <SHAPE>
+python3 tools/export.py \
+    "<CONFIG_FILE_PATH>" \
+    "<CHECKPOINT_FILE_PATH>" \
+    "<TARGETS>"
 ```
-
-### 导出参数
-
-您需要将以上参数根据实际情况进行替换，各个不同参数的具体说明如下:
-
-- `<TASK>` - 模型的类型，可选参数: `['det', 'cls', 'pose']`
-
-- `<CONFIG_FILE_PATH>` - 模型配置文件的路径
-
-- `<CHECKPOINT_FILE_PATH>` - 模型权重文件的路径
-
-- `<SIMPLIFY>` - 是否简化模型，默认 `False`
-
-- `<SHAPE>` - 模型的输入张量的维度，默认 `112`
-
-::: tip
-
-对于支持的更多参数，请参考代码源文件 `tools/torch2onnx.py`。
-
-:::
 
 ### 导出示例
 
@@ -67,20 +45,31 @@ python3 tools/torch2onnx.py \
 
 ::: code-group
 
-```sh [FOMO 模型导出]
-python3 tools/torch2onnx.py \
-    det \
+```sh [FOMO Model Conversion]
+python3 tools/export.py \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
-    --checkpoint "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)" \
-    --shape 96
+    "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)" \
+    onnx \
+    --cfg-options \
+        data_root='datasets/mask'
 ```
 
-```sh [PFLD 模型导出]
-python3 tools/torch2onnx.py \
-    pose \
+```sh [PFLD Model Conversion]
+python3 tools/export.py \
     configs/pfld/pfld_mv2n_112.py \
-    --checkpoint "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)" \
-    --shape 112
+    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)" \
+    onnx \
+    --cfg-options \
+        data_root='datasets/meter'
+```
+
+```sh [YOLOv5 Model Conversion]
+python3 tools/export.py \
+    configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
+    "$(cat work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint)" \
+    onnx \
+    --cfg-options \
+        data_root='datasets/digital_meter'
 ```
 
 :::
@@ -91,34 +80,16 @@ python3 tools/torch2onnx.py \
 由于在导出模型的过程中，EdgeLab 会借助一些工具对模型进行一些优化，如模型的剪枝、蒸馏等，虽然我们在训练过程中已经对模型权重进行了测试和评估，我们建议您对导出后的模型进行再次验证。
 
 ```sh
-python3 tools/test.py \
-    <TASK> \
-    <CONFIG_FILE_PATH> \
-    <CHECKPOINT_FILE_PATH> \
-    --out <OUT_FILE_PATH> \
-    --work-dir <WORK_DIR_PATH> \
-    --cfg-options <CFG_OPTIONS>
+python3 tools/inference.py \
+    "<CONFIG_FILE_PATH>" \
+    "<CHECKPOINT_FILE_PATH>" \
+    --show \
+    --cfg-options "<CFG_OPTIONS>"
 ```
-
-### 验证参数
-
-您需要将以上参数根据实际情况进行替换，各个不同参数的具体说明如下:
-
-- `<TASK>` - 模型的类型，可选参数: `['det', 'cls', 'pose']`
-
-- `<CONFIG_FILE_PATH>` - 模型配置文件的路径
-
-- `<CHECKPOINT_FILE_PATH>` - 模型权重文件的路径
-
-- `<OUT_FILE_PATH>` - (可选) 验证结果输出的文件路径
-
-- `<WORK_DIR_PATH>` - (可选) 工作目录的路径
-
-- `<CFG_OPTIONS>` - (可选) 配置文件参数覆写，具体请参考[模型配置 - EdgeLab 参数化配置](../config.md#edgelab-参数化配置)
 
 ::: tip
 
-对于支持的更多参数，请参考代码源文件 `tools/test.py`。
+对于支持的更多参数，请参考代码源文件 `tools/inference.py` 或运行命令 `python3 tools/inference.py --help`。
 
 :::
 
@@ -126,22 +97,31 @@ python3 tools/test.py \
 
 ::: code-group
 
-```sh [FOMO 模型评估]
-python3 tools/test.py \
-    det \
+```sh [FOMO Model Validation]
+python3 tools/inference.py \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
     "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint | sed -e 's/.pth/.onnx/g')" \
+    --show \
     --cfg-options \
         data_root='datasets/mask'
 ```
 
-```sh [PFLD 模型评估]
-python3 tools/test.py \
-    pose \
+```sh [PFLD Model Validation]
+python3 tools/inference.py \
     configs/pfld/pfld_mv2n_112.py \
     "$(cat work_dirs/pfld_mv2n_112/last_checkpoint | sed -e 's/.pth/.onnx/g')" \
+    --show \
     --cfg-options \
         data_root='datasets/meter'
+```
+
+```sh [YOLOv5 Model Validation]
+python3 tools/inference.py \
+    configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
+    "$(cat work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint | sed -e 's/.pth/.onnx/g')" \
+    --show \
+    --cfg-options \
+        data_root='datasets/digital_meter'
 ```
 
 :::

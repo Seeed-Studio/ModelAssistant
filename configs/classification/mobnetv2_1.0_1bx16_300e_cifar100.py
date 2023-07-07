@@ -3,7 +3,7 @@ default_scope = "edgelab"
 custom_imports = dict(imports=["edgelab"], allow_failed_imports=False)
 
 # model settings
-num_classes = 10
+num_classes = 100
 
 # dataset settings
 dataset_type = "mmcls.CIFAR10"
@@ -18,14 +18,13 @@ persistent_workers = True
 lr = 0.01
 epochs = 300
 
-
 model = dict(
     type='edgelab.ImageClassifier',
-    backbone=dict(type="MobileNetv2", widen_factor=0.35, out_indices=(2,), rep=True),
+    backbone=dict(type="mmcls.MobileNetV2", widen_factor=1.0),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
         type="mmcls.LinearClsHead",
-        in_channels=16,
+        in_channels=1280,
         num_classes=num_classes,
         loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
         topk=(1, 5),
@@ -52,7 +51,7 @@ train_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        data_prefix='cifar10/',
+        data_prefix='cifar100/',
         test_mode=False,
         pipeline=train_pipeline,
     ),
@@ -66,7 +65,7 @@ val_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        data_prefix='cifar10/',
+        data_prefix='cifar100/',
         test_mode=True,
         pipeline=test_pipeline,
     ),
@@ -85,7 +84,6 @@ test_cfg = dict()
 
 # optimizer
 optim_wrapper = dict(optimizer=dict(type='SGD', lr=lr, momentum=0.9, weight_decay=0.0001))
-
 # learning policy
 param_scheduler = [
     dict(type="LinearLR", begin=0, end=30, start_factor=0.001, by_epoch=False),  # warm-up

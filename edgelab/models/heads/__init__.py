@@ -1,5 +1,4 @@
-from .cls_head import Audio_head, ClsHead
-from .linear_head import LinearClsHead
+from .cls_head import Audio_head
 from .taggregate_head import TAggregate
 from .pfld_head import PFLDhead
 from .fomo_head import FomoHead
@@ -9,5 +8,5 @@ from .yolo_head import YOLOV5Head
 
 __all__ = [
     'Audio_head', 'TAggregate', 'PFLDhead', 'Fastest_Head', 'FomoHead',
-    'AxesClsHead', 'YOLOV5Head', 'ClsHead', 'LinearClsHead'
+    'AxesClsHead', 'YOLOV5Head',
 ]

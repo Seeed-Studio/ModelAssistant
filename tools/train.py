@@ -1,257 +1,210 @@
 import argparse
 import os
-import os.path as osp
-from copy import deepcopy
-import edgelab.models
-import edgelab.datasets
-import edgelab.evaluation
-import edgelab.engine
-import edgelab.visualization
+import tempfile
 
 import torch
-from mmengine.analysis import get_model_complexity_info
-from mmengine.config import Config, DictAction, ConfigDict
-from mmengine.registry import RUNNERS
-from mmengine.runner import Runner
-from mmengine.utils import digit_version
-from mmengine.utils.dl_utils import TORCH_VERSION
-from mmdet.utils import setup_cache_size_limit_of_dynamo
 
-from tools.utils.config import load_config, dump_config_to_log_dir
+# TODO: Move to config file
+import edgelab.datasets  # noqa
+import edgelab.engine  # noqa
+import edgelab.evaluation  # noqa
+import edgelab.models  # noqa
+import edgelab.visualization  # noqa
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Train a detector')
-    parser.add_argument('task',
-                        default='mmdet',
-                        choices=['cls', 'det', 'pose'],
-                        help='Choose training type')
-    parser.add_argument('config', help='train config file path')
-    parser.add_argument('--work-dir', help='the dir to save logs and models')
-    parser.add_argument('--amp',
-                        action='store_true',
-                        default=False,
-                        help='enable automatic-mixed-precision training')
-    parser.add_argument('--auto-scale-lr',
-                        action='store_true',
-                        help='enable automatically scaling LR.')
-    parser.add_argument(
-        '--resume',
-        nargs='?',
-        type=str,
-        const='auto',
-        help='If specify checkpoint path, resume from it, while if not '
-        'specify, try to auto resume from the latest checkpoint '
-        'in the work directory.')
-    # vision
-    parser.add_argument(
-        '--show-dir',
-        help='directory where the visualization images will be saved.')
-    parser.add_argument(
-        '--show',
-        action='store_true',
-        help='whether to display the prediction results in a window.')
-    parser.add_argument('--interval',
-                        type=int,
-                        default=1,
-                        help='visualize per interval samples.')
-    parser.add_argument('--wait-time',
-                        type=float,
-                        default=1,
-                        help='display time of every window. (second)')
+    from mmengine.config import DictAction
 
+    parser = argparse.ArgumentParser(description="Train EdgeLab models")
+
+    # common configs
+    parser.add_argument("config", type=str, help="the model config file path")
     parser.add_argument(
-        '--no-validate',
-        action='store_true',
-        help='whether not to evaluate the checkpoint during training')
-    parser.add_argument(
-        '--no-pin-memory',
-        action='store_true',
-        help='whether to disable the pin_memory option in dataloaders.')
-    parser.add_argument(
-        '--no-persistent-workers',
-        action='store_true',
-        help='whether to disable the persistent_workers option in dataloaders.'
+        "--work_dir",
+        "--work-dir",
+        type=str,
+        default=None,
+        help="the directory to save logs and models",
     )
     parser.add_argument(
-        '--cfg-options',
-        nargs='+',
+        "--amp",
+        action="store_true",
+        default=False,
+        help="enable automatic-mixed-precision during training (https://pytorch.org/tutorials/recipes/recipes/amp_recipe.html)",
+    )
+    parser.add_argument(
+        "--auto_scale_lr",
+        "--auto-scale-lr",
+        action="store_true",
+        default=False,
+        help="enable automatic-scale-LR during training",
+    )
+    parser.add_argument(
+        "--resume",
+        nargs="?",
+        type=str,
+        const="auto",
+        help="resume training from the checkpoint of the last epoch (or a specified checkpoint path)",
+    )
+    parser.add_argument(
+        "--no_validate",
+        "--no-validate",
+        action="store_true",
+        default=False,
+        help="disable checkpoint evaluation during training",
+    )
+    parser.add_argument(
+        "--launcher",
+        type=str,
+        default="none",
+        choices=["none", "pytorch", "slurm", "mpi"],
+        help="the job launcher for MMEngine",
+    )
+    parser.add_argument(
+        "--cfg_options",
+        "--cfg-options",
+        nargs="+",
         action=DictAction,
-        help='override some settings in the used config, the key-value pair '
-        'in xxx=yyy format will be merged into config file. If the value to '
-        'be overwritten is a list, it should be like key="[a,b]" or key=a,b '
-        'It also allows nested list/tuple values, e.g. key="[(a,b),(c,d)]" '
-        'Note that the quotation marks are necessary and that no white space '
-        'is allowed.')
-    parser.add_argument('--launcher',
-                        choices=['none', 'pytorch', 'slurm', 'mpi'],
-                        default='none',
-                        help='job launcher')
-    # When using PyTorch version >= 2.0.0, the `torch.distributed.launch`
-    # will pass the `--local-rank` parameter to `tools/train.py` instead
-    # of `--local_rank`.
-    parser.add_argument('--local_rank', '--local-rank', type=int, default=0)
-    args = parser.parse_args()
-    if 'LOCAL_RANK' not in os.environ:
-        os.environ['LOCAL_RANK'] = str(args.local_rank)
+        help="override some settings in the used config, the key-value pair in 'xxx=yyy' format will be merged into config file",
+    )
+    parser.add_argument(
+        "--local_rank",
+        "--local-rank",
+        type=int,
+        default=0,
+        help="set local-rank for PyTorch",
+    )
+    parser.add_argument(
+        "--dynamo_cache_size",
+        "--dynamo-cache-size",
+        type=int,
+        default=None,
+        help="set dynamo-cache-size limit for PyTorch",
+    )
+
+    # extension
+    parser.add_argument(
+        "--input_shape",
+        "--input-shape",
+        type=int,
+        nargs="+",
+        default=None,
+        help="Extension: input data shape for model parameters estimation, e.g. 1 3 224 224",
+    )
+
+    return parser.parse_args()
+
+
+def verify_args(args):
+    assert os.path.splitext(args.config)[-1] == ".py", "The config file name should be ended with a '.py' extension"
+    assert os.path.exists(args.config), "The config file does not exist"
+    assert args.local_rank >= 0, "The local-rank should be larger than or equal to 0"
+    if args.dynamo_cache_size is not None:
+        assert args.dynamo_cache_size > 0, "The local-rank should be larger than or equal to 0"
 
     return args
 
 
-def merge_args(cfg, args):
-    """Merge CLI arguments to config."""
-    if args.no_validate:
-        cfg.val_cfg = None
-        cfg.val_dataloader = None
-        cfg.val_evaluator = None
+def build_config(args):
+    from mmengine.config import Config
+
+    from edgelab.tools.utils.config import load_config
+
+    if "LOCAL_RANK" not in os.environ:
+        os.environ["LOCAL_RANK"] = str(args.local_rank)
+
+    if args.dynamo_cache_size is not None:
+        torch._dynamo.config.cache_size_limit = args.dynamo_cache_size
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        cfg_data = load_config(args.config, folder=tmp_dir, cfg_options=args.cfg_options)
+        cfg = Config.fromfile(cfg_data)
+
+    if args.cfg_options is not None:
+        cfg.merge_from_dict(args.cfg_options)
 
     cfg.launcher = args.launcher
 
-    # work_dir is determined in this priority: CLI > segment in file > filename
     if args.work_dir is not None:
-        # update configs according to CLI args if args.work_dir is not None
         cfg.work_dir = args.work_dir
-    elif cfg.get('work_dir', None) is None:
-        # use config filename as default work_dir if cfg.work_dir is None
-        cfg.work_dir = osp.join('./work_dirs',
-                                osp.splitext(osp.basename(args.config))[0])
+    elif cfg.get("work_dir", None) is None:
+        args.work_dir = cfg.work_dir = os.path.join("work_dirs", os.path.splitext(os.path.basename(args.config))[0])
 
-    # enable automatic-mixed-precision training
     if args.amp is True:
-        optim_wrapper = cfg.optim_wrapper.get('type', 'OptimWrapper')
-        assert optim_wrapper in ['OptimWrapper', 'AmpOptimWrapper'], \
-            '`--amp` is not supported custom optimizer wrapper type ' \
-            f'`{optim_wrapper}.'
-        cfg.optim_wrapper.type = 'AmpOptimWrapper'
-        cfg.optim_wrapper.setdefault('loss_scale', 'dynamic')
+        optim_wrapper = cfg.optim_wrapper.get("type", "OptimWrapper")
+        assert optim_wrapper in [
+            "OptimWrapper",
+            "AmpOptimWrapper",
+        ], f"automatic-mixed-precision is not supported by {optim_wrapper}"
+        cfg.optim_wrapper.type = "AmpOptimWrapper"
+        cfg.optim_wrapper.setdefault("loss_scale", "dynamic")
 
-    # resume training
-    if args.resume == 'auto':
+    if args.resume == "auto":
         cfg.resume = True
         cfg.load_from = None
     elif args.resume is not None:
         cfg.resume = True
         cfg.load_from = args.resume
 
-    # enable auto scale learning rate
     if args.auto_scale_lr:
         cfg.auto_scale_lr.enable = True
 
-    # visualization-
-    if args.task == 'pose' and (args.show or (args.show_dir is not None)):
-        assert 'visualization' in cfg.default_hooks, \
-            'PoseVisualizationHook is not set in the ' \
-            '`default_hooks` field of config. Please set ' \
-            '`visualization=dict(type="PoseVisualizationHook")`'
+    if args.no_validate:
+        cfg.val_cfg = None
+        cfg.val_dataloader = None
+        cfg.val_evaluator = None
 
-        cfg.default_hooks.visualization.enable = True
-        cfg.default_hooks.visualization.show = args.show
-        if args.show:
-            cfg.default_hooks.visualization.wait_time = args.wait_time
-        cfg.default_hooks.visualization.out_dir = args.show_dir
-        cfg.default_hooks.visualization.interval = args.interval
-
-    if args.cfg_options is not None:
-        cfg.merge_from_dict(args.cfg_options)
-
-    if args.task == 'cls':
-        # set dataloader args
-        default_dataloader_cfg = ConfigDict(
-            pin_memory=True,
-            persistent_workers=True,
-            collate_fn=dict(type='default_collate'),
+    if args.input_shape is None:
+        try:
+            if "shape" in cfg:
+                args.input_shape = cfg.shape
+            elif "width" in cfg and "height" in cfg:
+                args.input_shape = [
+                    1,
+                    3,
+                    cfg.width,
+                    cfg.height,
+                ]
+        except Exception as exc:
+            raise ValueError("Please specify the input shape") from exc
+        print(
+            "Using automatically generated input shape (from config '{}'): {}".format(
+                os.path.basename(args.config), args.input_shape
+            )
         )
-        if digit_version(TORCH_VERSION) < digit_version('1.8.0'):
-            default_dataloader_cfg.persistent_workers = False
 
-        def set_default_dataloader_cfg(cfg, field):
-            if cfg.get(field, None) is None:
-                return
-            dataloader_cfg = deepcopy(default_dataloader_cfg)
-            dataloader_cfg.update(cfg[field])
-            cfg[field] = dataloader_cfg
-            if args.no_pin_memory:
-                cfg[field]['pin_memory'] = False
-            if args.no_persistent_workers:
-                cfg[field]['persistent_workers'] = False
-
-        set_default_dataloader_cfg(cfg, 'train_dataloader')
-        set_default_dataloader_cfg(cfg, 'val_dataloader')
-        set_default_dataloader_cfg(cfg, 'test_dataloader')
-
-    return cfg
+    return args, cfg
 
 
 def main():
+    from mmengine.analysis import get_model_complexity_info
+    from mmengine.device import get_device
+
     args = parse_args()
+    args = verify_args(args)
+    args, cfg = build_config(args)
 
-    # Reduce the number of repeated compilations and improve
-    # training speed.
-    setup_cache_size_limit_of_dynamo()
+    if "runner_type" not in cfg:
+        from mmengine.runner import Runner
 
-    import tempfile as tf
-
-    # load config
-    tmp_folder = tf.TemporaryDirectory()
-    # Modify and create temporary configuration files
-    config_data = load_config(args.config,
-                              folder=tmp_folder.name,
-                              cfg_options=args.cfg_options)
-    # load temporary configuration files
-    cfg = Config.fromfile(config_data)
-    tmp_folder.cleanup()
-    cfg = merge_args(cfg, args)
-
-    # set preprocess configs to model
-    if 'preprocess_cfg' in cfg:
-        cfg.model.setdefault('data_preprocessor',
-                             cfg.get('preprocess_cfg', {}))
-
-    # build the runner from config
-    if 'runner_type' not in cfg:
-        # build the default runner
-        Runner.dump_config = dump_config_to_log_dir
         runner = Runner.from_cfg(cfg)
     else:
-        # build customized runner from the registry
-        # if 'runner_type' is set in the cfg
+        from mmengine.registry import RUNNERS
+
         runner = RUNNERS.build(cfg)
 
-    # model complex anly
-    try:
-        if 'shape' in cfg:
-            shape = cfg.shape
-        elif 'width' in cfg and 'height' in cfg:
-            shape = [
-                1,
-                3,
-                cfg.width,
-                cfg.height,
-            ]
-    except:
-        raise ValueError('Please specify the input shape')
+    device = get_device()
+    dummy_inputs = torch.randn(*args.input_shape, device=device)
+    model = runner.model.to(device=device)
+    model.eval()
 
-    if type(shape) == int:
-        inputs = torch.rand(shape)
-    else:
-        inputs = torch.rand(*shape)
+    analysis_results = get_model_complexity_info(model=model, input_shape=args.input_shape, inputs=(dummy_inputs,))
 
-    if torch.cuda.is_available():
-        inputs = inputs.cuda()
-        runner.model.cuda()
-        runner.model.eval()
-    analysis_results = get_model_complexity_info(model=runner.model,
-                                                 input_shape=shape,
-                                                 inputs=(inputs, ))
-    print('=' * 40)
-    print(f"{'Input Shape':^20}:{str(shape):^20}")
-    print(f"{'Model Flops':^20}:{analysis_results['flops_str']:^20}")
-    print(f"{'Model Parameters':^20}:{analysis_results['params_str']:^20}")
-    print('=' * 40)
+    print("Model Flops:{}".format(analysis_results["flops_str"]))
+    print("Model Parameters:{}".format(analysis_results["params_str"]))
 
-    # start training
     runner.train()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

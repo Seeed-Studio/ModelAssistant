@@ -46,7 +46,7 @@ conda activate edgelab
 
 ### Step 2 - Install PyTorch
 
-EdgeLab relies on PyTorch. Before running the following code, please confirm again that you have **activated** the virtual environment you just created. 
+EdgeLab relies on PyTorch. Before running the following code, please confirm again that you have **activated** the virtual environment you just created.
 
 For devices with GPUs (CUDA), we recommend installing dependencies that support GPU acceleration. We have listed the configuration options you can choose from in 2 different cases, please choose manually according to your hardware environment.
 
@@ -99,6 +99,13 @@ If you need to perform model transformation or inference testing, you also need 
 
 ```sh
 pip3 install -r requirements/inference.txt -r requirements/export.txt
+```
+
+If you wish to make changes to EdgeLab and submit them to us, we recommend that you additionally run the following command to facilitate checking your code at commit time.
+
+```sh
+pip3 install -r requirements/tests.txt
+pre-commit install
 ```
 
 

@@ -2,7 +2,7 @@
 
 <div align="center">
   <img width="100%" src="docs/public/images/EdgeLab-Logo.png">
-  <h3> <a href="https://seeed-studio.github.io/EdgeLab/"> Documentation </a> | <a href="https://seeed-studio.github.io/EdgeLab/zh_cn/"> 中文文档 </a>  </h3>
+  <h3> <a href="https://seeed-studio.github.io/EdgeLab/"> Documentation </a> | <a href="https://github.com/Seeed-Studio/edgelab-model-zoo"> Model Zoo </a>  </h3>
 </div>
 
 English | [简体中文](README_zh-CN.md)

@@ -1,26 +1,26 @@
 from typing import Optional, Sequence, Tuple, Union
 
-import torch
 import numpy as np
+import torch
 import torch.nn as nn
-from torch.nn import functional as F
-from sklearn.metrics import confusion_matrix
+from mmcv.cnn import is_norm
+from mmdet.models.utils import multi_apply, unpack_gt_instances
+from mmengine.model import BaseModule, constant_init, normal_init
 from mmengine.registry import MODELS
 from mmengine.structures import InstanceData
-from mmengine.model import BaseModule
-from mmengine.model import normal_init, constant_init
-from mmcv.cnn import is_norm
-from mmdet.models.utils import unpack_gt_instances, multi_apply
+from sklearn.metrics import confusion_matrix
+from torch.nn import functional as F
 
 from edgelab.registry import LOSSES
+
 from ..base.general import CBR
 
 
 @MODELS.register_module()
 class FomoHead(BaseModule):
     """
-    The difference between the Fomo model head and the target detection model head 
-    is that the output of this model only contains the probability of all categories, 
+    The difference between the Fomo model head and the target detection model head
+    is that the output of this model only contains the probability of all categories,
     and does not contain the value of xyhw
     """
 
@@ -29,23 +29,19 @@ class FomoHead(BaseModule):
         input_channels: Union[Sequence[int], int],
         middle_channel: int = 48,
         num_classes: int = 20,
-        act_cfg: str = 'ReLU6',
+        act_cfg: str = "ReLU6",
         loss_weight: Optional[Sequence[int]] = None,
         train_cfg: Optional[dict] = None,
         test_cfg: Optional[dict] = None,
-        loss_cls: Optional[dict] = dict(type='BCEWithLogitsLoss',
-                                        reduction='mean'),
-        loss_bg: Optional[dict] = dict(type='BCEWithLogitsLoss',
-                                       reduction='mean'),
-        init_cfg: Optional[dict] = dict(type='Normal', std=0.01)
+        loss_cls: Optional[dict] = dict(type="BCEWithLogitsLoss", reduction="mean"),
+        loss_bg: Optional[dict] = dict(type="BCEWithLogitsLoss", reduction="mean"),
+        init_cfg: Optional[dict] = dict(type="Normal", std=0.01),
     ) -> None:
         super(FomoHead, self).__init__(init_cfg)
         self.num_classes = num_classes
-        self.input_channels = input_channels if isinstance(
-            input_channels, Sequence) else [input_channels]
+        self.input_channels = input_channels if isinstance(input_channels, Sequence) else [input_channels]
 
-        self.middle_channels = middle_channel[0] if isinstance(
-            middle_channel, Sequence) else middle_channel
+        self.middle_channels = middle_channel[0] if isinstance(middle_channel, Sequence) else middle_channel
         self.act_cfg = act_cfg
 
         if loss_weight:
@@ -57,9 +53,19 @@ class FomoHead(BaseModule):
 
         # Offset of the ground truth box
         self.posit_offset = torch.tensor(
-            [[0, -1, 0], [0, -1, -1], [0, 0, -1], [0, 1, 0], [0, 1, 1],
-             [0, 0, 1], [0, 1, -1], [0, -1, 1], [0, 0, 0]],
-            dtype=torch.long)
+            [
+                [0, -1, 0],
+                [0, -1, -1],
+                [0, 0, -1],
+                [0, 1, 0],
+                [0, 1, 1],
+                [0, 0, 1],
+                [0, 1, -1],
+                [0, -1, 1],
+                [0, 0, 0],
+            ],
+            dtype=torch.long,
+        )
         self._init_layers()
 
     def _init_layers(self):
@@ -67,14 +73,16 @@ class FomoHead(BaseModule):
         self.convs_pred = nn.ModuleList()
         for i in range(len(self.input_channels)):
             self.convs_bridge.append(
-                CBR(self.input_channels[i],
+                CBR(
+                    self.input_channels[i],
                     self.middle_channels,
                     3,
                     1,
                     padding=1,
-                    act=self.act_cfg))
-            self.convs_pred.append(
-                nn.Conv2d(self.middle_channels, self.num_attrib, 1, padding=0))
+                    act=self.act_cfg,
+                )
+            )
+            self.convs_pred.append(nn.Conv2d(self.middle_channels, self.num_attrib, 1, padding=0))
 
     def forward(self, x: Tuple[torch.Tensor, ...]):
         """
@@ -82,11 +90,11 @@ class FomoHead(BaseModule):
         Args:
             x(tuple[Tensor]): Features from the upstream network, each is
                 a 4D-tensor.
-        
+
         Returns:
-            (tuple): Output the corresponding number of predicted feature 
+            (tuple): Output the corresponding number of predicted feature
                 maps according to the output of the upstream network
-        
+
         """
         assert len(x) == len(self.input_channels)
 
@@ -99,14 +107,12 @@ class FomoHead(BaseModule):
         return tuple(result)
 
     def loss(self, inputs: Tuple[torch.Tensor, ...], data_samples):
-
         pred = self.forward(inputs)
 
         gt = unpack_gt_instances(data_samples)
         (batch_gt_instances, batch_gt_instances_ignore, batch_img_metas) = gt
 
-        loss = self.loss_by_feat(pred, batch_gt_instances, batch_img_metas,
-                                 batch_gt_instances_ignore)
+        loss = self.loss_by_feat(pred, batch_gt_instances, batch_img_metas, batch_gt_instances_ignore)
 
         return loss
 
@@ -114,66 +120,59 @@ class FomoHead(BaseModule):
         preds = self.forward(features)
         preds = tuple([F.softmax(pred, dim=1) for pred in preds])
 
-        img_shape = batch_data_samples[0].metainfo['img_shape']
-        batch_gt_instances = [
-            data_samples.gt_instances for data_samples in batch_data_samples
-        ]
+        img_shape = batch_data_samples[0].metainfo["img_shape"]
+        batch_gt_instances = [data_samples.gt_instances for data_samples in batch_data_samples]
 
         return [
-            InstanceData(pred=preds,
-                         labels=tuple([
-                             self.build_target(pred.shape[2:], img_shape,
-                                               batch_gt_instances, pred.device)
-                             for pred in preds
-                         ]))
+            InstanceData(
+                pred=preds,
+                labels=tuple(
+                    [self.build_target(pred.shape[2:], img_shape, batch_gt_instances, pred.device) for pred in preds]
+                ),
+            )
         ]
 
-    def loss_by_feat(self, preds, batch_gt_instances, batch_img_metas,
-                     batch_gt_instances_ignore) -> dict:
+    def loss_by_feat(self, preds, batch_gt_instances, batch_img_metas, batch_gt_instances_ignore) -> dict:
         device = preds[0].device
-        input_shape = batch_img_metas[0]['img_shape']  #batch_input_shape
+        input_shape = batch_img_metas[0]["img_shape"]  # batch_input_shape
         # Get the ground truth box that fits the fomo model
-        target = [
-            self.build_target(pred.shape[2:], input_shape, batch_gt_instances,
-                              device) for pred in preds
-        ]
-        loss, cls_loss, bg_loss, P, R, F1 = multi_apply(
-            self.lossFunction, preds, target)
+        target = [self.build_target(pred.shape[2:], input_shape, batch_gt_instances, device) for pred in preds]
+        loss, cls_loss, bg_loss, P, R, F1 = multi_apply(self.lossFunction, preds, target)
 
         return dict(loss=loss, fgnd=cls_loss, bgnd=bg_loss, P=P, R=R, F1=F1)
 
     def build_target(self, pred_shape, ori_shape, gt_bboxs, device):
         """
-        The target feature map constructed according to the size 
+        The target feature map constructed according to the size
         of the feature map output by the model
         bbox: xyxy
         """
-        H, W, = pred_shape
+        H, W = pred_shape
         B = len(gt_bboxs)
 
-        target_data = torch.zeros(size=(B, *pred_shape, self.num_attrib),
-                                  device=device)
+        target_data = torch.zeros(size=(B, *pred_shape, self.num_attrib), device=device)
         target_data[..., 0] = 1
-
+        esp = 1e-5
+        fw = W / (2 * ori_shape[1])
+        fh = H / (2 * ori_shape[0])
         for b, bboxs in enumerate(gt_bboxs):
-
             for idx, bbox in enumerate(bboxs.bboxes):
-                w = (bbox[2] + bbox[0]) / 2 / ori_shape[1]
-                h = (bbox[3] + bbox[1]) / 2 / ori_shape[0]
-                h, w = int(h.item() * H), int(w.item() * W)
+                w = torch.mul((bbox[2] + bbox[0]), fw)
+                h = torch.mul((bbox[3] + bbox[1]), fh)
+                h, w = int(h.item() - esp), int(w.item() - esp)
                 target_data[b, h, w, 0] = 0  # background
-                target_data[b, h, w, bboxs.labels[idx] + 1] = 1  #label
+                target_data[b, h, w, bboxs.labels[idx] + 1] = 1  # label
         return target_data
 
     def lossFunction(self, pred_maps: torch.Tensor, data: torch.Tensor):
-        """ Calculate the loss of the model 
+        """Calculate the loss of the model
         Args:
             preds(torch.Tensor): Model Predicted Output
-            target(torch.Tensor): The target feature map constructed according to the 
+            target(torch.Tensor): The target feature map constructed according to the
                 size of the feature map output by the model
-                
+
         Returns:
-            (dict): The model loss value in the training phase and the evaluation index 
+            (dict): The model loss value in the training phase and the evaluation index
                 of the model
         """
         preds = pred_maps.permute(0, 2, 3, 1)
@@ -199,54 +198,59 @@ class FomoHead(BaseModule):
         loss = torch.mean(cls_loss + bg_loss)
         # get p,r,f1
         P, R, F1 = self.get_pricsion_recall_f1(preds, data)
-        return loss, cls_loss, bg_loss, torch.Tensor([P]), torch.Tensor(
-            [R]), torch.Tensor([F1])
+        return (
+            loss,
+            cls_loss,
+            bg_loss,
+            torch.Tensor([P]),
+            torch.Tensor([R]),
+            torch.Tensor([F1]),
+        )
 
-    def get_pricsion_recall_f1(self, preds: torch.Tensor,
-                               target: torch.Tensor):
-        """ 
-        Calculate the evaluation index of model prediction 
+    def get_pricsion_recall_f1(self, preds: torch.Tensor, target: torch.Tensor):
+        """
+        Calculate the evaluation index of model prediction
         according to the prediction result of the model and the target feature map.
-        
+
         Args:
             preds(torch.Tensor): Model Predicted Output
-            target(torch.Tensor): The target feature map constructed according to the 
+            target(torch.Tensor): The target feature map constructed according to the
                 size of the feature map output by the model
-                
+
         Returns:
             P: Precision
             R: Recall
             F1: F1
         """
-        preds = torch.softmax(preds, dim=-1)
+        with torch.no_grad():
+            target = target.to(device=torch.device('cpu'), non_blocking=True).numpy()
+            preds = torch.softmax(preds, dim=-1).to(device=torch.device('cpu'), non_blocking=True).numpy()
+
         B, H, W, C = preds.shape
         # Get the category id of each box
-        target_max = torch.argmax(target, dim=-1)
-        preds_max = torch.argmax(preds, dim=-1)
+        target_max = np.argmax(target, axis=-1)
+        preds_max = np.argmax(preds, axis=-1)
         # Get the index of the forecast for the non-background
-        target_condition = torch.where(target_max > 0)
-        preds_condition = torch.where(preds_max > 0)
+        target_condition = np.where(target_max > 0)
+        preds_condition = np.where(preds_max > 0)
         # splice index
-        target_index = torch.stack(target_condition, dim=1)
-        preds_index = torch.stack(preds_condition, dim=1)
-
-        self.posit_offset = self.posit_offset.to(target.device)
+        target_index = np.stack(target_condition, axis=1)
+        preds_index = np.stack(preds_condition, axis=1)
         # Traversal compares predicted and ground truth boxes
         for ti in target_index:
             for po in self.posit_offset:
-                site = ti + po
+                site = np.concatenate([ti, po], axis=0)
                 # Avoid index out of bounds
-                if torch.any(site < 0) or torch.any(site >= H):
+                if np.any(site < 0) or np.any(site >= H):
                     continue
                 # The prediction is considered to be correct if it is near the ground truth box
-                if site in preds_index and preds_max[site.chunk(
-                        3)] == target_max[ti.chunk(3)]:
-                    preds_max[site.chunk(3)] = target_max[ti.chunk(3)]
-                    target_max[site.chunk(3)] = target_max[ti.chunk(3)]
+                if site in preds_index:
+                    sc, tc = np.split(site, 3), np.split(ti, 3)
+                    if preds_max[sc] == target_max[tc]:
+                        preds_max[sc] = target_max[tc]
+                        target_max[sc] = target_max[tc]
         # Calculate the confusion matrix
-        confusion = confusion_matrix(target_max.flatten().cpu().numpy(),
-                                     preds_max.flatten().cpu().numpy(),
-                                     labels=range(self.num_attrib))
+        confusion = confusion_matrix(target_max.flatten(), preds_max.flatten(), labels=range(self.num_attrib))
         # Calculate the value of P、R、F1 based on the confusion matrix
         tn = confusion[0, 0]
         tp = np.diagonal(confusion).sum() - tn
@@ -264,9 +268,9 @@ class FomoHead(BaseModule):
 
     @property
     def num_attrib(self):
-        """ The number of classifications the model needs to classify (including background)
-            Return:
-                (int): Add one to the number of categories
+        """The number of classifications the model needs to classify (including background)
+        Return:
+            (int): Add one to the number of categories
         """
         return self.num_classes + 1
 
