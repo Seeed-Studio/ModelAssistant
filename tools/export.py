@@ -164,7 +164,7 @@ def verify_args(args):
 def build_config(args):
     from mmengine.config import Config
 
-    from tools.utils.config import load_config
+    from edgelab.tools.utils.config import load_config
 
     args.targets = [str(target).lower() for target in args.targets]
     args.precisions = [str(precision).lower() for precision in args.precisions]
