@@ -8,7 +8,6 @@ from mmengine.evaluator.evaluator import Evaluator
 from mmengine.runner.loops import EpochBasedTrainLoop, BaseLoop
 
 from edgelab.registry import LOOPS
-from mmengine.registry import RUNNERS
 
 
 @LOOPS.register_module()

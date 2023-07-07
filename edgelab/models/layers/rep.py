@@ -4,10 +4,7 @@ import torch
 import torch.nn as nn
 from mmengine.model import BaseModule
 
-# from ..base.general import ConvNormActivation,get_act
 from edgelab.models.base.general import ConvNormActivation, get_act
-
-from edgelab.models.base.general import get_act
 from edgelab.registry import FUNCTIONS, MODELS
 
 

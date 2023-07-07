@@ -1,4 +1,4 @@
-import os.path as osp
+import os
 from typing import Optional, Dict, Union
 
 from edgelab.registry import HOOKS
@@ -6,7 +6,7 @@ from mmengine.dist.utils import master_only
 # from mmcv.runner import HOOKS
 
 # from mmcv.runner.dist_utils import master_only
-# from mmcv.utils import TORCH_VERSION, digit_version
+from mmengine.utils.dl_utils import TORCH_VERSION
 # from mmcv.runner.hooks.logger.text import TextLoggerHook
 
 from .text import TextLoggerHook
@@ -35,8 +35,9 @@ class TensorboardLoggerHook(TextLoggerHook):
     @master_only
     def before_run(self, runner) -> None:
         super().before_run(runner)
-        if (TORCH_VERSION == 'parrots'
-                or digit_version(TORCH_VERSION) < digit_version('1.1')):
+        if not os.path.exists(self.log_dir):
+            os.makedirs(self.log_dir, exist_ok=True)  # type: ignore
+        if TORCH_VERSION == 'parrots':
             try:
                 from tensorboardX import SummaryWriter
             except ImportError:
@@ -50,10 +51,7 @@ class TensorboardLoggerHook(TextLoggerHook):
                     'Please run "pip install future tensorboard" to install '
                     'the dependencies to use torch.utils.tensorboard '
                     '(applicable to PyTorch 1.1 or higher)')
-
-        if self.log_dir is None:
-            self.log_dir = osp.join(runner.work_dir, 'tf_logs')
-        self.writer = SummaryWriter(self.log_dir)
+        self._tensorboard = SummaryWriter(self.log_dir)
 
     @master_only
     def log(self, runner) -> None:

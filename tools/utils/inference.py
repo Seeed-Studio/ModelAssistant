@@ -118,7 +118,7 @@ class Inter():
         elif self.engine == 'ncnn':  # ncnn
             self.inter.opt.use_vulkan_compute = False
             extra = self.inter.create_extractor()
-            extra.input(input_name, ncnn.Mat(img[0]))       #noqa
+            extra.input(input_name, ncnn.Mat(img[0]))       # noqa
             result = extra.extract(output_name)[1]
             result = [result[i] for i in range(len(result))]
         else:  # tf
@@ -229,7 +229,6 @@ def build_target(pred_shape, ori_shape, gt_bboxs):
     bbox: xyxy
     """
     H, W, C = pred_shape
-    B = len(gt_bboxs)
 
     target_data = torch.zeros(size=(1, *pred_shape))
     target_data[..., 0] = 1
