@@ -45,8 +45,8 @@ functional_test_core()
     CONFIG_FILE="$2"
     DATASETS_URL="$3"
 
-    CONFIG_FILE_NAME="$(basename -- \"${CONFIG_FILE} \")"
-    DATASETS_PATH="datasets/$(basename -- \"${DATASETS_URL} \")"
+    CONFIG_FILE_NAME="$(basename -- ${CONFIG_FILE})"
+    DATASETS_PATH="datasets/$(basename -- ${DATASETS_URL})"
     DATASETS_DIR="${DATASETS_PATH%.*}"
     LAST_CHECKPOINT="work_dirs/${CONFIG_FILE_NAME%.*}/last_checkpoint"
 
@@ -74,7 +74,7 @@ functional_test_core()
             tree work_dirs
             python3 tools/export.py \
                 "${CONFIG_FILE}" \
-                "$(cat \"${LAST_CHECKPOINT}\")" \
+                "$(cat ${LAST_CHECKPOINT})" \
                 tflite onnx \
                 --calibration_epochs 1 \
                 --cfg-options \
@@ -84,13 +84,13 @@ functional_test_core()
         "inference")
             python3 tools/inference.py \
                 "${CONFIG_FILE}" \
-                "$(cat \"${LAST_CHECKPOINT}\" | sed -e 's/.pth/_int8.tflite/g')" \
+                "$(cat ${LAST_CHECKPOINT} | sed -e 's/.pth/_int8.tflite/g')" \
                 --cfg-options \
                     data_root="${DATASETS_DIR}" \
             && \
             python3 tools/inference.py \
                 "${CONFIG_FILE}" \
-                "$(cat \"${LAST_CHECKPOINT}\" | sed -e 's/.pth/_float32.onnx/g')" \
+                "$(cat ${LAST_CHECKPOINT} | sed -e 's/.pth/_float32.onnx/g')" \
                 --cfg-options \
                     data_root="${DATASETS_DIR}"
             return $?
