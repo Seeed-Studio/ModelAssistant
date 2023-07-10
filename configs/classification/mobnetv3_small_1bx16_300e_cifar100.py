@@ -1,13 +1,13 @@
-_base_ = "../_base_/default_runtime_cls.py"
-default_scope = "edgelab"
-custom_imports = dict(imports=["edgelab"], allow_failed_imports=False)
+_base_ = '../_base_/default_runtime_cls.py'
+default_scope = 'edgelab'
+custom_imports = dict(imports=['edgelab'], allow_failed_imports=False)
 
 # model settings
 num_classes = 100
 
 # dataset settings
-dataset_type = "mmcls.CIFAR100"
-data_root = "datasets"
+dataset_type = 'mmcls.CIFAR100'
+data_root = 'datasets'
 height = 32
 width = 32
 batch_size = 16
@@ -38,12 +38,12 @@ model = dict(
 train_pipeline = [
     dict(type='mmcls.Rotate', angle=30.0, prob=0.6),
     dict(type='mmcls.RandomFlip', prob=0.5, direction='horizontal'),
-    dict(type="mmengine.Resize", scale=(height, width)),
+    dict(type='mmengine.Resize', scale=(height, width)),
     dict(type='mmcls.PackClsInputs'),
 ]
 
 test_pipeline = [
-    dict(type="mmengine.Resize", scale=(height, width)),
+    dict(type='mmengine.Resize', scale=(height, width)),
     dict(type='mmcls.PackClsInputs'),
 ]
 

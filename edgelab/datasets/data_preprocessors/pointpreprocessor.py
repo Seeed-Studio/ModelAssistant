@@ -24,7 +24,7 @@ class ETADataPreprocessor(BaseDataPreprocessor):
         non_blocking: Optional[bool] = False,
     ):
         self.n_cls = n_cls
-        self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self._device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         ba_params = {
             'seq_len': seq_len,
             'fs': sampling_rate,

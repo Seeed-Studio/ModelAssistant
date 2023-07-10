@@ -112,7 +112,7 @@ class FomoDatasets(CocoDataset):
         return {'inputs': ToTensor()(image), 'data_samples': torch.from_numpy(np.asarray(bbl))}
 
     def get_ann_info(self, idx):
-        ann = self.__getitem__[idx]["target"]
+        ann = self.__getitem__[idx]['target']
         return ann
 
     def bboxe2cell(self, bboxe, img_h, img_w, H, W):

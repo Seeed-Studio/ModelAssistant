@@ -25,8 +25,8 @@ class AlbCompose(A.Compose):
     def __init__(
         self,
         transforms: Sequence[Dict],
-        bbox_params: Optional[Union[dict, "BboxParams"]] = None,
-        keypoint_params: Optional[Union[dict, "KeypointParams"]] = None,
+        bbox_params: Optional[Union[dict, 'BboxParams']] = None,
+        keypoint_params: Optional[Union[dict, 'KeypointParams']] = None,
         additional_targets: Optional[Dict[str, str]] = None,
         p: float = 1,
     ):

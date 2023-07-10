@@ -1,6 +1,6 @@
 _base_ = '../_base_/default_runtime_cls.py'
 
-default_scope = "edgelab"
+default_scope = 'edgelab'
 
 num_classes = 3
 num_axes = 3

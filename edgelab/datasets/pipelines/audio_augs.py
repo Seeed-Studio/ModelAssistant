@@ -83,7 +83,7 @@ class RandomRIR(AugBasic):
             h = self.rir(mic, n, r, rm, src)
             h = torch.from_numpy(h).float()
             sample = sample[None, None, :]
-            sample = F.pad(sample, (h.shape[-1] // 2, h.shape[-1] // 2), "reflect")
+            sample = F.pad(sample, (h.shape[-1] // 2, h.shape[-1] // 2), 'reflect')
             sample = F.conv1d(
                 sample, h[None, None, :], bias=None, stride=1, padding=0, dilation=1, groups=sample.shape[1]
             )
@@ -109,7 +109,7 @@ class RandomLPHPFilter(AugBasic):
                 filt = scipy.signal.firwin(self.num_taps, fc, window='hamming', pass_zero=False)
             filt = torch.from_numpy(filt).float()
             filt = filt / filt.sum()
-            sample = F.pad(sample.view(1, 1, -1), (filt.shape[0] // 2, filt.shape[0] // 2), mode="reflect")
+            sample = F.pad(sample.view(1, 1, -1), (filt.shape[0] // 2, filt.shape[0] // 2), mode='reflect')
             sample = F.conv1d(sample, filt.view(1, 1, -1), stride=1, groups=1)
             sample = sample.view(-1)
         return sample
@@ -505,7 +505,7 @@ class AudioAugs:
             elif aug == 'fshift':
                 augs['fshift'] = RandomFreqShift(fs=fs, sgm=1, p=p)
             else:
-                raise ValueError("{} not supported".format(aug))
+                raise ValueError('{} not supported'.format(aug))
         self.augs = augs
         self.augs_signal = [a for a in augs if a not in self.noise_vec]
         self.augs_noise = [a for a in augs if a in self.noise_vec]
@@ -523,7 +523,7 @@ class AudioAugs:
         return sample
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     r = RandomRIR(fs=22050, p=1)
     x = torch.zeros(22050)
     x[0:100] = 1

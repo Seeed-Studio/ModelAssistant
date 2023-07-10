@@ -22,7 +22,7 @@ norm_cfg = dict(type='BN', momentum=0.03, eps=0.001)  # Normalization config
 obj_level_weights = [4.0, 1.0, 0.4]
 model = dict(
     type='Fomo',
-    backbone=dict(type="MobileNetv2", widen_factor=0.35, out_indices=(2, 3, 4), rep=True),
+    backbone=dict(type='MobileNetv2', widen_factor=0.35, out_indices=(2, 3, 4), rep=True),
     head=dict(
         type='edgelab.YOLOV5Head',
         head_module=dict(

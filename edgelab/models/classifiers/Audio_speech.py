@@ -5,7 +5,7 @@ from mmengine.logging import MessageHub
 from edgelab.registry import LOSSES, MODELS
 
 
-@MODELS.register_module("Audio_classify", force=True)
+@MODELS.register_module('Audio_classify', force=True)
 class Audio_classify(BaseClassifier):
     """
     https://arxiv.org/abs/2204.11479
@@ -65,4 +65,4 @@ class Audio_classify(BaseClassifier):
         features = self.backbone(img)
         result = self.sm(self.cls_head(features))
         # return [{'pred_label':{"score":result},"gt_label":{"label":kwargs['labels']}}]
-        return [{'pred_label': {"label": torch.max(result, dim=1)[1]}, "gt_label": {"label": kwargs['labels']}}]
+        return [{'pred_label': {'label': torch.max(result, dim=1)[1]}, 'gt_label': {'label': kwargs['labels']}}]

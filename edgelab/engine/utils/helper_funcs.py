@@ -50,7 +50,7 @@ def make_weights_for_balanced_classes(samples, nclasses):
 
 
 def measure_inference_time(model, input, repetitions=300, use_16b=False):
-    device = torch.device("cuda")
+    device = torch.device('cuda')
     model_ = copy.deepcopy(model)
     model_.eval()
     starter = torch.cuda.Event(enable_timing=True)
@@ -91,7 +91,7 @@ def collate_fn(batch):
 
 def files_to_list(filename):
     """Takes a text file of filenames and makes a list of filenames."""
-    with open(filename, encoding="utf-8") as f:
+    with open(filename, encoding='utf-8') as f:
         files = f.readlines()
 
     files = [f.rstrip() for f in files]
@@ -154,7 +154,7 @@ def pad_sample_seq(x, n_samples):
         x_start = random.randint(0, max_x_start)
         x = x[x_start : x_start + n_samples]
     else:
-        x = F.pad(x, (0, n_samples - x.size(-1)), "constant").data
+        x = F.pad(x, (0, n_samples - x.size(-1)), 'constant').data
     return x
 
 
@@ -164,7 +164,7 @@ def pad_sample_seq_batch(x, n_samples):
         x_start = random.randint(0, max_x_start)
         x = x[:, x_start : x_start + n_samples]
     else:
-        x = F.pad(x, (0, n_samples - x.size(1)), "constant").data
+        x = F.pad(x, (0, n_samples - x.size(1)), 'constant').data
     return x
 
 

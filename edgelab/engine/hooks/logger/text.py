@@ -99,9 +99,9 @@ class TextLoggerHook(LoggerHook):
         if self.reset:
             self.logData.set_data({k: [] for k in log_dict.keys()})
 
-        head += "Mode".center(10)
-        end += f"{mode:^10}"
-        head += "Epoch".center(10)
+        head += 'Mode'.center(10)
+        end += f'{mode:^10}'
+        head += 'Epoch'.center(10)
         end += f"{(current_epoch+1) if mode=='train' else current_epoch}/{max_epochs}".center(10)
 
         for key, value in log_dict.items():

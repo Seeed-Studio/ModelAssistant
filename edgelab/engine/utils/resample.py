@@ -231,7 +231,7 @@ class Resampler(torch.nn.Module):
             num_blocks = seq_len // self.input_sr
             if num_blocks == 0:
                 # TODO: pad with zeros.
-                raise RuntimeError("Signal is too short to resample")
+                raise RuntimeError('Signal is too short to resample')
             # data = data[:, 0:(num_blocks*self.input_sr)]  # Truncate input
             data = data[:, 0 : (num_blocks * self.input_sr)].view(minibatch_size, num_blocks, self.input_sr)
 

@@ -27,13 +27,13 @@ class FomoHead(BaseModule):
         input_channels: Union[Sequence[int], int],
         middle_channel: int = 48,
         num_classes: int = 20,
-        act_cfg: str = "ReLU6",
+        act_cfg: str = 'ReLU6',
         loss_weight: Optional[Sequence[int]] = None,
         train_cfg: Optional[dict] = None,
         test_cfg: Optional[dict] = None,
-        loss_cls: Optional[dict] = dict(type="BCEWithLogitsLoss", reduction="mean"),
-        loss_bg: Optional[dict] = dict(type="BCEWithLogitsLoss", reduction="mean"),
-        init_cfg: Optional[dict] = dict(type="Normal", std=0.01),
+        loss_cls: Optional[dict] = dict(type='BCEWithLogitsLoss', reduction='mean'),
+        loss_bg: Optional[dict] = dict(type='BCEWithLogitsLoss', reduction='mean'),
+        init_cfg: Optional[dict] = dict(type='Normal', std=0.01),
     ) -> None:
         super(FomoHead, self).__init__(init_cfg)
         self.num_classes = num_classes
@@ -118,7 +118,7 @@ class FomoHead(BaseModule):
         preds = self.forward(features)
         preds = tuple([F.softmax(pred, dim=1) for pred in preds])
 
-        img_shape = batch_data_samples[0].metainfo["img_shape"]
+        img_shape = batch_data_samples[0].metainfo['img_shape']
         batch_gt_instances = [data_samples.gt_instances for data_samples in batch_data_samples]
 
         return [
@@ -132,7 +132,7 @@ class FomoHead(BaseModule):
 
     def loss_by_feat(self, preds, batch_gt_instances, batch_img_metas, batch_gt_instances_ignore) -> dict:
         device = preds[0].device
-        input_shape = batch_img_metas[0]["img_shape"]  # batch_input_shape
+        input_shape = batch_img_metas[0]['img_shape']  # batch_input_shape
         # Get the ground truth box that fits the fomo model
         target = [self.build_target(pred.shape[2:], input_shape, batch_gt_instances, device) for pred in preds]
         loss, cls_loss, bg_loss, P, R, F1 = multi_apply(self.lossFunction, preds, target)

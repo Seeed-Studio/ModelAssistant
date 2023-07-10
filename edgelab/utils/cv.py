@@ -31,7 +31,7 @@ def NMS(
     bbox: Union[np.ndarray, torch.Tensor],
     confiden: Union[np.ndarray, torch.Tensor],
     classer: Union[np.ndarray, torch.Tensor],
-    bbox_format="xyxy",
+    bbox_format='xyxy',
     max_det=300,
     iou_thres=0.4,
     conf_thres=0.25,
@@ -48,9 +48,9 @@ def NMS(
     bbox = bbox[conf_mask]
     classer = classer[conf_mask]
 
-    if bbox_format == "xyxy":
+    if bbox_format == 'xyxy':
         pass
-    elif bbox_format == "xywh":
+    elif bbox_format == 'xywh':
         bbox = xywh2xyxy(bbox)
 
     pred = torch.cat((bbox, confiden.view(-1, 1), torch.argmax(classer, dim=1, keepdim=True)), 1)
@@ -74,27 +74,27 @@ def load_image(
     normalized: bool = False,
     format: str = 'np',
 ) -> Union[np.ndarray, Image.Image]:
-    assert format in ['np', "pil"], ValueError
+    assert format in ['np', 'pil'], ValueError
 
     img = cv2.imread(path)
     if shape:
         img = cv2.resize(img, shape[::-1])
 
     if mode and mode != 'BGR':
-        img = cv2.cvtColor(img, getattr(cv2, "COLOR_BGR2" + mode))
-        if mode == "GRAY" and channels and channels > 1:
+        img = cv2.cvtColor(img, getattr(cv2, 'COLOR_BGR2' + mode))
+        if mode == 'GRAY' and channels and channels > 1:
             img = np.expand_dims(img, -1).repeat(channels, -1)
 
     if normalized:
         img = (img / 255).astype(np.float32)
 
-    if format == "pil":
+    if format == 'pil':
         img = Image.fromarray(img)
 
     return img
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     bbox = np.random.random((500, 4))
     conf = np.random.random((500))
     classes = np.random.random((500, 11))

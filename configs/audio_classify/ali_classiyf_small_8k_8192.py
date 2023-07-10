@@ -1,10 +1,10 @@
 _base_ = ['../_base_/default_runtime_cls.py']
 
 words = [
-    "no",
-    "off",
-    "on",
-    "yes",
+    'no',
+    'off',
+    'on',
+    'yes',
 ]
 words = [
     'backward',

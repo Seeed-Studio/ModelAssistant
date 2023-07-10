@@ -280,7 +280,7 @@ class Infernce:
 
     def init(self, cfg):
         self.evaluator: Evaluator = self.runner.build_evaluator(self.cfg.get('val_evaluator'))
-        if hasattr(cfg.model, "data_preprocessor"):
+        if hasattr(cfg.model, 'data_preprocessor'):
             self.data_preprocess = MODELS.build(cfg.model.data_preprocessor)
 
     def post_process(self):
@@ -295,7 +295,7 @@ class Infernce:
         F1 = []
         for data in tqdm(self.dataloader):
             if not self.source:
-                if hasattr(self, "data_preprocess"):
+                if hasattr(self, 'data_preprocess'):
                     data = self.data_preprocess(data, True)
                 inputs = data['inputs'][0]
                 img_path = data['data_samples'][0].img_path
@@ -322,7 +322,7 @@ class Infernce:
                 elif len(preds[0].shape) == 2:
                     preds = preds[0]
                 else:
-                    Warning("!!!")
+                    Warning('!!!')
                 if self.fomo:
                     pred = preds[0]
                     H, W, C = pred.shape
@@ -390,11 +390,11 @@ class Infernce:
             result = self.evaluator.evaluate(len(self.dataloader.dataset))
             print(result)
         if len(P):
-            print("P:", sum(P) / len(P))
-            print("R:", sum(R) / len(R))
-            print("F1:", sum(F1) / len(F1))
+            print('P:', sum(P) / len(P))
+            print('R:', sum(R) / len(R))
+            print('F1:', sum(F1) / len(F1))
 
-        print(f"FPS: {len(self.dataloader)/self.time_cost:2f} fram/s")
+        print(f'FPS: {len(self.dataloader)/self.time_cost:2f} fram/s')
 
 
 def pfld_inference(model, data_loader):
@@ -492,7 +492,7 @@ def show_det(
     save_path=False,
     show=False,
 ) -> np.ndarray:
-    assert not (img is None and img_file is None), "The img and img_file parameters cannot both be None"
+    assert not (img is None and img_file is None), 'The img and img_file parameters cannot both be None'
 
     # load image
     if isinstance(img, np.ndarray):
@@ -518,7 +518,7 @@ def show_det(
     return pred
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     data = DataStream(0)
     data = iter(data)
     for img in data:

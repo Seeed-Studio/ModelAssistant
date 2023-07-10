@@ -16,147 +16,147 @@ import edgelab.visualization  # noqa
 def parse_args():
     from mmengine.config import DictAction
 
-    parser = argparse.ArgumentParser(description="Convert and export PyTorch model to TFLite or ONNX models")
+    parser = argparse.ArgumentParser(description='Convert and export PyTorch model to TFLite or ONNX models')
 
     # common configs
-    parser.add_argument("config", type=str, help="the model config file path")
-    parser.add_argument("checkpoint", type=str, help="the PyTorch checkpoint file path")
+    parser.add_argument('config', type=str, help='the model config file path')
+    parser.add_argument('checkpoint', type=str, help='the PyTorch checkpoint file path')
     parser.add_argument(
-        "targets",
+        'targets',
         type=str,
-        nargs="+",
-        default=["tflite", "onnx"],
-        help="the target type of model(s) to export e.g. tflite onnx",
+        nargs='+',
+        default=['tflite', 'onnx'],
+        help='the target type of model(s) to export e.g. tflite onnx',
     )
     parser.add_argument(
-        "--precisions",
+        '--precisions',
         type=str,
-        nargs="+",
-        default=["int8", "float32"],
+        nargs='+',
+        default=['int8', 'float32'],
         help="the precisions exported model, e.g. 'int8', 'uint8', 'int16', 'float16' and 'float32'",
     )
     parser.add_argument(
-        "--work_dir",
-        "--work-dir",
+        '--work_dir',
+        '--work-dir',
         type=str,
         default=None,
-        help="the directory to save logs and models",
+        help='the directory to save logs and models',
     )
     parser.add_argument(
-        "--output_stem",
-        "--output-stem",
+        '--output_stem',
+        '--output-stem',
         type=str,
         default=None,
-        help="the stem of output file name (with path)",
+        help='the stem of output file name (with path)',
     )
     parser.add_argument(
-        "--device",
+        '--device',
         type=str,
-        default="cpu",
-        help="the device used for convert & export",
+        default='cpu',
+        help='the device used for convert & export',
     )
     parser.add_argument(
-        "--input_shape",
-        "--input-shape",
+        '--input_shape',
+        '--input-shape',
         type=int,
-        nargs="+",
+        nargs='+',
         default=None,
-        help="the shape of input data, e.g. 1 3 224 224",
+        help='the shape of input data, e.g. 1 3 224 224',
     )
     parser.add_argument(
-        "--input_type",
-        "--input-type",
+        '--input_type',
+        '--input-type',
         type=str,
-        default="image",
-        choices=["audio", "image", "sensor"],
-        help="the type of input data",
+        default='image',
+        choices=['audio', 'image', 'sensor'],
+        help='the type of input data',
     )
     parser.add_argument(
-        "--cfg_options",
-        "--cfg-options",
-        nargs="+",
+        '--cfg_options',
+        '--cfg-options',
+        nargs='+',
         action=DictAction,
         help="override some settings in the used config, the key-value pair in 'xxx=yyy' format will be merged into config file",
     )
     parser.add_argument(
-        "--simplify",
+        '--simplify',
         type=int,
         default=5,
-        help="the level of graph simplification, 0 means disable, max: 5",
+        help='the level of graph simplification, 0 means disable, max: 5',
     )
 
     # ONNX specific
     parser.add_argument(
-        "--opset_version",
-        "--opset-version",
+        '--opset_version',
+        '--opset-version',
         type=int,
         default=11,
-        help="ONNX: operator set version of exported model",
+        help='ONNX: operator set version of exported model',
     )
     parser.add_argument(
-        "--dynamic_export",
-        "--dynamic-export",
-        action="store_true",
+        '--dynamic_export',
+        '--dynamic-export',
+        action='store_true',
         default=False,
-        help="ONNX: export with a dynamic input shape",
+        help='ONNX: export with a dynamic input shape',
     )
 
     # TFLite specific
     parser.add_argument(
-        "--algorithm",
+        '--algorithm',
         type=str,
-        default="l2",
-        choices=["l2", "kl"],
-        help="TFLite: conversion algorithm",
+        default='l2',
+        choices=['l2', 'kl'],
+        help='TFLite: conversion algorithm',
     )
     parser.add_argument(
-        "--backend",
+        '--backend',
         type=str,
-        default="fbgemm",
-        choices=["qnnpack", "fbgemm"],
-        help="TFLite: converter backend",
+        default='fbgemm',
+        choices=['qnnpack', 'fbgemm'],
+        help='TFLite: converter backend',
     )
     parser.add_argument(
-        "--calibration_epochs",
-        "--calibration-epochs",
+        '--calibration_epochs',
+        '--calibration-epochs',
         type=int,
         default=100,
-        help="TFLite: max epoches for quantization calibration",
+        help='TFLite: max epoches for quantization calibration',
     )
     parser.add_argument(
-        "--mean",
+        '--mean',
         type=float,
-        nargs="+",
+        nargs='+',
         default=[0.0],
-        help="TFLite: mean for model input (quantization), range: [0, 1], applied to all channels, using the average if multiple values are provided",
+        help='TFLite: mean for model input (quantization), range: [0, 1], applied to all channels, using the average if multiple values are provided',
     )
     parser.add_argument(
-        "--mean_and_std",
-        "--mean-and-std",
+        '--mean_and_std',
+        '--mean-and-std',
         type=str,
-        nargs="+",
-        default="[((0.0,), (1.0,))]",
-        help="TFLite: mean and std for model input(s), default: [((0.0,), (1.0,))], calculated on normalized input(s), applied to all channel(s), using the average if multiple values are provided",
+        nargs='+',
+        default='[((0.0,), (1.0,))]',
+        help='TFLite: mean and std for model input(s), default: [((0.0,), (1.0,))], calculated on normalized input(s), applied to all channel(s), using the average if multiple values are provided',
     )
 
     return parser.parse_args()
 
 
 def verify_args(args):
-    assert os.path.splitext(args.config)[-1] == ".py", "The config file name should be ended with a '.py' extension"
-    assert os.path.exists(args.config), "The config file does not exist"
+    assert os.path.splitext(args.config)[-1] == '.py', "The config file name should be ended with a '.py' extension"
+    assert os.path.exists(args.config), 'The config file does not exist'
     assert (
-        os.path.splitext(args.checkpoint)[-1] == ".pth"
+        os.path.splitext(args.checkpoint)[-1] == '.pth'
     ), "The chackpoint model should be a PyTorch model with '.pth' extension"
-    assert os.path.exists(args.checkpoint), "The chackpoint model does not exist"
+    assert os.path.exists(args.checkpoint), 'The chackpoint model does not exist'
     assert {str(t).lower() for t in args.targets}.issubset(
-        {"tflite", "onnx"}
-    ), "Supported in target type(s): onnx, tflite"
+        {'tflite', 'onnx'}
+    ), 'Supported in target type(s): onnx, tflite'
     assert {str(p).lower() for p in args.precisions}.issubset(
-        {"int8", "uint8", "int16", "float16", "float32"}
+        {'int8', 'uint8', 'int16', 'float16', 'float32'}
     ), "Supported export precision(s): 'int8', 'uint8', 'int16', 'float16' and 'float32'"
-    assert args.simplify in range(0, 5 + 1), "Simplify level should be in [0, 5]"
-    assert args.mean_and_std is not None or "", "The mean and std value(s) for model input should be provided"
+    assert args.simplify in range(0, 5 + 1), 'Simplify level should be in [0, 5]'
+    assert args.mean_and_std is not None or '', 'The mean and std value(s) for model input should be provided'
 
     return args
 
@@ -178,23 +178,23 @@ def build_config(args):
 
     if args.work_dir is not None:
         cfg.work_dir = args.work_dir
-    elif cfg.get("work_dir", None) is None:
-        args.work_dir = cfg.work_dir = os.path.join("work_dirs", os.path.splitext(os.path.basename(args.config))[0])
+    elif cfg.get('work_dir', None) is None:
+        args.work_dir = cfg.work_dir = os.path.join('work_dirs', os.path.splitext(os.path.basename(args.config))[0])
 
-    if args.device.startswith("cuda"):
-        args.device = args.device if torch.cuda.is_available() else "cpu"
+    if args.device.startswith('cuda'):
+        args.device = args.device if torch.cuda.is_available() else 'cpu'
 
-    cfg.val_dataloader["batch_size"] = 1
-    cfg.val_dataloader["num_workers"] = 1
+    cfg.val_dataloader['batch_size'] = 1
+    cfg.val_dataloader['num_workers'] = 1
 
     if 'batch_shapes_cfg' in cfg.val_dataloader.dataset:
         cfg.val_dataloader.dataset.batch_shapes_cfg = None
 
     if args.input_shape is None:
         try:
-            if "shape" in cfg:
+            if 'shape' in cfg:
                 args.input_shape = cfg.shape
-            elif "width" in cfg and "height" in cfg:
+            elif 'width' in cfg and 'height' in cfg:
                 args.input_shape = [
                     1,
                     3,
@@ -202,7 +202,7 @@ def build_config(args):
                     cfg.height,
                 ]
         except Exception as exc:
-            raise ValueError("Please specify the input shape") from exc
+            raise ValueError('Please specify the input shape') from exc
         print(
             "Using automatically generated input shape (from config '{}'): {}".format(
                 os.path.basename(args.config), args.input_shape
@@ -211,8 +211,8 @@ def build_config(args):
 
     args.mean_and_std = [t for t in eval(args.mean_and_std)]
     for means, stds in args.mean_and_std:
-        assert len(means) == len(stds), "The mean and std values should be twin"
-        assert all([0.0 <= m <= 1.0 for m in means]), "Mean for model input should be in [0.0, 1.0]"
+        assert len(means) == len(stds), 'The mean and std values should be twin'
+        assert all([0.0 <= m <= 1.0 for m in means]), 'Mean for model input should be in [0.0, 1.0]'
 
     return args, cfg
 
@@ -228,10 +228,10 @@ def calibrate(ptq_model, context, means_and_stds):
         for i, data in enumerate(context.val_loader):
             if context.max_iteration is not None and i >= context.max_iteration:
                 break
-            inputs = data["inputs"]
+            inputs = data['inputs']
             if isinstance(inputs, (list, tuple)):
                 inputs = inputs[0]
-            assert isinstance(inputs, torch.Tensor), "The input should be a tensor"
+            assert isinstance(inputs, torch.Tensor), 'The input should be a tensor'
             if inputs.dtype != torch.float32:
                 mean, std = means_and_stds[0]
                 inputs = (inputs - mean) / std
@@ -245,11 +245,11 @@ def calibrate(ptq_model, context, means_and_stds):
             context.iteration += 1
 
 
-def get_exported_file_name_from_precision(args, precision, ext: str = "") -> str:
+def get_exported_file_name_from_precision(args, precision, ext: str = '') -> str:
     return os.path.join(
         args.work_dir,
         os.path.splitext(os.path.basename(args.checkpoint if args.output_stem is None else args.output_stem))[0]
-        + "_"
+        + '_'
         + precision
         + ext,
     )
@@ -272,14 +272,14 @@ def export_tflite(args, model, loader):
         dummy_input = torch.randn(*args.input_shape, requires_grad=False).to(device=context.device)
 
     for precision in args.precisions:
-        if precision not in ["int8", "uint8", "int16", "float32"]:
-            print("TFLite: Ignoring unsupported precision: {}".format(precision))
+        if precision not in ['int8', 'uint8', 'int16', 'float32']:
+            print('TFLite: Ignoring unsupported precision: {}'.format(precision))
             continue
 
-        tflite_file = get_exported_file_name_from_precision(args, precision, ".tflite")
-        if precision in ["int8", "uint8", "int16"]:
+        tflite_file = get_exported_file_name_from_precision(args, precision, '.tflite')
+        if precision in ['int8', 'uint8', 'int16']:
             # TODO: Support handle 'audio', 'sensor' inputs
-            if args.input_type == "image":
+            if args.input_type == 'image':
                 means_and_stds = [
                     (torch.mean(torch.tensor(ms)).item() * 255.0, torch.mean(torch.tensor(ss)).item() * 255.0)
                     for ms, ss in args.mean_and_std
@@ -292,12 +292,12 @@ def export_tflite(args, model, loader):
                     dummy_input,
                     work_dir=args.work_dir,
                     config={
-                        "asymmetric": True,
-                        "set_quantizable_op_stats": True,
-                        "per_tensor": False,
-                        "algorithm": args.algorithm,
-                        "backend": args.backend,
-                        "quantized_input_stats": means_and_stds,
+                        'asymmetric': True,
+                        'set_quantizable_op_stats': True,
+                        'per_tensor': False,
+                        'algorithm': args.algorithm,
+                        'backend': args.backend,
+                        'quantized_input_stats': means_and_stds,
                     },
                 )
                 ptq_model = quantizer.quantize()
@@ -331,9 +331,9 @@ def export_tflite(args, model, loader):
         try:
             converter.convert()
         except Exception as exp:
-            raise RuntimeError("TFLite: Failed exporting the model") from exp
+            raise RuntimeError('TFLite: Failed exporting the model') from exp
 
-        print("TFLite: Successfully export model: {}".format(tflite_file))
+        print('TFLite: Successfully export model: {}'.format(tflite_file))
 
 
 def export_onnx(args, model):
@@ -342,11 +342,11 @@ def export_onnx(args, model):
         dummy_input = torch.randn(*args.input_shape, requires_grad=False).to(device=args.device)
 
     for precision in args.precisions:
-        if precision not in ["float32"]:
-            print("ONNX: Ignoring unsupported precision: {}".format(precision))
+        if precision not in ['float32']:
+            print('ONNX: Ignoring unsupported precision: {}'.format(precision))
             continue
 
-        onnx_file = get_exported_file_name_from_precision(args, precision, ".onnx")
+        onnx_file = get_exported_file_name_from_precision(args, precision, '.onnx')
         if args.dynamic_export:
             # TODO: Implement dynamic export
             raise NotImplementedError
@@ -358,8 +358,8 @@ def export_onnx(args, model):
                 model,
                 dummy_input,
                 onnx_file,
-                input_names=["input"],
-                output_names=["output"],
+                input_names=['input'],
+                output_names=['output'],
                 export_params=True,
                 keep_initializers_as_inputs=True,
                 dynamic_axes=dynamic_axes,
@@ -377,7 +377,7 @@ def export_onnx(args, model):
                 onnx.save(model_simp, onnx_file)
             else:
                 print("ONNX: Failed to simplify the model: '{}', revert to the original".format(onnx_file))
-        print("ONNX: Successfully export model: {}".format(onnx_file))
+        print('ONNX: Successfully export model: {}'.format(onnx_file))
 
 
 def main():
@@ -385,7 +385,7 @@ def main():
     args = verify_args(args)
     args, cfg = build_config(args)
 
-    if "runner_type" not in cfg:
+    if 'runner_type' not in cfg:
         from mmengine.runner import Runner
 
         runner = Runner.from_cfg(cfg)
@@ -394,18 +394,18 @@ def main():
 
         runner = RUNNERS.build(cfg)
 
-    runner.call_hook("before_run")
+    runner.call_hook('before_run')
     runner.load_checkpoint(args.checkpoint, map_location=args.device)
 
     model = runner.model.to(device=args.device)
     loader = runner.val_dataloader
 
     for target in args.targets:
-        if target == "tflite":
+        if target == 'tflite':
             export_tflite(args, model, loader)
-        elif target == "onnx":
+        elif target == 'onnx':
             export_onnx(args, model)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
