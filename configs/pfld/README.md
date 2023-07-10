@@ -27,7 +27,7 @@ improvements from the community.
 
 | Backbone | Scale | param(K) | flop(G) | loss | config |  pth  | onnx | ncnn |
 | :------: | :---: | :------: | :-----: | :--: | :----: | :------: | :----:| :----:|
-| MoboNetv2|  112  |  140.55  |  0.0593 |3.5e-5| [config](./pfld_mv2n_112.py)| [model](https://github.com/Seeed-Studio/edgelab/releases/download/model_zoom/pfld_mv2n_112.pth) |[onnx](https://github.com/Seeed-Studio/edgelab/releases/download/model_zoom/pfld_mv2n_112.onnx)|[ncnn](https://github.com/Seeed-Studio/edgelab/releases/download/model_zoom/pfld_mv2n_112.ncnn.zip)|
+| MoboNetv2|  112  |  140.55  |  0.0593 |3.5e-5| [config](./pfld_mbv2n_112.py)| [model](https://github.com/Seeed-Studio/edgelab/releases/download/model_zoom/pfld_mbv2n_112.pth) |[onnx](https://github.com/Seeed-Studio/edgelab/releases/download/model_zoom/pfld_mbv2n_112.onnx)|[ncnn](https://github.com/Seeed-Studio/edgelab/releases/download/model_zoom/pfld_mbv2n_112.ncnn.zip)|
 
 ## Citation
 

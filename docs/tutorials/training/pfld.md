@@ -14,11 +14,11 @@ EdgeLab uses [Custom Meter Datasets](../datasets.md#EdgeLab) by default to train
 
 We will choose a appropriate configuration file depending on the type of training task we need to perform, which we have already introduced in [Config](../config.md), for a brief description of the functions, structure, and principles of the configuration file.
 
-For the meter PFLD model example, we use `pfld_mv2n_112.py` as the configuration file, which is located in the folder under the EdgeLab root directory `configs/pfld` and its additionally inherits the `default_runtime_pose.py` configuration file.
+For the meter PFLD model example, we use `pfld_mbv2n_112.py` as the configuration file, which is located in the folder under the EdgeLab root directory `configs/pfld` and its additionally inherits the `default_runtime_pose.py` configuration file.
 
 For beginners, we recommend to pay attention to the `data_root` and `epochs` parameters in this configuration file at first.
 
-::: details `pfld_mv2n_112.py`
+::: details `pfld_mbv2n_112.py`
 
 ```python
 _base_='../_base_/default_runtime_pose.py'
@@ -120,19 +120,19 @@ Then, in the EdgeLab project root directory, we execute the following command to
 
 ```sh
 python3 tools/train.py \
-    configs/pfld/pfld_mv2n_112.py \
+    configs/pfld/pfld_mbv2n_112.py \
     --cfg-options \
         data_root='datasets/meter' \
         epochs=50
 ```
 
-During training, the model weights and related log information are saved to the path `work_dirs/pfld_mv2n_112` by default, and you can use tools such as [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) to monitor for training.
+During training, the model weights and related log information are saved to the path `work_dirs/pfld_mbv2n_112` by default, and you can use tools such as [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) to monitor for training.
 
 ```sh
-tensorboard --logdir work_dirs/pfld_mv2n_112
+tensorboard --logdir work_dirs/pfld_mbv2n_112
 ```
 
-After the training is completed, the path of the latest FOMO model weights file is saved in the `work_dirs/pfld_mv2n_112/last_checkpoint` file. Please take care of the path of the weight file, as it is needed when converting the model to other formats.
+After the training is completed, the path of the latest FOMO model weights file is saved in the `work_dirs/pfld_mbv2n_112/last_checkpoint` file. Please take care of the path of the weight file, as it is needed when converting the model to other formats.
 
 ::: tip
 
@@ -152,8 +152,8 @@ After have finished training the PFLD model, you can specify specific weights an
 
 ```sh
 python3 tools/inference.py \
-    configs/pfld/pfld_mv2n_112.py \
-    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)" \
+    configs/pfld/pfld_mbv2n_112.py \
+    "$(cat work_dirs/pfld_mbv2n_112/last_checkpoint)" \
     --cfg-options \
         data_root='datasets/meter'
 ```

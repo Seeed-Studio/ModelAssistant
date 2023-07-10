@@ -14,11 +14,11 @@
 
 我们将根据需要执行的训练任务类型来选择合适的配置文件，我们已经在[模型配置](../config.md)中对配置文件的功能、结构、原理进行了简单介绍。
 
-对于表计 PFLD 模型示例，我们使用 `pfld_mv2n_112.py` 作为配置文件，它位于 EdgeLab 主目录路径 `configs/pfld` 下的文件夹中，并额外继承了 `default_runtime_pose.py` 配置文件。
+对于表计 PFLD 模型示例，我们使用 `pfld_mbv2n_112.py` 作为配置文件，它位于 EdgeLab 主目录路径 `configs/pfld` 下的文件夹中，并额外继承了 `default_runtime_pose.py` 配置文件。
 
 配置文件内容如下，对于初学者，我们建议首先注意该配置文件中 `data_root` 和 `epochs` 这两个参数。
 
-::: details `pfld_mv2n_112.py`
+::: details `pfld_mbv2n_112.py`
 
 ```python
 _base_='../_base_/default_runtime_pose.py'
@@ -120,19 +120,19 @@ param_scheduler=[
 
 ```sh
 python3 tools/train.py \
-    configs/pfld/pfld_mv2n_112.py \
+    configs/pfld/pfld_mbv2n_112.py \
     --cfg-options \
         data_root='datasets/meter' \
         epochs=50
 ```
 
-在训练期间，训练得到的模型权重和相关的日志信息会默认保存至路径 `work_dirs/pfld_mv2n_112` 下，您可以使用 [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) 等工具事实监测训练情况。
+在训练期间，训练得到的模型权重和相关的日志信息会默认保存至路径 `work_dirs/pfld_mbv2n_112` 下，您可以使用 [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) 等工具事实监测训练情况。
 
 ```sh
-tensorboard --logdir work_dirs/pfld_mv2n_112
+tensorboard --logdir work_dirs/pfld_mbv2n_112
 ```
 
-在训练完成后，最新的 PFLD 模型权重文件的路径会保存在 `work_dirs/pfld_mv2n_112/last_checkpoint` 文件中。请留意权重文件路径，在将模型转换为其他格式时需要用到。
+在训练完成后，最新的 PFLD 模型权重文件的路径会保存在 `work_dirs/pfld_mbv2n_112/last_checkpoint` 文件中。请留意权重文件路径，在将模型转换为其他格式时需要用到。
 
 ::: tip
 
@@ -152,8 +152,8 @@ conda activate edgelab
 
 ```sh
 python3 tools/inference.py \
-    configs/pfld/pfld_mv2n_112.py \
-    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)" \
+    configs/pfld/pfld_mbv2n_112.py \
+    "$(cat work_dirs/pfld_mbv2n_112/last_checkpoint)" \
     --cfg-options \
         data_root='datasets/meter'
 ```

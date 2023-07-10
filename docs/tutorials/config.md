@@ -30,7 +30,7 @@ configs
 │   ├── fomo_shufflenetv2_0.1_x8_abl_coco.py
 │   └── fomo_squeezenet_0.1_x8_abl_coco.py
 ├── pfld
-│   └── pfld_mv2n_112.py
+│   └── pfld_mbv2n_112.py
 └── <Other Tasks...>
 ```
 
@@ -56,7 +56,7 @@ configs // [!code focus]
 │   ├── fomo_shufflenetv2_0.1_x8_abl_coco.py
 │   └── fomo_squeezenet_0.1_x8_abl_coco.py
 ├── pfld // [!code focus]
-│   └── pfld_mv2n_112.py
+│   └── pfld_mbv2n_112.py
 └── <Other Tasks...> // [!code focus]
 ```
 
@@ -82,7 +82,7 @@ configs // [!code focus]
 │   ├── fomo_shufflenetv2_0.1_x8_abl_coco.py // [!code focus]
 │   └── fomo_squeezenet_0.1_x8_abl_coco.py // [!code focus]
 ├── pfld
-│   └── pfld_mv2n_112.py
+│   └── pfld_mbv2n_112.py
 └── <Other Tasks...>
 ```
 
