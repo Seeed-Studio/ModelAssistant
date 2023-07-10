@@ -1,13 +1,13 @@
-_base_ = "../_base_/default_runtime_cls.py"
-default_scope = "edgelab"
-custom_imports = dict(imports=["edgelab"], allow_failed_imports=False)
+_base_ = '../_base_/default_runtime_cls.py'
+default_scope = 'edgelab'
+custom_imports = dict(imports=['edgelab'], allow_failed_imports=False)
 
 # model settings
 num_classes = 10
 
 # dataset settings
-dataset_type = "mmcls.CIFAR10"
-data_root = "datasets"
+dataset_type = 'mmcls.CIFAR10'
+data_root = 'datasets'
 height = 32
 width = 32
 batch_size = 16
@@ -21,10 +21,10 @@ epochs = 300
 
 model = dict(
     type='edgelab.ImageClassifier',
-    backbone=dict(type="MobileNetv2", widen_factor=0.35, out_indices=(2,), rep=True),
+    backbone=dict(type='MobileNetv2', widen_factor=0.35, out_indices=(2,), rep=True),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
-        type="mmcls.LinearClsHead",
+        type='mmcls.LinearClsHead',
         in_channels=16,
         num_classes=num_classes,
         loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
@@ -35,12 +35,12 @@ model = dict(
 train_pipeline = [
     dict(type='mmcls.Rotate', angle=30.0, prob=0.6),
     dict(type='mmcls.RandomFlip', prob=0.5, direction='horizontal'),
-    dict(type="mmengine.Resize", scale=(height, width)),
+    dict(type='mmengine.Resize', scale=(height, width)),
     dict(type='mmcls.PackClsInputs'),
 ]
 
 test_pipeline = [
-    dict(type="mmengine.Resize", scale=(height, width)),
+    dict(type='mmengine.Resize', scale=(height, width)),
     dict(type='mmcls.PackClsInputs'),
 ]
 
@@ -88,9 +88,9 @@ optim_wrapper = dict(optimizer=dict(type='SGD', lr=lr, momentum=0.9, weight_deca
 
 # learning policy
 param_scheduler = [
-    dict(type="LinearLR", begin=0, end=30, start_factor=0.001, by_epoch=False),  # warm-up
+    dict(type='LinearLR', begin=0, end=30, start_factor=0.001, by_epoch=False),  # warm-up
     dict(
-        type="MultiStepLR",
+        type='MultiStepLR',
         begin=1,
         end=500,
         milestones=[100, 200, 250],

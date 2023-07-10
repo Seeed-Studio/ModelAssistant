@@ -39,8 +39,8 @@ def padding_weights(
         _, _, H, W = weights.shape
         assert (
             H < shape[0] and W < shape[1]
-        ), "The size to be filled cannot be smaller than the shape size of the original weight, the original \
-                size is {}, and the size to be filled is {}".format(
+        ), 'The size to be filled cannot be smaller than the shape size of the original weight, the original \
+                size is {}, and the size to be filled is {}'.format(
             (H, W), (shape)
         )
         return torch.nn.functional.pad(
@@ -97,7 +97,7 @@ def fuse_conv_norm(
         norm_weight = (norm_gamm / std).reshape(-1, 1, 1, 1)
         return w * norm_weight, norm_beta - norm_gamm * norm_mean / std
     else:
-        raise TypeError("Fusion module type should be Sequential or BatchNorm2d, but got {} type".format(type(block)))
+        raise TypeError('Fusion module type should be Sequential or BatchNorm2d, but got {} type'.format(type(block)))
 
 
 @MODELS.register_module(force=True)
@@ -111,7 +111,7 @@ class RepConv1x1(BaseModule):
         stride: int = 1,
         depth: int = 6,
         groups: int = 1,
-        act_cfg: dict = dict(type="ReLU"),
+        act_cfg: dict = dict(type='ReLU'),
         init_cfg: Union[dict, List[dict], None] = None,
     ):
         super().__init__(init_cfg)
@@ -380,7 +380,7 @@ class RepBlock(BaseModule):
         dilation: Union[int, Tuple[int, int]] = 1,
         bias: bool = False,
         groups: int = 1,
-        norm_layer: Union[str, dict] = "BN",
+        norm_layer: Union[str, dict] = 'BN',
         act_layer: Optional[str] = 'ReLU',
         use_norm: bool = False,
         init_cfg: Union[dict, List[dict], None] = None,
@@ -488,10 +488,10 @@ if __name__ == '__main__':
     rep.eval()
     input = torch.rand(1, 64, 192, 192)
     pred1 = rep(input, True)
-    print("pred1::", pred1.shape)
+    print('pred1::', pred1.shape)
     # rep.eval()
     pred2 = rep(input, False)
-    print("pred2::", pred2.shape)
+    print('pred2::', pred2.shape)
     i2 = input
     var = (pred1 - pred2).abs().sum()
     print(var)

@@ -19,10 +19,10 @@ model = dict(
 # dataset settings
 dataset_type = 'CustomCocoDataset'
 data_root = (
-    "http://images.cocodataset.org/zips/train2017.zip",
-    "http://images.cocodataset.org/zips/val2017.zip",
-    "http://images.cocodataset.org/zips/test2017.zip",
-    "http://images.cocodataset.org/annotations/annotations_trainval2017.zip",
+    'http://images.cocodataset.org/zips/train2017.zip',
+    'http://images.cocodataset.org/zips/val2017.zip',
+    'http://images.cocodataset.org/zips/test2017.zip',
+    'http://images.cocodataset.org/annotations/annotations_trainval2017.zip',
 )
 
 img_norm_cfg = dict(mean=[0, 0, 0], std=[1, 1, 1], to_rgb=True)

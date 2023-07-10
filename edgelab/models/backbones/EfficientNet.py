@@ -103,7 +103,7 @@ class MBConv(nn.Module):
         )
 
         self.block = nn.Sequential(*layers)
-        self.stochastic_depth = StochasticDepth(stochastic_depth_prob, "row")
+        self.stochastic_depth = StochasticDepth(stochastic_depth_prob, 'row')
         self.out_channels = cnf.out_channels
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:

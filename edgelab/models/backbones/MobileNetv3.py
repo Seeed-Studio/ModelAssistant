@@ -30,7 +30,7 @@ class InvertedResidualConfig:
         self.expanded_channels = self.adjust_channels(expanded_channels, widen_factor)
         self.out_channels = self.adjust_channels(out_channels, widen_factor)
         self.use_se = use_se
-        self.use_hs = activation == "HS"
+        self.use_hs = activation == 'HS'
         self.stride = stride
         self.dilation = dilation
 
@@ -130,44 +130,44 @@ class MobileNetV3(BaseModule):
         dilation = 2 if dilated else 1
         ir_conf = partial(InvertedResidualConfig, widen_factor=widen_factor)
 
-        if arch == "large":
+        if arch == 'large':
             inverted_residual_setting = [
-                ir_conf(16, 3, 16, 16, False, "RE", 1, 1),
-                ir_conf(16, 3, 64, 24, False, "RE", 2, 1),  # 1/4
-                ir_conf(24, 3, 72, 24, False, "RE", 1, 1),
-                ir_conf(24, 5, 72, 40, True, "RE", 2, 1),  # 1/8
-                ir_conf(40, 5, 120, 40, True, "RE", 1, 1),
-                ir_conf(40, 5, 120, 40, True, "RE", 1, 1),
-                ir_conf(40, 3, 240, 80, False, "HS", 2, 1),  # 1/16
-                ir_conf(80, 3, 200, 80, False, "HS", 1, 1),
-                ir_conf(80, 3, 184, 80, False, "HS", 1, 1),
-                ir_conf(80, 3, 184, 80, False, "HS", 1, 1),
-                ir_conf(80, 3, 480, 112, True, "HS", 1, 1),
-                ir_conf(112, 3, 672, 112, True, "HS", 1, 1),
-                ir_conf(112, 5, 672, 160 // reduce_divider, True, "HS", 2, dilation),  # C4
+                ir_conf(16, 3, 16, 16, False, 'RE', 1, 1),
+                ir_conf(16, 3, 64, 24, False, 'RE', 2, 1),  # 1/4
+                ir_conf(24, 3, 72, 24, False, 'RE', 1, 1),
+                ir_conf(24, 5, 72, 40, True, 'RE', 2, 1),  # 1/8
+                ir_conf(40, 5, 120, 40, True, 'RE', 1, 1),
+                ir_conf(40, 5, 120, 40, True, 'RE', 1, 1),
+                ir_conf(40, 3, 240, 80, False, 'HS', 2, 1),  # 1/16
+                ir_conf(80, 3, 200, 80, False, 'HS', 1, 1),
+                ir_conf(80, 3, 184, 80, False, 'HS', 1, 1),
+                ir_conf(80, 3, 184, 80, False, 'HS', 1, 1),
+                ir_conf(80, 3, 480, 112, True, 'HS', 1, 1),
+                ir_conf(112, 3, 672, 112, True, 'HS', 1, 1),
+                ir_conf(112, 5, 672, 160 // reduce_divider, True, 'HS', 2, dilation),  # C4
                 ir_conf(
-                    160 // reduce_divider, 5, 960 // reduce_divider, 160 // reduce_divider, True, "HS", 1, dilation
+                    160 // reduce_divider, 5, 960 // reduce_divider, 160 // reduce_divider, True, 'HS', 1, dilation
                 ),
                 ir_conf(
-                    160 // reduce_divider, 5, 960 // reduce_divider, 160 // reduce_divider, True, "HS", 1, dilation
+                    160 // reduce_divider, 5, 960 // reduce_divider, 160 // reduce_divider, True, 'HS', 1, dilation
                 ),
             ]
-        elif arch == "small":
+        elif arch == 'small':
             inverted_residual_setting = [
-                ir_conf(16, 3, 16, 16, True, "RE", 2, 1),  # 1/4
-                ir_conf(16, 3, 72, 24, False, "RE", 2, 1),  # 1/8
-                ir_conf(24, 3, 88, 24, False, "RE", 1, 1),
-                ir_conf(24, 5, 96, 40, True, "HS", 2, 1),  # 1/16
-                ir_conf(40, 5, 240, 40, True, "HS", 1, 1),
-                ir_conf(40, 5, 240, 40, True, "HS", 1, 1),
-                ir_conf(40, 5, 120, 48, True, "HS", 1, 1),
-                ir_conf(48, 5, 144, 48, True, "HS", 1, 1),
-                ir_conf(48, 5, 288, 96 // reduce_divider, True, "HS", 2, dilation),  # C4
-                ir_conf(96 // reduce_divider, 5, 576 // reduce_divider, 96 // reduce_divider, True, "HS", 1, dilation),
-                ir_conf(96 // reduce_divider, 5, 576 // reduce_divider, 96 // reduce_divider, True, "HS", 1, dilation),
+                ir_conf(16, 3, 16, 16, True, 'RE', 2, 1),  # 1/4
+                ir_conf(16, 3, 72, 24, False, 'RE', 2, 1),  # 1/8
+                ir_conf(24, 3, 88, 24, False, 'RE', 1, 1),
+                ir_conf(24, 5, 96, 40, True, 'HS', 2, 1),  # 1/16
+                ir_conf(40, 5, 240, 40, True, 'HS', 1, 1),
+                ir_conf(40, 5, 240, 40, True, 'HS', 1, 1),
+                ir_conf(40, 5, 120, 48, True, 'HS', 1, 1),
+                ir_conf(48, 5, 144, 48, True, 'HS', 1, 1),
+                ir_conf(48, 5, 288, 96 // reduce_divider, True, 'HS', 2, dilation),  # C4
+                ir_conf(96 // reduce_divider, 5, 576 // reduce_divider, 96 // reduce_divider, True, 'HS', 1, dilation),
+                ir_conf(96 // reduce_divider, 5, 576 // reduce_divider, 96 // reduce_divider, True, 'HS', 1, dilation),
             ]
         else:
-            raise ValueError("Unsupported model type {}".format(arch))
+            raise ValueError('Unsupported model type {}'.format(arch))
         self.widen_factor = widen_factor
         self.out_indices = out_indices
         self.frozen_stages = frozen_stages

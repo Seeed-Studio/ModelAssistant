@@ -118,7 +118,7 @@ if __name__ == '__main__':
 
     print('onnx:', np.sum(np.square(onnx_float - onnx_qu)))
     print('ncnn', np.sum(np.square(ncnn_float - ncnn_quan)))
-    print("onnx-tf", np.sum(np.square(onnx_float - tf_quan)))
+    print('onnx-tf', np.sum(np.square(onnx_float - tf_quan)))
     print('onnx-ncnn', np.sum(np.square(onnx_float - ncnn_quan)))
     print('ncnn-onnx', np.sum(np.square(ncnn_float - onnx_qu)))
     print('ncnn-onnx', np.sum(np.square(ncnn_float - onnx_float)))

@@ -13,7 +13,7 @@ def pad_sample_seq_batch(x, n_samples):
         x_start = random.randint(0, max_x_start)
         x = x[:, x_start : x_start + n_samples]
     else:
-        x = F.pad(x, (0, n_samples - x.size(1)), "constant").data
+        x = F.pad(x, (0, n_samples - x.size(1)), 'constant').data
     return x
 
 
@@ -34,9 +34,9 @@ class BatchAugs(AugBasic):
         if self.params['mix_loss'] == 'ce':
             self.loss = torch.nn.NLLLoss(reduction='none')
         elif self.params['mix_loss'] == 'bce':
-            self.loss = torch.nn.BCEWithLogitsLoss(reduction="sum")
+            self.loss = torch.nn.BCEWithLogitsLoss(reduction='sum')
         else:
-            raise ValueError("Wrong mix_loss")
+            raise ValueError('Wrong mix_loss')
 
         if len(params['resample_factors']) > 0:
             self.random_resample = [
@@ -71,7 +71,7 @@ class BatchAugs(AugBasic):
             elif aug == 'freqmix':
                 x, y = self.freqmix(x, y)
             else:
-                raise ValueError("wrong mix aug")
+                raise ValueError('wrong mix aug')
         else:
             is_mixed = False
         return x, y, is_mixed

@@ -76,7 +76,7 @@ class TFBaseConv2d(keras.layers.Layer):
         assert w.groups in [
             1,
             w.in_channels,
-        ], "Argument(g) only be 1 for conv2d, or be in_channels for depthwise conv2d"
+        ], 'Argument(g) only be 1 for conv2d, or be in_channels for depthwise conv2d'
 
         bias = True if w.bias is not None else False
         pad = True if (w.stride[0] == 1 and w.padding[0] == w.kernel_size[0] // 2) else False
@@ -128,7 +128,7 @@ class TFBaseConv1d(keras.layers.Layer):
 
     def __init__(self, w=None):
         super().__init__()
-        assert w.groups in [1, w.in_channels], "Argument(g) only be 1 for conv1d, or be inp for depthwise conv1d"
+        assert w.groups in [1, w.in_channels], 'Argument(g) only be 1 for conv1d, or be inp for depthwise conv1d'
 
         bias = True if w.bias is not None else False
         pad = True if (w.stride[0] == 1 and w.padding[0] == w.kernel_size[0] // 2) else False
@@ -224,9 +224,9 @@ class TFUpsample(keras.layers.Layer):
         scale_factor, mode = (
             (int(w.scale_factor), w.mode)
             if isinstance(w, nn.Upsample)
-            else (int(w.kwargs["scale_factor"]), w.kwargs["mode"])
+            else (int(w.kwargs['scale_factor']), w.kwargs['mode'])
         )
-        assert scale_factor % 2 == 0, "scale_factor must be multiple of 2"
+        assert scale_factor % 2 == 0, 'scale_factor must be multiple of 2'
         self.upsample = lambda x: tf.image.resize(x, (x.shape[1] * scale_factor, x.shape[2] * scale_factor), mode)
         # self.upsample = keras.layers.UpSampling2D(size=scale_factor, interpolation=mode)
         # with default arguments: align_corners=False, half_pixel_centers=False

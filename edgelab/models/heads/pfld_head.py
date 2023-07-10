@@ -28,7 +28,7 @@ class PFLDhead(nn.Module):
         num_point: int = 1,
         input_channel: int = 16,
         feature_num: Sequence[int] = [32, 32],
-        act_cfg: Union[dict, str, None] = "ReLU",
+        act_cfg: Union[dict, str, None] = 'ReLU',
         loss_cfg: dict = dict(type='PFLDLoss'),
     ) -> None:
         super().__init__()
@@ -66,7 +66,7 @@ class PFLDhead(nn.Module):
         labels = torch.as_tensor(data_samples['keypoints'], device=preds.device, dtype=torch.float32)
         loss = self.lossFunction(preds, labels)
         acc = pose_acc(preds.cpu().detach().numpy(), labels, data_samples['hw'])
-        return {"loss": loss, "Acc": torch.as_tensor(acc, dtype=torch.float32)}
+        return {'loss': loss, 'Acc': torch.as_tensor(acc, dtype=torch.float32)}
 
     def predict(self, features):
         return self.forward(features)

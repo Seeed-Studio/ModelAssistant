@@ -1,13 +1,13 @@
-_base_ = "../_base_/default_runtime_cls.py"
-default_scope = "edgelab"
-custom_imports = dict(imports=["edgelab"], allow_failed_imports=False)
+_base_ = '../_base_/default_runtime_cls.py'
+default_scope = 'edgelab'
+custom_imports = dict(imports=['edgelab'], allow_failed_imports=False)
 
 # model settings
 num_classes = 10
 
 # dataset settings
-dataset_type = "mmcls.CustomDataset"
-data_root = "datasets/digit"
+dataset_type = 'mmcls.CustomDataset'
+data_root = 'datasets/digit'
 height = 96
 width = 96
 batch_size = 16
@@ -28,10 +28,10 @@ data_preprocessor = dict(
 model = dict(
     type='edgelab.ImageClassifier',
     data_preprocessor=data_preprocessor,
-    backbone=dict(type="MobileNetv2", widen_factor=0.35, out_indices=(2,), rep=True),
+    backbone=dict(type='MobileNetv2', widen_factor=0.35, out_indices=(2,), rep=True),
     neck=dict(type='mmcls.GlobalAveragePooling', dim=2),
     head=dict(
-        type="mmcls.LinearClsHead",
+        type='mmcls.LinearClsHead',
         in_channels=16,
         num_classes=num_classes,
         loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
@@ -44,13 +44,13 @@ train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='mmcls.Rotate', angle=30.0, prob=0.6),
     dict(type='mmcls.RandomFlip', prob=0.5, direction='horizontal'),
-    dict(type="mmengine.Resize", scale=(height, width)),
+    dict(type='mmengine.Resize', scale=(height, width)),
     dict(type='mmcls.PackClsInputs'),
 ]
 
 test_pipeline = [
     dict(type='LoadImageFromFile'),
-    dict(type="mmengine.Resize", scale=(height, width)),
+    dict(type='mmengine.Resize', scale=(height, width)),
     dict(type='mmcls.PackClsInputs'),
 ]
 
@@ -95,9 +95,9 @@ test_cfg = dict()
 optim_wrapper = dict(optimizer=dict(type='SGD', lr=lr, momentum=0.9, weight_decay=0.0001))
 # learning policy
 param_scheduler = [
-    dict(type="LinearLR", begin=0, end=30, start_factor=0.001, by_epoch=False),  # warm-up
+    dict(type='LinearLR', begin=0, end=30, start_factor=0.001, by_epoch=False),  # warm-up
     dict(
-        type="MultiStepLR",
+        type='MultiStepLR',
         begin=1,
         end=500,
         milestones=[100, 200, 250],

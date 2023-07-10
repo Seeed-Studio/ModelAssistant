@@ -123,7 +123,7 @@ class CustomCocoDataset(CocoDataset):
     ):
         if data_root:
             if not (osp.isabs(ann_file) and (osp.isabs(data_prefix['img']))):
-                data_root = check_file(data_root, data_name="coco") if data_root else data_root
+                data_root = check_file(data_root, data_name='coco') if data_root else data_root
         if metainfo is None and not self.METAINFO['classes'] and not classes:
             if not osp.isabs(ann_file) and ann_file:
                 self.ann_file = osp.join(data_root, ann_file)

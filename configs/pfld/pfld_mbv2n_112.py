@@ -10,20 +10,20 @@ model = dict(
         layer2=[32, 32, 32, 32, 32, 32],
         out_channel=32,
     ),
-    head=dict(type='PFLDhead', num_point=num_classes, input_channel=32, act_cfg="ReLU", loss_cfg=dict(type='PFLDLoss')),
+    head=dict(type='PFLDhead', num_point=num_classes, input_channel=32, act_cfg='ReLU', loss_cfg=dict(type='PFLDLoss')),
 )
 
 # dataset settings
 dataset_type = 'MeterData'
 
-data_root = ""
+data_root = ''
 height = 112
 width = 112
 batch_size = 32
 workers = 4
 
 train_pipeline = [
-    dict(type="Resize", height=height, width=width, interpolation=0),
+    dict(type='Resize', height=height, width=width, interpolation=0),
     # dict(type="PixelDropout"),
     dict(type='ColorJitter', brightness=0.3, contrast=0.3, saturation=0.3, p=0.5),
     # dict(type="CoarseDropout",max_height=12,max_width=12),
@@ -35,7 +35,7 @@ train_pipeline = [
     dict(type='Affine', translate_percent=[0.05, 0.30], p=0.6),
 ]
 
-val_pipeline = [dict(type="Resize", height=height, width=width)]
+val_pipeline = [dict(type='Resize', height=height, width=width)]
 
 train_dataloader = dict(
     batch_size=16,
@@ -47,7 +47,7 @@ train_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        img_dir="train/images",
+        img_dir='train/images',
         index_file=r'train/annotations.txt',
         pipeline=train_pipeline,
     ),
@@ -63,7 +63,7 @@ val_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        img_dir="val/images",
+        img_dir='val/images',
         index_file=r'val/annotations.txt',
         pipeline=val_pipeline,
     ),

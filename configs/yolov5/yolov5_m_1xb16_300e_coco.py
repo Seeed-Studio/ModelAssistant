@@ -1,4 +1,4 @@
-_base_ = ["./base_arch.py"]
+_base_ = ['./base_arch.py']
 
 anchors = [
     [(10, 13), (16, 30), (33, 23)],  # P3/8

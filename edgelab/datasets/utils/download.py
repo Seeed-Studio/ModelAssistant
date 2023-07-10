@@ -5,14 +5,14 @@ from typing import AnyStr, List
 
 def check_compress(file):
     compress_tools = {
-        'tar': "tar -xf {} -C ..",
-        "gz": "gzip -d {} ..",
-        "tgz": "tar -zxf {} -C ..",
-        "zip": "unzip -n {} -d ..",
-        "rar": "unrar e -o- -y {} ..",
+        'tar': 'tar -xf {} -C ..',
+        'gz': 'gzip -d {} ..',
+        'tgz': 'tar -zxf {} -C ..',
+        'zip': 'unzip -n {} -d ..',
+        'rar': 'unrar e -o- -y {} ..',
     }
     if 'tar.gz' in file:
-        return ["tar -zxf {} -C .."]
+        return ['tar -zxf {} -C ..']
     fls = file.split('.')
     res = []
     for f in fls[::-1]:
@@ -43,7 +43,7 @@ def download(links: List or AnyStr, store_path: AnyStr or __path__, unzip_dir=No
         unzip = check_compress(file_name)
         unzip = [de.format(file_name) for de in unzip]
         if os.path.exists(file_name):
-            print(f"file {file_name} already exists in {store_path}/download")
+            print(f'file {file_name} already exists in {store_path}/download')
             if not os.path.exists('.' + file_name):
                 for de in unzip:
                     os.system(de)
@@ -51,7 +51,7 @@ def download(links: List or AnyStr, store_path: AnyStr or __path__, unzip_dir=No
             continue
 
         # Dlownd compress dataset
-        cmd = f"curl -L {link} -o {file_name} --retry 3 -C -"
+        cmd = f'curl -L {link} -o {file_name} --retry 3 -C -'
         os.system(cmd)
         for de in unzip:
             os.system(de)

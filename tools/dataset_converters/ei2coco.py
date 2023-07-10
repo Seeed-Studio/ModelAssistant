@@ -45,17 +45,17 @@ def convert(path, category):
         os.makedirs(os.path.dirname(annotations_file), exist_ok=True)
 
     metadata = {
-        "info": {
-            "year": datetime.now().strftime("%Y"),
-            "version": "1.0",
-            "description": "Custom model",
-            "date_created": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        'info': {
+            'year': datetime.now().strftime('%Y'),
+            'version': '1.0',
+            'description': 'Custom model',
+            'date_created': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         },
-        "images": [],
-        "licenses": [{"id": 1, "name": "Proprietary", "url": "https://seeedstduio.com"}],
-        "type": "instances",
-        "annotations": [],
-        "categories": [],
+        'images': [],
+        'licenses': [{'id': 1, 'name': 'Proprietary', 'url': 'https://seeedstduio.com'}],
+        'type': 'instances',
+        'annotations': [],
+        'categories': [],
     }
 
     images_dir = os.path.join(out_dir, category)
@@ -83,13 +83,13 @@ def convert(path, category):
 
             metadata['annotations'].append(
                 {
-                    "id": len(metadata['annotations']) + 1,
-                    "image_id": img_id,
-                    "category_id": classes.index(label['label']) + 1,
-                    "bbox": [x, y, w, h],
-                    "area": w * h,
-                    "segmentation": [],
-                    "iscrowd": 0,
+                    'id': len(metadata['annotations']) + 1,
+                    'image_id': img_id,
+                    'category_id': classes.index(label['label']) + 1,
+                    'bbox': [x, y, w, h],
+                    'area': w * h,
+                    'segmentation': [],
+                    'iscrowd': 0,
                 }
             )
 
@@ -102,11 +102,11 @@ def convert(path, category):
 
         metadata['images'].append(
             {
-                "id": img_id,
-                "file_name": os.path.basename(new_img_file),
-                "height": image_height,
-                "width": image_width,
-                "date_captured": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                'id': img_id,
+                'file_name': os.path.basename(new_img_file),
+                'height': image_height,
+                'width': image_width,
+                'date_captured': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             }
         )
 
@@ -116,14 +116,14 @@ def convert(path, category):
             last_printed = current_ms()
 
     for c in range(0, class_count):
-        metadata['categories'].append({"id": c + 1, "name": classes[c], "supercategory": ""})
+        metadata['categories'].append({'id': c + 1, 'name': classes[c], 'supercategory': ''})
 
     with open(annotations_file, 'w') as f:
         f.write(json.dumps(metadata, indent=4))
 
 
-convert(os.path.join(args.data_directory, "training"), 'train')
-convert(os.path.join(args.data_directory, "testing"), 'valid')
+convert(os.path.join(args.data_directory, 'training'), 'train')
+convert(os.path.join(args.data_directory, 'testing'), 'valid')
 
 print('Transforming Edge Impulse data format into something compatible with Edgelab coco dataset format... done')
 print('')

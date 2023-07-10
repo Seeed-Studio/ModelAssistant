@@ -76,9 +76,9 @@ class Speechcommand(Dataset):
         if mode == 'train':
             fnames = self.get_training_list(root)
         elif mode == 'val':
-            fnames = self.load_meta_file(root, f"{sep}validation_list.txt")
+            fnames = self.load_meta_file(root, f'{sep}validation_list.txt')
         elif mode == 'test':
-            fnames = self.load_meta_file(root, f"{sep}testing_list.txt")
+            fnames = self.load_meta_file(root, f'{sep}testing_list.txt')
         else:
             raise ValueError
         self.audio_files = sorted(fnames)
@@ -87,7 +87,7 @@ class Speechcommand(Dataset):
             self.pipeline = TRANSFORMS.build(pipeline)
         self.use_background = use_background
         if self.use_background:
-            self.bg_aug = glob.glob(root + f"{sep}_background_noise_{sep}*.wav")
+            self.bg_aug = glob.glob(root + f'{sep}_background_noise_{sep}*.wav')
             self.bg_aug = [f for f in self.bg_aug if 'noise' not in os.path.basename(f)]
             self.bg_aug = [torch.from_numpy(torchaudio.load(f)[0][0].detach().numpy()) for f in self.bg_aug]
             self.bg_aug = [x for x in self.bg_aug]
@@ -104,7 +104,7 @@ class Speechcommand(Dataset):
         return fnames
 
     def _get_labels(self, root):
-        f_names = glob.glob(root + f"{sep}**{sep}*.wav")
+        f_names = glob.glob(root + f'{sep}**{sep}*.wav')
         self.labels = sorted(list(set([f.split(f'{os.path.sep}')[-2] for f in f_names])))
         self.labels = sorted([l for l in self.labels if l in self.words])
 
@@ -124,7 +124,7 @@ class Speechcommand(Dataset):
         audio.squeeze_()
         audio = (audio / audio.__abs__().max()).float()
 
-        assert "sampling rate of the file is not as configured in dataset, will cause slow fetch {}".format(
+        assert 'sampling rate of the file is not as configured in dataset, will cause slow fetch {}'.format(
             sampling_rate != self.sampling_rate
         )
         if audio.shape[0] >= self.segment_length:
@@ -132,7 +132,7 @@ class Speechcommand(Dataset):
             audio_start = random.randint(0, max_audio_start)
             audio = audio[audio_start : audio_start + self.segment_length]
         else:
-            audio = F.pad(audio, (0, self.segment_length - audio.size(0)), "constant").data
+            audio = F.pad(audio, (0, self.segment_length - audio.size(0)), 'constant').data
 
         if self.use_background and random.random() < 0.5:
             i = random.randint(0, len(self.bg_aug) - 1)
@@ -143,7 +143,7 @@ class Speechcommand(Dataset):
                 bg_start = random.randint(0, max_bg_start)
                 bg = bg[bg_start : bg_start + self.segment_length]
             else:
-                bg = F.pad(bg, (0, self.segment_length - bg.size(0)), "constant").data
+                bg = F.pad(bg, (0, self.segment_length - bg.size(0)), 'constant').data
             bg_level = (bg**2).mean().sqrt()
             snr_db = 20 + random.random() * 5
             sgm = s_level * 10 ** (-snr_db / 10)
@@ -158,11 +158,11 @@ class Speechcommand(Dataset):
         return len(self.audio_files)
 
     def get_training_list(self, root):
-        f_names = glob.glob(root + f"{sep}**{sep}*.wav")
+        f_names = glob.glob(root + f'{sep}**{sep}*.wav')
         f_names = [f for f in f_names if os.path.basename(os.path.dirname(f)) in self.words]
         # print(f_names[:100])
-        val = self.load_meta_file(root, f"{sep}validation_list.txt")
-        test = self.load_meta_file(root, f"{sep}testing_list.txt")
+        val = self.load_meta_file(root, f'{sep}validation_list.txt')
+        test = self.load_meta_file(root, f'{sep}testing_list.txt')
         valtest = val + test
         train = list(set(f_names) - set(valtest))
         return train

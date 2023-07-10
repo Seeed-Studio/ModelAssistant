@@ -24,6 +24,6 @@ __all__ = [
     'CustomYOLOv5CocoDataset',
     'SensorDataPreprocessor',
     'PackSensorInputs',
-    "LoadSensorFromFile",
+    'LoadSensorFromFile',
     'Bbox2FomoMask',
 ]

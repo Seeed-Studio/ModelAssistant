@@ -28,7 +28,7 @@ def replace(data: str, args: Optional[dict] = None) -> str:
         return data
     for key, value in args.items():
         if isinstance(value, (int, float)):
-            data = re.sub(f"^{key}\s?=\s?[^,{key}].*?[^,{key}].*?$\n", f'{key}={value}\n', data, flags=re.MULTILINE)
+            data = re.sub(f'^{key}\s?=\s?[^,{key}].*?[^,{key}].*?$\n', f'{key}={value}\n', data, flags=re.MULTILINE)
         else:
             value = value.replace('\\', '/')
             data = re.sub(f"^{key}\s?=\s?['\"]{{1}}.*?['\"]{{1}}.*?$\n", f'{key}="{value}"\n', data, flags=re.MULTILINE)
@@ -49,8 +49,8 @@ def replace_base_(data: str, base: Union[str, Sequence[str]]) -> str:
         pattern = "_base_\s?=\s?[',\"].+?[',\"]"
         data = re.sub(pattern, f"_base_ = '{base}'", data, flags=re.MULTILINE)
     elif isinstance(base, (list, tuple)):
-        pattern = "_base_\s?=\s?[\[].+?[\]]"
-        data = re.sub(pattern, f"_base_ = {str(base)}", data, flags=re.S)
+        pattern = '_base_\s?=\s?[\[].+?[\]]'
+        data = re.sub(pattern, f'_base_ = {str(base)}', data, flags=re.S)
 
     return data
 

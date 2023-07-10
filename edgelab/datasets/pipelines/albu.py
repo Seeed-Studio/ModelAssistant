@@ -33,7 +33,7 @@ class Rotate(A.Rotate):
         border_mode=cv2.BORDER_REFLECT_101,
         value=None,
         mask_value=None,
-        rotate_method="largest_box",
+        rotate_method='largest_box',
         crop_border=False,
         always_apply=False,
         p=0.5,

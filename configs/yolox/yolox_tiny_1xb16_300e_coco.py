@@ -1,4 +1,4 @@
-_base_ = ["./base_arch.py"]
+_base_ = ['./base_arch.py']
 
 # ======================modify start======================
 

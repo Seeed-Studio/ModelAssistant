@@ -52,7 +52,7 @@ class MobileNetv2(BaseModule):
             ]
 
         assert len(inverted_residual_setting) and len(inverted_residual_setting[0]) == 4, ValueError(
-            f"inverted_residual_setting should be non-empty or a 4-element list, got {inverted_residual_setting}"
+            f'inverted_residual_setting should be non-empty or a 4-element list, got {inverted_residual_setting}'
         )
 
         in_channels = _make_divisible(in_channels * widen_factor, round_nearest)
@@ -102,7 +102,7 @@ class MobileNetv2(BaseModule):
         # weight initialization
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(m.weight, mode="fan_out")
+                nn.init.kaiming_normal_(m.weight, mode='fan_out')
                 if m.bias is not None:
                     nn.init.zeros_(m.bias)
             elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):

@@ -60,7 +60,7 @@ class LoadSensorFromFile(BaseTransform):
             else:
                 lable_bytes = fileio.get(filename, backend_args=self.backend_args)
             label = json.loads(lable_bytes)
-            sensors = label['payload']["sensors"]
+            sensors = label['payload']['sensors']
             data = np.array([], np.float32)
             for value in label['payload']['values']:
                 data = np.append(data, value)
