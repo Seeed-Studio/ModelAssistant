@@ -280,6 +280,7 @@ class Infernce:
 
     def init(self, cfg):
         self.evaluator: Evaluator = self.runner.build_evaluator(self.cfg.get('val_evaluator'))
+        self.evaluator.dataset_meta = self.dataloader.dataset.METAINFO
         if hasattr(cfg.model, 'data_preprocessor'):
             self.data_preprocess = MODELS.build(cfg.model.data_preprocessor)
 
