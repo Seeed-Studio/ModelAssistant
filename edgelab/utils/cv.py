@@ -1,8 +1,8 @@
-from typing import Optional, Union, Tuple
+from typing import Optional, Tuple, Union
 
 import cv2
-import torch
 import numpy as np
+import torch
 from PIL import Image
 from torchvision.ops import nms
 

@@ -3,11 +3,10 @@ from typing import List, Optional
 
 import torch
 import torch.nn.functional as F
+from mmcls.models.classifiers import ImageClassifier as MMImageClassifier
+from mmcls.structures import ClsDataSample
 
 from edgelab.registry import MODELS
-
-from mmcls.structures import ClsDataSample
-from mmcls.models.classifiers import ImageClassifier as MMImageClassifier
 
 
 @MODELS.register_module()

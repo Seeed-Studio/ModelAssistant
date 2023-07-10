@@ -7,11 +7,11 @@ INSTALL_DOCS=false
 CUDA_AVAILABLE="$(command -v nvidia-smi)"
 PYTHON_PATH="/usr/bin/python3.8 "
 
-    
+
 # ansi colors
 RED='\033[031m'
 GREEN='\033[032m'
-BLUE='\033[034m' 
+BLUE='\033[034m'
 RST='\033[m'
 
 

@@ -1,14 +1,16 @@
-from typing import Optional, List, Callable
-from functools import partial
 import copy
-from torch import nn
+from functools import partial
+from typing import Callable, List, Optional
+
 import torch
-from torchvision.ops import StochasticDepth
-from edgelab.registry import BACKBONES
 from mmdet.models.utils.make_divisible import make_divisible
 from mmengine.model import BaseModule
+from torch import nn
+from torchvision.ops import StochasticDepth
+
 from edgelab.models.base.general import ConvNormActivation, SqueezeExcitation
 from edgelab.models.layers.rep import RepConv1x1
+from edgelab.registry import BACKBONES
 
 
 class MBConvConfig:

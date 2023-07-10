@@ -8,11 +8,9 @@ Before starting, we recommend that you should read [Grove - Deploy](./deploy.md)
 
 :::
 
-
 ## Preparation
 
 Please refer to [Grove - Deploy - Prerequisites](./deploy.md#prerequisites).
-
 
 ## Train Model
 
@@ -22,7 +20,6 @@ The mask detection feature is based on the FOMO model, in this step you need a F
 
 - Refer to [Training - FOMO Models](../../tutorials/training/fomo.md) to train the FOMO model and get the model weights using PyTorch and EdgeLab by yourself.
 
-
 ## Export Model
 
 Since the trained model is not suitable for running directly on edge computing devices, we need to export it to a TFLite format with a `.tflite` suffix, and you have two ways to get the exported model (with model weights contained).
@@ -30,7 +27,6 @@ Since the trained model is not suitable for running directly on edge computing d
 - Download the exported TFLite model from our [Model Zoo](https://github.com/Seeed-Studio/edgelab-model-zoo).
 
 - Refer to [Export - PyTorch to TFLite](../../tutorials/export/pytorch_2_tflite.md) to convert the FOMO model from PyTorch format to TFLite format by yourself.
-
 
 ## Deploy Model
 

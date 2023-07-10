@@ -1,22 +1,21 @@
 from typing import List, Optional, Sequence, Tuple
+
+import matplotlib.pyplot as plt
+import mmcv
+import numpy as np
+from mmcls.structures import ClsDataSample
+from mmdet.structures import DetDataSample
+from mmdet.visualization import DetLocalVisualizer
 from mmengine.dist import master_only
 from mmengine.structures import InstanceData
-from mmdet.structures import DetDataSample
-from mmcls.structures import ClsDataSample
 from mmengine.visualization import Visualizer
-from mmdet.visualization import DetLocalVisualizer
-import numpy as np
-import mmcv
-import matplotlib.pyplot as plt
+
 from edgelab.registry import VISUALIZERS
 
 
 @VISUALIZERS.register_module()
 class FomoLocalVisualizer(DetLocalVisualizer):
-    """
-    Unified Fomo and target detection visualization classes
-
-    """
+    """Unified Fomo and target detection visualization classes."""
 
     def __init__(self, name='v', *args, fomo=False, **kwargs) -> None:
         print(args)

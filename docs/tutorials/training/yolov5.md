@@ -2,7 +2,6 @@
 
 This section describes how to train the digital meter model on the COCO digital meter datasets. The implementations of yolo digital meter detection model is based on the [yolov5](https://github.com/ultralytics/yolov5) and power by [mmyolo](https://github.com/open-mmlab/mmyolo)
 
-
 ## Prepare Datasets
 
 EdgeLab uses [Digital Meter Datasets](https://universe.roboflow.com/seeeddatasets/seeed_meter_digit/) by default to train the yolov5 model, please refer to the following steps to complete the preparation of datasets.
@@ -10,7 +9,6 @@ EdgeLab uses [Digital Meter Datasets](https://universe.roboflow.com/seeeddataset
 1. Download digital meter datasets with COCO datasets mode
 
 2. Remember its **folder path** (e.g. `datasets\digital_meter`) of the unpacked datasets, you may need to use this folder path later.
-
 
 ## Choose a Configuration
 
@@ -61,7 +59,6 @@ model = dict(
 
 :::
 
-
 ## Training Model
 
 Training the model requires using our previously configured EdgeLab working environment, if you follow our [Installation](../../introduction/installation.md) guide using Conda to install EdgeLab in a virtual environment named `edgelab`, please first make sure that you are currently in the virtual environment.
@@ -93,7 +90,6 @@ conda activate edgelab
 ```
 
 :::
-
 
 ## Testing and Evaluation
 

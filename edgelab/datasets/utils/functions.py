@@ -1,6 +1,6 @@
 import torch
-from mmengine.registry import FUNCTIONS
 from mmdet.structures import DetDataSample
+from mmengine.registry import FUNCTIONS
 
 
 @FUNCTIONS.register_module()

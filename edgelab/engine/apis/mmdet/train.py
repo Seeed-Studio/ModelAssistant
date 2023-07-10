@@ -13,14 +13,19 @@ from mmcv.runner import (
     build_runner,
     get_dist_info,
 )
-
-from mmdet.datasets.utils import replace_ImageToTensor
 from mmdet.core import DistEvalHook, build_optimizer
 from mmdet.datasets import build_dataset
-from mmdet.utils import build_ddp, build_dp, compat_cfg, find_latest_checkpoint, get_root_logger
+from mmdet.datasets.utils import replace_ImageToTensor
+from mmdet.utils import (
+    build_ddp,
+    build_dp,
+    compat_cfg,
+    find_latest_checkpoint,
+    get_root_logger,
+)
 
-from edgelab.engine.hooks.evalhook import Feval
 from edgelab.datasets.builder import build_dataloader
+from edgelab.engine.hooks.evalhook import Feval
 
 
 def init_random_seed(seed=None, device='cuda'):

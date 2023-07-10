@@ -1,6 +1,6 @@
 import tensorflow as tf
-from tensorflow import keras
 import torch.nn as nn
+from tensorflow import keras
 
 
 class TFBN(keras.layers.Layer):
@@ -124,7 +124,7 @@ class TFDense(keras.layers.Layer):
 
 
 class TFBaseConv1d(keras.layers.Layer):
-    """Standard convolution1d or depthwiseconv1d depends on 'g' argument"""
+    """Standard convolution1d or depthwiseconv1d depends on 'g' argument."""
 
     def __init__(self, w=None):
         super().__init__()
@@ -182,7 +182,7 @@ class TFAADownsample(keras.layers.Layer):
 
 
 class TFActivation(keras.layers.Layer):
-    """Activation functions"""
+    """Activation functions."""
 
     def __init__(self, w=None):
         super().__init__()
@@ -204,7 +204,7 @@ class TFActivation(keras.layers.Layer):
 
 
 def tf_pool(w=None):
-    """Pooling functions"""
+    """Pooling functions."""
     if isinstance(w, nn.MaxPool2d):
         return TFMaxPool2d(w)
     elif isinstance(w, nn.AvgPool2d):

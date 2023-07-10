@@ -2,8 +2,9 @@ import copy
 
 import torch.nn as nn
 from mmcv.cnn import ConvModule
-from edgelab.registry import BACKBONES
 from mmpose.models.backbones.shufflenet_v2 import ShuffleNetV2
+
+from edgelab.registry import BACKBONES
 
 
 @BACKBONES.register_module()

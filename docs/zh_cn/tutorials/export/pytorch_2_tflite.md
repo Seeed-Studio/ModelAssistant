@@ -2,12 +2,11 @@
 
 本章将介绍如何将 PyTorch 模型转换为 TFLite 模型。
 
-
 ## 准备工作
 
 ### 环境配置
 
-首先，与[训练过程](../training/overview.md)类似的，我们在模型转换阶段也要求您在**虚拟环境**中完成。在 `edgelab` 虚拟环境中，请确定[安装指南 - 先决条件 - 安装额外依赖项](../../introduction/installation.md#step-4-安装额外的依赖项-可选)已经完成。
+首先，与[训练过程](../training/overview.md)类似的，我们在模型转换阶段也要求您在**虚拟环境**中完成。在 `edgelab` 虚拟环境中，请确定[安装指南 - 先决条件 - 安装额外依赖项](../../introduction/installation.md#step-4-%E5%AE%89%E8%A3%85%E9%A2%9D%E5%A4%96%E7%9A%84%E4%BE%9D%E8%B5%96%E9%A1%B9-%E5%8F%AF%E9%80%89)已经完成。
 
 ::: tip
 
@@ -32,7 +31,6 @@ conda activate edgelab
 TFLite 模型导出需要训练集作为代表数据集，如果没有找到，程序会自动下载。但对于某些大数据集，这会花费很长时间，请耐心等待。
 
 :::
-
 
 ## 模型导出
 
@@ -80,7 +78,6 @@ python3 tools/export.py \
 ```
 
 :::
-
 
 ## 模型验证
 

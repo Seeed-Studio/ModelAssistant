@@ -1,18 +1,18 @@
 import os
 import os.path as osp
 
+import albumentations as A
+import numpy as np
 import torch
 import torchvision
-import numpy as np
-import albumentations as A
-from torch.utils.data import Dataset
-from torchvision.transforms import ToTensor
+from mmdet.datasets.coco import CocoDataset
+from mmengine.dataset.base_dataset import BaseDataset
 from mmengine.registry import DATASETS
 from sklearn.metrics import confusion_matrix
+from torch.utils.data import Dataset
+from torchvision.transforms import ToTensor
 
 from .pipelines.composition import AlbCompose
-from mmengine.dataset.base_dataset import BaseDataset
-from mmdet.datasets.coco import CocoDataset
 
 
 @DATASETS.register_module()
@@ -56,7 +56,7 @@ class FomoDatasets(CocoDataset):
             self.flag[i] = 1
 
     def parse_cats(self):
-        """parse dataset is roboflow"""
+        """Parse dataset is roboflow."""
         self.roboflow = False
         self.CLASSES = []
 
@@ -70,7 +70,7 @@ class FomoDatasets(CocoDataset):
             self.CLASSES.append(value['name'])
 
     def __len__(self):
-        """return datasets len"""
+        """Return datasets len."""
         return len(self.data)
 
     def __getitem____(self, index):
@@ -116,7 +116,7 @@ class FomoDatasets(CocoDataset):
         return ann
 
     def bboxe2cell(self, bboxe, img_h, img_w, H, W):
-        """transform the bbox to ground cell"""
+        """Transform the bbox to ground cell."""
         w = bboxe[0] + (bboxe[2] / 2)
         h = bboxe[1] + (bboxe[3] / 2)
         w = w / img_w

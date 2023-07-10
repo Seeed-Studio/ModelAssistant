@@ -1,12 +1,13 @@
-from typing import Optional, Union, Dict
+from typing import Dict, Optional, Union
+
+from mmengine.dist.utils import master_only
 
 from edgelab.registry import HOOKS
-from mmengine.dist.utils import master_only
+
+from .text import TextLoggerHook
 
 # from mmcv.runner import HOOKS
 # from mmcv.runner.dist_utils import master_only
-
-from .text import TextLoggerHook
 
 
 @HOOKS.register_module(force=True)

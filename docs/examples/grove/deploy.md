@@ -2,7 +2,6 @@
 
 This example is a tutorial for deploying the models from [EdgeLab](https://github.com/Seeed-Studio/Edgelab/) to Grove - Vision AI module, based on the [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain) and [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) implementations.
 
-
 ## Prerequisites
 
 ### Hardware
@@ -19,22 +18,22 @@ Grove - Vision AI uses the [Himax HX6537](https://www.himax.com.tw/zh/products/i
 
 1. First, download the pre-compiled toolchain from [Synopsys GUN Toolchain - GitHub Releases](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/).
 
-    ```sh
-    wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2020.09-release/arc_gnu_2020.09_prebuilt_elf32_le_linux_install.tar.gz -P ~/ && \
-    tar -zxvf ~/arc_gnu_2020.09_prebuilt_elf32_le_linux_install.tar.gz --directory ~/
-    ```
+   ```sh
+   wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2020.09-release/arc_gnu_2020.09_prebuilt_elf32_le_linux_install.tar.gz -P ~/ && \
+   tar -zxvf ~/arc_gnu_2020.09_prebuilt_elf32_le_linux_install.tar.gz --directory ~/
+   ```
 
 2. Then, specify the directory of the Synopsys GUN Toolchain executable in the PATH and add it to `~/.bashrc` to facilitate automatic import when shell starts.
 
-    ```sh
-    echo 'export PATH="$HOME/arc_gnu_2020.09_prebuilt_elf32_le_linux_install/bin:$PATH" # Synopsys GUN Toolchain' >> ~/.bashrc
-    ```
+   ```sh
+   echo 'export PATH="$HOME/arc_gnu_2020.09_prebuilt_elf32_le_linux_install/bin:$PATH" # Synopsys GUN Toolchain' >> ~/.bashrc
+   ```
 
-    ::: tip
+   ::: tip
 
-    If you are using Zsh or other Shells, the above `~/.bashrc` should be adjusted accordingly.
+   If you are using Zsh or other Shells, the above `~/.bashrc` should be adjusted accordingly.
 
-    :::
+   :::
 
 ### Get Examples and the SDK
 
@@ -60,7 +59,6 @@ In addition, we recommend that you complete the installation and configuration o
 
 :::
 
-
 ## Prepare the Model
 
 Before you start compiling and deploying, you need to prepare the models to be deployed according to the actual application scenarios. Models are included in the default Grove - Vision AI SDK, or you can try to train different models yourself.
@@ -73,13 +71,11 @@ To help you understand the process in a more organized way, we have written comp
 
 - [**Grove Meter Reader**](./meter_reader.md)
 
-
 ::: warning
 
 Before [Compile and Deploy](#compile-and-deploy), you need to prepare the appropriate model.
 
 :::
-
 
 ## Compile and Deploy
 
@@ -87,59 +83,59 @@ Before [Compile and Deploy](#compile-and-deploy), you need to prepare the approp
 
 1. First, please go to the root directory of the EdgeLab project and run the following command to access the example directory `examples/grove`.
 
-    ```sh
-    cd examples/grove # EdgeLab/examples/grove
-    ```
+   ```sh
+   cd examples/grove # EdgeLab/examples/grove
+   ```
 
 2. Second, choose the compilation parameters according to **selected model** and compile them, the optional parameters are `fomo`, `meter`, etc.
 
-    ::: code-group
+   ::: code-group
 
-    ```sh [fomo]
-    make HW=grove_vision_ai APP=fomo && make flash
-    ```
+   ```sh [fomo]
+   make HW=grove_vision_ai APP=fomo && make flash
+   ```
 
-    ```sh [meter]
-    make HW=grove_vision_ai APP=meter && make flash
-    ```
+   ```sh [meter]
+   make HW=grove_vision_ai APP=meter && make flash
+   ```
 
-    ```sh [digtal meter]
-    make HW=grove_vision_ai APP=digtal_meter && make flash
-    ```
+   ```sh [digtal meter]
+   make HW=grove_vision_ai APP=digtal_meter && make flash
+   ```
 
-    :::
+   :::
 
-    ::: tip
+   ::: tip
 
-    You can view all optional parameters for APP using the following command.
+   You can view all optional parameters for APP using the following command.
 
-    ```sh
-    ls examples # EdgeLab/examples/grove/examples
-    ```
+   ```sh
+   ls examples # EdgeLab/examples/grove/examples
+   ```
 
-    After compilation, a binary file named `output.img` will be generated in the `tools/image_gen_cstm/output` directory.
+   After compilation, a binary file named `output.img` will be generated in the `tools/image_gen_cstm/output` directory.
 
-    :::
+   :::
 
 3. Third, generate the UF2 firmware image.
 
-    ```sh
-    python3 tools/ufconv/uf2conv.py -t 0 -c tools/image_gen_cstm/output/output.img -o firmware.uf2
-    ```
+   ```sh
+   python3 tools/ufconv/uf2conv.py -t 0 -c tools/image_gen_cstm/output/output.img -o firmware.uf2
+   ```
 
 4. Last, generate UF2 model image from TFLite model.
 
-    ```sh
-    python3 tools/ufconv/uf2conv.py -t 1 -c <TFLITE_MODEL_PATH> -o model.uf2
-    ```
+   ```sh
+   python3 tools/ufconv/uf2conv.py -t 1 -c <TFLITE_MODEL_PATH> -o model.uf2
+   ```
 
-    ::: tip
+   ::: tip
 
-    You need to replace `<TFLITE_MODEL_PATH>` with the path to the TFLite model obtained in the [Prepare the Model](#prepare-the-model) step. You can also use the pre-trained model, which is located in the `model_zone` directory, and simply copy its path.
+   You need to replace `<TFLITE_MODEL_PATH>` with the path to the TFLite model obtained in the [Prepare the Model](#prepare-the-model) step. You can also use the pre-trained model, which is located in the `model_zone` directory, and simply copy its path.
 
-    Note that the **model type** selected should be consistent with the selection which you have made in [Compile Firmware and Model Firmware - Step 2](#compile-the-firmware-and-model-firmware).
+   Note that the **model type** selected should be consistent with the selection which you have made in [Compile Firmware and Model Firmware - Step 2](#compile-the-firmware-and-model-firmware).
 
-    :::
+   :::
 
 ### Deployment Routines
 
@@ -149,7 +145,7 @@ The deployment process of Grove - Vision AI is divided into two main steps, whic
 
 2. **Flash `model.uf2` model firmware image** and reboot or reconnect.
 
-3. Connect Grove - Vision AI to the computer again via the USB cable and use a browser which supports [WebUSB API](https://developer.mozilla.org/en-US/docs/Web/API/WebUSB_API) such as [Google Chrome]( https://www.google.com/chrome/), then access the [Grove Vision AI Console](https://files.seeedstudio.com/grove_ai_vision/index.html).
+3. Connect Grove - Vision AI to the computer again via the USB cable and use a browser which supports [WebUSB API](https://developer.mozilla.org/en-US/docs/Web/API/WebUSB_API) such as [Google Chrome](https://www.google.com/chrome/), then access the [Grove Vision AI Console](https://files.seeedstudio.com/grove_ai_vision/index.html).
 
 4. In the browser interface and [Grove Vision AI Console](https://files.seeedstudio.com/grove_ai_vision/index.html), select **Grove AI** in the pop-up window and click **Connect** button to connect.
 
@@ -173,7 +169,6 @@ Before flash the firmware, you must check if the device bootloader version match
 
 :::
 
-
 ### Performance Profile
 
 The performance of EdgeLab related models, measured on different chips, is summarized in the following table.
@@ -183,11 +178,9 @@ The performance of EdgeLab related models, measured on different chips, is summa
 | Grove Vision AI | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/Edgelab/meter.zip) | 112x112 (RGB) | 320KB | 500ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/EdgeLab/releases) |
 | Grove Vision AI | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/Edgelab/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/EdgeLab/releases) |
 
-
 ## Troubleshoot
 
 If your Grove Vision AI is not recognized by your computer, we recommend your to try reinstall the firmware or update the bootloader, the detailed steps can be found on [Grove - Vision AI Module: Restore Factory Firmware](https://wiki.seeedstudio.com/Grove-Vision-AI-Module/#restore-factory-firmware).
-
 
 ## Contribute
 
@@ -198,7 +191,6 @@ If your Grove Vision AI is not recognized by your computer, we recommend your to
 - For information about TensorFlow Lite Micro, please refer to [TFLite-Micro](https://github.com/tensorflow/tflite-micro).
 
 - For EdgeLab related information, please refer to [EdgeLab](https://github.com/Seeed-Studio/Edgelab/).
-
 
 ## Licensing
 

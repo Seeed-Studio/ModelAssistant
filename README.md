@@ -7,11 +7,9 @@
 
 English | [简体中文](README_zh-CN.md)
 
-
 ## Introduction
 
-Seeed Studio EdgeLab is an open-source project focused on embedded AI. We have optimized excellent algorithms from [OpenMMLab](https://github.com/open-mmlab) for real-world scenarios and made implemention more user-friendly, achieving faster and more accurate inference on embedded devices.
-
+Seeed Studio EdgeLab is an open-source project focused on embedded AI. We have optimized excellent algorithms from [OpenMMLab](https://github.com/open-mmlab) for real-world scenarios and made implementation more user-friendly, achieving faster and more accurate inference on embedded devices.
 
 ## What's included
 
@@ -19,7 +17,7 @@ Currently we support the following directions of algorithms:
 
 <details>
 <summary>Anomaly Detection (coming soon)</summary>
-In the real world, anomalous data is often difficult to identify, and even if it can be identified, it requires a very high cost. The anomaly detection algorithm collects normal data in a low-cost way, and anything outside normal data is considered anomalous. 
+In the real world, anomalous data is often difficult to identify, and even if it can be identified, it requires a very high cost. The anomaly detection algorithm collects normal data in a low-cost way, and anything outside normal data is considered anomalous.
 </details>
 
 <details>
@@ -36,12 +34,11 @@ EdgeLab provides customized scenarios for specific production environments, such
 
 We will keep adding more algorithms in the future. Stay tuned!
 
-
-## Features 
+## Features
 
 <details>
 <summary>User-friendly</summary>
-EdgeLab provides a user-friendly platform that allows users to easily perform training on collected data, and to better understand the performance of algorithms through visualizations generated during the training process. 
+EdgeLab provides a user-friendly platform that allows users to easily perform training on collected data, and to better understand the performance of algorithms through visualizations generated during the training process.
 </details>
 
 <details>
@@ -50,10 +47,9 @@ EdgeLab focuses on end-side AI algorithm research, and the algorithm models can 
 </details>
 
 <details>
-<summary>Supports mutiple formats for model export</summary>
+<summary>Supports multiple formats for model export</summary>
 <a href="https://www.tensorflow.org/lite">TensorFlow Lite</a> is mainly used in microcontrollers, while <a href="https://onnx.ai">ONNX</a> is mainly used in devices with Embedded Linux. There are some special formats such as <a href="https://developer.nvidia.com/tensorrt">TensorRT</a>, <a href="https://docs.openvino.ai">OpenVINO</a> which are already well supported by OpenMMlab. EdgeLab has added TFLite model export for microcontrollers, which can be directly converted to uf2 format and drag-and-drop into the device for deployment.
 </details>
-
 
 ## Acknowledgement
 
@@ -62,7 +58,6 @@ EdgeLab referenced the following projects:
 - [OpenMMLab](https://openmmlab.com/)
 - [ONNX](https://github.com/onnx/onnx)
 - [NCNN](https://github.com/Tencent/ncnn)
-
 
 ## License
 

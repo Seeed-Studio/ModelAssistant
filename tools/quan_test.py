@@ -1,14 +1,14 @@
 import os
-from typing import List, AnyStr
+from typing import AnyStr, List
+
 import ncnn
 import numpy as np
-
 import onnx
-import tqdm.std
-from PIL import Image
 import onnxruntime
 import tensorflow as tf
-from torchvision.transforms import ToTensor, Resize, Grayscale, Compose
+import tqdm.std
+from PIL import Image
+from torchvision.transforms import Compose, Grayscale, Resize, ToTensor
 
 input_name = 'images'
 output_name = 'output'

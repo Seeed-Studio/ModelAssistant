@@ -4,7 +4,6 @@ This section describes how to train the FOMO mask detection model on the COCO MA
 
 For more information about MobileNet, please refer to the paper [MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications](https://arxiv.org/pdf/1704.04861.pdf).
 
-
 ## Prepare Datasets
 
 EdgeLab uses [COCO_MASK Datasets](../datasets.md#EdgeLab) by default to train the FOMO model, please refer to the following steps to complete the preparation of datasets.
@@ -12,7 +11,6 @@ EdgeLab uses [COCO_MASK Datasets](../datasets.md#EdgeLab) by default to train th
 1. Please refer to [Internet Datasets - EdgeLab - COCO_MASK Dataset](../datasets.md#EdgeLab) to download and unpack the dataset.
 
 2. Remember its **folder path** (e.g. `datasets\mask`) of the unpacked datasets, you may need to use this folder path later.
-
 
 ## Choose a Configuration
 
@@ -119,7 +117,6 @@ param_scheduler=[
 
 :::
 
-
 ## Training Model
 
 Training the model requires using our previously configured EdgeLab working environment, if you follow our [Installation](../../introduction/installation.md) guide using Conda to install EdgeLab in a virtual environment named `edgelab`, please first make sure that you are currently in the virtual environment.
@@ -151,7 +148,6 @@ conda activate edgelab
 ```
 
 :::
-
 
 ## Testing and Evaluation
 

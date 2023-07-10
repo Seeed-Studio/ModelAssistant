@@ -2,16 +2,13 @@
 
 本节描述了如何在 COCO 数字电表数据集上训练数字电表模型。YOLO 数字电表检测模型的实现是基于 [YOLOv5](https://github.com/ultralytics/yolov5) 和 [MMYoLo](https://github.com/open-mmlab/mmyolo) 的驱动。
 
-
-
 ## 准备数据集
 
 本教程使用[数字数据集](https://universe.roboflow.com/seeeddatasets/seeed_meter_digit/)来训练 YOLOv5 模型，请参考以下步骤来完成数据集的准备。
 
 1. 用 COCO 数据集模式下载数字仪表数据集
 
-2. 记住解压后的数据集的**文件夹路径 (如 `datasets/digital_meter`)，以后可能需要使用这个文件夹路径。
-
+2. 记住解压后的数据集的\*\*文件夹路径 (如 `datasets/digital_meter`)，以后可能需要使用这个文件夹路径。
 
 ## 选择一个配置
 
@@ -62,7 +59,6 @@ model = dict(
 
 :::
 
-
 ## 训练模型
 
 训练模型需要使用我们之前配置的 EdgeLab 工作环境，如果你按照我们的[安装](../../introduction/installation.md)指南使用 Conda 将 EdgeLab 安装在一个名为 `edgelab` 的虚拟环境中，请首先确保你当前处于虚拟环境。
@@ -94,7 +90,6 @@ conda activate edgelab
 ```
 
 :::
-
 
 ## 测试和评估
 

@@ -1,4 +1,5 @@
-from typing import Optional, Callable, Dict, AnyStr, Any
+from typing import Any, AnyStr, Callable, Dict, Optional
+
 import torch
 import torch.nn as nn
 from mmengine.registry import MODELS

@@ -1,6 +1,6 @@
-import re
 import os.path as osp
-from typing import Union, Sequence, Optional
+import re
+from typing import Optional, Sequence, Union
 
 from mmengine.config import Config
 
@@ -15,8 +15,7 @@ def dump_config_to_log_dir(self) -> None:
 
 
 def replace(data: str, args: Optional[dict] = None) -> str:
-    """
-    Replace the basic configuration items in the configuration file
+    """Replace the basic configuration items in the configuration file.
 
     Args:
         data(str): the string to be replaced
@@ -37,8 +36,7 @@ def replace(data: str, args: Optional[dict] = None) -> str:
 
 
 def replace_base_(data: str, base: Union[str, Sequence[str]]) -> str:
-    """
-    Replace the _base_ configuration item in the configuration file
+    """Replace the _base_ configuration item in the configuration file.
 
     Args:
         data(str): the string to be replaced
@@ -58,10 +56,9 @@ def replace_base_(data: str, base: Union[str, Sequence[str]]) -> str:
 
 
 def load_config(filename: str, folder: str, cfg_options: Optional[dict] = None) -> str:
-    """
-    Load the configuration file and modify the value in cfg-options at the
+    """Load the configuration file and modify the value in cfg-options at the
     same time, write the modified file to the temporary file, and finally store
-    the modified file in the temporary path and return the corresponding path
+    the modified file in the temporary path and return the corresponding path.
 
     Args:
         filename: configuration file path

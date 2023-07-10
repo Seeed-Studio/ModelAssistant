@@ -1,7 +1,8 @@
-from edgelab.registry import MODELS, LOSSES
+import torch
 from mmcls.models.classifiers.base import BaseClassifier
 from mmengine.logging import MessageHub
-import torch
+
+from edgelab.registry import LOSSES, MODELS
 
 
 @MODELS.register_module("Audio_classify", force=True)

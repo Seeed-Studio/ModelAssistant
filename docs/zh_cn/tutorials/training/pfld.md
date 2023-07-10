@@ -2,7 +2,6 @@
 
 本节将介绍如何在 PFLD 表计数据集上训练 PFLD 表计模型。PFLD 模型是在论文 [PFLD: A Practical Facial Landmark Detector](https://arxiv.org/pdf/1902.10859.pdf) 中提出的。
 
-
 ## 准备数据集
 
 在开始训练前，首先需要准备标注好的数据集。EdgeLab 默认使用[自定义 Meter 数据集](../datasets.md#EdgeLab)训练 PFLD 模型，请参照以下步骤完成数据集的准备。
@@ -10,7 +9,6 @@
 1. 参考[互联网数据集 - EdgeLab - 自定义 Meter 数据集](../datasets.md#EdgeLab)下载数据集并完成数据集的解压。
 
 2. 记住数据集解压后的**文件夹路径** (如: `datasets\meter`)，在之后修改配置文件时需要使用该文件夹路径。
-
 
 ## 选择配置文件
 
@@ -114,7 +112,6 @@ param_scheduler=[
 
 :::
 
-
 ## 训练模型
 
 训练模型需要使用我们之前配置好的 EdgeLab 工作环境，如果您按照我们的[安装指南](../../introduction/installation.md)使用 Conda 将 EdgeLab 安装在了名为 `edgelab` 的虚拟环境中，请首先确保您目前正处在虚拟环境中。
@@ -146,7 +143,6 @@ conda activate edgelab
 ```
 
 :::
-
 
 ## 测试和评估
 

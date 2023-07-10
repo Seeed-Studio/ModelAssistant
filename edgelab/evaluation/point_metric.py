@@ -1,9 +1,8 @@
-from typing import Optional, Any, Sequence
+from typing import Any, Optional, Sequence
 
 import numpy as np
-
-from mmengine.registry import METRICS
 from mmengine.evaluator import BaseMetric
+from mmengine.registry import METRICS
 
 
 def pose_acc(pred, target, hw, th=10):

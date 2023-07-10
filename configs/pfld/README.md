@@ -18,6 +18,7 @@ be merely 2.1Mb of size and reach over 140 fps per face on a mobile phone(Qualco
 precision, making it attractive for large-scale or real-time applications. We have made our practical system based on
 PFLD 0.25X model publicly available at <http://sites.google>. com/view/xjguo/fld for encouraging comparisons and
 improvements from the community.
+
 <div align=center>
 <img alt="PFLD" height="320" src="../../demo/PFLD.png" width="640"/>
 </div>

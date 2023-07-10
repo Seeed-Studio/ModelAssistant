@@ -1,5 +1,10 @@
-from .logger import TextLoggerHook, TensorboardLoggerHook, WandbLoggerHook, ClearMLLoggerHook
-from .visualization_hook import Posevisualization, DetFomoVisualizationHook
+from .logger import (
+    ClearMLLoggerHook,
+    TensorboardLoggerHook,
+    TextLoggerHook,
+    WandbLoggerHook,
+)
+from .visualization_hook import DetFomoVisualizationHook, Posevisualization
 
 __all__ = [
     'TextLoggerHook',

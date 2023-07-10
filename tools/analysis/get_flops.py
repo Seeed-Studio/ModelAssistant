@@ -10,7 +10,6 @@ from mmengine.config import Config, DictAction
 from mmengine.logging import MMLogger
 from mmengine.model import revert_sync_batchnorm
 from mmengine.registry import init_default_scope
-
 from mmyolo.utils import switch_to_deploy
 
 from tools.utils.config import load_config

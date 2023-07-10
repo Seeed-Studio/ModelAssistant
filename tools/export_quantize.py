@@ -1,34 +1,38 @@
-import os
-import time
-import logging
 import argparse
+import logging
+import os
 import os.path as osp
+import time
 
 from onnxmltools.utils import load_model, save_model
 from onnxmltools.utils.float16_converter import convert_float_to_float16
-from onnxruntime.quantization import QuantType, quantize_dynamic, quantize_static, QuantFormat
-
+from onnxruntime.quantization import (
+    QuantFormat,
+    QuantType,
+    quantize_dynamic,
+    quantize_static,
+)
 from utils.quant_read import Quan_Reader
 
 
 def log_init():
-    loger = logging.getLogger('ENV_CONFIG')
-    loger.setLevel(logging.INFO)
+    logger = logging.getLogger('ENV_CONFIG')
+    logger.setLevel(logging.INFO)
 
     hd = logging.StreamHandler()
     hd.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     hd.setFormatter(formatter)
-    loger.addHandler(hd)
-    return loger
+    logger.addHandler(hd)
+    return logger
 
 
 def command(cmd, retry_num=3):
     for i in range(retry_num):
         if os.system(cmd) != 0:
             time.sleep(1)
-            loger.warning(f'COMMAND:"{cmd}"execution failed')
-            loger.info('retrying') if i != (retry_num - 1) else None
+            logger.warning(f'COMMAND:"{cmd}"execution failed')
+            logger.info('retrying') if i != (retry_num - 1) else None
         else:
             return True
     return False
@@ -47,7 +51,7 @@ def onnx_quant_static(onnx_path):
         calibration_data_reader=Quan_Reader('./img_e', (112, 112), 'images'),
         weight_type=QuantType.QInt8,
     )
-    loger.info('onnx static succeeded!\nfile in: {}'.format(quant_file))
+    logger.info('onnx static succeeded!\nfile in: {}'.format(quant_file))
 
 
 def onnx_quant_dynamic(onnx_path):
@@ -55,7 +59,7 @@ def onnx_quant_dynamic(onnx_path):
     onnx_name = osp.basename(onnx_path)
     quant_file = osp.join(onnx_dir, onnx_name.replace('.onnx', '_quant_dynamic.onnx'))
     quantize_dynamic(onnx_path, quant_file, per_channel=True, weight_type=QuantType.QUInt8)
-    loger.info('onnx dynamic succeeded!\nfile in: {}'.format(quant_file))
+    logger.info('onnx dynamic succeeded!\nfile in: {}'.format(quant_file))
 
 
 def export_ncnn(onnx_path):
@@ -64,7 +68,7 @@ def export_ncnn(onnx_path):
     ncnn_param = osp.join(onnx_dir, onnx_name.replace('.onnx', '.param'))
     ncnn_bin = osp.join(onnx_dir, onnx_name.replace('.onnx', '.bin'))
     if command(f'{onnx2ncnn} {onnx_path} {ncnn_param} {ncnn_bin}'):
-        loger.info('ncnn export succeeded!')
+        logger.info('ncnn export succeeded!')
 
 
 def ncnn_quant(onnx_path, image_dir='./img_e', img_size=[112, 112, 3]):
@@ -84,9 +88,9 @@ def ncnn_quant(onnx_path, image_dir='./img_e', img_size=[112, 112, 3]):
 
     # optimizer model
     if command(f"{ncnnoptimize} {ncnn_param} {ncnn_bin} {ncnn_param_opt} {ncnn_bin_opt} 0"):
-        loger.info('export optimizer ncnn succeeded!')
+        logger.info('export optimizer ncnn succeeded!')
     else:
-        loger.warning('export optimizer ncnn fail!')
+        logger.warning('export optimizer ncnn fail!')
         return
 
     # gener calibration datasets
@@ -95,18 +99,18 @@ def ncnn_quant(onnx_path, image_dir='./img_e', img_size=[112, 112, 3]):
 
     # gener calibration table
     if command(cmd):
-        loger.info('export ncnn quantize table succeeded!')
+        logger.info('export ncnn quantize table succeeded!')
     else:
-        loger.error('export ncnn quantize table fail!')
+        logger.error('export ncnn quantize table fail!')
         return
 
     if command(
         f"{ncnn2int8} {ncnn_param_opt} {ncnn_bin_opt} {ncnn_param_int8} {ncnn_bin_int8} {ncnn_table}"
     ):  # quantize model
-        loger.info('ncnn quantize succeeded!')
+        logger.info('ncnn quantize succeeded!')
 
     else:
-        loger.error('ncnn quantize fail!')
+        logger.error('ncnn quantize fail!')
         return
 
 
@@ -117,7 +121,7 @@ def onnx_fp16(onnx_path):
     onnx_model = load_model(onnx_path)
     fp16_model = convert_float_to_float16(onnx_model)
     save_model(fp16_model, onnx_fp16)
-    loger.info('export onnx fp16 format succeeded!')
+    logger.info('export onnx fp16 format succeeded!')
 
 
 def ncnn_fp16(onnx_path):
@@ -133,9 +137,9 @@ def ncnn_fp16(onnx_path):
         export_ncnn(onnx_path)
 
     if command(f"{ncnnoptimize} {ncnn_param} {ncnn_bin} {ncnn_param_opt} {ncnn_bin_opt} 65536"):
-        loger.info('export ncnn fp16 format succeeded!')
+        logger.info('export ncnn fp16 format succeeded!')
     else:
-        loger.error('export ncnn fp16 format fail!')
+        logger.error('export ncnn fp16 format fail!')
         return
 
 
@@ -165,7 +169,7 @@ def main(args):
 
     for f in export_type:
         if f not in func_dict.keys():
-            loger.error(f'{f} not in {func_dict.keys()},Please enter the correct export type')
+            logger.error(f'{f} not in {func_dict.keys()},Please enter the correct export type')
         if f == 'ncnn_quan' and imags_dir:
             func_dict[f](onnx_path, imags_dir)
         else:
@@ -188,5 +192,5 @@ def args_parse():
 
 if '__main__' == __name__:
     args = args_parse()
-    loger = log_init()
+    logger = log_init()
     main(args=args)

@@ -1,16 +1,18 @@
 from typing import Sequence, Union
+
 import torch
 import torch.nn as nn
+
+from edgelab.models.utils.computer_acc import pose_acc
 from edgelab.registry import HEADS, LOSSES
 
 from ..base.general import CBR
-from edgelab.models.utils.computer_acc import pose_acc
 
 
 @HEADS.register_module()
 class PFLDhead(nn.Module):
-    """
-    The head of the pfld model mainly uses convolution and global average pooling
+    """The head of the pfld model mainly uses convolution and global average
+    pooling.
 
     Args:
         num_point: The model needs to predict the number of key points,

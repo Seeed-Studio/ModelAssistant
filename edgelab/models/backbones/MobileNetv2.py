@@ -1,12 +1,13 @@
-from typing import List, Union, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import torch.nn as nn
-
 from mmengine.model import BaseModule
-from edgelab.registry import BACKBONES, MODELS
 from torchvision.models._utils import _make_divisible
+
 from edgelab.models.layers.rep import RepBlock, RepConv1x1
-from ..base.general import InvertedResidual, ConvNormActivation
+from edgelab.registry import BACKBONES, MODELS
+
+from ..base.general import ConvNormActivation, InvertedResidual
 
 
 @BACKBONES.register_module()

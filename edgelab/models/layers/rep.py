@@ -14,8 +14,7 @@ def padding_weights(
     mode: str = 'constant',
     value: Union[int, float] = 0,
 ) -> Union[torch.Tensor, int]:
-    """
-    Fill the convolution weights to the corresponding shape
+    """Fill the convolution weights to the corresponding shape.
 
     Params:
         weights: The weight value that needs to be filled
@@ -55,8 +54,7 @@ def padding_weights(
 def fuse_conv_norm(
     block: Union[nn.Sequential, nn.BatchNorm2d, nn.LayerNorm], groups: int = 1
 ) -> Tuple[torch.Tensor, torch.Tensor]:
-    '''
-    Fusion convolution and norm parameters, return weight and bias
+    """Fusion convolution and norm parameters, return weight and bias.
 
     Params:
         block: Modules that require parameter fusion
@@ -64,7 +62,7 @@ def fuse_conv_norm(
     Return:
         weight: The weight after parameter fusion
         bias: The bias after parameter fusion
-    '''
+    """
     block: nn.Sequential
     if isinstance(block, nn.Sequential):
         conv_weight, conv_bias, norm_mean, norm_var, norm_gamm, norm_beta, norm_eps = (
@@ -441,7 +439,7 @@ class RepBlock(BaseModule):
             bias=True,
             padding_mode='zeros',
         )
-        self.frist = True
+        self.first = True
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if self.training:
@@ -449,7 +447,7 @@ class RepBlock(BaseModule):
                 res = self.conv_norm1(x) + self.conv_norm2(x) + self.norm(x)
             else:
                 res = self.conv_norm1(x) + self.conv_norm2(x)
-            self.frist = True
+            self.first = True
         else:
             res = self.fused_conv(x)
         if self.act_layer:

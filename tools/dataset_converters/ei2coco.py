@@ -1,10 +1,11 @@
 import argparse
-import shutil
-import os
 import json
+import os
+import shutil
 import time
-from PIL import Image
 from datetime import datetime
+
+from PIL import Image
 
 parser = argparse.ArgumentParser(description='Edge Impulse => Coco format converter')
 parser.add_argument('--data-directory', type=str, required=True)
@@ -70,21 +71,21 @@ def convert(path, category):
 
         img_id = len(metadata['images']) + 1
 
-        for lable in labels:
-            if lable['label'] not in classes:
-                classes.append(lable['label'])
+        for label in labels:
+            if label['label'] not in classes:
+                classes.append(label['label'])
                 class_count = class_count + 1
 
-            x = lable['x']
-            y = lable['y']
-            w = lable['width']
-            h = lable['height']
+            x = label['x']
+            y = label['y']
+            w = label['width']
+            h = label['height']
 
             metadata['annotations'].append(
                 {
                     "id": len(metadata['annotations']) + 1,
                     "image_id": img_id,
-                    "category_id": classes.index(lable['label']) + 1,
+                    "category_id": classes.index(label['label']) + 1,
                     "bbox": [x, y, w, h],
                     "area": w * h,
                     "segmentation": [],

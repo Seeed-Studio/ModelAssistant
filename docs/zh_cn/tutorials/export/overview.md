@@ -48,11 +48,11 @@ python3 tools/export.py --help
 #                         ONNX: export with a dynamic input shape
 #   --algorithm {l2,kl}   TFLite: conversion algorithm
 #   --backend {qnnpack,fbgemm}
-#                         TFLite: conveter backend
+#                         TFLite: converter backend
 #   --calibration_epochs CALIBRATION_EPOCHS, --calibration-epochs CALIBRATION_EPOCHS
 #                         TFLite: max epoches for quantization calibration
 #   --mean MEAN [MEAN ...]
 #                         TFLite: mean for model input (quantization), range: [0, 1], applied to all channels, using the average if multiple values are provided
 #   --mean_and_std MEAN_AND_STD [MEAN_AND_STD ...], --mean-and-std MEAN_AND_STD [MEAN_AND_STD ...]
-#                         TFLite: mean and std for model input(s), defalut: [((0.0,), (1.0,))], calculated on normalized input(s), applied to all channel(s), using the average if multiple values are provided
+#                         TFLite: mean and std for model input(s), default: [((0.0,), (1.0,))], calculated on normalized input(s), applied to all channel(s), using the average if multiple values are provided
 ```

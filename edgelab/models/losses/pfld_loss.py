@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+
 from edgelab.registry import LOSSES
 
 LOSSES._register_module(nn.L1Loss, 'L1Loss')

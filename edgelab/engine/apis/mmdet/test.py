@@ -51,6 +51,7 @@ def single_gpu_test_mmcls(model, data_loader, audio):
 
 def multi_gpu_test(model, data_loader, tmpdir=None, gpu_collect=False):
     """Test model with multiple gpus.
+
     This method tests model with multiple gpus and collects the results
     under two different modes: gpu and cpu modes. By setting 'gpu_collect=True'
     it encodes results to gpu tensors and use gpu communication for results
@@ -92,6 +93,7 @@ def multi_gpu_test(model, data_loader, tmpdir=None, gpu_collect=False):
 
 def collect_results_cpu(result_part, size, tmpdir=None):
     """Collect results in cpu mode.
+
     It saves the results on different gpus to 'tmpdir' and collects
     them by the rank 0 worker.
     Args:
@@ -145,6 +147,7 @@ def collect_results_cpu(result_part, size, tmpdir=None):
 
 def collect_results_gpu(result_part, size):
     """Collect results in gpu mode.
+
     It encodes results to gpu tensors and use gpu communication for results
     collection.
     Args:

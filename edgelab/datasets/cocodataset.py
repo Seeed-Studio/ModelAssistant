@@ -1,14 +1,15 @@
 import json
 import os.path as osp
-from typing import List, Optional, Union, Callable, Sequence
 from collections import OrderedDict
+from typing import Callable, List, Optional, Sequence, Union
 
 import cv2
-import torch
 import numpy as np
-from edgelab.registry import DATASETS
+import torch
 from mmdet.datasets.coco import CocoDataset
 from sklearn.metrics import confusion_matrix
+
+from edgelab.registry import DATASETS
 
 from .utils.download import check_file
 
@@ -129,10 +130,10 @@ class CustomCocoDataset(CocoDataset):
             with open(self.ann_file, 'r') as f:
                 data = json.load(f)
             if filter_supercat:
-                catgories = tuple(cat['name'] for cat in data['categories'] if cat['supercategory'] != 'none')
+                categories = tuple(cat['name'] for cat in data['categories'] if cat['supercategory'] != 'none')
             else:
-                catgories = tuple(cat['name'] for cat in data['categories'])
-            self.METAINFO['classes'] = catgories
+                categories = tuple(cat['name'] for cat in data['categories'])
+            self.METAINFO['classes'] = categories
         elif classes:
             self.METAINFO['classes'] = classes
 

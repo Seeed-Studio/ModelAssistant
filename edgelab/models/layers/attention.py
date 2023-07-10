@@ -1,8 +1,9 @@
-from typing import List, Union, Tuple
-from mmengine.model.base_module import BaseModule
-from edgelab.models.base.general import ConvNormActivation
-import torch.nn as nn
+from typing import List, Tuple, Union
 
+import torch.nn as nn
+from mmengine.model.base_module import BaseModule
+
+from edgelab.models.base.general import ConvNormActivation
 from edgelab.registry import MODELS
 
 

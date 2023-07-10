@@ -1,11 +1,12 @@
+import logging
+import time
+from io import BytesIO
+from threading import Thread
+
+import cv2
+import numpy as np
 import usb1
 from PIL import Image
-from io import BytesIO
-import time
-import cv2
-import logging
-import numpy as np
-from threading import Thread
 
 WEBUSB_JPEG_MAGIC = 0x2B2D2B2D
 WEBUSB_TEXT_MAGIC = 0x0F100E12
@@ -107,7 +108,7 @@ class IoTCamera:
         transfer.submit()
 
     def connect(self):
-        '''Get open devices'''
+        """Get open devices."""
         self.handle = self.get_rlease_device(self.device_id, get=True)
         if self.handle is None:
             print('\rPlease plug in the device!')
@@ -133,7 +134,7 @@ class IoTCamera:
             return False
 
     def get_rlease_device(self, did, get=True):
-        '''Turn the device on or off'''
+        """Turn the device on or off."""
         tmp = 0
         print('*' * 50)
         print('looking for device!')

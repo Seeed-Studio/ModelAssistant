@@ -1,7 +1,9 @@
-import torch
-from edgelab.registry import MODELS
-from mmcls.models.heads import ClsHead
 from typing import Optional, Tuple, Union
+
+import torch
+from mmcls.models.heads import ClsHead
+
+from edgelab.registry import MODELS
 
 
 @MODELS.register_module()

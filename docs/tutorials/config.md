@@ -2,7 +2,6 @@
 
 EdgeLab uses the configuration processing system provided by [OpenMMLab - MMEngine](https://github.com/open-mmlab/mmengine) with a modular and inheritable design that provides users a unified configuration access interface for various tests and validations of different neural networks.
 
-
 ## Directory Structure
 
 The configuration files used by EdgeLab are located in the `configs` directory, which are used for training different models under different tasks. And we have created many subfolders according to different tasks, and in each subfolder, different training pipeline parameters of multiple models are stored.
@@ -95,7 +94,6 @@ The task folder named `_base_` is an inheritance object for other tasks. For mor
 
 :::
 
-
 ## Configuration Structure
 
 Take the `fomo_mobnetv2_0.35_x8_abl_coco.py` configuration file as an example, we introduce different fields in this configuration file according to the different functional modules.
@@ -144,7 +142,6 @@ model=dict(
 Dataset and data pipeline need to be set to build the dataloader. Due to the complexity of this part, we use intermediate variables to simplify the writing of dataloader configs. More complex data argumentation methods can be found in `edgelab/datasets/pipelines` path.
 
 We will demonstrate here the training and testing pipeline for FOMO, which uses the [Custom COCO_MASK Dataset](./datasets):
-
 
 ```python
 dataset_type='FomoDatasets'   # Dataset type, this will be used to define the dataset
@@ -207,7 +204,7 @@ For more details on the application of Hook, please refer to [MMEngine - Hook](h
 
 ### Config File Inheritance
 
-The directory `config/_base_` contains the default configuration file, and the configuration file are composed of the components in `_base_`, which is called the primitive.  
+The directory `config/_base_` contains the default configuration file, and the configuration file are composed of the components in `_base_`, which is called the primitive.
 
 For easy testing, we recommend that users inherit the existing configuration files. For example, the training configuration file of a FOMO model with `_base_='. /_base_/default_runtime_det.py'`, and then based on the inherited file, we modify the necessary fields in the configuration file.
 
@@ -232,7 +229,6 @@ opencv_num_threads = 1                # Disable OpenCV multi-threads to save mem
 work_dir = './work_dirs'              # Directory to save the model checkpoints and logs for the current experiments
 ```
 
-
 ## Parameterized Configuration
 
 When submitting a job using `tools/train.py` or `tools/test.py` from EdgeLab, you can specify `--cfg-options` to temporarily overwrite the configuration.
@@ -243,9 +239,8 @@ You can specify configuration options in the order of the dict keys in the origi
 
 :::
 
-
 ## FAQs
 
 - The configuration file of different models will be different, how do I understand it?
 
-    For more details, please refer to [MMDet Config](https://mmdetection.readthedocs.io/en/latest/tutorials/config.html), [MMPose Config](https://mmpose.readthedocs.io/en/latest/tutorials/0_config.html) and [MMCls Config](https://mmclassification.readthedocs.io/en/latest/tutorials/config.html).
+  For more details, please refer to [MMDet Config](https://mmdetection.readthedocs.io/en/latest/tutorials/config.html), [MMPose Config](https://mmpose.readthedocs.io/en/latest/tutorials/0_config.html) and [MMCls Config](https://mmclassification.readthedocs.io/en/latest/tutorials/config.html).

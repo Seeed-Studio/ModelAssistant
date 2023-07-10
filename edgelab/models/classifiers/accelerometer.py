@@ -4,10 +4,10 @@ from typing import List, Optional
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from mmcls.models.classifiers.base import BaseClassifier
+from mmcls.structures import ClsDataSample
 
 from edgelab.registry import MODELS
-from mmcls.structures import ClsDataSample
-from mmcls.models.classifiers.base import BaseClassifier
 
 
 @MODELS.register_module()

@@ -2,7 +2,6 @@
 
 This chapter will describe how to convert and export PyTorch models to ONNX models.
 
-
 ## Preparation
 
 ### Environment Configuration
@@ -26,7 +25,6 @@ You also need to prepare the PyTorch model and its weights before exporting the 
 - Refer to [Training](../training/overview.md) section and choose a model, and train to get the model weights.
 
 - Or download the EdgeLab official pre-trained weights from our [GitHub Releases - Model Zoo](https://github.com/Seeed-Studio/EdgeLab/releases/tag/model_zoo).
-
 
 ## Model Transform
 
@@ -73,7 +71,6 @@ python3 tools/export.py \
 ```
 
 :::
-
 
 ## Model Validation
 

@@ -3,6 +3,7 @@ import os.path as osp
 from typing import Optional, Sequence
 
 from mmyolo.datasets.yolov5_coco import YOLOv5CocoDataset
+
 from edgelab.registry import DATASETS
 
 
@@ -112,10 +113,10 @@ class CustomYOLOv5CocoDataset(YOLOv5CocoDataset):
             with open(self.ann_file, 'r') as f:
                 data = json.load(f)
             if filter_supercat:
-                catgories = tuple(cat['name'] for cat in data['categories'] if cat['supercategory'] != 'none')
+                categories = tuple(cat['name'] for cat in data['categories'] if cat['supercategory'] != 'none')
             else:
-                catgories = tuple(cat['name'] for cat in data['categories'])
-            self.METAINFO['classes'] = catgories
+                categories = tuple(cat['name'] for cat in data['categories'])
+            self.METAINFO['classes'] = categories
         elif classes:
             self.METAINFO['classes'] = classes
 

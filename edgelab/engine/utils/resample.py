@@ -1,7 +1,7 @@
-import torch
-import numpy as np
-from scipy import special
 import matplotlib.pyplot as plt
+import numpy as np
+import torch
+from scipy import special
 
 
 class Resampler(torch.nn.Module):
@@ -18,9 +18,8 @@ class Resampler(torch.nn.Module):
 
     def __init__(self, input_sr, output_sr, dtype, num_zeros=64, cutoff_ratio=0.95, filter='kaiser', beta=14.0):
         super().__init__()  # init the base class
-        """
-        This creates an object that can apply a symmetric FIR filter
-        based on torch.nn.functional.conv1d.
+        """This creates an object that can apply a symmetric FIR filter based
+        on torch.nn.functional.conv1d.
 
         Args:
           input_sr:  The input sampling rate, AS AN INTEGER..
@@ -29,7 +28,7 @@ class Resampler(torch.nn.Module):
           output_sr:  The output sampling rate, AS AN INTEGER.
               It is the ratio with the input sampling rate that is
               important here.
-          dtype:  The torch dtype to use for computations (would be preferrable to 
+          dtype:  The torch dtype to use for computations (would be preferable to
                set things up so passing the dtype isn't necessary)
           num_zeros: The number of zeros per side in the (sinc*hanning-window)
               filter function.  More is more accurate, but 64 is already
@@ -44,7 +43,6 @@ class Resampler(torch.nn.Module):
         samples and `output_sr` output samples.  Then we treat it
         using convolutional code, imagining there are `input_sr`
         input channels and `output_sr` output channels per time step.
-
         """
         assert isinstance(input_sr, int) and isinstance(output_sr, int)
         if input_sr == output_sr:
@@ -52,7 +50,7 @@ class Resampler(torch.nn.Module):
             return
 
         def gcd(a, b):
-            """Return the greatest common divisor of a and b"""
+            """Return the greatest common divisor of a and b."""
             assert isinstance(a, int) and isinstance(b, int)
             if b == 0:
                 return a
@@ -129,10 +127,9 @@ class Resampler(torch.nn.Module):
         )
 
         def hann_window(a):
-            """
-            hann_window returns the Hann window on [-1,1], which is zero
-            if a < -1 or a > 1, and otherwise 0.5 + 0.5 cos(a*pi).
-            This is applied elementwise to a, which should be a NumPy array.
+            """hann_window returns the Hann window on [-1,1], which is zero if
+            a < -1 or a > 1, and otherwise 0.5 + 0.5 cos(a*pi). This is applied
+            elementwise to a, which should be a NumPy array.
 
             The heaviside function returns (a > 0 ? 1 : 0).
             """
@@ -199,8 +196,7 @@ class Resampler(torch.nn.Module):
 
     @torch.no_grad()
     def forward(self, data):
-        """
-        Resample the data
+        """Resample the data.
 
         Args:
          input: a torch.Tensor with the same dtype as was passed to the

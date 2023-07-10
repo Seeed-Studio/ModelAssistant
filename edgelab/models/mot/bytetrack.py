@@ -1,7 +1,7 @@
+from mmdet.models import build_detector
+from mmdet.models.detectors.base import BaseDetector
 from mmtrack.models.builder import MODELS
 from mmtrack.models.mot.base import BaseMultiObjectTracker
-from mmdet.models.detectors.base import BaseDetector
-from mmdet.models import build_detector
 
 
 @MODELS.register_module()

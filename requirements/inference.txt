@@ -1,12 +1,11 @@
-onnx==1.14.0
-onnxruntime==1.15.1
-onnxsim==0.4.33
-onnxmltools==1.11.2
-
-ncnn==1.0.20230517
-tensorflow==2.12.0
-tflite-runtime==2.12.0
-protobuf==4.23.3
 
 libusb1
 
+ncnn==1.0.20230517
+onnx==1.14.0
+onnxmltools==1.11.2
+onnxruntime==1.15.1
+onnxsim==0.4.33
+protobuf==4.23.3
+tensorflow==2.12.0
+tflite-runtime==2.12.0

@@ -1,11 +1,11 @@
-from typing import Union, Tuple
+from typing import Tuple, Union
 
 import torch.nn as nn
 import torch.nn.functional as F
+from mmdet.models.losses.utils import weighted_loss
 from torch import Tensor
 
 from edgelab.registry import LOSSES
-from mmdet.models.losses.utils import weighted_loss
 
 
 @weighted_loss

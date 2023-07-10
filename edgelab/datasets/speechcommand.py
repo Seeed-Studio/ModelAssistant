@@ -1,11 +1,12 @@
-import os
 import glob
+import os
 import random
 
 import torch
-import torchaudio
 import torch.nn.functional as F
+import torchaudio
 from torch.utils.data import Dataset
+
 from edgelab.registry import DATASETS, TRANSFORMS
 
 from .utils.download import check_file

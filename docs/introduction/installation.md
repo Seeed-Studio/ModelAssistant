@@ -8,7 +8,6 @@ The EdgeLab runtime environment requires [PyTorch](https://pytorch.org/get-start
 - [MMPose](https://github.com/open-mmlab/mmpose): OpenMMLab inspection toolbox and benchmark.
 - [MIM](https://github.com/open-mmlab/mim): MIM provides a unified interface for starting and installing the OpenMMLab project and its extensions, and managing the OpenMMLab model library.
 
-
 ## Prerequisites
 
 EdgeLab works on Linux, Windows, and macOS. **We strongly recommend you to use [Miniconda](https://docs.conda.io/en/latest/miniconda.html) to manage python packages.** Please follow the steps below to prepare the environment.
@@ -52,31 +51,31 @@ For devices with GPUs (CUDA), we recommend installing dependencies that support 
 
 - CPU-Only platform:
 
-    ::: code-group
+  ::: code-group
 
-    ```sh [conda]
-    conda install pytorch torchvision torchaudio cpuonly -c pytorch
-    ```
+  ```sh [conda]
+  conda install pytorch torchvision torchaudio cpuonly -c pytorch
+  ```
 
-    ```sh [pip]
-    pip3 install torch torchvision torchaudio
-    ```
+  ```sh [pip]
+  pip3 install torch torchvision torchaudio
+  ```
 
-    :::
+  :::
 
 - GPUs (CUDA) platform:
 
-    ::: code-group
+  ::: code-group
 
-    ```sh [conda]
-    conda install pytorch torchvision torchaudio pytorch-cuda=11.7 cudatoolkit=11.7 -c pytorch -c nvidia
-    ```
+  ```sh [conda]
+  conda install pytorch torchvision torchaudio pytorch-cuda=11.7 cudatoolkit=11.7 -c pytorch -c nvidia
+  ```
 
-    ```sh [pip]
-    pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu117
-    ```
+  ```sh [pip]
+  pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu117
+  ```
 
-    :::
+  :::
 
 ::: tip
 You can find CUDA installers on [NVIDIA CUDA Toolkit Archive Website](https://developer.nvidia.com/cuda-toolkit-archive) if your platform have not CUDA installed for NVIDIA GPUs, we recommend to use CUDA 11.7 or above on your host environment. For installing PyTorch on other platforms, please read more on [PyTorch Official Website](https://pytorch.org/get-started/locally/).
@@ -87,6 +86,7 @@ You can find CUDA installers on [NVIDIA CUDA Toolkit Archive Website](https://de
 **Please confirm that you have activated the virtual environment and in the main working directory of EdgeLab source code**, and then run the following code to complete the configuration of the basic dependencies.
 
 - Install EdgeLab deps
+
 ```sh
 pip3 install -r requirements/base.txt && \
 mim install -r requirements/mmlab.txt && \
@@ -107,7 +107,6 @@ If you wish to make changes to EdgeLab and submit them to us, we recommend that 
 pip3 install -r requirements/tests.txt
 pre-commit install
 ```
-
 
 ## Other Method
 
@@ -137,7 +136,6 @@ mim install -e .
 
 :::
 
-
 ## Reminders
 
 After completing the installation of Miniconda and configuring EdgeLab with Conda, we created a Conda virtual environment named `edgelab` and installed the dependencies in the virtual environment. For subsequent EdgeLab-related configuration and development, make sure you are in the EdgeLab virtual environment, which you can activate with the following command.
@@ -152,9 +150,8 @@ If you want to reconfigure or remove the EdgeLab virtual environment, you can ru
 conda env remove -n edgelab
 ```
 
-
 ## FAQs
 
 - I have slow connection speed while installing packages from anaconda's default channels.
 
-    Please be patient and try some third-party mirrored channels, such as [SJTU mirror](https://mirror.sjtu.edu.cn/docs/anaconda), [TUNA mirror](https://mirrors.tuna.tsinghua.edu.cn/help/anaconda) and etc.
+  Please be patient and try some third-party mirrored channels, such as [SJTU mirror](https://mirror.sjtu.edu.cn/docs/anaconda), [TUNA mirror](https://mirrors.tuna.tsinghua.edu.cn/help/anaconda) and etc.

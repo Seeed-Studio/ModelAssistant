@@ -2,7 +2,6 @@
 
 This section describes how to train the PFLD model on the PFLD meter dataset. The PFLD model is presented in the paper [PFLD: A Practical Facial Landmark Detector](https://arxiv.org/pdf/1902.10859.pdf).
 
-
 ## Prepare Datasets
 
 EdgeLab uses [Custom Meter Datasets](../datasets.md#EdgeLab) by default to train the PFLD model, please refer to the following steps to complete the preparation of datasets.
@@ -10,7 +9,6 @@ EdgeLab uses [Custom Meter Datasets](../datasets.md#EdgeLab) by default to train
 1. Please refer to [Internet Datasets - EdgeLab - Custom Meter Dataset](../datasets.md#EdgeLab) to download and unpack the dataset.
 
 2. Remember its **folder path** (e.g. `datasets\meter`) of the unpacked datasets, you may need to use this folder path later.
-
 
 ## Choose a Configuration
 
@@ -114,7 +112,6 @@ param_scheduler=[
 
 :::
 
-
 ## Training Model
 
 Training the model requires using our previously configured EdgeLab working environment, if you follow our [Installation](../../introduction/installation.md) guide using Conda to install EdgeLab in a virtual environment named `edgelab`, please first make sure that you are currently in the virtual environment.
@@ -146,7 +143,6 @@ conda activate edgelab
 ```
 
 :::
-
 
 ## Testing and Evaluation
 

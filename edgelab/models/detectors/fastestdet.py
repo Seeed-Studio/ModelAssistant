@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from mmdet.structures.bbox import bbox2result
 from mmdet.models.detectors.single_stage import SingleStageDetector
+from mmdet.structures.bbox import bbox2result
 from mmengine.registry import MODELS
 
 

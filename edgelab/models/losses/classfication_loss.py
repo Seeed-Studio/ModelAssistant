@@ -1,7 +1,8 @@
 import torch
 import torch.nn.functional as F
-from edgelab.registry import LOSSES
 from torch.nn.modules.loss import _WeightedLoss
+
+from edgelab.registry import LOSSES
 
 
 @LOSSES.register_module()

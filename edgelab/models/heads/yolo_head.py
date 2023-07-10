@@ -1,15 +1,15 @@
-from typing import Union, Sequence, Tuple, List
 import math
+from typing import List, Sequence, Tuple, Union
 
 import torch
 import torch.nn as nn
-from torch import Tensor
-from mmengine.model import BaseModel
-from mmdet.structures import SampleList
 from mmdet.models.utils import multi_apply, unpack_gt_instances
+from mmdet.structures import SampleList
 from mmdet.utils import InstanceList, OptMultiConfig
-from mmyolo.models.utils import make_divisible
+from mmengine.model import BaseModel
 from mmyolo.models.dense_heads.yolov5_head import YOLOv5Head
+from mmyolo.models.utils import make_divisible
+from torch import Tensor
 
 from edgelab.registry import MODELS
 
@@ -46,7 +46,7 @@ class DetHead(BaseModel):
         self._init_layers()
 
     def _init_layers(self):
-        """initialize conv layers in YOLOv5 head."""
+        """Initialize conv layers in YOLOv5 head."""
         self.convs_pred = nn.ModuleList()
         for i in range(self.num_levels):
             conv_pred = nn.Conv2d(self.in_channels[i], self.num_base_priors * self.num_out_attrib, 1)

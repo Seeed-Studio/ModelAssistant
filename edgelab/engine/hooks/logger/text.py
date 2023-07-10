@@ -1,15 +1,16 @@
-import logging
 import datetime
+import logging
 from pathlib import Path
 from typing import Optional, Union
 
 import torch
 import torch.distributed as dist
-from tqdm import tqdm
-from edgelab.registry import HOOKS
-from mmengine.runner import Runner
 from mmengine.hooks.logger_hook import LoggerHook
+from mmengine.runner import Runner
 from mmengine.structures.base_data_element import BaseDataElement
+from tqdm import tqdm
+
+from edgelab.registry import HOOKS
 
 
 @HOOKS.register_module(force=True)

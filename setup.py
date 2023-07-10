@@ -112,7 +112,7 @@ if __name__ == "__main__":
         name="edgelab",
         version=get_version(),
         description="Seeed Studio EdgeLab is an open-source project focused on embedded AI. \
-            We optimize the excellent algorithms from OpenMMLab for real-world scenarios and make implemention more user-friendly,\
+            We optimize the excellent algorithms from OpenMMLab for real-world scenarios and make implementation more user-friendly,\
              achieving faster and more accurate inference on embedded devices.",
         long_description=readme(),
         long_description_content_type="text/markdown",

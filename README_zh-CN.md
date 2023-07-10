@@ -7,11 +7,9 @@
 
 [English](README.md) | 简体中文
 
-
 ## 简介
 
 Seeed Studio EdgeLab 是一个专注于嵌入式人工智能的开源项目。我们对 [OpenMMLab](https://github.com/open-mmlab) 的优秀算法进行了优化，使其适用于现实世界的场景，并使实施更加人性化，在嵌入式设备上实现更快和更准确的推理。
-
 
 ## 包括什么
 
@@ -36,7 +34,6 @@ EdgeLab 为特定的生产环境提供定制场景的解决方案，例如模拟
 
 我们将在未来不断增加更多的算法。敬请关注!
 
-
 ## 特点介绍
 
 <details>
@@ -54,7 +51,6 @@ EdgeLab 专注于终端人工智能算法研究，算法模型可以部署在微
 <a href="https://www.tensorflow.org/lite">TensorFlow Lite</a> 主要用于微控制器，而 <a href="https://onnx.ai">ONNX</a> 主要用于嵌入式 Linux 的设备。有一些特殊的格式，如 <a href="https://developer.nvidia.com/tensorrt">TensorRT</a>、<a href="https://docs.openvino.ai">OpenVINO</a>，已经被 OpenMMlab 很好地支持.
 </details>
 
-
 ## 致谢
 
 EdgeLab 参考了以下项目:
@@ -62,7 +58,6 @@ EdgeLab 参考了以下项目:
 - [OpenMMLab](https://openmmlab.com)
 - [ONNX](https://github.com/onnx/onnx)
 - [NCNN](https://github.com/Tencent/ncnn)
-
 
 ## 开源许可证
 

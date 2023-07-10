@@ -18,11 +18,9 @@ from ..base.general import CBR
 
 @MODELS.register_module()
 class FomoHead(BaseModule):
-    """
-    The difference between the Fomo model head and the target detection model head
-    is that the output of this model only contains the probability of all categories,
-    and does not contain the value of xyhw
-    """
+    """The difference between the Fomo model head and the target detection
+    model head is that the output of this model only contains the probability
+    of all categories, and does not contain the value of xyhw."""
 
     def __init__(
         self,
@@ -208,9 +206,8 @@ class FomoHead(BaseModule):
         )
 
     def get_pricsion_recall_f1(self, preds: torch.Tensor, target: torch.Tensor):
-        """
-        Calculate the evaluation index of model prediction
-        according to the prediction result of the model and the target feature map.
+        """Calculate the evaluation index of model prediction according to the
+        prediction result of the model and the target feature map.
 
         Args:
             preds(torch.Tensor): Model Predicted Output
