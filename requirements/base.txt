@@ -1,6 +1,6 @@
 albumentations==1.3.0
 # common
-numpy==1.23.5
+numpy==1.25.1
 
 # vision
 opencv-python==4.7.0.72
