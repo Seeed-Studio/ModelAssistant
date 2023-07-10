@@ -8,11 +8,9 @@ Before starting, we recommend that you should read [Grove - Deploy](./deploy.md)
 
 :::
 
-
 ## Preparation
 
 Please refer to [Grove - Deploy - Prerequisites](./deploy.md#prerequisites).
-
 
 ## Train Model
 
@@ -22,7 +20,6 @@ The meter reading feature is based on the PFLD model, in this step you need a PF
 
 - Refer to [Training - PFLD Models](../../tutorials/training/pfld.md) to train the PFLD model and get the model weights using PyTorch and EdgeLab by yourself.
 
-
 ## Export Model
 
 Since the trained model is not suitable for running directly on edge computing devices, we need to export it to a TFLite format with a `.tflite` suffix, and you have two ways to get the exported model (with model weights contained).
@@ -31,11 +28,9 @@ Since the trained model is not suitable for running directly on edge computing d
 
 - Refer to [Export - PyTorch to TFLite](../../tutorials/export/pytorch_2_tflite.md) to convert the PFLD model from PyTorch format to TFLite format by yourself.
 
-
 ## Deploy Model
 
 This is the last and most important step to complete the meter reading, in this step you need to compile and flash the firmware to the Grove - Vision AI modules. Please refer to [Grove - Deployment - Compile and Deploy](./deploy.md#compile-and-deploy) to complete the deployment of the model.
-
 
 ## Run Example
 

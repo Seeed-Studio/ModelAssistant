@@ -1,10 +1,11 @@
-from typing import Tuple, Optional, List, Union
+from typing import List, Optional, Tuple, Union
 
-from torch import Tensor
-from torch.nn import functional as F
+from mmdet.models.necks.fpn import FPN as _FPN
 from mmengine.config import ConfigDict
 from mmengine.model import BaseModule
-from mmdet.models.necks.fpn import FPN as _FPN
+from torch import Tensor
+from torch.nn import functional as F
+
 from edgelab.registry import NECKS
 
 

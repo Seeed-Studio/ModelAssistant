@@ -1,23 +1,24 @@
 import os
-import time
 import os.path as osp
-from typing import List, AnyStr, Tuple, Optional, Union, Sequence
+import time
+from typing import AnyStr, List, Optional, Sequence, Tuple, Union
 
 import cv2
 import mmcv
+import numpy as np
 import onnx
 import torch
-import numpy as np
-from tqdm.std import tqdm
-from torch.utils.data import DataLoader
-
+from mmdet.models.utils import samplelist_boxtype2tensor
 from mmengine.config import Config
 from mmengine.evaluator import Evaluator
-from mmengine.structures import InstanceData
 from mmengine.registry import MODELS
-from mmdet.models.utils import samplelist_boxtype2tensor
-from edgelab.models.utils.computer_acc import pose_acc, audio_acc
-from edgelab.utils.cv import load_image, NMS
+from mmengine.structures import InstanceData
+from torch.utils.data import DataLoader
+from tqdm.std import tqdm
+
+from edgelab.models.utils.computer_acc import audio_acc, pose_acc
+from edgelab.utils.cv import NMS, load_image
+
 from .iot_camera import IoTCamera
 
 
@@ -235,10 +236,7 @@ def build_target(pred_shape, ori_shape, gt_bboxs):
 
 
 class Infernce:
-    """
-    Model Reasoning Test
-    Reasonable onnx, tflite, ncnn and other models
-    """
+    """Model Reasoning Test Reasonable onnx, tflite, ncnn and other models."""
 
     def __init__(
         self,
@@ -252,7 +250,7 @@ class Infernce:
         save_dir: Optional[str] = None,
         audio: bool = False,
     ) -> None:
-        # chaeck source data
+        # check source data
         assert not (source is None and dataloader is None), 'Both source and dataload cannot be None'
 
         self.class_name = dataloader.dataset.METAINFO['classes']
@@ -356,7 +354,7 @@ class Infernce:
                         self.evaluator.process(data_batch=data, data_samples=data['data_samples'])
 
                 else:
-                    # performes nms
+                    # performs nms
                     bbox, conf, classes = preds[:, :4], preds[:, 4], preds[:, 5:]
                     preds = NMS(bbox, conf, classes, conf_thres=50, bbox_format='xywh')
                     # show det result and save result

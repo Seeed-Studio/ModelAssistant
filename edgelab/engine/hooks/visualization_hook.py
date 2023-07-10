@@ -6,13 +6,14 @@ from typing import Optional, Sequence
 import mmcv
 import mmengine
 import mmengine.fileio as fileio
+from mmdet.engine.hooks import DetVisualizationHook
+from mmengine.hooks import Hook
 from mmengine.hooks.hook import DATA_BATCH
 from mmengine.runner import Runner
 from mmengine.visualization import Visualizer
-from mmengine.hooks import Hook
-from edgelab.registry import HOOKS
-from mmdet.engine.hooks import DetVisualizationHook
 from mmpose.structures import PoseDataSample, merge_data_samples
+
+from edgelab.registry import HOOKS
 
 
 @HOOKS.register_module()

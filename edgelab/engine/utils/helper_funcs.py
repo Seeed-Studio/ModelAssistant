@@ -1,10 +1,10 @@
-import torch
-import random
-import torch.nn.functional as F
-import numpy as np
-import torch.distributed as dist
 import copy
+import random
 
+import numpy as np
+import torch
+import torch.distributed as dist
+import torch.nn.functional as F
 
 epsilon = 1e-8
 
@@ -90,9 +90,7 @@ def collate_fn(batch):
 
 
 def files_to_list(filename):
-    """
-    Takes a text file of filenames and makes a list of filenames
-    """
+    """Takes a text file of filenames and makes a list of filenames."""
     with open(filename, encoding="utf-8") as f:
         files = f.readlines()
 
@@ -106,7 +104,7 @@ def find_first_nnz(t, q, dim=1):
 
 
 def accuracy(output, target, topk=(1,)):
-    """Computes the precision@k for the specified values of k"""
+    """Computes the precision@k for the specified values of k."""
     maxk = max(topk)
     batch_size = target.size(0)
     _, pred = output.topk(maxk, 1, True, True)
@@ -238,18 +236,18 @@ def representative_dataset(dataset):
 
 def check_type(type):
     if type == 'mmdet':
-        from mmdet.utils import setup_multi_processes
+        from mmdet.datasets import build_dataloader, build_dataset
         from mmdet.models import build_detector as build_model
-        from mmdet.datasets import build_dataset, build_dataloader
+        from mmdet.utils import setup_multi_processes
 
     elif type == 'mmcls':
-        from mmcls.utils import setup_multi_processes
+        from mmcls.datasets import build_dataloader, build_dataset
         from mmcls.models import build_classifier as build_model
-        from mmcls.datasets import build_dataset, build_dataloader
+        from mmcls.utils import setup_multi_processes
 
     else:
-        from mmpose.utils import setup_multi_processes
+        from mmpose.datasets import build_dataloader, build_dataset
         from mmpose.models import build_posenet as build_model
-        from mmpose.datasets import build_dataset, build_dataloader
+        from mmpose.utils import setup_multi_processes
 
     return setup_multi_processes, build_model, build_dataset, build_dataloader

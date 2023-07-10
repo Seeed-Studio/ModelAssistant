@@ -1,7 +1,6 @@
-#  模型配置
+# 模型配置
 
 EdgeLab 使用 [OpenMMLab - MMEngine](https://github.com/open-mmlab/mmengine) 提供的配置处理系统，具有模块化、可继承的设计特点，为用户提供了统一的配置访问接口，便于用户对不同的神经网络进行各种测试与验证。
-
 
 ## 配置的目录结构
 
@@ -94,7 +93,6 @@ configs // [!code focus]
 其中名为 `_base_` 的任务文件夹是我们其他任务的继承对象，关于配置文件继承的详细说明，请参考 [MMEngine - 配置文件的继承](https://mmengine.readthedocs.io/zh_CN/latest/advanced_tutorials/config.html#id3)。
 
 :::
-
 
 ## 配置的内容结构
 
@@ -232,7 +230,6 @@ opencv_num_threads=1                  # 关闭 OpenCV 多线程降低内存占�
 work_dir='./work_dirs'                # 用于保存当前实验的模型检查点和日志的目录
 ```
 
-
 ## EdgeLab 参数化配置
 
 使用 EdgeLab 的 `tools/train.py` 或 `tools/test.py` 提交作业时，可以指定 `--cfg-options` 临时覆写配置。
@@ -243,9 +240,8 @@ work_dir='./work_dirs'                # 用于保存当前实验的模型检查�
 
 :::
 
-
 ## FAQs
 
 - 不同模型的配置文件会有一定的差异,我如何理解?
 
-    更多细节请参考 [MMDet Config](https://mmdetection.readthedocs.io/zh_CN/latest/tutorials/config.html)，[MMPose Config](https://mmpose.readthedocs.io/zh_CN/latest/tutorials/0_config.html) 和 [MMCls Config](https://mmclassification.readthedocs.io/zh_CN/latest/tutorials/config.html)。
+  更多细节请参考 [MMDet Config](https://mmdetection.readthedocs.io/zh_CN/latest/tutorials/config.html)，[MMPose Config](https://mmpose.readthedocs.io/zh_CN/latest/tutorials/0_config.html) 和 [MMCls Config](https://mmclassification.readthedocs.io/zh_CN/latest/tutorials/config.html)。

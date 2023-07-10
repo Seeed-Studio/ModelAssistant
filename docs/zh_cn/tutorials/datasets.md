@@ -2,7 +2,6 @@
 
 EdgeLab 支持多种数据集。您可以在互联网上浏览并下载不同的数据集，或是自行标注、制作数据集。
 
-
 ## 互联网数据集
 
 ### EdgeLab
@@ -12,14 +11,16 @@ EdgeLab 目前提供以下官方数据集，用于对应模型的训练和测试
 对于使用命令下载的数据集，请确保在运行命令前处于 **EdgeLab 项目根目录**，命令会自动下载数据集并将其保存在当前目录下的名为 `datasets` 的文件夹中，并完成解压。
 
 - [下载自定义 Meter 数据集](https://files.seeedstudio.com/wiki/Edgelab/meter.zip):
-    ```sh
-    wget https://files.seeedstudio.com/wiki/Edgelab/meter.zip -P datasets && unzip datasets/meter.zip -d datasets
-    ```
+
+  ```sh
+  wget https://files.seeedstudio.com/wiki/Edgelab/meter.zip -P datasets && unzip datasets/meter.zip -d datasets
+  ```
 
 - [下载 COCO_MASK 数据集](https://files.seeedstudio.com/wiki/Edgelab/coco_mask.zip):
-    ```sh
-    wget https://files.seeedstudio.com/wiki/Edgelab/coco_mask.zip -P datasets && unzip datasets/coco_mask.zip -d datasets
-    ```
+
+  ```sh
+  wget https://files.seeedstudio.com/wiki/Edgelab/coco_mask.zip -P datasets && unzip datasets/coco_mask.zip -d datasets
+  ```
 
 ### Roboflow
 
@@ -35,14 +36,13 @@ EdgeLab 目前提供以下官方数据集，用于对应模型的训练和测试
 
 [Kaggle](https://www.kaggle.com/) 是一个数据建模和数据分析竞赛平台。企业和研究者可在其上发布数据，统计学者和数据挖掘专家可在其上进行竞赛以产生最好的模型。Kaggle 也提供了数以千计的数据集，您可以访问 [Kaggle 数据集](https://www.kaggle.com/datasets) 挑选适合您需求的数据集。
 
-
 ## 自定义数据集
 
 创建自定义数据集通常包括以下步骤:
 
 1. **收集数据:** 收集与问题域相关的数据。这些数据可以是文本、图像、音频或视频等格式。
 
-2. **整理数据:** 对收集的数据进行清洗、[标注](#数据集标注)、去重等操作，以确保数据的准确性和一致性。这一步骤是确保训练出的模型准确性的关键。
+2. **整理数据:** 对收集的数据进行清洗、[标注](#%E6%95%B0%E6%8D%AE%E9%9B%86%E6%A0%87%E6%B3%A8)、去重等操作，以确保数据的准确性和一致性。这一步骤是确保训练出的模型准确性的关键。
 
 3. **划分数据集:** 将整理好的数据集划分成训练集、验证集和测试集。通常采用 70%、15%、15% 的比例划分数据集。
 
@@ -64,7 +64,7 @@ EdgeLab 目前提供以下官方数据集，用于对应模型的训练和测试
 
 - **自动标注:** 使用一些算法模型对数据进行自动标注，例如关键字提取、文本分类等。虽然可以提高标注效率，但标注的准确性也可能会受到影响。
 
-常用的数据标注工具包括: 
+常用的数据标注工具包括:
 
 - [LabelImg](https://github.com/heartexlabs/labelImg): 适用于图像标注的工具，支持多种标注格式，如 PASCAL VOC、YOLO 等。
 

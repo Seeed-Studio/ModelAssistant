@@ -1,11 +1,11 @@
 from typing import Optional
 
 import numpy as np
-
-from mmpose.models.pose_estimators.base import BasePoseEstimator
-from edgelab.registry import MODELS
-from mmpose.structures import PoseDataSample
 from mmengine.structures.instance_data import InstanceData
+from mmpose.models.pose_estimators.base import BasePoseEstimator
+from mmpose.structures import PoseDataSample
+
+from edgelab.registry import MODELS
 
 
 @MODELS.register_module()
@@ -32,7 +32,7 @@ class PFLD(BasePoseEstimator):
         elif mode == 'tensor':
             return self.forward_(inputs, data_samples)
         else:
-            raise ValueError(f'params mode recive a not exception params:{mode}')
+            raise ValueError(f'params mode receive a not exception params:{mode}')
 
     def loss(self, inputs, data_samples):
         x = self.extract_feat(inputs)

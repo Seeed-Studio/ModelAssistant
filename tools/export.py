@@ -114,7 +114,7 @@ def parse_args():
         type=str,
         default="fbgemm",
         choices=["qnnpack", "fbgemm"],
-        help="TFLite: conveter backend",
+        help="TFLite: converter backend",
     )
     parser.add_argument(
         "--calibration_epochs",
@@ -136,7 +136,7 @@ def parse_args():
         type=str,
         nargs="+",
         default="[((0.0,), (1.0,))]",
-        help="TFLite: mean and std for model input(s), defalut: [((0.0,), (1.0,))], calculated on normalized input(s), applied to all channel(s), using the average if multiple values are provided",
+        help="TFLite: mean and std for model input(s), default: [((0.0,), (1.0,))], calculated on normalized input(s), applied to all channel(s), using the average if multiple values are provided",
     )
 
     return parser.parse_args()
@@ -376,7 +376,7 @@ def export_onnx(args, model):
             if check:
                 onnx.save(model_simp, onnx_file)
             else:
-                print("ONNX: Faile to simplify the model: '{}', revert to the original".format(onnx_file))
+                print("ONNX: Failed to simplify the model: '{}', revert to the original".format(onnx_file))
         print("ONNX: Successfully export model: {}".format(onnx_file))
 
 

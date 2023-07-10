@@ -1,19 +1,20 @@
-import os
-import math
 import copy
 import json
+import math
+import os
 import os.path as osp
 from abc import ABCMeta
 from typing import Optional, Sequence
 
 import cv2
 import numpy as np
-from torchvision import transforms
 from torch.utils.data import Dataset
+from torchvision import transforms
+
 from edgelab.registry import DATASETS
 
-from .utils.download import check_file
 from .pipelines.composition import AlbCompose
+from .utils.download import check_file
 
 
 def calc_angle(x1, y1, x2, y2):
@@ -33,10 +34,9 @@ def calc_angle(x1, y1, x2, y2):
 
 @DATASETS.register_module()
 class MeterData(Dataset, metaclass=ABCMeta):
-    """
-    The meter data set class, this class is mainly for the data set of
-    the pointer table, the data set is marked in a format similar to the
-    key point detection
+    """The meter data set class, this class is mainly for the data set of the
+    pointer table, the data set is marked in a format similar to the key point
+    detection.
 
     Args:
         data_root: The root path of the dataset
@@ -48,7 +48,6 @@ class MeterData(Dataset, metaclass=ABCMeta):
         pipeline: The option to do data enhancement on image data, which
             needs to be in list format
         format: format of keypoints. Should be 'xy', 'yx', 'xya', 'xys', 'xyas', 'xysa'
-
     """
 
     CLASSES = 'meter'
@@ -127,9 +126,8 @@ class MeterData(Dataset, metaclass=ABCMeta):
         return len(self.ann_ls)
 
     def parse_jsons(self, index_dir: str) -> None:
-        """
-        When the annotation file is in json format, parse the corresponding annotation file
-        """
+        """When the annotation file is in json format, parse the corresponding
+        annotation file."""
         file_ls = os.listdir(index_dir)
         file_ls = [osp.join(index_dir, i) for i in file_ls]
 
@@ -152,9 +150,8 @@ class MeterData(Dataset, metaclass=ABCMeta):
             self.ann_ls.append(tmp)
 
     def parse_txt(self, index_file: str) -> None:
-        """
-        When the comment file is in txt format, parse the corresponding comment file
-        """
+        """When the comment file is in txt format, parse the corresponding
+        comment file."""
         with open(index_file, 'r') as f:
             self.lines = f.readlines()
 

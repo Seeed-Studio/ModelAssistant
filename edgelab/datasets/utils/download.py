@@ -1,6 +1,6 @@
 import os
 import platform
-from typing import List, AnyStr
+from typing import AnyStr, List
 
 
 def check_compress(file):

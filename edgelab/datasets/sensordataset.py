@@ -1,12 +1,12 @@
-import os
 import glob
 import json
-
+import os
 from typing import List, Optional, Sequence, Tuple, Union
-from edgelab.registry import DATASETS
-from mmcls.datasets import CustomDataset
 
 import numpy as np
+from mmcls.datasets import CustomDataset
+
+from edgelab.registry import DATASETS
 
 
 @DATASETS.register_module()

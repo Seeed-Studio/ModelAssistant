@@ -2,7 +2,6 @@
 
 EdgeLab supports a variety of datasets. You can browse and download different datasets on the Internet, or annotate and create your own datasets.
 
-
 ## Internet Datasets
 
 ### EdgeLab
@@ -12,14 +11,16 @@ EdgeLab currently provides the following official datasets for training and test
 Please make sure you are in the **Root Directory of EdgeLab** before running the command to download a specific datasets. The command will automatically download the datasets and save them in a folder named `datasets` in the current directory, and finally unpacking them.
 
 - [Download Custom Meter Datasets](https://files.seeedstudio.com/wiki/Edgelab/meter.zip):
-    ```sh
-    wget https://files.seeedstudio.com/wiki/Edgelab/meter.zip -P datasets && unzip datasets/meter.zip -d datasets
-    ```
+
+  ```sh
+  wget https://files.seeedstudio.com/wiki/Edgelab/meter.zip -P datasets && unzip datasets/meter.zip -d datasets
+  ```
 
 - [Download COCO_MASK Datasets](https://files.seeedstudio.com/wiki/Edgelab/coco_mask.zip):
-    ```sh
-    wget https://files.seeedstudio.com/wiki/Edgelab/coco_mask.zip -P datasets && unzip datasets/coco_mask.zip -d datasets
-    ```
+
+  ```sh
+  wget https://files.seeedstudio.com/wiki/Edgelab/coco_mask.zip -P datasets && unzip datasets/coco_mask.zip -d datasets
+  ```
 
 ### Roboflow
 
@@ -34,7 +35,6 @@ We highly recommend looking for datasets on Roboflow, and you can download hundr
 ### Kaggle
 
 [Kaggle](https://www.kaggle.com/) is a data modeling and data analysis competition platform. Businesses and researchers can publish data on it, and statisticians and data mining experts can compete to produce the best models. Kaggle also offers thousands of datasets, and you can visit [Kaggle datasets](https://www.kaggle.com/datasets) to pick the right one for your needs.
-
 
 ## Custom Datasets
 
@@ -64,7 +64,7 @@ The process of labeling a dataset is very critical and determines the quality of
 
 - **Automatic Annotation:** Automatic annotation of data using some algorithmic models, such as keyword extraction, text classification, etc. Although it can improve the efficiency of annotation, the accuracy of annotation may also be affected.
 
-Commonly used data labeling tools: 
+Commonly used data labeling tools:
 
 - [LabelImg](https://github.com/heartexlabs/labelImg): A tool for image labeling, supporting various labeling formats, such as PASCAL VOC, YOLO, etc.
 

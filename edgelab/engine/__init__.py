@@ -1,5 +1,11 @@
+from .hooks import (
+    DetFomoVisualizationHook,
+    Posevisualization,
+    TensorboardLoggerHook,
+    TextLoggerHook,
+    WandbLoggerHook,
+)
 from .runner import GetEpochBasedTrainLoop
-from .hooks import TextLoggerHook, TensorboardLoggerHook, WandbLoggerHook, Posevisualization, DetFomoVisualizationHook
 
 __all__ = [
     'TextLoggerHook',

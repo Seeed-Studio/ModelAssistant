@@ -4,7 +4,6 @@
 
 Seeed Studio EdgeLab 是一个专注于嵌入式人工智能的开源项目。我们对 [OpenMMLab](https://github.com/open-mmlab) 的优秀算法进行了优化，使其适用于现实世界的场景，并使实施更加人性化，在嵌入式设备上实现更快、更准确的推理。
 
-
 ## 包括什么 <Badge type="warning" text="beta" />
 
 目前，我们支持以下方向的算法。
@@ -24,8 +23,7 @@ EdgeLab 提供了一些计算机视觉算法，如物体检测、图像分类、
 EdgeLab 为特定的生产环境提供定制场景的解决方案，例如模拟仪表、传统数字仪表的读数和音频分类。我们将在未来继续为特定场景添加更多的算法支持。敬请关注!
 </details>
 
-
-## 功能 
+## 功能
 
 <details>
 <summary>用户友好</summary>

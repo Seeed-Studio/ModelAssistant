@@ -257,8 +257,6 @@ val_evaluator = dict(
 )
 test_evaluator = val_evaluator
 
-train_cfg = dict(
-    type='EpochBasedTrainLoop', max_epochs=epochs, val_interval=save_checkpoint_intervals, _delete_=True
-)
+train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=epochs, val_interval=save_checkpoint_intervals, _delete_=True)
 val_cfg = dict(type='ValLoop')
 test_cfg = dict(type='TestLoop')

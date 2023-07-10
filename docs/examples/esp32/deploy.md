@@ -2,7 +2,6 @@
 
 This example is a tutorial for deploying the models from [EdgeLab](https://github.com/Seeed-Studio/Edgelab/) to Espreessif chipsets, based on [ESP-IDF](https://github.com/espressif/esp-idf) and [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) implementations.
 
-
 ## Prerequisites
 
 ### Hardware
@@ -19,9 +18,9 @@ EdgeLab requires ESP-IDF `4.4.x` for deployment in ESP32, please refer to the fo
 
 After completed the ESP-IDF installation, please double-check [IDF Environment Config Variables](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html#step-4-set-up-the-environment-variables) is finished:
 
-* The `IDF_PATH` environment variable is set.
+- The `IDF_PATH` environment variable is set.
 
-* Make sure that tools like `idf.py` and Xtensa-ESP32 (e.g. `xtensa-esp32-elf-gcc`) are included in `$PATH`.
+- Make sure that tools like `idf.py` and Xtensa-ESP32 (e.g. `xtensa-esp32-elf-gcc`) are included in `$PATH`.
 
 ::: tip
 
@@ -53,7 +52,6 @@ You need to complete the installation and configuration of EdgeLab first. If you
 
 :::
 
-
 ## Prepare the Model
 
 Before you start compiling and deploying, you need to prepare the models that need to be deployed according to the actual application scenarios. Therefore, you may need to go through the steps of selecting a model or neural network, customizing the dataset, exporting or transforming the model, etc.
@@ -64,19 +62,17 @@ To help you understand the process in a more organized way, we have written comp
 
 - [**ESP32 Meter Reader**](./meter_reader.md)
 
-
 ::: warning
 
 Before [Compile and Deploy](#compile-and-deploy), you need to prepare the appropriate model.
 
 :::
 
-
 ## Compile and Deploy
 
 ### Compile
 
-1. Go to the root directory of the EdgeLab project and run the following command to access the examples directory ``examples/esp32``.
+1. Go to the root directory of the EdgeLab project and run the following command to access the examples directory `examples/esp32`.
 
 ```sh
 cd examples/esp32 # EdgeLab/examples/esp32
@@ -127,7 +123,6 @@ Use `Ctrl+]` to exit the monitor serial output screen.
 
 :::
 
-
 ### Performance Profile
 
 The performance of EdgeLab related models, measured on different chips, is summarized in the following table.
@@ -136,8 +131,6 @@ The performance of EdgeLab related models, measured on different chips, is summa
 |--|--|--|--|--|--|--|--|
 | ESP32-S3 | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/Edgelab/meter.zip) | 112x112 (RGB) | 320KB | 380ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/EdgeLab/releases) |
 | ESP32-S3 | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/Edgelab/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/EdgeLab/releases) |
-
-
 
 ## Contribute
 
@@ -148,7 +141,6 @@ The performance of EdgeLab related models, measured on different chips, is summa
 - For information about TensorFlow Lite Micro, please refer to [TFLite-Micro](https://github.com/tensorflow/tflite-micro).
 
 - For EdgeLab related information, please refer to [EdgeLab](https://github.com/Seeed-Studio/Edgelab/).
-
 
 ## Licensing
 

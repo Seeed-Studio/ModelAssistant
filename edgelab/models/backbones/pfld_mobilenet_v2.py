@@ -1,7 +1,8 @@
 import torch.nn as nn
+
 from edgelab.registry import BACKBONES
 
-from ..base.general import InvertedResidual, CBR
+from ..base.general import CBR, InvertedResidual
 
 
 @BACKBONES.register_module()

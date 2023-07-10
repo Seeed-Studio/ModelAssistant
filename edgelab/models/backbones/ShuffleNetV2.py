@@ -1,12 +1,13 @@
-import torch
-from torch import Tensor
 from typing import Optional
+
+import torch
 import torch.nn as nn
 from mmdet.models.utils.make_divisible import make_divisible
 from mmengine.model import BaseModule
+from torch import Tensor
 
-from edgelab.registry import BACKBONES
 from edgelab.models.base.general import ConvNormActivation
+from edgelab.registry import BACKBONES
 
 
 def channel_shuffle(x: Tensor, groups: int) -> Tensor:

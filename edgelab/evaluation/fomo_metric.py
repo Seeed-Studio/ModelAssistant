@@ -1,11 +1,11 @@
 from typing import Optional
 
-from sklearn.metrics import confusion_matrix
 import numpy as np
 import torch
-from mmengine.registry import METRICS
-from mmengine.evaluator import BaseMetric
 from mmdet.models.utils import multi_apply
+from mmengine.evaluator import BaseMetric
+from mmengine.registry import METRICS
+from sklearn.metrics import confusion_matrix
 
 
 @METRICS.register_module()

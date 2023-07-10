@@ -1,8 +1,10 @@
+import random
+
 import torch
 import torch.nn.functional as F
-import random
-from .resample import Resampler
+
 from .helper_funcs import AugBasic
+from .resample import Resampler
 
 
 def pad_sample_seq_batch(x, n_samples):
@@ -47,7 +49,7 @@ class BatchAugs(AugBasic):
             self.random_resample = []
 
     def __call__(self, x, y, epoch):
-        '''resample'''
+        """resample."""
         if len(self.random_resample) > 0 and random.random() < 0.5:
             R = self.random_resample[random.randint(0, len(self.random_resample) - 1)]
             x = batch_resample(R, x, self.params['seq_len'])

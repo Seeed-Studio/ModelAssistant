@@ -1,20 +1,21 @@
-import os
-import yaml
 import json
-import warnings
+import os
 import os.path as osp
-from typing import Optional, Union, Dict
+import warnings
+from typing import Dict, Optional, Union
 
 import mmcv
-from edgelab.registry import HOOKS
+import yaml
 from mmengine.dist.utils import master_only
+
+from edgelab.registry import HOOKS
+
+from .text import TextLoggerHook
 
 # from mmcv.runner import HOOKS
 
 # from mmcv.parallel.scatter_gather import scatter
 # from mmcv.parallel.utils import is_module_wrapper
-
-from .text import TextLoggerHook
 
 
 @HOOKS.register_module(force=True)

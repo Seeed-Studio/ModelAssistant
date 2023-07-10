@@ -2,7 +2,6 @@
 
 This chapter will describe how to convert and export PyTorch models to TFLite models.
 
-
 ## Preparation
 
 ### Environment Configuration
@@ -32,7 +31,6 @@ You also need to prepare the PyTorch model and its weights before exporting the 
 Export TFLite model requires a training set as a representative dataset, if it not found, the program will download it automatically. However, for some large datasets, this can take a long time, so please be patient.
 
 :::
-
 
 ## Model Transform
 
@@ -80,7 +78,6 @@ python3 tools/export.py \
 ```
 
 :::
-
 
 ## Model Validation
 

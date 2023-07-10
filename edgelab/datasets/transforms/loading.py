@@ -1,12 +1,12 @@
+import json
 import warnings
 from typing import Optional
 
-import mmengine.fileio as fileio
-import json
-import numpy as np
-
 import mmcv
+import mmengine.fileio as fileio
+import numpy as np
 from mmcv.transforms.base import BaseTransform
+
 from edgelab.registry import TRANSFORMS
 
 
@@ -22,7 +22,6 @@ class LoadSensorFromFile(BaseTransform):
 
     - "data": Sensor sample data loaded from the file.
     - "sensor": Sensor type and unit loaded from the file.
-
     """
 
     def __init__(self, file_client_args: Optional[dict] = None, backend_args: Optional[dict] = None) -> None:
@@ -60,10 +59,10 @@ class LoadSensorFromFile(BaseTransform):
                 lable_bytes = file_client.get(filename)
             else:
                 lable_bytes = fileio.get(filename, backend_args=self.backend_args)
-            lable = json.loads(lable_bytes)
-            sensors = lable['payload']["sensors"]
+            label = json.loads(lable_bytes)
+            sensors = label['payload']["sensors"]
             data = np.array([], np.float32)
-            for value in lable['payload']['values']:
+            for value in label['payload']['values']:
                 data = np.append(data, value)
         except Exception as e:
             raise e

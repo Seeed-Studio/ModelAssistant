@@ -2,12 +2,11 @@ import warnings
 from typing import Callable, List, Optional
 
 import cv2
-from edgelab.registry import HOOKS
-
 from mmcv.runner.hooks.evaluation import EvalHook
 from torch.utils.data import DataLoader
 
 from edgelab.core.apis.mmdet.test import single_gpu_test_fomo
+from edgelab.registry import HOOKS
 
 
 def show_result(result, img_path, classes):

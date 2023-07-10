@@ -1,7 +1,8 @@
 from typing import Optional, Sequence, Tuple, Union
 
-import cv2
 import albumentations as A
+import cv2
+
 from edgelab.registry import TRANSFORMS
 
 

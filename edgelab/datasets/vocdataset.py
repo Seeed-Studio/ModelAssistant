@@ -1,11 +1,11 @@
 import os
-import torch
-import numpy as np
 from collections import OrderedDict
 
-from sklearn.metrics import confusion_matrix
+import numpy as np
+import torch
 from mmdet.datasets.voc import VOCDataset
 from mmdet.registry import DATASETS
+from sklearn.metrics import confusion_matrix
 
 from .utils.download import check_file
 

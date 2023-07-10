@@ -1,13 +1,14 @@
-from typing import List, Callable
 from functools import partial
-import torch.nn as nn
-from torch import Tensor
+from typing import Callable, List
 
-from mmengine.model import BaseModule
-from mmdet.registry import VISBACKENDS
+import torch.nn as nn
 from mmdet.models.utils.make_divisible import make_divisible
-from edgelab.models.base.general import ConvNormActivation, get_norm
+from mmdet.registry import VISBACKENDS
+from mmengine.model import BaseModule
+from torch import Tensor
 from torchvision.ops.misc import SqueezeExcitation as SElayer
+
+from edgelab.models.base.general import ConvNormActivation, get_norm
 
 
 class InvertedResidualConfig:

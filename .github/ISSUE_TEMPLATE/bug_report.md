@@ -11,12 +11,13 @@ A clear and concise description of what the bug is.
 
 **Environment**
 Environment you use when bug appears:
+
 1. Python version
 2. PyTorch Version
-3. MMCV Vesion
+3. MMCV Version
 4. EdgeLab Version
-4. Code you run
-5. The detailed error
+5. Code you run
+6. The detailed error
 
 **Additional context**
 Add any other context about the problem here.

@@ -6,7 +6,6 @@ import torch
 from mmcv.parallel import collate
 from mmcv.runner import get_dist_info
 from mmcv.utils import TORCH_VERSION, Registry, build_from_cfg, digit_version
-from torch.utils.data import DataLoader
 from mmdet.datasets.builder import worker_init_fn
 from mmdet.datasets.samplers import (
     ClassAwareSampler,
@@ -16,6 +15,7 @@ from mmdet.datasets.samplers import (
     InfiniteBatchSampler,
     InfiniteGroupBatchSampler,
 )
+from torch.utils.data import DataLoader
 
 
 def collate_fn(batch):

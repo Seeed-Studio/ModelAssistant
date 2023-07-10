@@ -1,11 +1,12 @@
-import torch
-from mmengine.model import BaseModule
-import torch.nn as nn
 from typing import Optional
 
+import torch
+import torch.nn as nn
 from mmdet.models.utils.make_divisible import make_divisible
-from edgelab.registry import BACKBONES
+from mmengine.model import BaseModule
+
 from edgelab.models.base.general import ConvNormActivation
+from edgelab.registry import BACKBONES
 
 
 class Squeeze(nn.Module):

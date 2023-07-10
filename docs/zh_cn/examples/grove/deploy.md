@@ -2,7 +2,6 @@
 
 本示例为 [EdgeLab](https://github.com/Seeed-Studio/Edgelab/) 包含的模型在 Grove - Vision AI 模块的部署教程，部署工作基于 [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain) 和 [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) 实现。
 
-
 ## 先决条件
 
 ### 硬件
@@ -13,29 +12,28 @@
 
 - 一根 USB 数据线
 
-
 ### 安装 Synopsys GUN Toolchain
 
 Grove - Vision AI 使用了 [Himax HX6537](https://www.himax.com.tw/zh/products/intelligent-sensing/always-on-smart-sensing/) 芯片，在这里我们需要安装 [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain) 以便之后交叉编译生成固件，其安装分为以下步骤:
 
 1. 首先，从 [Synopsys GUN Toolchain - GitHub Releases](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/) 下载预编译好的工具链。
 
-    ```sh
-    wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2020.09-release/arc_gnu_2020.09_prebuilt_elf32_le_linux_install.tar.gz -P ~/ && \
-    tar -zxvf ~/arc_gnu_2020.09_prebuilt_elf32_le_linux_install.tar.gz --directory ~/
-    ```
+   ```sh
+   wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2020.09-release/arc_gnu_2020.09_prebuilt_elf32_le_linux_install.tar.gz -P ~/ && \
+   tar -zxvf ~/arc_gnu_2020.09_prebuilt_elf32_le_linux_install.tar.gz --directory ~/
+   ```
 
 2. 然后，在 PATH 中指明 Synopsys GUN Toolchain 的可执行文件目录，并将其添加到 `~/.bashrc`，方便在 Shell 启动时自动导入。
 
-    ```sh
-    echo 'export PATH="$HOME/arc_gnu_2020.09_prebuilt_elf32_le_linux_install/bin:$PATH" # Synopsys GUN Toolchain' >> ~/.bashrc
-    ```
+   ```sh
+   echo 'export PATH="$HOME/arc_gnu_2020.09_prebuilt_elf32_le_linux_install/bin:$PATH" # Synopsys GUN Toolchain' >> ~/.bashrc
+   ```
 
-    ::: tip
+   ::: tip
 
-    如果您使用 Zsh 或其它 Shell，上述的 `~/.bashrc` 也应作出相应的调整。 
+   如果您使用 Zsh 或其它 Shell，上述的 `~/.bashrc` 也应作出相应的调整。
 
-    :::
+   :::
 
 ### 获取示例并配置 SDK
 
@@ -61,7 +59,6 @@ sudo apt-get install make -y
 
 :::
 
-
 ## 准备模型
 
 在开始编译和部署之前，您需要先根据实际应用场景，准备好需要部署的模型。默认的 Grove - Vision AI SDK 中包含了模型，您也可以尝试自行训练不同的模型。
@@ -74,13 +71,11 @@ sudo apt-get install make -y
 
 - [**Grove 表计读数**](./meter_reader.md)
 
-
 ::: warning
 
-在[编译和部署](#编译和部署)前，您需要提前准备好相应的模型。
+在[编译和部署](#%E7%BC%96%E8%AF%91%E5%92%8C%E9%83%A8%E7%BD%B2)前，您需要提前准备好相应的模型。
 
 :::
-
 
 ## 编译和部署
 
@@ -88,59 +83,59 @@ sudo apt-get install make -y
 
 1. 进入 EdgeLab 项目的根目录，运行以下命令进入示例目录 `examples/grove`:
 
-    ```sh
-    cd examples/grove # EdgeLab/examples/grove
-    ```
+   ```sh
+   cd examples/grove # EdgeLab/examples/grove
+   ```
 
 2. 根据**模型种类**选择编译参数并编译，可选的参数有 `fomo`、`meter` 等:
 
-    ::: code-group
-    
-    ```sh [fomo]
-    make HW=grove_vision_ai APP=fomo && make flash
-    ```
-    
-    ```sh [meter]
-    make HW=grove_vision_ai APP=meter && make flash
-    ```
+   ::: code-group
 
-    ```sh [digtal meter]
-    make HW=grove_vision_ai APP=digtal_meter && make flash
-    ```
-    
-    :::
-    
-    ::: tip
-    
-    关于 APP 的所有可选参数在可以使用以下命令查看:
-    
-    ```sh
-    ls examples # EdgeLab/examples/grove/examples
-    ```
-    
-    编译完成后，会在 `tools/image_gen_cstm/output` 目录下产生名为 `output.img` 的二进制文件。
-    
-    :::
+   ```sh [fomo]
+   make HW=grove_vision_ai APP=fomo && make flash
+   ```
+
+   ```sh [meter]
+   make HW=grove_vision_ai APP=meter && make flash
+   ```
+
+   ```sh [digtal meter]
+   make HW=grove_vision_ai APP=digtal_meter && make flash
+   ```
+
+   :::
+
+   ::: tip
+
+   关于 APP 的所有可选参数在可以使用以下命令查看:
+
+   ```sh
+   ls examples # EdgeLab/examples/grove/examples
+   ```
+
+   编译完成后，会在 `tools/image_gen_cstm/output` 目录下产生名为 `output.img` 的二进制文件。
+
+   :::
 
 3. 生成 UF2 固件镜像:
 
-    ```sh
-    python3 tools/ufconv/uf2conv.py -t 0 -c tools/image_gen_cstm/output/output.img -o firmware.uf2
-    ```
+   ```sh
+   python3 tools/ufconv/uf2conv.py -t 0 -c tools/image_gen_cstm/output/output.img -o firmware.uf2
+   ```
 
 4. 从 TFLite 模型生成 UF2 模型镜像:
 
-    ```sh
-    python3 tools/ufconv/uf2conv.py -t 1 -c <TFLITE_MODEL_PATH> -o model.uf2
-    ```
-    
-    ::: tip
+   ```sh
+   python3 tools/ufconv/uf2conv.py -t 1 -c <TFLITE_MODEL_PATH> -o model.uf2
+   ```
 
-    您需要将 `<TFLITE_MODEL_PATH>` 替换为在[准备模型](#准备模型)步骤中取得的 TFLite 模型的路径。您也可以使用预训练好的模型，其位于 `model_zone` 目录下，只需要复制其路径即可。
-    
-    需要注意的是，选取的**模型类型**应与[编译固件和模型固件 - 第 2 步](#编译固件和模型固件)中的选择保持一致。
+   ::: tip
 
-    :::
+   您需要将 `<TFLITE_MODEL_PATH>` 替换为在[准备模型](#%E5%87%86%E5%A4%87%E6%A8%A1%E5%9E%8B)步骤中取得的 TFLite 模型的路径。您也可以使用预训练好的模型，其位于 `model_zone` 目录下，只需要复制其路径即可。
+
+   需要注意的是，选取的**模型类型**应与[编译固件和模型固件 - 第 2 步](#%E7%BC%96%E8%AF%91%E5%9B%BA%E4%BB%B6%E5%92%8C%E6%A8%A1%E5%9E%8B%E5%9B%BA%E4%BB%B6)中的选择保持一致。
+
+   :::
 
 ### 部署例程
 
@@ -153,7 +148,6 @@ Grove - Vision AI 的部署流程主要分为两个步骤，这两个步骤需�
 3. 将 Grove - Vision AI 通过数据线再次连接至计算机，使用支持 [WebUSB API](https://developer.mozilla.org/en-US/docs/Web/API/WebUSB_API) 的浏览器如 [Google Chrome](https://www.google.com/chrome/) 等，访问 [Grove Vision AI 控制台](https://files.seeedstudio.com/grove_ai_vision/index.html)。
 
 4. 在浏览器界面和 [Grove Vision AI 控制台](https://files.seeedstudio.com/grove_ai_vision/index.html)，在弹出窗口中选择 **Grove AI** 然后点击 **Connect** 进行连接。
-
 
 ::: warning
 
@@ -175,7 +169,6 @@ Grove - Vision AI 的部署流程主要分为两个步骤，这两个步骤需�
 
 :::
 
-
 ### 性能简介
 
 通过在不同的芯片上测量，对 EdgeLab 相关模型的性能总结如下表所示。
@@ -185,11 +178,9 @@ Grove - Vision AI 的部署流程主要分为两个步骤，这两个步骤需�
 | Grove Vision AI | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/Edgelab/meter.zip) | 112x112 (RGB) | 320KB | 500ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/EdgeLab/releases) |
 | Grove Vision AI | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/Edgelab/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/EdgeLab/releases) |
 
-
 ## 故障排除
 
 如果您的计算机无法识别您的 Grove Vision AI，我们建议您尝试重新安装固件或更新 Bootloader，详细步骤可在 [Grove - Vision AI Module: Restore Factory Firmware](https://wiki.seeedstudio.com/Grove-Vision-AI-Module/#restore-factory-firmware) 上找到。
-
 
 ## 贡献
 
@@ -200,7 +191,6 @@ Grove - Vision AI 的部署流程主要分为两个步骤，这两个步骤需�
 - 对于 TensorFlow Lite Micro 相关的信息请参考 [TFLite-Micro](https://github.com/tensorflow/tflite-micro)。
 
 - 对于 EdgeLab 相关的信息请参考 [EdgeLab](https://github.com/Seeed-Studio/Edgelab/)。
-
 
 ## 许可
 

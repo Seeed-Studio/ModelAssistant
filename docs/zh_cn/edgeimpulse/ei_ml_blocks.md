@@ -4,50 +4,50 @@
 
 EdgeLab 中的模型支持在 Edge Impulse 上运行，具体信息见 GitHub 仓库 [edgelab-ei-ml-blocks](https://github.com/Seeed-Studio/edgelab-ei-ml-blocks)。下面使用 `edgelab-fomo` 模型进行示例，说明如何在 Edge Impulse 上运行 EdgeLab 模型。
 
-
 ## 运行管线
 
 我们的示例通过 Docker 运行整个部署流程，这为你封装了所有的依赖和包。
 
 ### 管线在 Docker 上
 
-1. 克隆示例仓库。
+01. 克隆示例仓库。
 
     ```sh
     git clone https://github.com/Seeed-Studio/edgelab-ei-ml-blocks && \
     cd edgelab-ei-ml-blocks/edgelab-fomo
     ```
-2. 安装 [Docker Desktop](https://www.docker.com/products/docker-desktop/)。
 
-3. 安装 [Edge Impulse CLI](https://docs.edgeimpulse.com/docs/edge-impulse-cli/cli-installation) `v1.16.0` 或更高版本。
+02. 安装 [Docker Desktop](https://www.docker.com/products/docker-desktop/)。
 
-4. 创建一个新的Edge Impulse项目，并确保标签方法被设置为 "Bounding Boxes"。
+03. 安装 [Edge Impulse CLI](https://docs.edgeimpulse.com/docs/edge-impulse-cli/cli-installation) `v1.16.0` 或更高版本。
+
+04. 创建一个新的Edge Impulse项目，并确保标签方法被设置为 "Bounding Boxes"。
 
     - 点击"创建新项目"按钮。
 
-        ![create-project-1](/static/ei/ei-ml-blocks-create-project.png)
+      ![create-project-1](/static/ei/ei-ml-blocks-create-project.png)
 
     - 思考一个项目名称并完成设置。
 
-        ![create-project-2](/static/ei/ei-ml-blocks-create-project2.png)
+      ![create-project-2](/static/ei/ei-ml-blocks-create-project2.png)
 
-5. 添加标签和一些数据。
+05. 添加标签和一些数据。
 
     ![dataset](/static/ei/ei-ml-blocks-dataset.png)
 
-6. 在 **Create Impulse** 下设置图像大小 (例如:`160x160`，`320x320`或`640x640`)，添加一个`图像` DSP 块和一个`物体检测`学习块。
+06. 在 **Create Impulse** 下设置图像大小 (例如:`160x160`，`320x320`或`640x640`)，添加一个`图像` DSP 块和一个`物体检测`学习块。
 
     ![dataset](/static/ei/ei-ml-blocks-design.png)
 
-7. 打开一个命令提示符或终端窗口。
+07. 打开一个命令提示符或终端窗口。
 
-8. 初始化该块。
+08. 初始化该块。
 
     ```sh
     edge-impulse-blocks init # 回答问题，在 "这个模型对什么类型的数据进行操作？" 中选择 "Object Detection"，在 "最后一层是什么..." 中选择 "FOMO"
     ```
 
-9. 通过以下方式获取新数据。
+09. 通过以下方式获取新数据。
 
     ```sh
     edge-impulse-blocks runner --download-data data/
@@ -73,7 +73,6 @@ EdgeLab 中的模型支持在 Edge Impulse 上运行，具体信息见 GitHub �
 
 :::
 
-
 ## 获取新数据
 
 要从你的项目中获取最新的数据:
@@ -84,10 +83,9 @@ EdgeLab 中的模型支持在 Edge Impulse 上运行，具体信息见 GitHub �
 
 3. 使用下面的命令获取新数据。
 
-    ```sh
-    edge-impulse-blocks runner --download-data data/
-    ```
-
+   ```sh
+   edge-impulse-blocks runner --download-data data/
+   ```
 
 ## 把块推回 Edge Impulse
 
@@ -95,14 +93,14 @@ EdgeLab 中的模型支持在 Edge Impulse 上运行，具体信息见 GitHub �
 
 1. 推送该块。
 
-    ```sh
-    edge-impulse-blocks push
-    ```
+   ```sh
+   edge-impulse-blocks push
+   ```
 
 2. 该块现在可以在你的任何项目下使用，通过 **Create impulse > Add learning block > Object Detection (Images)**。
 
-    ![object-detection](/static/ei/ei-ml-blocks-obj-det.png)
+   ![object-detection](/static/ei/ei-ml-blocks-obj-det.png)
 
 3. 下载块的输出。
 
-    ![dl](/static/ei/ei-ml-blocks-dl.png)
+   ![dl](/static/ei/ei-ml-blocks-dl.png)

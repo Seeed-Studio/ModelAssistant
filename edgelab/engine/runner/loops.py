@@ -1,11 +1,11 @@
-from typing import Dict, Sequence, Union, List
+from typing import Dict, List, Sequence, Union
 
 import onnx
 import torch
-from torch.utils.data import DataLoader
-from mmengine.runner import Runner
 from mmengine.evaluator.evaluator import Evaluator
-from mmengine.runner.loops import EpochBasedTrainLoop, BaseLoop
+from mmengine.runner import Runner
+from mmengine.runner.loops import BaseLoop, EpochBasedTrainLoop
+from torch.utils.data import DataLoader
 
 from edgelab.registry import LOOPS
 

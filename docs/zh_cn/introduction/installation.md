@@ -8,7 +8,6 @@ EdgeLab 运行环境需要 [PyTorch](https://pytorch.org/get-started/locally/) �
 - [MMPose](https://github.com/open-mmlab/mmpose): OpenMMLab 检查工具箱和基准。
 - [MIM](https://github.com/open-mmlab/mim): MIM 提供了一个统一的接口，用于启动和安装 OpenMMLab 项目及其扩展，以及管理 OpenMMLab 模型库。
 
-
 ## 先决条件
 
 EdgeLab 适用于 Linux、Windows 和 macOS。**我们强烈建议您使用 [Miniconda](https://docs.conda.io/en/latest/miniconda.html) 管理 Python 包。** 请按照以下步骤准备环境。
@@ -52,32 +51,32 @@ EdgeLab 依赖 PyTorch，在运行下方代码前，请再次确认你已经已�
 
 - 仅限 CPU 平台:
 
-    ::: code-group
+  ::: code-group
 
-    ```sh [conda]
-    conda install pytorch torchvision torchaudio cpuonly -c pytorch
-    ```
+  ```sh [conda]
+  conda install pytorch torchvision torchaudio cpuonly -c pytorch
+  ```
 
-    ```sh [pip]
-    pip3 install torch torchvision torchaudio
-    ```
+  ```sh [pip]
+  pip3 install torch torchvision torchaudio
+  ```
 
-    :::
+  :::
 
 - 包含 GPUs (CUDA) 的平台:
 
-    ::: code-group
+  ::: code-group
 
-    ```sh [conda]
-    conda install pytorch torchvision torchaudio pytorch-cuda=11.7 cudatoolkit=11.7 -c pytorch -c nvidia
-    ```
+  ```sh [conda]
+  conda install pytorch torchvision torchaudio pytorch-cuda=11.7 cudatoolkit=11.7 -c pytorch -c nvidia
+  ```
 
-    ```sh [pip]
-    # 如果您不在虚拟环境中，请谨慎选择 CUDA 版本。例如，这里我们使用 CUDA 11.7
-    pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu117
-    ```
+  ```sh [pip]
+  # 如果您不在虚拟环境中，请谨慎选择 CUDA 版本。例如，这里我们使用 CUDA 11.7
+  pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu117
+  ```
 
-    :::
+  :::
 
 ::: tip
 如果您的平台没有为 NVIDIA GPU 安装 CUDA，您可以在 [NVIDIA CUDA Toolkit Archive 网站](https://developer.nvidia.com/cuda-toolkit-archive)上找到 CUDA 安装程序。我们建议在您的主机环境中使用 CUDA 11.7 或更高版本。此外，如果要在其他平台上安装 PyTorch，请在 [PyTorch 官方网站](https://pytorch.org/get-started/locally/)上阅读更多信息。
@@ -108,7 +107,6 @@ pip3 install -r requirements/tests.txt
 pre-commit install
 ```
 
-
 ## 其他方法
 
 如果你已经配置好了 Conda，EdgeLab 环境的配置可以在 Linux 上使用 Shell 脚本自动完成 (在 Ubuntu 20.04~22.10 上测试)。
@@ -137,7 +135,6 @@ mim install -e .
 
 :::
 
-
 ## 注意事项
 
 在完成了 Miniconda 的安装与使用 Conda 配置 EdgeLab 后，我们创建了名为 `edgelab` 的 Conda 虚拟环境，并在虚拟环境中安装了依赖项。在之后与 EdgeLab 相关的配置和开发过程中，请确保您处在 EdgeLab 的虚拟环境中，您可使用以下命令激活 EdgeLab 虚拟环境:
@@ -152,9 +149,8 @@ conda activate edgelab
 conda env remove -n edgelab
 ```
 
-
 ## FAQs
 
 - 从 Anaconda 的默认通道安装软件包时，连接速度较慢。
 
-    请耐心等待并尝试一些第三方镜像渠道，如 [SJTU mirror](https://mirror.sjtu.edu.cn/docs/anaconda)，[TUNA mirror](https://mirrors.tuna.tsinghua.edu.cn/help/anaconda) 等。
+  请耐心等待并尝试一些第三方镜像渠道，如 [SJTU mirror](https://mirror.sjtu.edu.cn/docs/anaconda)，[TUNA mirror](https://mirrors.tuna.tsinghua.edu.cn/help/anaconda) 等。

@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-
 from mmdet.registry import MODELS
 
 from ..base.general import CBR

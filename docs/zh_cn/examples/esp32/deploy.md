@@ -2,7 +2,6 @@
 
 本示例为 [EdgeLab](https://github.com/Seeed-Studio/Edgelab/) 包含的模型在 Espreessif 芯片的部署教程，部署工作基于 [ESP-IDF](https://github.com/espressif/esp-idf) 和 [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) 实现。
 
-
 ## 先决条件
 
 ### 硬件
@@ -19,9 +18,9 @@ EdgeLab 包含的模型在 ESP32 的部署需要 ESP-IDF `4.4.x`，请参考以�
 
 在成功 ESP-IDF 安装后，请再次确认[配置 IDF 环境变量](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html#step-4-set-up-the-environment-variables)是否完成:
 
-* 设置了 `IDF_PATH` 环境变量。
+- 设置了 `IDF_PATH` 环境变量。
 
-* 确定 `idf.py` 和 Xtensa-ESP32 等工具（例如 `xtensa-esp32-elf-gcc`）都在包含在 `$PATH` 中。
+- 确定 `idf.py` 和 Xtensa-ESP32 等工具（例如 `xtensa-esp32-elf-gcc`）都在包含在 `$PATH` 中。
 
 ::: tip
 
@@ -53,7 +52,6 @@ popd
 
 :::
 
-
 ## 准备模型
 
 在开始编译和部署之前，您需要先根据实际应用场景，准备好需要部署的模型。因此，您可能需要经历模型或神经网络的选择、自定义数据集、导出或转换模型等步骤。
@@ -64,13 +62,11 @@ popd
 
 - [**ESP32 表计读数**](./meter_reader.md)
 
-
 ::: warning
 
-在[编译和部署](#编译和部署)前，您需要提前准备好相应的模型。
+在[编译和部署](#%E7%BC%96%E8%AF%91%E5%92%8C%E9%83%A8%E7%BD%B2)前，您需要提前准备好相应的模型。
 
 :::
-
 
 ## 编译和部署
 
@@ -127,7 +123,6 @@ idf.py --port <TARGET_SERIAL_PORT> flash monitor
 
 :::
 
-
 ### 性能简介
 
 通过在不同的芯片上测量，对 EdgeLab 相关模型的性能总结如下表所示。
@@ -136,8 +131,6 @@ idf.py --port <TARGET_SERIAL_PORT> flash monitor
 |--|--|--|--|--|--|--|--|
 | ESP32-S3 | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/Edgelab/meter.zip) | 112x112 (RGB) | 320KB | 380ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/EdgeLab/releases) |
 | ESP32-S3 | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/Edgelab/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/EdgeLab/releases) |
-
-
 
 ## 贡献
 
@@ -148,7 +141,6 @@ idf.py --port <TARGET_SERIAL_PORT> flash monitor
 - 对于 TensorFlow Lite Micro 相关的信息请参考 [TFLite-Micro](https://github.com/tensorflow/tflite-micro)。
 
 - 对于 EdgeLab 相关的信息请参考 [EdgeLab](https://github.com/Seeed-Studio/Edgelab/)。
-
 
 ## 许可
 

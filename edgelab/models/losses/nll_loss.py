@@ -1,8 +1,8 @@
 import torch.nn as nn
 import torch.nn.functional as F
+from mmdet.models.losses.utils import weighted_loss
 
 from edgelab.registry import LOSSES
-from mmdet.models.losses.utils import weighted_loss
 
 
 @weighted_loss

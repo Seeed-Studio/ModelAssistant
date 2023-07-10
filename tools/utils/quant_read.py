@@ -1,9 +1,9 @@
 import os
-import numpy as np
-from PIL import Image
-from torchvision.transforms import Compose, ToTensor, Resize, Grayscale
-from onnxruntime.quantization import CalibrationDataReader
 
+import numpy as np
+from onnxruntime.quantization import CalibrationDataReader
+from PIL import Image
+from torchvision.transforms import Compose, Grayscale, Resize, ToTensor
 
 img_format = ['.JPG', '.PNG', '.JPEG']
 
