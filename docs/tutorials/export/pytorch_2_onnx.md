@@ -54,8 +54,8 @@ python3 tools/export.py \
 
 ```sh [PFLD Model Conversion]
 python3 tools/export.py \
-    configs/pfld/pfld_mv2n_112.py \
-    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint)" \
+    configs/pfld/pfld_mbv2n_112.py \
+    "$(cat work_dirs/pfld_mbv2n_112/last_checkpoint)" \
     onnx \
     --cfg-options \
         data_root='datasets/meter'
@@ -105,8 +105,8 @@ python3 tools/inference.py \
 
 ```sh [PFLD Model Validation]
 python3 tools/inference.py \
-    configs/pfld/pfld_mv2n_112.py \
-    "$(cat work_dirs/pfld_mv2n_112/last_checkpoint | sed -e 's/.pth/.onnx/g')" \
+    configs/pfld/pfld_mbv2n_112.py \
+    "$(cat work_dirs/pfld_mbv2n_112/last_checkpoint | sed -e 's/.pth/.onnx/g')" \
     --show \
     --cfg-options \
         data_root='datasets/meter'
