@@ -221,6 +221,12 @@ def build_config(args):
     if args.cfg_options is not None:
         cfg.merge_from_dict(args.cfg_options)
 
+    cfg.val_dataloader["batch_size"] = 1
+    cfg.val_dataloader["num_workers"] = 1
+
+    if 'batch_shapes_cfg' in cfg.val_dataloader.dataset:
+        cfg.val_dataloader.dataset.batch_shapes_cfg = None
+
     cfg.launcher = args.launcher
 
     if args.work_dir is not None:
