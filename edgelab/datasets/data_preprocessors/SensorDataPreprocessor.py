@@ -1,8 +1,5 @@
-import json
-from typing import Optional, Union
+from typing import Optional
 
-import numpy as np
-import torch
 from mmcls.models.utils.batch_augments import RandomBatchAugment
 from mmcls.structures import (
     ClsDataSample,
@@ -12,10 +9,8 @@ from mmcls.structures import (
     stack_batch_scores,
     tensor_split,
 )
-from mmengine.logging import MessageHub
 from mmengine.model.base_model.data_preprocessor import BaseDataPreprocessor
 
-from edgelab.engine.utils.batch_augs import BatchAugs
 from edgelab.registry import MODELS
 
 

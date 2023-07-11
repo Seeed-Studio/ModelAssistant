@@ -23,7 +23,7 @@ def calc_angle(x1, y1, x2, y2):
     z = math.sqrt(x * x + y * y)
     try:
         angle = math.acos((z**2 + 1 - (x - 1) ** 2 - y**2) / (2 * z * 1)) / math.pi * 180
-    except:
+    except Exception:
         angle = 0
 
     if y < 0:

@@ -2,7 +2,6 @@ import json
 import warnings
 from typing import Optional
 
-import mmcv
 import mmengine.fileio as fileio
 import numpy as np
 from mmcv.transforms.base import BaseTransform

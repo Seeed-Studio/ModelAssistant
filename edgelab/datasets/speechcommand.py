@@ -106,7 +106,7 @@ class Speechcommand(Dataset):
     def _get_labels(self, root):
         f_names = glob.glob(root + f'{sep}**{sep}*.wav')
         self.labels = sorted(list(set([f.split(f'{os.path.sep}')[-2] for f in f_names])))
-        self.labels = sorted([l for l in self.labels if l in self.words])
+        self.labels = sorted([label for label in self.labels if label in self.words])
 
     def __getitem__(self, index):
         fname = self.audio_files[index]

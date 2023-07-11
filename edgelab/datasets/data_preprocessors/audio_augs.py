@@ -100,7 +100,6 @@ class RandomLPHPFilter(AugBasic):
 
     def __call__(self, sample):
         if random.random() < self.p:
-            a = 0.25
             if random.random() < 0.5:
                 fc = 0.5 + random.random() * 0.25
                 filt = scipy.signal.firwin(self.num_taps, fc, window='hamming')
