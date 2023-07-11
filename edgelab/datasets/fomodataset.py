@@ -8,7 +8,6 @@ import torchvision
 from mmdet.datasets.coco import CocoDataset
 from mmengine.registry import DATASETS
 from sklearn.metrics import confusion_matrix
-from torchvision.transforms import ToTensor
 
 from .pipelines.composition import AlbCompose
 
