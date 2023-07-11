@@ -317,7 +317,7 @@ def main():
         # TODO: Support '.pickel' dump
         runner = Infernce(
             args.checkpoint,
-            dataloader=runner.test_dataloader,
+            dataloader=runner.val_dataloader,
             cfg=cfg,
             runner=runner,
             source=args.source,
