@@ -28,7 +28,7 @@ def defile(files, store_dir):
         res.append(cmd)
 
 
-def download(links: List or AnyStr, store_path: AnyStr or __path__, unzip_dir=None):
+def download(links: List or AnyStr, store_path: AnyStr, unzip_dir=None):
     if isinstance(links, str):
         links = [links]
     os.chdir(store_path)
@@ -36,8 +36,6 @@ def download(links: List or AnyStr, store_path: AnyStr or __path__, unzip_dir=No
         os.mkdir('download')
     os.chdir('download')
 
-    print(links)
-    print(store_path)
     for link in links:
         file_name = link.split('/')[-1]
         unzip = check_compress(file_name)

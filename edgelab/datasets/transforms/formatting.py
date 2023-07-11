@@ -1,13 +1,10 @@
-from collections import defaultdict
 from collections.abc import Sequence
-from functools import partial
 
 import numpy as np
 import torch
 from mmcls.structures import ClsDataSample
 from mmcv.transforms import BaseTransform
 from mmengine.utils import is_str
-from PIL import Image
 
 from edgelab.registry import TRANSFORMS
 

@@ -6,10 +6,8 @@ import numpy as np
 import torch
 import torchvision
 from mmdet.datasets.coco import CocoDataset
-from mmengine.dataset.base_dataset import BaseDataset
 from mmengine.registry import DATASETS
 from sklearn.metrics import confusion_matrix
-from torch.utils.data import Dataset
 from torchvision.transforms import ToTensor
 
 from .pipelines.composition import AlbCompose
@@ -74,42 +72,8 @@ class FomoDatasets(CocoDataset):
         return len(self.data)
 
     def __getitem____(self, index):
-        image, ann = self.data[index]
-
-        self.prepare_data(idx=index)
-        image = np.asarray(image)
-        return self.pipeline()
-
-        bboxes = []
-        labels = []
-        min_hw_pixels = 2
-        for annotation in ann:
-            # coco annotation specific https://cocodataset.org/#format-data
-            x, y, width, height = annotation['bbox'][:4]
-            if width == 0:
-                width += min_hw_pixels
-            if height == 0:
-                height += min_hw_pixels
-            annotation['bbox'][:4] = [x, y, width, height]
-            bboxes.append(annotation['bbox'])
-            labels.append(annotation['category_id'])
-
-        bboxes = np.array(bboxes)
-        labels = np.array(labels)
-
-        trans_param = {'image': image, 'bboxes': bboxes, self.bbox_params['label_fields'][0]: labels}
-
-        result = self.transform(**trans_param)
-        image = result['image']
-        bboxes = result['bboxes']
-        labels = result[self.bbox_params['label_fields'][0]]
-
-        H, W, C = image.shape
-        bbl = []
-        for bbox, l in zip(bboxes, labels):
-            bbl.append([0, l, (bbox[0] + (bbox[2] / 2)) / W, (bbox[1] + (bbox[3] / 2)) / H, bbox[2] / W, bbox[3] / H])
-
-        return {'inputs': ToTensor()(image), 'data_samples': torch.from_numpy(np.asarray(bbl))}
+        result = self.prepare_data(idx=index)
+        return result
 
     def get_ann_info(self, idx):
         ann = self.__getitem__[idx]['target']

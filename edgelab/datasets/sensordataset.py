@@ -1,9 +1,7 @@
-import glob
 import json
 import os
-from typing import List, Optional, Sequence, Tuple, Union
+from typing import Optional, Union
 
-import numpy as np
 from mmcls.datasets import CustomDataset
 
 from edgelab.registry import DATASETS
