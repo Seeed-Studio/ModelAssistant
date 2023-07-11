@@ -15,14 +15,6 @@ line-length = 120
 target-version = ['py38', 'py39', 'py310']
 include = '\.pyi?$'
 skip-string-normalization = true
-extend-exclude = '''
-^/.git
-| ^/.github
-| ^/docs
-| ^/examples
-| ^/requirements
-| ^/scripts
-'''
 
 
 [tool.ruff]
@@ -36,15 +28,14 @@ exclude = [
     ".ruff_cache",
     ".venv",
     ".vscode",
-    "build",
-    "datasets",
-    "docs",
-    "examples",
-    "dist",
-    "node_modules",
-    "scripts",
-    "examples",
-    "work_dirs",
+    "build/",
+    "datasets/",
+    "docs/",
+    "examples/",
+    "dist/",
+    "node_modules/",
+    "scripts/",
+    "work_dirs/",
 ]
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 target-version = "py38"
