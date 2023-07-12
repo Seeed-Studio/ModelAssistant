@@ -1,4 +1,4 @@
-# Contribution Guidelines
+# Contribute
 
 Contributions to EdgeLab are welcome! We welcome contributions of any kind, including but not limited to:
 
@@ -27,6 +27,25 @@ Contributions to EdgeLab are welcome! We welcome contributions of any kind, incl
 ## How to Contribute
 
 Please refer to the [Github Documentation - Collaborating](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests).
+
+## Commit Style
+
+We recommend that you follow the following authoring principles when writing your commit, as this will make our project cleaner and easier to iterate.
+
+```
+build: build related changes
+chore: typo fixes, library updates, etc.
+ci: continue integration related changes
+deps: dependencies update
+docs: docs related changes
+feat: new feactures
+fix: fix issues
+perf: add perf results
+refactor: refactor components
+revert: undo some changes
+style: code style changes
+test: test cases changes
+```
 
 ## Permissions Section
 

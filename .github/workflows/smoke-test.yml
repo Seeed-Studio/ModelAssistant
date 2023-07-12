@@ -26,6 +26,7 @@ jobs:
   manual-installation:
     name: manual installation test for (${{ matrix.python-version }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -64,6 +65,29 @@ jobs:
             python -m pip --version
             python -m pip list
 
+  conda-installation:
+    name: conda installation test for (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3
+
+      - name: conda install deps (CPU, only base)
+        run: |
+            conda env create -n edgelab -f environment.yml
+
+      - name: conda install deps (CUDA, only base)
+        run: |
+            conda env create -n edgelab_cuda -f environment_cuda.yml
+
   auto-installation:
     name: auto installation test for (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -77,6 +101,6 @@ jobs:
       - name: checkout repository
         uses: actions/checkout@v3
 
-      - name: setup deps
+      - name: setup deps (shell)
         run: |
             bash scripts/setup_linux.sh
