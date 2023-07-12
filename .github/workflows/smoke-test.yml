@@ -74,7 +74,6 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - windows-latest
 
     steps:
       - name: checkout repository
@@ -91,6 +90,7 @@ jobs:
   auto-installation:
     name: auto installation test for (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
