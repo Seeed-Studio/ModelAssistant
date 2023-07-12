@@ -198,7 +198,7 @@ def main():
     model = runner.model.to(device=device)
     model.eval()
 
-    analysis_results = get_model_complexity_info(model=model, input_shape=args.input_shape, inputs=(dummy_inputs,))
+    analysis_results = get_model_complexity_info(model=model, inputs=(dummy_inputs,))
 
     print('Model Flops:{}'.format(analysis_results['flops_str']))
     print('Model Parameters:{}'.format(analysis_results['params_str']))
