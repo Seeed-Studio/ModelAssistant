@@ -50,4 +50,4 @@ python3 tools/train.py --help
 
 ### Deployment
 
-After exporting the model, you can deploy the model to an edge computing device for testing and evaluation. You can refer to [examples](../../examples/examples.md) section to learn more about how to deploy the model.
+After exporting the model, you can deploy the model to an edge computing device for testing and evaluation. You can refer to [Deploy](../../deploy/examples.md) section to learn more about how to deploy the model.

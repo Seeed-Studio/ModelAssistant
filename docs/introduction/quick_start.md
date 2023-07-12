@@ -6,6 +6,8 @@ In [Overview](./what_is_edgelab), we have introduced the functions and features 
 We suggest that all beginners of EdgeLab start learning from [Getting Started](#getting-started), if you are familiar with EdgeLab or [OpenMMLab](https://github.com/open-mmlab), and you want to try to deploy on edge computing devices, modify existing neural networks, or train on user-defined data sets, you can directly refer to [Advanced](#advanced).
 :::
 
+Now, you can try out [EdgeLab Colab Examples](https://github.com/Seeed-Studio/EdgeLab/tree/main/notebooks) on Google Colab without setup EdgeLab on your computer.
+
 ## Getting Started
 
 1. First, refer to the [Installation Guide](./installation.md) to configure the running environment of EdgeLab.
@@ -20,8 +22,23 @@ We suggest that all beginners of EdgeLab start learning from [Getting Started](#
 
 ## Advanced
 
-- **Model Deployment**. If you want to deploy the exported training model on edge computing devices, please refer to [ESP32 Deployment Example](../examples/esp32/deploy) or [Grove Vision AI Deployment Example](../examples/grove/deploy).
+- **Model Deployment**. If you want to deploy the exported training model on edge computing devices, please refer to [ESP32 Deployment Example](../deploy/esp32/deploy) or [Grove Vision AI Deployment Example](../deploy/grove/deploy).
 
 - **Custom Datasets**. If you want to train on a custom dataset, please refer to [Datasets](../tutorials/datasets).
 
 - **Custom Model**. If you want to modify an existing neural network or design your own neural network, please refer to [Model Configuration](../tutorials/config).
+
+## Necessary Knowledge
+
+- Computer Vision:
+
+  The basics of computer vision are built upon digital image processing. So, you need to learn the basics of the DlP first. Then you can move forward to read computer vision topics like pattern recognition and 3D geometry. You need to know linear algebra to be able to fully understand some concepts of the computer vision like dimensionality reduction. After understanding the fundamentals of computer vision you should also build your knowledge in deep learning, especially in Convolutional Neural Networks (CNN).
+
+- Programming:
+
+  Python will be enough for design and prototyping, but if you want to do some
+  embedded work, you should also be familiar with C++.
+
+- Tools:
+
+  OpenCV is the main tool for computer vision, and Numpy is an important tool for data processing and analysis. You must know them. You never know, but you should know what tools are available and how to use them. How to use them. Another tool you need to familiarize yourself with is the deep learning framework. Frameworks. You can start with Keras which is the easiest to learn and then learn Tensorflow or PyTorch.

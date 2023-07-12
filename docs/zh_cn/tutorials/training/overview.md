@@ -50,4 +50,4 @@ python3 tools/train.py --help
 
 ### 部署
 
-在导出模型后，你可以将模型部署到边缘计算设备上进行测试和评估。你可以参考 [examples](../../examples/examples.md) 部分来了解更多关于如何部署模型的信息。
+在导出模型后，你可以将模型部署到边缘计算设备上进行测试和评估。你可以参考 [Deploy](../../deploy/examples.md) 部分来了解更多关于如何部署模型的信息。
