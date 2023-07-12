@@ -1,7 +1,7 @@
+# use openmim to install
 mmcls>=1.0.0.rc6
 mmcv>=2.0.0
 mmdet>=3.0.0
-# use openmim to install
 mmengine>=0.7.2
 mmpose>=1.0.0
 

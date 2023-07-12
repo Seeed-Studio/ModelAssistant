@@ -1,6 +1,4 @@
-
 libusb1>=3.0.0
-
 ncnn>=1.0.20230517
 onnx>=1.14.0
 onnxmltools>=1.11.2
