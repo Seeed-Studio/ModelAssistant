@@ -26,18 +26,18 @@ You also need to prepare the PyTorch model and its weights before exporting the 
 
 - Or download the EdgeLab official pre-trained weights from our [GitHub Releases - Model Zoo](https://github.com/Seeed-Studio/EdgeLab/releases/tag/model_zoo).
 
-## Model Transform
+## Export Model
 
-For model transformation (convert and export), the relevant commands with some common parameters are listed.
+For model convert and export, the relevant commands with some common parameters are listed.
 
 ```sh
 python3 tools/export.py \
     "<CONFIG_FILE_PATH>" \
     "<CHECKPOINT_FILE_PATH>" \
-    "<TARGETS>"
+    onnx
 ```
 
-### Transform Examples
+### ONNX Export Examples
 
 Here are some model conversion examples for reference.
 
@@ -90,7 +90,7 @@ For more parameters supported, please refer to the source code `tools/inference.
 
 :::
 
-### Validation Example
+### Model Validation Example
 
 ::: code-group
 

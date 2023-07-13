@@ -32,7 +32,7 @@ Export TFLite model requires a training set as a representative dataset, if it n
 
 :::
 
-## Model Transform
+## Export Model
 
 For model transformation (convert and export), the relevant commands with some common parameters are listed.
 
@@ -40,10 +40,10 @@ For model transformation (convert and export), the relevant commands with some c
 python3 tools/export.py \
     "<CONFIG_FILE_PATH>" \
     "<CHECKPOINT_FILE_PATH>" \
-    "<TARGETS>"
+    tflite
 ```
 
-### Transform Examples
+### TFLite Export Examples
 
 Here are some model conversion examples (`int8` precision) for reference.
 
@@ -97,7 +97,7 @@ For more parameters supported, please refer to the source code `tools/inference.
 
 :::
 
-### Validation Example
+### Model Validation Example
 
 Here are some examples for validating converted model (`int8` precision), for reference only.
 

@@ -120,16 +120,18 @@ bash scripts/setup_linux.sh
 ::: code-group
 
 ```sh [CPU]
-conda env create -n edgelab -f environment.yml -y && \
+conda env create -n edgelab -f environment.yml && \
 conda activate edgelab && \
-pip3 install -r requirements.txt && \
+pip3 install -r requirements/inference.txt -r requirements/export.txt -r requirements/tests.txt && \
+mim install -r requirements/mmlab.txt && \
 mim install -e .
 ```
 
 ```sh [GPU (CUDA)]
-conda env create -n edgelab -f environment_cuda.yml -y && \
+conda env create -n edgelab -f environment_cuda.yml && \
 conda activate edgelab && \
-pip3 install -r requirements_cuda.txt && \
+pip3 install -r requirements/inference.txt -r requirements/export.txt -r requirements/tests.txt && \
+mim install -r requirements/mmlab.txt && \
 mim install -e .
 ```
 
