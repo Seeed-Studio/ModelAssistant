@@ -1,7 +1,10 @@
 import json
 import os
-from typing import Optional, Union
+import os.path as osp
+from typing import List, Optional, Union
 
+import cbor
+import numpy as np
 from mmcls.datasets import CustomDataset
 
 from edgelab.registry import DATASETS
@@ -17,6 +20,11 @@ class SensorDataset(CustomDataset):
         metainfo: Optional[dict] = None,
         data_root: str = '',
         data_prefix: Union[str, dict] = '',
+        window_size: int = 80,
+        stride: int = 30,
+        retention: float = 0.8,
+        # source: str = 'EI',
+        flatten: bool = True,
         multi_label: bool = False,
         **kwargs,
     ):
@@ -26,6 +34,12 @@ class SensorDataset(CustomDataset):
         self.data_root = data_root
         self.ann_file = ann_file
         self.data_prefix = data_prefix
+        self.window_size = window_size
+        self.stride = stride
+        self.retention = retention
+        self.flatten = flatten
+
+        self.data_dir = osp.join(self.data_root, self.data_prefix)
 
         self.info_lables = json.load(open(os.path.join(self.data_root, self.data_prefix, self.ann_file)))
 
@@ -58,7 +72,6 @@ class SensorDataset(CustomDataset):
                     gt_label = j
                     break
             samples.append((filename, gt_label))
-        print(samples)
         return samples
 
     def load_data_list(self):
@@ -75,11 +88,53 @@ class SensorDataset(CustomDataset):
 
         data_list = []
         for filename, gt_label in samples:
-            img_path = os.path.join(self.img_prefix, filename)
-            info = {'file_path': img_path, 'gt_label': int(gt_label)}
-            data_list.append(info)
+            ann_path = os.path.join(self.data_dir, filename)
+            data_list.extend([{'data': data, 'gt_label': int(gt_label)} for data in self.read_split_data(ann_path)])
 
         return data_list
+
+    def read_split_data(self, file_path: str) -> List:
+        if file_path.lower().endswith('.cbor'):
+            with open(file_path, 'rb') as f:
+                data = cbor.loads(f.read())
+        elif file_path.lower().endswith('.json'):
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+
+        values = np.asanyarray(data['payload']['values'])
+
+        result = []
+        values_len = len(values)
+        if values_len <= self.window_size:
+            result.append(self.pad_data(values, self.window_size).transpose(0, 1).reshape(-1))
+        else:
+            indexes = range(0, values_len, self.stride)
+            for i in indexes:
+                if (values_len - i + 1) < self.window_size or i == indexes[-1]:
+                    if self.retention * self.window_size < (values_len - i + 1):
+                        data = self.pad_data(values[i:], self.window_size)
+                    else:
+                        continue
+                else:
+                    end = i + self.window_size
+                    if end >= values_len:
+                        if self.retention * self.window_size < (values_len - i + 1):
+                            data = self.pad_data(values[i:], self.window_size)
+                        else:
+                            continue
+                    else:
+                        data = values[i:end]
+                if self.flatten:
+                    data = data.transpose(0, 1).reshape(-1)
+                result.append(data)
+        return result
+
+    def pad_data(self, data: np.asanyarray, total_len: int, mode='constant', pad_val=0) -> np.array:
+        pad_len = total_len - len(data)
+        front = pad_len // 2
+        arfter = pad_len - front
+        data = np.pad(data, ((front, arfter), (0, 0)), mode=mode, constant_values=pad_val)
+        return data
 
     def is_valid_file(self, filename: str) -> bool:
         """Check if a file is a valid sample."""
