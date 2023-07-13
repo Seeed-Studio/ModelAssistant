@@ -65,25 +65,25 @@ function sidebar() {
             ]
         },
         {
-            text: 'Examples',
+            text: 'Deploy',
             collapsed: false,
-            link: '/examples/examples',
+            link: '/deploy/examples',
             items: [
                 {
                     text: 'ESP32 - Deploy',
-                    link: '/examples/esp32/deploy',
+                    link: '/deploy/esp32/deploy',
                     items: [
-                        { text: 'ESP32 Mask Detection', link: '/examples/esp32/mask_detection' },
-                        { text: 'ESP32 Meter Reader', link: '/examples/esp32/meter_reader' }
+                        { text: 'ESP32 Mask Detection', link: '/deploy/esp32/mask_detection' },
+                        { text: 'ESP32 Meter Reader', link: '/deploy/esp32/meter_reader' }
                     ]
                 },
                 {
                     text: 'Grove - Deploy',
-                    link: '/examples/grove/deploy',
+                    link: '/deploy/grove/deploy',
                     items: [
-                        { text: 'Grove Mask Detection', link: '/examples/grove/mask_detection' },
-                        { text: 'Grove Meter Reader', link: '/examples/grove/meter_reader' },
-                        { text: 'Grove Digital Meter', link: '/examples/grove/digital_meter' }
+                        { text: 'Grove Mask Detection', link: '/deploy/grove/mask_detection' },
+                        { text: 'Grove Meter Reader', link: '/deploy/grove/meter_reader' },
+                        { text: 'Grove Digital Meter', link: '/deploy/grove/digital_meter' }
                     ]
                 }
             ]
@@ -93,7 +93,7 @@ function sidebar() {
             collapsed: false,
             items: [
                 {
-                    text: 'Edge Impulse Learning Blocks',
+                    text: 'Machine Learning Blocks',
                     link: '/edgeimpulse/ei_ml_blocks',
                 },
             ]
@@ -104,7 +104,7 @@ function sidebar() {
             items: [
                 { text: 'FAQs', link: '/community/faqs' },
                 { text: 'Reference', link: '/community/reference' },
-                { text: 'Contribution Guidelines', link: '/community/contributing' },
+                { text: 'Contribution', link: '/community/contributing' },
                 { text: 'Copyrights and Licenses', link: '/community/licenses' }
             ]
         }

@@ -71,23 +71,23 @@ function sidebar() {
         {
             text: '部署示例',
             collapsed: false,
-            link: '/zh_cn/examples/examples',
+            link: '/zh_cn/deploy/examples',
             items: [
                 {
                     text: 'ESP32 - 部署教程',
-                    link: '/zh_cn/examples/esp32/deploy',
+                    link: '/zh_cn/deploy/esp32/deploy',
                     items: [
-                        { text: 'ESP32 口罩检测', link: '/zh_cn/examples/esp32/mask_detection' },
-                        { text: 'ESP32 表计读数', link: '/zh_cn/examples/esp32/meter_reader' }
+                        { text: 'ESP32 口罩检测', link: '/zh_cn/deploy/esp32/mask_detection' },
+                        { text: 'ESP32 表计读数', link: '/zh_cn/deploy/esp32/meter_reader' }
                     ]
                 },
                 {
                     text: 'Grove - 部署教程',
-                    link: '/zh_cn/examples/grove/deploy',
+                    link: '/zh_cn/deploy/grove/deploy',
                     items: [
-                        { text: 'Grove 口罩检测', link: '/zh_cn/examples/grove/mask_detection' },
-                        { text: 'Grove 表计读数', link: '/zh_cn/examples/grove/meter_reader' },
-                        { text: 'Grove 数字表记', link: '/zh_cn/examples/grove/digital_meter' }
+                        { text: 'Grove 口罩检测', link: '/zh_cn/deploy/grove/mask_detection' },
+                        { text: 'Grove 表计读数', link: '/zh_cn/deploy/grove/meter_reader' },
+                        { text: 'Grove 数字表记', link: '/zh_cn/deploy/grove/digital_meter' }
                     ]
                 }
             ]
