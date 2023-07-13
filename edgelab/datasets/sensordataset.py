@@ -89,7 +89,9 @@ class SensorDataset(CustomDataset):
         data_list = []
         for filename, gt_label in samples:
             ann_path = os.path.join(self.data_dir, filename)
-            data_list.extend([{'data': data, 'gt_label': int(gt_label)} for data in self.read_split_data(ann_path)])
+            data_list.extend(
+                [{'data': np.asanyarray([data]), 'gt_label': int(gt_label)} for data in self.read_split_data(ann_path)]
+            )
 
         return data_list
 
