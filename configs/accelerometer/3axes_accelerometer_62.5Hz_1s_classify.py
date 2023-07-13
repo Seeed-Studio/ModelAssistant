@@ -4,20 +4,19 @@ default_scope = 'edgelab'
 
 num_classes = 3
 num_axes = 3
-frequency = 62.5
-window = 1000
+window_size = 30
+stride = 20
 
 model = dict(
     type='AccelerometerClassifier',
     backbone=dict(
         type='AxesNet',
         num_axes=num_axes,
-        frequency=frequency,
-        window=window,
+        window_size=window_size,
         num_classes=num_classes,
     ),
     head=dict(
-        type='edgelab.ClsHead',
+        type='edgelab.AxesClsHead',
         loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
         topk=(1, 5),
     ),
@@ -29,15 +28,15 @@ data_root = './datasets/aixs-export'
 batch_size = 1
 workers = 1
 
-shape = num_classes * int(62.5 * 1000 / 1000)
+shape = [1, num_axes * window_size]
 
 train_pipeline = [
-    dict(type='edgelab.LoadSensorFromFile'),
+    # dict(type='edgelab.LoadSensorFromFile'),
     dict(type='edgelab.PackSensorInputs'),
 ]
 
 test_pipeline = [
-    dict(type='edgelab.LoadSensorFromFile'),
+    # dict(type='edgelab.LoadSensorFromFile'),
     dict(type='edgelab.PackSensorInputs'),
 ]
 
@@ -49,6 +48,8 @@ train_dataloader = dict(
         data_root=data_root,
         data_prefix='training',
         ann_file='info.labels',
+        window_size=window_size,
+        stride=stride,
         pipeline=train_pipeline,
     ),
     sampler=dict(type='DefaultSampler', shuffle=True),
@@ -61,6 +62,8 @@ val_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
+        window_size=window_size,
+        stride=stride,
         data_prefix='testing',
         ann_file='info.labels',
         pipeline=test_pipeline,
