@@ -2,7 +2,7 @@
 mmcls>=1.0.0.rc6
 mmcv>=2.0.0
 mmdet>=3.0.0, <3.1.0 # mmyolo currently does not support mmdet 3.1.0
-mmengine>=0.7.2
+mmengine>=0.8.2
 mmpose>=1.0.0
 
 mmyolo@git+https://github.com/mjq2020/mmyolo
