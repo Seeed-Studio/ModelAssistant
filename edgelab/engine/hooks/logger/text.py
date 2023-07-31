@@ -131,9 +131,14 @@ class TextLoggerHook(LoggerHook):
 
         self.bar.set_description(end)
 
-        # self.bar.update(runner.val_interval if mode == 'val' else 100)
-        self.bar.update(self.progressInterval(idx, mode=mode))
-        if self.bar.n == len(dataloader):
+        up_num = self.progressInterval(idx, mode=mode)
+        if up_num >= self.bar.total * 0.01 or (idx == self.bar.n):
+            self.bar.update(up_num)
+            if mode == 'train':
+                self.trainIdx = idx
+            else:
+                self.valIdx = idx
+        if self.bar.n == self.bar.total:
             del self.bar
 
     def setloglevel(self, runner: Runner, handler: logging.Handler = logging.StreamHandler, level: int = logging.ERROR):
@@ -165,19 +170,14 @@ class TextLoggerHook(LoggerHook):
     def progressInterval(self, idx: int, mode: str = 'train'):
         if mode == 'train':
             if idx < self.trainIdx:
-                self.trainIdx = idx
                 res = idx
             else:
                 res = idx - self.trainIdx
-                self.trainIdx = idx
-
         else:
             if idx < self.valIdx:
-                self.valIdx = idx
                 res = idx
             else:
                 res = idx - self.valIdx
-                self.valIdx = idx
         return res if res else 1
 
     def iterInterval(self, runner: Runner):
