@@ -3,7 +3,7 @@ default_scope = 'edgelab'
 # hooks
 default_hooks = dict(
     timer=dict(type='IterTimerHook'),
-    logger=dict(type='TextLoggerHook', interval=50),
+    logger=dict(type='TextLoggerHook', interval=100),
     param_scheduler=dict(type='ParamSchedulerHook'),
     checkpoint=dict(type='CheckpointHook', interval=10),
     sampler_seed=dict(type='DistSamplerSeedHook'),
