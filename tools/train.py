@@ -178,7 +178,6 @@ def build_config(args):
 
 def main():
     from mmengine.analysis import get_model_complexity_info
-    from mmengine.device import get_device
 
     args = parse_args()
     args = verify_args(args)
@@ -193,15 +192,16 @@ def main():
 
         runner = RUNNERS.build(cfg)
 
-    device = get_device()
-    dummy_inputs = torch.randn(*args.input_shape, device=device)
-    model = runner.model.to(device=device)
+    model = runner.model.to('cpu')
     model.eval()
 
-    analysis_results = get_model_complexity_info(model=model, inputs=(dummy_inputs,))
+    analysis_results = get_model_complexity_info(model=model, input_shape=tuple(args.input_shape[1:]))
 
-    print('Model Flops:{}'.format(analysis_results['flops_str']))
-    print('Model Parameters:{}'.format(analysis_results['params_str']))
+    print('=' * 40)
+    print(f"{'Input Shape':^20}:{str(args.input_shape):^20}")
+    print(f"{'Model Flops':^20}:{analysis_results['flops_str']:^20}")
+    print(f"{'Model Parameters':^20}:{analysis_results['params_str']:^20}")
+    print('=' * 40)
 
     runner.train()
 

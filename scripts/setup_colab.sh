@@ -36,11 +36,11 @@ echo -en "Installing base deps... "
 if [ "${CUDA_AVAILABLE}" ]; then
     echo -en "${BLUE}Using CUDA${RST}\n"
     ${PYTHON_PATH} -m pip install -r requirements/pytorch_cuda.txt && \
-    ${PYTHON_PATH} -m pip install -r requirements/base.txt
+    ${PYTHON_PATH} -m pip install -r requirements/inference.txt -r requirements/export.txt -r requirements/tests.txt
 else
     echo -en "${BLUE}Using CPU${RST}\n"
     ${PYTHON_PATH} -m pip install -r requirements/pytorch_cpu.txt && \
-    ${PYTHON_PATH} -m pip install -r requirements/base.txt
+    ${PYTHON_PATH} -m pip install -r requirements/inference.txt -r requirements/export.txt -r requirements/tests.txt
 fi
 if [ "$?" != 0 ]; then
     echo -en "Install base deps failed... ${RED}Exiting${RST}\n"
