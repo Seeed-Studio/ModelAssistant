@@ -106,7 +106,6 @@ class FomoHead(BaseModule):
 
     def loss(self, inputs: Tuple[torch.Tensor, ...], data_samples):
         pred = self.forward(inputs)
-
         gt = unpack_gt_instances(data_samples)
         (batch_gt_instances, batch_gt_instances_ignore, batch_img_metas) = gt
 
@@ -118,49 +117,36 @@ class FomoHead(BaseModule):
         preds = self.forward(features)
         preds = tuple([F.softmax(pred, dim=1) for pred in preds])
 
-        img_shape = batch_data_samples[0].metainfo['img_shape']
-        batch_gt_instances = [data_samples.gt_instances for data_samples in batch_data_samples]
+        batch_data_samples[0].metainfo['img_shape']
+        # batch_gt_instances = [data_samples.gt_instances for data_samples in batch_data_samples]
+        batch_gt_instances = [data_samples.fomo_mask for data_samples in batch_data_samples]
 
         return [
             InstanceData(
                 pred=preds,
                 labels=tuple(
-                    [self.build_target(pred.shape[2:], img_shape, batch_gt_instances, pred.device) for pred in preds]
+                    [
+                        torch.concat(
+                            [torch.from_numpy(batch_gt_instances[i][0]) for i in range(len(batch_gt_instances))]
+                        ).to(preds[0].device)
+                    ]
                 ),
             )
         ]
 
     def loss_by_feat(self, preds, batch_gt_instances, batch_img_metas, batch_gt_instances_ignore) -> dict:
         device = preds[0].device
-        input_shape = batch_img_metas[0]['img_shape']  # batch_input_shape
+        batch_img_metas[0]['img_shape']  # batch_input_shape
         # Get the ground truth box that fits the fomo model
-        target = [self.build_target(pred.shape[2:], input_shape, batch_gt_instances, device) for pred in preds]
+        # target = [self.build_target(pred.shape[2:], input_shape, batch_gt_instances, device) for pred in preds]
+        target = [
+            torch.concat(
+                [torch.from_numpy(batch_img_metas[i]['fomo_mask'][0]) for i in range(len(batch_img_metas))]
+            ).to(device)
+        ]
         loss, cls_loss, bg_loss, P, R, F1 = multi_apply(self.lossFunction, preds, target)
 
         return dict(loss=loss, fgnd=cls_loss, bgnd=bg_loss, P=P, R=R, F1=F1)
-
-    def build_target(self, pred_shape, ori_shape, gt_bboxs, device):
-        """
-        The target feature map constructed according to the size
-        of the feature map output by the model
-        bbox: xyxy
-        """
-        H, W = pred_shape
-        B = len(gt_bboxs)
-
-        target_data = torch.zeros(size=(B, *pred_shape, self.num_attrib), device=device)
-        target_data[..., 0] = 1
-        esp = 1e-5
-        fw = W / (2 * ori_shape[1])
-        fh = H / (2 * ori_shape[0])
-        for b, bboxs in enumerate(gt_bboxs):
-            for idx, bbox in enumerate(bboxs.bboxes):
-                w = torch.mul((bbox[2] + bbox[0]), fw)
-                h = torch.mul((bbox[3] + bbox[1]), fh)
-                h, w = int(h.item() - esp), int(w.item() - esp)
-                target_data[b, h, w, 0] = 0  # background
-                target_data[b, h, w, bboxs.labels[idx] + 1] = 1  # label
-        return target_data
 
     def lossFunction(self, pred_maps: torch.Tensor, data: torch.Tensor):
         """Calculate the loss of the model
@@ -176,9 +162,10 @@ class FomoHead(BaseModule):
         preds = pred_maps.permute(0, 2, 3, 1)
         B, H, W, C = preds.shape
         # pos_weights
-        weight = torch.zeros(self.num_attrib, device=preds.device)
-        weight[0] = 1
-        self.weight_mask = torch.tile(weight, (H, W, 1))
+        if not hasattr(self, 'weight_mask'):
+            weight = torch.zeros(self.num_attrib, device=preds.device)
+            weight[0] = 1
+            self.weight_mask = torch.tile(weight, (H, W, 1))
 
         # background loss
         bg_loss = self.loss_bg(
