@@ -5,7 +5,7 @@ default_hooks = dict(visualization=dict(type='mmdet.DetVisualizationHook', score
 
 visualizer = dict(type='FomoLocalVisualizer', fomo=True)
 
-num_classes = 2
+num_classes = 1
 data_preprocessor = dict(
     type='mmdet.DetDataPreprocessor', mean=[0, 0, 0], std=[255.0, 255.0, 255.0], bgr_to_rgb=True, pad_size_divisor=32
 )
@@ -22,6 +22,7 @@ model = dict(
         loss_cls=dict(type='BCEWithLogitsLoss', reduction='none', pos_weight=40),
         loss_bg=dict(type='BCEWithLogitsLoss', reduction='none'),
     ),
+    skip_preprocessor=True,
 )
 
 # dataset settings
@@ -33,7 +34,6 @@ batch_size = 16
 workers = 1
 
 albu_train_transforms = [
-    dict(type='RandomResizedCrop', height=height, width=width, scale=(0.80, 1.2), p=1),
     dict(type='Rotate', limit=30),
     dict(type='RandomBrightnessContrast', brightness_limit=0.3, contrast_limit=0.3, p=0.5),
     dict(type='Blur', p=0.01),
@@ -46,24 +46,40 @@ pre_transform = [
     dict(type='LoadImageFromFile', file_client_args=dict(backend='disk')),
     dict(type='mmdet.LoadAnnotations', with_bbox=True),
 ]
+
 train_pipeline = [
     *pre_transform,
+    dict(type='mmdet.Resize', scale=(height, width)),
     dict(
         type='mmdet.Albu',
         transforms=albu_train_transforms,
         bbox_params=dict(type='BboxParams', format='pascal_voc', label_fields=['gt_bboxes_labels', 'gt_ignore_flags']),
         keymap={'img': 'image', 'gt_bboxes': 'bboxes'},
     ),
+    dict(type='Bbox2FomoMask', downsample_factor=(8,), num_classes=num_classes),
     dict(
         type='mmdet.PackDetInputs',
-        meta_keys=('img_path', 'img_id', 'instances', 'img_shape', 'ori_shape', 'gt_bboxes', 'gt_bboxes_labels'),
+        meta_keys=(
+            'fomo_mask',
+            'img_path',
+            'img_id',
+            'instances',
+            'img_shape',
+            'ori_shape',
+            'gt_bboxes',
+            'gt_bboxes_labels',
+        ),
     ),
 ]
 
 test_pipeline = [
     *pre_transform,
     dict(type='mmdet.Resize', scale=(height, width)),
-    dict(type='mmdet.PackDetInputs', meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape', 'scale_factor')),
+    dict(type='Bbox2FomoMask', downsample_factor=(8,), num_classes=num_classes, ori_shape=(height, width)),
+    dict(
+        type='mmdet.PackDetInputs',
+        meta_keys=('fomo_mask', 'img_id', 'img_path', 'ori_shape', 'img_shape', 'scale_factor'),
+    ),
 ]
 
 train_dataloader = dict(
@@ -103,13 +119,14 @@ epochs = 100
 
 find_unused_parameters = True
 
+# optim_wrapper = dict(type="AmpOptimWrapper",optimizer=dict(type='Adam', lr=lr, weight_decay=5e-4, eps=1e-7))
 optim_wrapper = dict(optimizer=dict(type='Adam', lr=lr, weight_decay=5e-4, eps=1e-7))
 
 # evaluator
 val_evaluator = dict(type='FomoMetric')
 test_evaluator = val_evaluator
 
-train_cfg = dict(by_epoch=True, max_epochs=epochs)
+train_cfg = dict(by_epoch=True, max_epochs=epochs, val_interval=5)
 
 # learning policy
 param_scheduler = [
@@ -123,3 +140,4 @@ param_scheduler = [
         by_epoch=True,
     ),
 ]
+# cfg=dict(compile=True)
