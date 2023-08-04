@@ -1,6 +1,7 @@
+import copy
 from typing import Dict, List, Optional, Tuple, Union
 
-import torch
+import numpy as np
 from mmcv.transforms.base import BaseTransform
 
 from edgelab.registry import TRANSFORMS
@@ -11,33 +12,35 @@ class Bbox2FomoMask(BaseTransform):
     def __init__(
         self,
         downsample_factor: Tuple[int, ...] = (8,),
-        classes_num: int = 80,
+        num_classes: int = 80,
     ) -> None:
         super().__init__()
         self.downsample_factor = downsample_factor
-        self.classes_num = classes_num
+        self.num_classes = num_classes
 
     def transform(self, results: Dict) -> Optional[Union[Dict, Tuple[List, List]]]:
+        results['img']
         H, W = results['img_shape']
         bbox = results['gt_bboxes']
-        print(bbox)
+        labels = results['gt_bboxes_labels']
 
         res = []
         for factor in self.downsample_factor:
-            Dh, Dw = H / factor, W / factor
-            target = self.build_target(bbox, shape=(Dh, Dw))
+            Dh, Dw = int(H / factor), int(W / factor)
+            target = self.build_target(bbox, feature_shape=(Dh, Dw), ori_shape=(W, H), labels=labels)
             res.append(target)
 
-        results['fomo_mask'] = res
+        results['fomo_mask'] = copy.deepcopy(res)
         return results
 
-    def build_target(self, targets, shape):
-        (H, W) = shape
-        target_data = torch.zeros(size=(H, W, self.classes_num + 1))
+    def build_target(self, bboxs, feature_shape, ori_shape, labels):
+        (H, W) = feature_shape
+        # target_data = torch.zeros(size=(1,H, W, self.num_classes + 1))
+        target_data = np.zeros((1, H, W, self.num_classes + 1))
         target_data[..., 0] = 1
-        for i in targets:
-            h, w = int(i[3].item() * H), int(i[2].item() * W)
-            target_data[int(i[0]), h, w, 0] = 0  # background
-            target_data[int(i[0]), h, w, int(i[1])] = 1  # label
-
+        for idx, i in enumerate(bboxs):
+            w = int(i.centers[0][0] / ori_shape[0] * H)
+            h = int(i.centers[0][1] / ori_shape[1] * W)
+            target_data[0, h, w, 0] = 0  # background
+            target_data[0, h, w, int(labels[idx] + 1)] = 1  # label
         return target_data
