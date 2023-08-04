@@ -187,22 +187,23 @@ def main():
         from mmengine.runner import Runner
 
         runner = Runner.from_cfg(cfg)
+        runner.val_evaluator.dataset_meta = runner.val_dataloader.dataset.METAINFO
     else:
         from mmengine.registry import RUNNERS
 
         runner = RUNNERS.build(cfg)
+        runner.val_evaluator.dataset_meta = runner.val_dataloader.dataset.METAINFO
 
     model = runner.model.to('cpu')
     model.eval()
 
     analysis_results = get_model_complexity_info(model=model, input_shape=tuple(args.input_shape[1:]))
-
+    runner.model.cuda()
     print('=' * 40)
     print(f"{'Input Shape':^20}:{str(args.input_shape):^20}")
     print(f"{'Model Flops':^20}:{analysis_results['flops_str']:^20}")
     print(f"{'Model Parameters':^20}:{analysis_results['params_str']:^20}")
     print('=' * 40)
-
     runner.train()
 
 
