@@ -4,7 +4,6 @@ import time
 from typing import AnyStr, List, Optional, Sequence, Tuple, Union
 
 import cv2
-import mmcv
 import numpy as np
 import onnx
 import torch
@@ -13,10 +12,10 @@ from mmengine.config import Config
 from mmengine.evaluator import Evaluator
 from mmengine.registry import MODELS
 from mmengine.structures import InstanceData
+from mmengine.visualization.visualizer import Visualizer
 from torch.utils.data import DataLoader
 from tqdm.std import tqdm
 
-from edgelab.models.utils.computer_acc import audio_acc, pose_acc
 from edgelab.utils.cv import NMS, load_image
 
 from .iot_camera import IoTCamera
@@ -284,6 +283,8 @@ class Infernce:
             self.evaluator.dataset_meta = self.dataloader.dataset.METAINFO
         if hasattr(cfg.model, 'data_preprocessor'):
             self.data_preprocess = MODELS.build(cfg.model.data_preprocessor)
+        if hasattr(cfg, 'visualizer'):
+            self.visualizer: Visualizer = Visualizer.get_current_instance()
 
     def post_process(self):
         pass
@@ -291,7 +292,6 @@ class Infernce:
     def test(self) -> None:
         self.time_cost = 0
         self.preds = []
-
         P = []
         R = []
         F1 = []
@@ -309,7 +309,6 @@ class Infernce:
                 img_path = None
 
             t0 = time.time()
-            # print(inputs.shape)
             preds = self.model(inputs)
             self.time_cost += time.time() - t0
 
@@ -386,6 +385,13 @@ class Infernce:
 
                     self.evaluator.process(data_batch=data, data_samples=data['data_samples'])
 
+            elif self.task == 'cls':
+                if inputs.dtype == np.float32:
+                    inputs = inputs * 255
+                self.visualizer.set_image(inputs)
+                label = np.argmax(preds[0], axis=1)
+                self.visualizer = self.visualizer.draw_texts(str(label[0]), np.asarray([[1, 1]]), font_sizes=6)
+                self.visualizer.show()
             else:
                 raise ValueError
         if not self.source:
@@ -397,60 +403,6 @@ class Infernce:
             print('F1:', sum(F1) / len(F1))
 
         print(f'FPS: {len(self.dataloader)/self.time_cost:2f} fram/s')
-
-
-def pfld_inference(model, data_loader):
-    results = []
-    prog_bar = mmcv.ProgressBar(len(data_loader))
-    for data in data_loader:
-        # parse data
-        input = data.dataset['img']
-        target = np.expand_dims(data.dataset['keypoints'], axis=0)
-        size = data.dataset['hw']  # .cpu().numpy()
-        input = input.cpu().numpy()
-        result = model(input)
-        result = np.array(result)
-        result = result if len(result.shape) == 2 else result[None, :]  # onnx shape(2,), tflite shape(1,2)
-        acc = pose_acc(result.copy(), target, size)
-        results.append({'Acc': acc, 'pred': result, 'image_file': data.dataset['image_file'].data})
-
-        prog_bar.update()
-    return results
-
-
-def audio_inference(model, data_loader):
-    results = []
-    prog_bar = mmcv.ProgressBar(len(data_loader))
-    for data in data_loader:
-        # parse data
-        input = data.dataset['audio']
-        target = data.dataset['labels']
-        input = input.cpu().numpy()
-        result = model(input)
-        # result = result if len(result.shape)==2 else np.expand_dims(result, 0) # onnx shape(d,), tflite shape(1,d)
-        # result = result[0] if len(result.shape)==2 else result
-        acc = audio_acc(result, target)
-        results.append({'acc': acc, 'pred': result, 'image_file': data.dataset['audio_file']})
-        prog_bar.update()
-    return results
-
-
-def fomo_inference(model, data_loader):
-    results = []
-    prog_bar = mmcv.ProgressBar(len(data_loader))
-    for data in data_loader:
-        input = data.dataset['img']
-        input = input.cpu().numpy()
-        target = data.dataset['target']
-        result = model(input)
-        results.append(
-            {
-                'pred': result,
-                'target': target,
-            }
-        )
-        prog_bar.update()
-    return results
 
 
 def show_point(
@@ -508,7 +460,6 @@ def show_det(
         img = cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 1)
         cv2.putText(img, class_name[int(i[5])], (x1, y1), 1, color=(0, 0, 255), thickness=1, fontScale=1)
         cv2.putText(img, str(round(i[4].item(), 2)), (x1, y1 - 15), 1, color=(0, 0, 255), thickness=1, fontScale=1)
-    print(pred)
     if show:
         cv2.imshow(win_name, img)
         cv2.waitKey(0)
