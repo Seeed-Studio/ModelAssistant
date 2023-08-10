@@ -1,0 +1,42 @@
+stages:
+  - train
+
+variables:
+  SMBUS: "<sambus_path>"
+  USER: "<sambus_username>"
+  PASSWORD: "<sambus_password>"
+  CONFIG: "<config_file>"
+  DATAROOT: "<data_root>"
+  EPOCH: "<epochs>"
+  EXTRA: "<extra_parameters>"
+  PROJECT: ""
+
+
+train_job:
+
+  stage: train
+  image: edgelab
+  tags:
+    - runner-gpu
+  script:
+    - PROJECT=$(echo ${CONFIG} | rev | cut -d '/' -f 1 | rev | sed 's/.py//g')
+    - echo "Config=$CONFIG"
+    - echo "Data root=$DATAROOT"
+    - echo "Epochs=$EPOCH"
+    - echo "Extra=$EXTRA"
+    - echo "Project=$PROJECT"
+    - nvidia-smi
+    - free -m
+    - df -h
+    - cd /builds/awesome-se/EdgeLab
+    - mim install -e .
+    - mkdir -p /builds/awesome-se/edgelab
+    - mount -t cifs -o username=$USER,password=$PASSWORD,vers=3.0,uid=`id -u`,gid=`id -g`,rw,file_mode=0664  $SMBUS /builds/awesome-se/edgelab
+    - ln -s /builds/awesome-se/edgelab/datasets datasets
+    - ls -l datasets/
+    - python tools/train.py ${CONFIG} --cfg-options data_root=$DATAROOT epochs=$EPOCH $EXTRA
+    - python tools/export.py ${CONFIG} "$(cat work_dirs/$PROJECT/last_checkpoint)" tflite --cfg-options data_root=$DATAROOT $EXTRA
+    - python tools/export.py ${CONFIG} "$(cat work_dirs/$PROJECT/last_checkpoint)" onnx --cfg-options data_root=$DATAROOT $EXTRA
+    - tar -czvf $PROJECT.tar.gz work_dirs
+    - mkdir -p /builds/awesome-se/edgelab/result/$(date "+%Y-%m-%d_%H-%M-%S")
+    - cp $PROJECT.tar.gz /builds/awesome-se/edgelab/result/$(date "+%Y-%m-%d_%H-%M-%S")/
