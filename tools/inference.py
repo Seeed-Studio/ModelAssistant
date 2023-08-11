@@ -285,7 +285,15 @@ def main():
 
         # TODO: Move metric hooks into config, only register here
         if args.task == 'mmcls':
-            raise NotImplementedError
+            from mmengine import dump as mmdump
+            from mmengine.hooks import Hook
+
+            class SaveMetricHook(Hook):
+                def after_test_epoch(self, _, metrics=None):
+                    if metrics is not None:
+                        mmdump(metrics, args.dump)
+
+            runner.register_hook(SaveMetricHook(), 'LOWEST')
 
         elif args.task == 'mmdet':
             from mmdet.utils import setup_cache_size_limit_of_dynamo

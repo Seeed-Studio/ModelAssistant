@@ -265,7 +265,6 @@ class Infernce:
             self.dataloader = dataloader
 
         self.cfg = cfg
-
         if 'fomo' in self.cfg.visualizer:
             self.fomo = self.cfg.visualizer.fomo
         else:
@@ -300,8 +299,7 @@ class Infernce:
                 if hasattr(self, 'data_preprocess'):
                     data = self.data_preprocess(data, True)
                 inputs = data['inputs'][0]
-                img_path = data['data_samples'][0].img_path
-                img = None
+                img_path = data['data_samples'][0].get('img_path', None)
                 img = data['inputs'][0].permute(1, 2, 0).cpu().numpy()
             else:
                 img = data
@@ -357,7 +355,7 @@ class Infernce:
                 else:
                     # performs nms
                     bbox, conf, classes = preds[:, :4], preds[:, 4], preds[:, 5:]
-                    preds = NMS(bbox, conf, classes, conf_thres=50, bbox_format='xywh')
+                    preds = NMS(bbox, conf, classes, conf_thres=1, bbox_format='xywh')
                     # show det result and save result
                     show_det(
                         preds,
@@ -386,9 +384,9 @@ class Infernce:
                     self.evaluator.process(data_batch=data, data_samples=data['data_samples'])
 
             elif self.task == 'cls':
-                if inputs.dtype == np.float32:
-                    inputs = inputs * 255
-                self.visualizer.set_image(inputs)
+                if img.dtype == np.float32:
+                    img = img * 255
+                self.visualizer.set_image(img)
                 label = np.argmax(preds[0], axis=1)
                 self.visualizer = self.visualizer.draw_texts(str(label[0]), np.asarray([[1, 1]]), font_sizes=6)
                 self.visualizer.show()
