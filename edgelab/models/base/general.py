@@ -1,4 +1,4 @@
-from typing import Any, AnyStr, Callable, Dict, Optional
+from typing import Any, AnyStr, Callable, Dict, List, Optional
 
 import torch
 import torch.nn as nn
@@ -138,26 +138,48 @@ def CBR(inp, oup, kernel, stride, bias=False, padding=1, groups=1, act='ReLU'):
 
 
 class InvertedResidual(nn.Module):
-    def __init__(self, inp, oup, stride, residual, expand_ratio=6):
-        super(InvertedResidual, self).__init__()
+    def __init__(
+        self, inp: int, oup: int, stride: int, expand_ratio: int, norm_layer: Optional[Callable[..., nn.Module]] = None
+    ) -> None:
+        super().__init__()
         self.stride = stride
-        assert stride in [1, 2]
+        if stride not in [1, 2]:
+            raise ValueError(f'stride should be 1 or 2 instead of {stride}')
 
-        self.residual = residual
+        if norm_layer is None:
+            norm_layer = nn.BatchNorm2d
 
-        self.conv = nn.Sequential(
-            nn.Conv2d(inp, inp * expand_ratio, 1, 1, 0, bias=False),
-            nn.BatchNorm2d(inp * expand_ratio),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(inp * expand_ratio, inp * expand_ratio, 3, stride, 1, groups=inp * expand_ratio, bias=False),
-            nn.BatchNorm2d(inp * expand_ratio),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(inp * expand_ratio, oup, 1, 1, 0, bias=False),
-            nn.BatchNorm2d(oup),
+        hidden_dim = int(round(inp * expand_ratio))
+        self.use_res_connect = self.stride == 1 and inp == oup
+
+        layers: List[nn.Module] = []
+        if expand_ratio != 1:
+            # pw
+            layers.append(
+                ConvNormActivation(inp, hidden_dim, kernel_size=1, norm_layer=norm_layer, activation_layer=nn.ReLU6)
+            )
+        layers.extend(
+            [
+                # dw
+                ConvNormActivation(
+                    hidden_dim,
+                    hidden_dim,
+                    stride=stride,
+                    groups=hidden_dim,
+                    norm_layer=norm_layer,
+                    activation_layer=nn.ReLU6,
+                ),
+                # pw-linear
+                nn.Conv2d(hidden_dim, oup, 1, 1, 0, bias=False),
+                norm_layer(oup),
+            ]
         )
+        self.conv = nn.Sequential(*layers)
+        self.out_channels = oup
+        self._is_cn = stride > 1
 
-    def forward(self, x):
-        if self.residual:
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if self.use_res_connect:
             return x + self.conv(x)
         else:
             return self.conv(x)
