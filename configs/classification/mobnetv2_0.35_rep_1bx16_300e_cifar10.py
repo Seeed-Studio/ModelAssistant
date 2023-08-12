@@ -10,22 +10,23 @@ dataset_type = 'mmcls.CIFAR10'
 data_root = 'datasets'
 height = 32
 width = 32
-batch_size = 16
-workers = 1
+batch_size = 32
+workers = 8
 persistent_workers = True
 
 # optimizer
 lr = 0.01
-epochs = 300
+epochs = 100
 
 
 model = dict(
     type='edgelab.ImageClassifier',
-    backbone=dict(type='MobileNetv2', widen_factor=0.35, out_indices=(2,), rep=True),
+    data_preprocessor=dict(type='mmdet.DetDataPreprocessor', mean=[0.0, 0.0, 0.0], std=[255.0, 255.0, 255.0]),
+    backbone=dict(type='MobileNetv2', gray_input=False, widen_factor=0.35, out_indices=(2,), rep=True),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
         type='mmcls.LinearClsHead',
-        in_channels=16,
+        in_channels=32,
         num_classes=num_classes,
         loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
         topk=(1, 5),
@@ -33,9 +34,10 @@ model = dict(
 )
 
 train_pipeline = [
+    dict(type='mmengine.Resize', scale=(height, width)),
+    dict(type='mmcls.ColorJitter', brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
     dict(type='mmcls.Rotate', angle=30.0, prob=0.6),
     dict(type='mmcls.RandomFlip', prob=0.5, direction='horizontal'),
-    dict(type='mmengine.Resize', scale=(height, width)),
     dict(type='mmcls.PackClsInputs'),
 ]
 
@@ -93,7 +95,7 @@ param_scheduler = [
         type='MultiStepLR',
         begin=1,
         end=500,
-        milestones=[100, 200, 250],
+        milestones=[30, 60, 90],
         gamma=0.1,
         by_epoch=True,
     ),
@@ -101,4 +103,4 @@ param_scheduler = [
 
 auto_scale_lr = dict(base_batch_size=batch_size)
 
-train_cfg = dict(by_epoch=True, max_epochs=epochs)
+train_cfg = dict(by_epoch=True, max_epochs=epochs, val_interval=5)
