@@ -161,7 +161,7 @@ def build_config(args):
             elif 'width' in cfg and 'height' in cfg:
                 args.input_shape = [
                     1,
-                    3,
+                    1 if cfg.get('gray', False) else 3,
                     cfg.width,
                     cfg.height,
                 ]

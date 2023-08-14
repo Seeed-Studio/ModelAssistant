@@ -4,6 +4,7 @@ custom_imports = dict(imports=['edgelab'], allow_failed_imports=False)
 
 # model settings
 num_classes = 10
+gray = True
 
 # dataset settings
 dataset_type = 'mmcls.MNIST'
@@ -22,7 +23,7 @@ epochs = 100
 model = dict(
     type='edgelab.ImageClassifier',
     data_preprocessor=dict(type='mmdet.DetDataPreprocessor', mean=[0.0], std=[255.0]),
-    backbone=dict(type='MobileNetv2', gray_input=True, widen_factor=0.35, out_indices=(2,), rep=True),
+    backbone=dict(type='MobileNetv2', gray_input=gray, widen_factor=0.35, out_indices=(2,), rep=True),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
         type='mmcls.LinearClsHead',
