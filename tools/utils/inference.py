@@ -388,8 +388,11 @@ class Infernce:
                     img = img * 255
                 self.visualizer.set_image(img)
                 label = np.argmax(preds[0], axis=1)
+                data['data_samples'][0].set_pred_score(preds[0][0]).set_pred_label(label)
+                self.evaluator.process(data_samples=data['data_samples'], data_batch=data)
                 self.visualizer = self.visualizer.draw_texts(str(label[0]), np.asarray([[1, 1]]), font_sizes=6)
-                self.visualizer.show()
+                if self.show:
+                    self.visualizer.show()
             else:
                 raise ValueError
         if not self.source:
