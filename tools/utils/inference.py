@@ -393,6 +393,7 @@ class Infernce:
                 self.visualizer = self.visualizer.draw_texts(str(label[0]), np.asarray([[1, 1]]), font_sizes=6)
                 if self.show:
                     self.visualizer.show()
+
             else:
                 raise ValueError
         if not self.source:
