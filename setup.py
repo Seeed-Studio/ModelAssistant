@@ -1,10 +1,8 @@
 import os
 import platform
 import shutil
-import subprocess
 import sys
 import warnings
-from distutils import spawn
 
 from setuptools import find_packages, setup
 
@@ -31,23 +29,13 @@ def parse_line(line: str):
 
 def get_cuda_availability():
     nvidia_smi = 'nvidia-smi'
-    if platform.system() == 'Windows':
-        nvidia_smi = spawn.find_executable('nvidia-smi')
-        if nvidia_smi is None:
-            nvidia_smi = f"{os.environ['systemdrive']}\\Program Files\\NVIDIA Corporation\\NVSMI\\nvidia-smi.exe"
-    try:
-        subprocess.check_output(nvidia_smi)
-    except Exception:
-        return False
-    return True
+    return not os.system(nvidia_smi)
 
 
 def parse_requirements(fpath: str = ''):
     reqs = []
     index = []
-    if fpath.strip() == '':
-        if 'install' not in sys.argv:
-            return reqs, index
+    if not fpath.strip():
         if get_cuda_availability():
             fpath = 'requirements_cuda.txt'
         else:
@@ -140,17 +128,14 @@ if __name__ == '__main__':
             'Topic :: Scientific/Engineering',
         ],
         install_requires=requirements,
-        dependency_links=index_urls,
         include_package_data=True,
         python_requires='>=3.8',
         license='MIT',
         entry_points={
             'console_scripts': [
                 'edgtrain=edgelab.tools.train:main',
-                'edginfer=edgelab.tools.test:main',
-                'edgenv=edgelab.tools.env_config:main',
+                'edginfer=edgelab.tools.inference:main',
                 'edgexport=edgelab.tools.export:main',
-                'edg2onnx=edgelab.tools.torch2onnx:main',
             ]
         },
     )
