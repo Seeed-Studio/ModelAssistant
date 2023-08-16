@@ -108,7 +108,7 @@ def verify_args(args):
 def build_config(args):
     from mmengine.config import Config
 
-    from edgelab.tools.utils.config import load_config
+    from edgelab.utils import load_config
 
     if 'LOCAL_RANK' not in os.environ:
         os.environ['LOCAL_RANK'] = str(args.local_rank)
@@ -161,7 +161,7 @@ def build_config(args):
             elif 'width' in cfg and 'height' in cfg:
                 args.input_shape = [
                     1,
-                    3,
+                    1 if cfg.get('gray', False) else 3,
                     cfg.width,
                     cfg.height,
                 ]
@@ -194,11 +194,12 @@ def main():
         runner = RUNNERS.build(cfg)
         runner.val_evaluator.dataset_meta = runner.val_dataloader.dataset.METAINFO
 
+    device = next(runner.model.parameters()).device
     model = runner.model.to('cpu')
     model.eval()
 
     analysis_results = get_model_complexity_info(model=model, input_shape=tuple(args.input_shape[1:]))
-    runner.model.cuda()
+    runner.model.to(device)
     print('=' * 40)
     print(f"{'Input Shape':^20}:{str(args.input_shape):^20}")
     print(f"{'Model Flops':^20}:{analysis_results['flops_str']:^20}")
