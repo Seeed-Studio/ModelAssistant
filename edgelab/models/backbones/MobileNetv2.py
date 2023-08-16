@@ -4,10 +4,9 @@ import torch.nn as nn
 from mmengine.model import BaseModule
 from torchvision.models._utils import _make_divisible
 
+from edgelab.models.base.general import ConvNormActivation, InvertedResidual
 from edgelab.models.layers.rep import RepBlock, RepConv1x1
 from edgelab.registry import BACKBONES, MODELS
-
-from ..base.general import ConvNormActivation, InvertedResidual
 
 
 @BACKBONES.register_module()
@@ -68,7 +67,7 @@ class MobileNetv2(BaseModule):
 
         self.layers = []
         for idx, (t, c, n, s) in enumerate(inverted_residual_setting):
-            out_channels = _make_divisible(c * widen_factor, round_nearest)
+            out_channels = _make_divisible(c * widen_factor, round_nearest) * 2 if rep else 1
             tmp_layers = []
             for i in range(n):
                 stride = s if i == 0 else 1
@@ -78,7 +77,7 @@ class MobileNetv2(BaseModule):
                 elif block is RepConv1x1:
                     layer = block(in_channels, out_channels, stride=stride, depth=6)
                 else:
-                    layer = block(in_channels, out_channels, stride, expand_ratio=t)
+                    layer = block(in_channels, out_channels, stride, expand_ratio=t, norm_layer=norm_layer)
                 in_channels = out_channels
                 tmp_layers.append(layer)
 
