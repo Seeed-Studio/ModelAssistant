@@ -22,7 +22,7 @@ def parse_args():
     parser.add_argument('config', type=str, help='the model config file path')
     parser.add_argument('checkpoint', type=str, help='the PyTorch checkpoint file path')
     parser.add_argument(
-        'targets',
+        '--targets',
         type=str,
         nargs='+',
         default=['tflite', 'onnx'],
@@ -164,7 +164,7 @@ def verify_args(args):
 def build_config(args):
     from mmengine.config import Config
 
-    from edgelab.tools.utils.config import load_config
+    from edgelab.utils import load_config
 
     args.targets = [str(target).lower() for target in args.targets]
     args.precisions = [str(precision).lower() for precision in args.precisions]
@@ -197,7 +197,7 @@ def build_config(args):
             elif 'width' in cfg and 'height' in cfg:
                 args.input_shape = [
                     1,
-                    3,
+                    1 if cfg.get('gray', False) else 3,
                     cfg.width,
                     cfg.height,
                 ]
@@ -235,7 +235,7 @@ def calibrate(ptq_model, context, means_and_stds):
             if inputs.dtype != torch.float32:
                 mean, std = means_and_stds[0]
                 inputs = (inputs - mean) / std
-            if inputs.shape[0] != 1:
+            if len(inputs.shape) == 3:
                 inputs = inputs.unsqueeze(0)
             inputs = inputs.to(device=context.device)
 

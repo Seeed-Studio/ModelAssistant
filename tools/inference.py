@@ -206,7 +206,7 @@ def get_task_from_config(config_path):
 def build_config(args):
     from mmengine.config import Config
 
-    from edgelab.tools.utils.config import load_config
+    from edgelab.utils import load_config
 
     if args.task == 'auto':
         task = {'mmcls', 'mmdet', 'mmpose'}.intersection(get_task_from_config(args.config))
@@ -285,7 +285,15 @@ def main():
 
         # TODO: Move metric hooks into config, only register here
         if args.task == 'mmcls':
-            raise NotImplementedError
+            from mmengine import dump as mmdump
+            from mmengine.hooks import Hook
+
+            class SaveMetricHook(Hook):
+                def after_test_epoch(self, _, metrics=None):
+                    if metrics is not None:
+                        mmdump(metrics, args.dump)
+
+            runner.register_hook(SaveMetricHook(), 'LOWEST')
 
         elif args.task == 'mmdet':
             from mmdet.utils import setup_cache_size_limit_of_dynamo
@@ -310,7 +318,7 @@ def main():
                 runner.register_hook(SaveMetricHook(), 'LOWEST')
 
     elif checkpoint_ext in {'.tflite', '.onnx'}:
-        from edgelab.tools.utils.inference import Infernce
+        from edgelab.utils import Infernce
 
         # TODO: Support inference '.tflite', '.onnx' model on different devices
         # TODO: Support MMEngine metric hooks
