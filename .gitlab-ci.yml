@@ -29,14 +29,24 @@ train_job:
     - free -m
     - df -h
     - cd /builds/awesome-se/EdgeLab
-    - mim install -e .
+    - pip install .
     - mkdir -p /builds/awesome-se/edgelab
     - mount -t cifs -o username=$USER,password=$PASSWORD,vers=3.0,uid=`id -u`,gid=`id -g`,rw,file_mode=0664  $SMBUS /builds/awesome-se/edgelab
     - ln -s /builds/awesome-se/edgelab/datasets datasets
     - ls -l datasets/
     - python tools/train.py ${CONFIG} --cfg-options data_root=$DATAROOT epochs=$EPOCH $EXTRA
-    - python tools/export.py ${CONFIG} "$(cat work_dirs/$PROJECT/last_checkpoint)" tflite --cfg-options data_root=$DATAROOT $EXTRA
-    - python tools/export.py ${CONFIG} "$(cat work_dirs/$PROJECT/last_checkpoint)" onnx --cfg-options data_root=$DATAROOT $EXTRA
+    - python tools/export.py ${CONFIG} "$(cat work_dirs/$PROJECT/last_checkpoint)" --cfg-options data_root=$DATAROOT $EXTRA
+    # get every weights file path
+    - WEIGHTBASE=$(cat work_dirs/$PROJECT/last_checkpoint | rev | cut -d '/' -f 1 |rev| sed 's/.pth//g')
+    - FILENAMEPTH=$(cat work_dirs/$PROJECT/last_checkpoint)
+    - FILENAMEONNX=$(echo work_dirs/${PROJECT}/${WEIGHTBASE}_float32.onnx)
+    - FILENAMETFLITE=$(echo work_dirs/${PROJECT}/${WEIGHTBASE}_float32.tflite)
+    - FILENAMEINT8=$(echo work_dirs/${PROJECT}/${WEIGHTBASE}_int8.tflite)
+    # inference every weights
+    - python tools/inference.py ${CONFIG} ${FILENAMEPTH} --dump ${FILENAMEPTH}.pkl --cfg-options data_root=$DATAROOT $EXTRA
+    - python tools/inference.py ${CONFIG} ${FILENAMEONNX} --dump ${FILENAMEONNX}.json --cfg-options data_root=$DATAROOT $EXTRA
+    - python tools/inference.py ${CONFIG} ${FILENAMETFLITE} --dump ${FILENAMETFLITE}.json --cfg-options data_root=$DATAROOT $EXTRA
+    - python tools/inference.py ${CONFIG} ${FILENAMEINT8} --dump ${FILENAMEINT8}.json --cfg-options data_root=$DATAROOT $EXTRA
     - tar -czvf $PROJECT.tar.gz work_dirs
     - mkdir -p /builds/awesome-se/edgelab/result/$(date "+%Y-%m-%d_%H-%M-%S")
     - cp $PROJECT.tar.gz /builds/awesome-se/edgelab/result/$(date "+%Y-%m-%d_%H-%M-%S")/
