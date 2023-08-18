@@ -9,6 +9,7 @@ import onnx
 import torch
 from mmdet.models.utils import samplelist_boxtype2tensor
 from mmengine.config import Config
+from mmengine import dump as resultdump
 from mmengine.evaluator import Evaluator
 from mmengine.registry import MODELS
 from mmengine.structures import InstanceData
@@ -243,6 +244,7 @@ class Infernce:
         dataloader: Union[DataLoader, str, int, None] = None,
         cfg: Optional[Config] = None,
         runner=None,
+        dump: Optional[str] = None,
         source: Optional[str] = None,
         task: str = 'det',
         show: bool = False,
@@ -252,12 +254,13 @@ class Infernce:
         # check source data
         assert not (source is None and dataloader is None), 'Both source and dataload cannot be None'
 
-        self.class_name = dataloader.dataset.METAINFO['classes']
+        self.class_name = dataloader.dataset._metainfo['classes']
         # load model
         self.model = Inter(model)
         # make dataloader
         self.source = source
         self.runner = runner
+        self.dump = dump
 
         if source:
             self.dataloader = DataStream(source, shape=self.model.input_shape)
@@ -265,7 +268,6 @@ class Infernce:
             self.dataloader = dataloader
 
         self.cfg = cfg
-
         if 'fomo' in self.cfg.visualizer:
             self.fomo = self.cfg.visualizer.fomo
         else:
@@ -300,8 +302,7 @@ class Infernce:
                 if hasattr(self, 'data_preprocess'):
                     data = self.data_preprocess(data, True)
                 inputs = data['inputs'][0]
-                img_path = data['data_samples'][0].img_path
-                img = None
+                img_path = data['data_samples'][0].get('img_path', None)
                 img = data['inputs'][0].permute(1, 2, 0).cpu().numpy()
             else:
                 img = data
@@ -357,7 +358,7 @@ class Infernce:
                 else:
                     # performs nms
                     bbox, conf, classes = preds[:, :4], preds[:, 4], preds[:, 5:]
-                    preds = NMS(bbox, conf, classes, conf_thres=50, bbox_format='xywh')
+                    preds = NMS(bbox, conf, classes, conf_thres=1, bbox_format='xywh')
                     # show det result and save result
                     show_det(
                         preds,
@@ -386,17 +387,21 @@ class Infernce:
                     self.evaluator.process(data_batch=data, data_samples=data['data_samples'])
 
             elif self.task == 'cls':
-                if inputs.dtype == np.float32:
-                    inputs = inputs * 255
-                self.visualizer.set_image(inputs)
+                if img.dtype == np.float32:
+                    img = img * 255
+                self.visualizer.set_image(img)
                 label = np.argmax(preds[0], axis=1)
+                data['data_samples'][0].set_pred_score(preds[0][0]).set_pred_label(label)
+                self.evaluator.process(data_samples=data['data_samples'], data_batch=data)
                 self.visualizer = self.visualizer.draw_texts(str(label[0]), np.asarray([[1, 1]]), font_sizes=6)
-                self.visualizer.show()
+                if self.show:
+                    self.visualizer.show()
             else:
                 raise ValueError
         if not self.source:
-            result = self.evaluator.evaluate(len(self.dataloader.dataset))
-            print(result)
+            metrics = self.evaluator.evaluate(len(self.dataloader.dataset))
+            if self.dump is not None and metrics is not None:
+                resultdump(metrics, self.dump)
         if len(P):
             print('P:', sum(P) / len(P))
             print('R:', sum(R) / len(R))
