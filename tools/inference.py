@@ -1,6 +1,7 @@
 import argparse
 import os
 import tempfile
+from typing import Dict, Optional
 
 import torch
 
@@ -121,11 +122,6 @@ def verify_args(args):
         '.tflite',
     }, "The chackpoint model should be ended with a '.pth', '.onnx' or '.tflite' extension"
     assert os.path.exists(args.checkpoint), 'The chackpoint model does not exist'
-    if args.dump is not None:
-        assert os.path.splitext(args.dump)[-1] in {
-            '.pkl',
-            '.pickle',
-        }, "The dump file need to be a pickle file with a '.pkl' or '.pickle' extension"
     assert args.interval > 0, 'The interval of visualization per samples should be larger than 0'
     assert args.wait_time >= 0, 'The visualize duration should be larger than or equal to 0'
 
@@ -328,6 +324,7 @@ def main():
             dataloader=runner.val_dataloader,
             cfg=cfg,
             runner=runner,
+            dump=args.dump,
             source=args.source,
             task=str(args.task).replace('mm', ''),
             show=args.show,
