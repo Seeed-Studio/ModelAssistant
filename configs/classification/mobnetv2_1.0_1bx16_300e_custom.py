@@ -7,7 +7,7 @@ num_classes = 10
 
 # dataset settings
 dataset_type = 'mmcls.CustomDataset'
-data_root = 'datasets/digit'
+data_root = ''
 height = 96
 width = 96
 batch_size = 32
@@ -16,7 +16,7 @@ persistent_workers = True
 
 # optimizer
 lr = 0.01
-epochs = 100
+epochs = 300
 
 data_preprocessor = dict(
     type='mmcls.ClsDataPreprocessor',
@@ -85,7 +85,7 @@ val_dataloader = dict(
 test_dataloader = val_dataloader
 
 # evaluator
-val_evaluator = dict(type='mmcls.Accuracy', topk=(1, 5))
+val_evaluator = dict(type='mmcls.Accuracy', topk=1)
 test_evaluator = val_evaluator
 
 
