@@ -9,7 +9,9 @@ import onnx
 import torch
 from mmdet.models.utils import samplelist_boxtype2tensor
 from mmengine.config import Config
+
 from mmengine import dump as resultdump
+
 from mmengine.evaluator import Evaluator
 from mmengine.registry import MODELS
 from mmengine.structures import InstanceData
@@ -268,6 +270,7 @@ class Infernce:
             self.dataloader = dataloader
 
         self.cfg = cfg
+
         if 'fomo' in self.cfg.visualizer:
             self.fomo = self.cfg.visualizer.fomo
         else:
@@ -402,6 +405,7 @@ class Infernce:
             metrics = self.evaluator.evaluate(len(self.dataloader.dataset))
             if self.dump is not None and metrics is not None:
                 resultdump(metrics, self.dump)
+
         if len(P):
             print('P:', sum(P) / len(P))
             print('R:', sum(R) / len(R))

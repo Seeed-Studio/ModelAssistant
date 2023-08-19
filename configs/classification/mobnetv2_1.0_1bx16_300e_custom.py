@@ -16,7 +16,7 @@ persistent_workers = True
 
 # optimizer
 lr = 0.01
-epochs = 300
+epochs = 100
 
 data_preprocessor = dict(
     type='mmcls.ClsDataPreprocessor',

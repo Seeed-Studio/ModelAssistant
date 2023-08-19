@@ -16,7 +16,7 @@ persistent_workers = True
 
 # optimizer
 lr = 0.01
-epochs = 300
+epochs = 100
 
 model = dict(
     type='edgelab.ImageClassifier',
@@ -93,7 +93,7 @@ param_scheduler = [
         type='MultiStepLR',
         begin=1,
         end=500,
-        milestones=[100, 200, 250],
+        milestones=[30, 60, 90],
         gamma=0.1,
         by_epoch=True,
     ),
