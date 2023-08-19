@@ -196,7 +196,7 @@ class EfficientNet(BaseModule):
                 res.append(x)
                 if i == max(self.out_indices):
                     break
-        return res
+        return tuple(res)
 
     def _freeze_stages(self):
         if self.frozen_stages >= 0:
