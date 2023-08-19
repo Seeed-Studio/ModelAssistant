@@ -21,11 +21,11 @@ epochs = 300
 model = dict(
     type='edgelab.ImageClassifier',
     data_preprocessor=dict(type='mmdet.DetDataPreprocessor', mean=[0.0, 0.0, 0.0], std=[255.0, 255.0, 255.0]),
-    backbone=dict(type='mmcls.MobileNetV2', widen_factor=1.0),
+    backbone=dict(type='MobileNetv2', widen_factor=1, rep=True),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
         type='mmcls.LinearClsHead',
-        in_channels=1280,
+        in_channels=64,
         num_classes=num_classes,
         loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
         topk=(1, 5),
