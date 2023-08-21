@@ -17,7 +17,7 @@ persistent_workers = True
 
 # optimizer
 lr = 0.01
-epochs = 100
+epochs = 10
 
 
 model = dict(
@@ -54,7 +54,7 @@ train_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        data_prefix='cifar10/',
+        data_prefix='minst',
         test_mode=False,
         pipeline=train_pipeline,
     ),
@@ -68,7 +68,7 @@ val_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        data_prefix='cifar10/',
+        data_prefix='minst',
         test_mode=True,
         pipeline=test_pipeline,
     ),
