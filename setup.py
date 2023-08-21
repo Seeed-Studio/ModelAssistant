@@ -136,6 +136,7 @@ if __name__ == '__main__':
                 'edgtrain=edgelab.tools.train:main',
                 'edginfer=edgelab.tools.inference:main',
                 'edgexport=edgelab.tools.export:main',
+                'edgelab=edgelab.tools.api:main',
             ]
         },
     )
