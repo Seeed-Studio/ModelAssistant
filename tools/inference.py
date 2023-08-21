@@ -231,7 +231,10 @@ def build_config(args):
 
     if args.show or (args.out_dir is not None):
         assert 'visualization' in cfg.default_hooks, "VisualizationHook is required in 'default_hooks'"
-        cfg.default_hooks.visualization.draw = True
+        if args.task == 'mmcls':
+            cfg.default_hooks.visualization.enable = True
+        else:
+            cfg.default_hooks.visualization.draw = True
         cfg.default_hooks.visualization.interval = args.interval
     if args.show:
         cfg.default_hooks.visualization.show = True
@@ -240,7 +243,7 @@ def build_config(args):
         cfg.default_hooks.visualization.out_dir = args.out_dir
 
     if args.dump is None:
-        args.dump = args.checkpoint.replace(os.path.splitext(args.checkpoint)[-1], '.json')
+        args.dump = args.checkpoint.replace(os.path.splitext(args.checkpoint)[-1], '.pkl')
         print('Using dump path from checkpoint: {}'.format(args.dump))
 
     if args.dump is not None:
