@@ -16,7 +16,7 @@ Seeed Studio EdgeLab is an open-source project focused on embedded AI. We have o
 Currently we support the following directions of algorithms:
 
 <details>
-<summary>Anomaly Detection (coming soon)</summary>
+<summary>Anomaly Detection</summary>
 In the real world, anomalous data is often difficult to identify, and even if it can be identified, it requires a very high cost. The anomaly detection algorithm collects normal data in a low-cost way, and anything outside normal data is considered anomalous.
 </details>
 
