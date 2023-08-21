@@ -40,7 +40,7 @@ For model transformation (convert and export), the relevant commands with some c
 python3 tools/export.py \
     "<CONFIG_FILE_PATH>" \
     "<CHECKPOINT_FILE_PATH>" \
-    tflite
+    --target tflite
 ```
 
 ### TFLite Export Examples
@@ -53,7 +53,7 @@ Here are some model conversion examples (`int8` precision) for reference.
 python3 tools/export.py \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
     "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)" \
-    tflite \
+    --target tflite \
     --cfg-options \
         data_root='datasets/mask'
 
@@ -63,7 +63,7 @@ python3 tools/export.py \
 python3 tools/export.py \
     configs/pfld/pfld_mbv2n_112.py \
     "$(cat work_dirs/pfld_mbv2n_112/last_checkpoint)" \
-    tflite \
+    --target tflite \
     --cfg-options \
         data_root='datasets/meter'
 ```
@@ -72,7 +72,7 @@ python3 tools/export.py \
 python3 tools/export.py \
     configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
     "$(cat work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint)" \
-    tflite
+    --target tflite
     --cfg-options \
         data_root='datasets/digital_meter'
 ```

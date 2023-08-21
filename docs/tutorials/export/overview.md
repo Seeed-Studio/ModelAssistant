@@ -1,14 +1,25 @@
 # Model Export
 
-EdgeLab currently supports the following methods to convert and export models. You can refer to the corresponding tutorials to complete the model export, and then put the exported model into deployment.
-
-- [PyTorch to ONNX](./pytorch_2_onnx.md): Converts PyTorch model and `.pth` weights to ONNX model `.onnx`
-
-- [PyTorch to TFLite](./pytorch_2_tflite.md): Converts PyTorch model and `.pth` weights to TFLite model `.tflite`
+EdgeLab currently supports the following methods to convert and export models.
+You can refer to the corresponding tutorials to complete the model export, and
+then put the exported model into deployment.
 
 ::: tip
+By default, both ONNX and TFLite models are exported. If you only need to
+export one of them, you can use the `--targets` parameter to specify the
+exported model type, e.g. `--targets onnx` or `--targets tflite`.
+:::
 
-Before you can start exporting models, you need to complete the [Training](../training/overview) section and obtain model weights `.pth` file before start exporting.
+- [PyTorch to ONNX](./pytorch_2_onnx.md): Converts PyTorch model and `.pth`
+  weights to ONNX model `.onnx`
+
+- [PyTorch to TFLite](./pytorch_2_tflite.md): Converts PyTorch model and `.pth`
+  weights to TFLite model `.tflite`
+
+::: tip
+Before you can start exporting models, you need to complete the
+[Training](../training/overview) section and obtain model weights `.pth` file
+before start exporting.
 
 :::
 
@@ -24,10 +35,11 @@ python3 tools/export.py --help
 # positional arguments:
 #   config                the model config file path
 #   checkpoint            the PyTorch checkpoint file path
-#   targets               the target type of model(s) to export e.g. tflite onnx
 
 # optional arguments:
 #   -h, --help            show this help message and exit
+#   --targets TARGETS [TARGETS ...]
+#                         the target type of model(s) to export e.g. tflite onnx
 #   --precisions PRECISIONS [PRECISIONS ...]
 #                         the precisions exported model, e.g. 'int8', 'uint8', 'int16', 'float16' and 'float32'
 #   --work_dir WORK_DIR, --work-dir WORK_DIR
