@@ -40,7 +40,7 @@ TFLite 模型导出需要训练集作为代表数据集，如果没有找到，�
 python3 tools/export.py \
     "<CONFIG_FILE_PATH>" \
     "<CHECKPOINT_FILE_PATH>" \
-    "<TARGETS>"
+    --target "<TARGETS>"
 ```
 
 ### 导出示例
@@ -53,7 +53,7 @@ python3 tools/export.py \
 python3 tools/export.py \
     configs/fomo/fomo_mobnetv2_0.35_x8_abl_coco.py \
     "$(cat work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint)" \
-    tflite \
+    --target tflite \
     --cfg-options \
         data_root='datasets/mask'
 
@@ -63,7 +63,7 @@ python3 tools/export.py \
 python3 tools/export.py \
     configs/pfld/pfld_mbv2n_112.py \
     "$(cat work_dirs/pfld_mbv2n_112/last_checkpoint)" \
-    tflite \
+    --target tflite \
     --cfg-options \
         data_root='datasets/meter'
 ```
@@ -72,7 +72,7 @@ python3 tools/export.py \
 python3 tools/export.py \
     configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
     "$(cat work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint)" \
-    tflite
+    --target tflite
     --cfg-options \
         data_root='datasets/digital_meter'
 ```

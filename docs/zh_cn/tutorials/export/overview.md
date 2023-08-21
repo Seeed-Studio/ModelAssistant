@@ -2,6 +2,10 @@
 
 EdgeLab 目前支持以下模型导出方式，您可以参考对应的教程，完成模型的导出，然后将导出的模型投入部署。
 
+::: tip
+默认情况下，会同时导出 ONNX 和 TFLite 模型，如果您只需要导出其中一个，可以使用 `--targets` 参数指定导出的模型类型，例如 `--targets onnx` 或 `--targets tflite`。
+:::
+
 - [PyTorch 转 ONNX](./pytorch_2_onnx.md): 将 PyTorch 模型和 `.pth` 权重转换为 ONNX 模型 `.onnx`
 
 - [PyTorch 转 TFLite](./pytorch_2_tflite.md): 将 PyTorch 模型和 `.pth` 权重转换为 TFLite 模型 `.tflite`
@@ -28,6 +32,8 @@ python3 tools/export.py --help
 
 # optional arguments:
 #   -h, --help            show this help message and exit
+#   --targets TARGETS [TARGETS ...]
+#                         the target type of model(s) to export e.g. tflite onnx
 #   --precisions PRECISIONS [PRECISIONS ...]
 #                         the precisions exported model, e.g. 'int8', 'uint8', 'int16', 'float16' and 'float32'
 #   --work_dir WORK_DIR, --work-dir WORK_DIR
