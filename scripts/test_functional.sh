@@ -4,12 +4,11 @@
 # classification case
 classification_test()
 {
-    # TODO
-    echo -e "Warning: classification test not implemented"
-    CONFIG_FILE=""
+    # MINIST TEST
+    CONFIG_FILE="configs/classification/mobnetv2_0.35_rep_1bx16_300e_mnist.py"
     DATASETS_URL=""
 
-    # functional_test_core "$1" "${CONFIG_FILE}" "${DATASETS_URL}"
+    functional_test_core "$1" "${CONFIG_FILE}" "${DATASETS_URL}"
     return $?
 }
 
@@ -56,6 +55,14 @@ functional_test_core()
 
     case "$1" in
         "fetch")
+            if [ ${DATASETS_URL} ]; then
+                echo -e "DATASETS_URL=${DATASETS_URL}"
+            else
+                echo -e "DATASETS_URL not set, skip fetching datasets"
+                return 0
+            fi
+            [ -f "${DATASETS_PATH}" ] && rm -f "${DATASETS_PATH}" && \
+            [ -d "${DATASETS_DIR}" ] && rm -rf "${DATASETS_DIR}"
             mkdir -p datasets && \
             wget "${DATASETS_URL}" -v -O "${DATASETS_PATH}" && \
             unzip -o "${DATASETS_PATH}" -d "${DATASETS_DIR}"
@@ -64,7 +71,6 @@ functional_test_core()
         "train")
             python3 tools/train.py \
                 "${CONFIG_FILE}" \
-                --no-validate \
                 --cfg-options \
                     data_root="${DATASETS_DIR}" \
                     epochs=3
@@ -75,7 +81,6 @@ functional_test_core()
             python3 tools/export.py \
                 "${CONFIG_FILE}" \
                 "$(cat ${LAST_CHECKPOINT})" \
-                tflite onnx \
                 --calibration-epochs 1 \
                 --cfg-options \
                     data_root="${DATASETS_DIR}"
