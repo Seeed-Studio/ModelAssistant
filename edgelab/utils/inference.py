@@ -8,8 +8,8 @@ import numpy as np
 import onnx
 import torch
 from mmdet.models.utils import samplelist_boxtype2tensor
-from mmengine.config import Config
 from mmengine import dump as resultdump
+from mmengine.config import Config
 from mmengine.evaluator import Evaluator
 from mmengine.registry import MODELS
 from mmengine.structures import InstanceData
@@ -393,13 +393,16 @@ class Infernce:
                 label = np.argmax(preds[0], axis=1)
                 data['data_samples'][0].set_pred_score(preds[0][0]).set_pred_label(label)
                 self.evaluator.process(data_samples=data['data_samples'], data_batch=data)
-                self.visualizer = self.visualizer.draw_texts(str(label[0]), np.asarray([[1, 1]]), font_sizes=6)
+                self.visualizer = self.visualizer.draw_texts(
+                    str(label[0]), np.asarray([[1, 1]]), font_sizes=6, colors='b'
+                )
                 if self.show:
                     self.visualizer.show()
             else:
                 raise ValueError
         if not self.source:
             metrics = self.evaluator.evaluate(len(self.dataloader.dataset))
+            print(metrics)
             if self.dump is not None and metrics is not None:
                 resultdump(metrics, self.dump)
         if len(P):

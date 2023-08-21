@@ -1,7 +1,6 @@
 import argparse
 import os
 import tempfile
-from typing import Dict, Optional
 
 import torch
 
@@ -240,6 +239,10 @@ def build_config(args):
     if args.out_dir is not None:
         cfg.default_hooks.visualization.out_dir = args.out_dir
 
+    if args.dump is None:
+        args.dump = args.checkpoint.replace(os.path.splitext(args.checkpoint)[-1], '.json')
+        print('Using dump path from checkpoint: {}'.format(args.dump))
+
     if args.dump is not None:
         dump_metric = dict(type='DumpResults', out_file_path=args.dump)
         if isinstance(cfg.test_evaluator, (list, tuple)):
@@ -287,6 +290,7 @@ def main():
             class SaveMetricHook(Hook):
                 def after_test_epoch(self, _, metrics=None):
                     if metrics is not None:
+                        print(metrics)
                         mmdump(metrics, args.dump)
 
             runner.register_hook(SaveMetricHook(), 'LOWEST')
@@ -309,6 +313,7 @@ def main():
                 class SaveMetricHook(Hook):
                     def after_test_epoch(self, _, metrics=None):
                         if metrics is not None:
+                            print(metrics)
                             mmdump(metrics, args.dump)
 
                 runner.register_hook(SaveMetricHook(), 'LOWEST')
