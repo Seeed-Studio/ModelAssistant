@@ -28,7 +28,7 @@ def replace(data: str, args: Optional[dict] = None) -> str:
         return data
     for key, value in args.items():
         if isinstance(value, (int, float)):
-            data = re.sub(f'^{key}\s?=\s?[^,{key}].*?[^,{key}].*?$\n', f'{key}={value}\n', data)
+            data = re.sub(f'^{key}\s?=\s?[^,{key}].*?[^,{key}].*?$\n', f'{key}={value}\n', data, flags=re.MULTILINE)
         else:
             value = value.replace('\\', '/')
             data = re.sub(f"^{key}\s?=\s?['\"]{{1}}.*?['\"]{{1}}.*?$\n", f'{key}="{value}"\n', data, flags=re.MULTILINE)
