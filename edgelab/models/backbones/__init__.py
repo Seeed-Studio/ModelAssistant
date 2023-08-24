@@ -7,6 +7,7 @@ from .shufflenetv2 import CustomShuffleNetV2
 from .ShuffleNetV2 import ShuffleNetV2
 from .SoundNet import SoundNetRaw
 from .SqueezeNet import SqueezeNet
+from .MicroNet import MicroNet
 
 __all__ = [
     'PfldMobileNetV2',
@@ -18,4 +19,5 @@ __all__ = [
     'SqueezeNet',
     'EfficientNet',
     'MobileNetv2',
+    'MicroNet',
 ]
