@@ -6,16 +6,16 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt update
 RUN apt install --no-install-recommends -y gcc git zip curl htop libgl1-mesa-glx libglib2.0-0 libpython3-dev gnupg build-essential
 
-# Get EdgeLab
-RUN git clone https://github.com/Seeed-Studio/EdgeLab -b main --depth 1
+# Get SenseCraft Model Assistant
+RUN git clone https://github.com/Seeed-Studio/SSCMA -b main --depth 1
 
 # Install pip packages
 RUN python3 -m pip install --upgrade pip wheel
-RUN cd EdgeLab && pip install --no-cache -r requirements/pytorch_cpu.txt
-RUN cd EdgeLab && pip install --no-cache -r requirements/base.txt
-RUN cd EdgeLab && pip install --no-cache -r requirements/export.txt
-RUN cd EdgeLab && pip install --no-cache -r requirements/inference.txt
-RUN cd EdgeLab && mim install --no-cache -r requirements/mmlab.txt
+RUN cd SSCMA && pip install --no-cache -r requirements/pytorch_cpu.txt
+RUN cd SSCMA && pip install --no-cache -r requirements/base.txt
+RUN cd SSCMA && pip install --no-cache -r requirements/export.txt
+RUN cd SSCMA && pip install --no-cache -r requirements/inference.txt
+RUN cd SSCMA && mim install --no-cache -r requirements/mmlab.txt
 
 WORKDIR /workspace
 
@@ -23,5 +23,5 @@ WORKDIR /workspace
 ENV OMP_NUM_THREADS=1
 
 # Cleanup
-RUN rm -rf EdgeLab
+RUN rm -rf SSCMA
 ENV DEBIAN_FRONTEND teletype
