@@ -4,7 +4,7 @@ import en_US from './locales/en_US'
 import zh_CN from './locales/zh_CN'
 
 export default defineConfig({
-    base: '/sscma',
+    base: '/',
     title: 'SenseCraft',
     lastUpdated: true,
     cleanUrls: true,
