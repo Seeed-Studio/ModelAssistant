@@ -9,7 +9,7 @@ English | [简体中文](README_zh-CN.md)
 
 ## Introduction
 
-Seeed Studio SenseCraft Model Assistant is an open-source project focused on embedded AI. We have optimized excellent algorithms from [OpenMMLab](https://github.com/open-mmlab) for real-world scenarios and made implementation more user-friendly, achieving faster and more accurate inference on embedded devices.
+SenseCraft Model Assistant is an open-source project focused on embedded AI. We have optimized excellent algorithms from [OpenMMLab](https://github.com/open-mmlab) for real-world scenarios and made implementation more user-friendly, achieving faster and more accurate inference on embedded devices.
 
 ## What's included?
 
@@ -27,15 +27,29 @@ SenseCraft Model Assistant provides customized scenarios for specific production
 
 ## Features
 
-### User-friendly
+### 🤝 User-friendly
 SenseCraft Model Assistant provides a user-friendly platform that allows users to easily perform training on collected data, and to better understand the performance of algorithms through visualizations generated during the training process.
 
 
-### Models with low computing power and high performance
+### 🔋 Models with low computing power and high performance
 SenseCraft Model Assistant focuses on end-side AI algorithm research, and the algorithm models can be deployed on microprocessors, similar to [ESP32](https://www.espressif.com.cn/en/products/socs/esp32), some [Arduino](https://arduino.cc) development boards, and even in embedded SBCs such as [Raspberry Pi](https://www.raspberrypi.org).
 
-### Supports multiple formats for model export
+### 🗂️ Supports multiple formats for model export
 [TensorFlow Lite](https://www.tensorflow.org/lite) is mainly used in microcontrollers, while [ONNX](https://onnx.ai) is mainly used in devices with Embedded Linux. There are some special formats such as [TensorRT](https://developer.nvidia.com/tensorrt), [OpenVINO](https://docs.openvino.ai) which are already well supported by OpenMMLab. SenseCraft Model Assistant has added TFLite model export for microcontrollers, which can be directly converted to [TensorRT](https://developer.nvidia.com/tensorrt), [UF2](https://github.com/microsoft/uf2) format and drag-and-drop into the device for deployment.
+
+
+## Application Examples
+
+### Object Detection
+<div align=center><img width=800 src="./docs/public/static/esp32/images/person_detection.png"/></div>
+
+### Pointer Meter Recognition
+<div align=center><img width=800 src="./docs/public/static/grove/images/pfld_meter.gif"/></div>
+
+### Digital Meter Recognition
+<div align=center><img width=800 src="./docs/public/static/grove/images/digital_meter.gif"/></div>
+
+More application examples can be found in [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)。
 
 
 
