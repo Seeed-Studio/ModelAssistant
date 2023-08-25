@@ -2,7 +2,7 @@ default_scope = 'mmdet'
 
 default_hooks = dict(
     timer=dict(type='IterTimerHook'),
-    logger=dict(type='edgelab.TextLoggerHook', interval=100),
+    logger=dict(type='sscma.TextLoggerHook', interval=100),
     param_scheduler=dict(type='ParamSchedulerHook'),
     checkpoint=dict(type='CheckpointHook', interval=1),
     sampler_seed=dict(type='DistSamplerSeedHook'),
@@ -21,7 +21,7 @@ vis_backends = [
     # dict(type='WandbVisBackend'),
     dict(type='TensorboardVisBackend'),
 ]
-visualizer = dict(type='edgelab.FomoLocalVisualizer', vis_backends=vis_backends, name='visualizer')
+visualizer = dict(type='sscma.FomoLocalVisualizer', vis_backends=vis_backends, name='visualizer')
 
 
 log_processor = dict(type='LogProcessor', window_size=50, by_epoch=True)

@@ -1,6 +1,6 @@
 _base_ = '../_base_/default_runtime_cls.py'
 
-default_scope = 'edgelab'
+default_scope = 'sscma'
 
 num_classes = 3
 num_axes = 3
@@ -16,14 +16,14 @@ model = dict(
         num_classes=num_classes,
     ),
     head=dict(
-        type='edgelab.AxesClsHead',
+        type='sscma.AxesClsHead',
         loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
         topk=(1, 5),
     ),
 )
 
 # dataset settings
-dataset_type = 'edgelab.SensorDataset'
+dataset_type = 'sscma.SensorDataset'
 data_root = './datasets/aixs-export'
 batch_size = 1
 workers = 1
@@ -31,13 +31,13 @@ workers = 1
 shape = [1, num_axes * window_size]
 
 train_pipeline = [
-    # dict(type='edgelab.LoadSensorFromFile'),
-    dict(type='edgelab.PackSensorInputs'),
+    # dict(type='sscma.LoadSensorFromFile'),
+    dict(type='sscma.PackSensorInputs'),
 ]
 
 test_pipeline = [
-    # dict(type='edgelab.LoadSensorFromFile'),
-    dict(type='edgelab.PackSensorInputs'),
+    # dict(type='sscma.LoadSensorFromFile'),
+    dict(type='sscma.PackSensorInputs'),
 ]
 
 train_dataloader = dict(
@@ -93,4 +93,4 @@ test_cfg = dict()
 
 # set visualizer
 vis_backends = [dict(type='LocalVisBackend')]
-visualizer = dict(type='edgelab.SensorClsVisualizer', vis_backends=vis_backends, name='visualizer')
+visualizer = dict(type='sscma.SensorClsVisualizer', vis_backends=vis_backends, name='visualizer')

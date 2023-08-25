@@ -6,11 +6,11 @@ import torch
 from tqdm import tqdm
 
 # TODO: Move to config file
-import edgelab.datasets  # noqa
-import edgelab.engine  # noqa
-import edgelab.evaluation  # noqa
-import edgelab.models  # noqa
-import edgelab.visualization  # noqa
+import sscma.datasets  # noqa
+import sscma.engine  # noqa
+import sscma.evaluation  # noqa
+import sscma.models  # noqa
+import sscma.visualization  # noqa
 
 
 def parse_args():
@@ -164,7 +164,7 @@ def verify_args(args):
 def build_config(args):
     from mmengine.config import Config
 
-    from edgelab.utils import load_config
+    from sscma.utils import load_config
 
     args.targets = [str(target).lower() for target in args.targets]
     args.precisions = [str(precision).lower() for precision in args.precisions]

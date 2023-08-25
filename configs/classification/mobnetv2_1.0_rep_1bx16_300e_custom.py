@@ -1,22 +1,24 @@
 _base_ = '../_base_/default_runtime_cls.py'
-default_scope = 'edgelab'
-custom_imports = dict(imports=['edgelab'], allow_failed_imports=False)
+default_scope = 'sscma'
+custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
 
 # model settings
 num_classes = 7
 
-gray = True
+gray = False
 # dataset settings
 dataset_type = 'mmcls.CustomDataset'
 data_root = ''
 height = 96
+
 width = 96
-batch_size = 32
-workers = 8
+
+batch_size = 128
+workers = 24
 persistent_workers = True
 
 # optimizer
-lr = 0.05
+lr = 0.01
 epochs = 300
 
 data_preprocessor = dict(
@@ -27,7 +29,7 @@ data_preprocessor = dict(
 )
 
 model = dict(
-    type='edgelab.ImageClassifier',
+    type='sscma.ImageClassifier',
     data_preprocessor=dict(
         type='mmdet.DetDataPreprocessor',
         mean=[0.0] if gray else [0.0, 0.0, 0.0],
@@ -49,7 +51,7 @@ train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='mmengine.Resize', scale=(height, width)),
     dict(type='mmcls.ColorJitter', brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
-    dict(type='mmcls.Rotate', angle=30.0, prob=0.6),
+    dict(type='mmcls.Rotate', angle=20.0, prob=0.5),
     dict(type='mmcls.RandomFlip', prob=0.5, direction='horizontal'),
     dict(type='mmcls.PackClsInputs'),
 ]
@@ -117,4 +119,4 @@ param_scheduler = [
 
 auto_scale_lr = dict(base_batch_size=batch_size)
 
-train_cfg = dict(by_epoch=True, max_epochs=epochs, val_interval=1)
+train_cfg = dict(by_epoch=True, max_epochs=epochs, val_interval=5)

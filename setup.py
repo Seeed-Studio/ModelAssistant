@@ -14,7 +14,7 @@ def readme():
 
 
 def get_version():
-    version_file = 'edgelab/version.py'
+    version_file = 'sscma/version.py'
     with open(version_file, 'r', encoding='utf-8') as f:
         exec(compile(f.read(), version_file, 'exec'))
     return locals()['__version__']
@@ -66,7 +66,7 @@ def add_mim_extension():
 
     filenames = ['tools', 'configs']
     repo_path = os.path.dirname(__file__)
-    tools_path = os.path.join(repo_path, 'edgelab')
+    tools_path = os.path.join(repo_path, 'sscma')
     os.makedirs(tools_path, exist_ok=True)
 
     for filename in filenames:
@@ -97,19 +97,19 @@ if __name__ == '__main__':
     requirements, index_urls = parse_requirements()
     add_mim_extension()
     setup(
-        name='edgelab',
+        name='sscma',
         version=get_version(),
-        description='Seeed Studio EdgeLab is an open-source project focused on embedded AI. \
+        description='Seeed Studio SSCMA is an open-source project focused on embedded AI. \
             We optimize the excellent algorithms from OpenMMLab for real-world scenarios and make implementation more user-friendly,\
              achieving faster and more accurate inference on embedded devices.',
         long_description=readme(),
         long_description_content_type='text/markdown',
-        author='EdgeLab Contributors',
+        author='SSCMA Contributors',
         author_email='',
-        maintainer='EdgeLab Contributors',
+        maintainer='SSCMA Contributors',
         keywords='embedded AI',
         url='https://www.seeedstudio.com/',
-        download_url='https://github.com/Seeed-Studio/EdgeLab',
+        download_url='https://github.com/Seeed-Studio/SSCMA',
         packages=find_packages(),
         classifiers=[
             'Development Status :: 4 - Beta',
@@ -133,10 +133,10 @@ if __name__ == '__main__':
         license='MIT',
         entry_points={
             'console_scripts': [
-                'edgtrain=edgelab.tools.train:main',
-                'edginfer=edgelab.tools.inference:main',
-                'edgexport=edgelab.tools.export:main',
-                'edgelab=edgelab.tools.api:main',
+                'edgtrain=sscma.tools.train:main',
+                'edginfer=sscma.tools.inference:main',
+                'edgexport=sscma.tools.export:main',
+                'sscma=sscma.tools.api:main',
             ]
         },
     )

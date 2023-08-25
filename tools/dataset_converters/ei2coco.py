@@ -17,7 +17,7 @@ out_dir = args.out_directory
 if os.path.exists(out_dir) and os.path.isdir(out_dir):
     shutil.rmtree(out_dir)
 
-print('Transforming Edge Impulse data format into something compatible with Edgelab coco dataset format...')
+print('Transforming Edge Impulse data format into something compatible with sscma coco dataset format...')
 
 
 def current_ms():
@@ -125,5 +125,5 @@ def convert(path, category):
 convert(os.path.join(args.data_directory, 'training'), 'train')
 convert(os.path.join(args.data_directory, 'testing'), 'valid')
 
-print('Transforming Edge Impulse data format into something compatible with Edgelab coco dataset format... done')
+print('Transforming Edge Impulse data format into something compatible with sscma coco dataset format... done')
 print('')
