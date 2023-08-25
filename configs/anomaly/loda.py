@@ -5,11 +5,11 @@ window_size = 30
 stride = 10
 num_axes = 3
 
-model = dict(type='edgelab.LODA', num_bins=10, num_cuts=100, yield_rate=0.9)
+model = dict(type='sscma.LODA', num_bins=10, num_cuts=100, yield_rate=0.9)
 
 
 # dataset settings
-dataset_type = 'edgelab.SensorDataset'
+dataset_type = 'sscma.SensorDataset'
 data_root = './datasets/aixs-export'
 batch_size = 1
 workers = 1
@@ -17,13 +17,13 @@ workers = 1
 shape = [1, num_axes * window_size]
 
 train_pipeline = [
-    # dict(type='edgelab.LoadSensorFromFile'),
-    dict(type='edgelab.PackSensorInputs'),
+    # dict(type='sscma.LoadSensorFromFile'),
+    dict(type='sscma.PackSensorInputs'),
 ]
 
 test_pipeline = [
-    # dict(type='edgelab.LoadSensorFromFile'),
-    dict(type='edgelab.PackSensorInputs'),
+    # dict(type='sscma.LoadSensorFromFile'),
+    dict(type='sscma.PackSensorInputs'),
 ]
 
 train_dataloader = dict(

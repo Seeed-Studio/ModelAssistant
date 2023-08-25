@@ -1,6 +1,6 @@
 _base_ = '../_base_/default_runtime_cls.py'
-default_scope = 'edgelab'
-custom_imports = dict(imports=['edgelab'], allow_failed_imports=False)
+default_scope = 'sscma'
+custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
 
 # model settings
 num_classes = 10
@@ -27,7 +27,7 @@ data_preprocessor = dict(
 )
 
 model = dict(
-    type='edgelab.ImageClassifier',
+    type='sscma.ImageClassifier',
     data_preprocessor=dict(
         type='mmdet.DetDataPreprocessor',
         mean=[0.0] if gray else [0.0, 0.0, 0.0],
