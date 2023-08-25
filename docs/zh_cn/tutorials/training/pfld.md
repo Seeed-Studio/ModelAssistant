@@ -4,9 +4,9 @@
 
 ## 准备数据集
 
-在开始训练前，首先需要准备标注好的数据集。EdgeLab 默认使用[自定义 Meter 数据集](../datasets.md#EdgeLab)训练 PFLD 模型，请参照以下步骤完成数据集的准备。
+[SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) 默认使用[自定义 Meter 数据集](../datasets.md#SSCMA)训练 PFLD 模型，请参照以下步骤完成数据集的准备。
 
-1. 参考[互联网数据集 - EdgeLab - 自定义 Meter 数据集](../datasets.md#EdgeLab)下载数据集并完成数据集的解压。
+1. 参考[互联网数据集 - SSCMA - 自定义 Meter 数据集](../datasets.md#SSCMA)下载数据集并完成数据集的解压。
 
 2. 记住数据集解压后的**文件夹路径** (如: `datasets\meter`)，在之后修改配置文件时需要使用该文件夹路径。
 
@@ -14,7 +14,7 @@
 
 我们将根据需要执行的训练任务类型来选择合适的配置文件，我们已经在[模型配置](../config.md)中对配置文件的功能、结构、原理进行了简单介绍。
 
-对于表计 PFLD 模型示例，我们使用 `pfld_mbv2n_112.py` 作为配置文件，它位于 EdgeLab 主目录路径 `configs/pfld` 下的文件夹中，并额外继承了 `default_runtime_pose.py` 配置文件。
+对于表计 PFLD 模型示例，我们使用 `pfld_mbv2n_112.py` 作为配置文件，它位于 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 主目录路径 `configs/pfld` 下的文件夹中，并额外继承了 `default_runtime_pose.py` 配置文件。
 
 配置文件内容如下，对于初学者，我们建议首先注意该配置文件中 `data_root` 和 `epochs` 这两个参数。
 
@@ -114,9 +114,9 @@ param_scheduler=[
 
 ## 训练模型
 
-训练模型需要使用我们之前配置好的 EdgeLab 工作环境，如果您按照我们的[安装指南](../../introduction/installation.md)使用 Conda 将 EdgeLab 安装在了名为 `edgelab` 的虚拟环境中，请首先确保您目前正处在虚拟环境中。
+训练模型需要使用我们之前配置好的 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 工作环境，如果您按照我们的[安装指南](../../introduction/installation.md)使用 Conda 将 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 安装在了名为 `sscma` 的虚拟环境中，请首先确保您目前正处在虚拟环境中。
 
-然后，在 EdgeLab 项目根目录，我们执行如下的指令，训练一个端到端的表计 PFLD 模型。
+然后，在 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 项目根目录，我们执行如下的指令，训练一个端到端的表计 PFLD 模型。
 
 ```sh
 python3 tools/train.py \
@@ -139,7 +139,7 @@ tensorboard --logdir work_dirs/pfld_mbv2n_112
 如果您配置了虚拟环境但并未激活，您可以使用以下命令激活虚拟环境:
 
 ```sh
-conda activate edgelab
+conda activate sscma
 ```
 
 :::
@@ -166,4 +166,4 @@ python3 tools/inference.py \
 
 ### 评估
 
-为了进一步在现实中的边缘计算设备上测试和评估模型，您需要导出模型。在导出模型的过程中，EdgeLab 会对模型进行一些优化，如模型的剪枝、蒸馏等。您可以参考[模型导出](../export/overview)章节进一步学习如何导出模型。
+为了进一步在现实中的边缘计算设备上测试和评估模型，您需要导出模型。在导出模型的过程中， [SSCMA](https://github.com/Seeed-Studio/SSCMA) 会对模型进行一些优化，如模型的剪枝、蒸馏等。您可以参考[模型导出](../export/overview)章节进一步学习如何导出模型。

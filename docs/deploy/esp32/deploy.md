@@ -1,6 +1,6 @@
-# Deploying EdgeLab on Espressif Chips
+# Deploying SenseCraft Model Assistant on Espressif Chips
 
-This example is a tutorial for deploying the models from [EdgeLab](https://github.com/Seeed-Studio/Edgelab/) to Espreessif chipsets, based on [ESP-IDF](https://github.com/espressif/esp-idf) and [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) implementations.
+This example is a tutorial for deploying the models from [SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA/) to Espreessif chipsets, based on [ESP-IDF](https://github.com/espressif/esp-idf) and [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) implementations.
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ This example is a tutorial for deploying the models from [EdgeLab](https://githu
 
 ### Install the ESP-IDF
 
-EdgeLab requires ESP-IDF `4.4.x` for deployment in ESP32, please refer to the following tutorial [ESP-IDF Get Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html) to install and configure the toolchain of ESP-IDF.
+SenseCraft Model Assistant requires ESP-IDF `4.4.x` for deployment in ESP32, please refer to the following tutorial [ESP-IDF Get Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html) to install and configure the toolchain of ESP-IDF.
 
 After completed the ESP-IDF installation, please double-check [IDF Environment Config Variables](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html#step-4-set-up-the-environment-variables) is finished:
 
@@ -36,10 +36,10 @@ In addition, if your ESP-IDF is not configured in a virtual environment, any ope
 
 ### Get Examples and Submodules
 
-**Go to the root directory of the EdgeLab project** and run the following command to get the examples and its submodules.
+**Go to the root directory of the [SSCMA](https://github.com/Seeed-Studio/SSCMA/) project** and run the following command to get the examples and its submodules.
 
 ```sh
-git clone https://github.com/Seeed-Studio/edgelab-example-esp32 examples/esp32 && \
+git clone https://github.com/Seeed-Studio/sscma-example-esp32 examples/esp32 && \
 pushd examples/esp32 && \
 git submodule init && \
 git submodule update && \
@@ -48,7 +48,7 @@ popd
 
 ::: warning
 
-You need to complete the installation and configuration of EdgeLab first. If you have not installed EdgeLab yet, you can refer to [EdgeLab Installation Guide](../../introduction/installation.md).
+You need to complete the installation and configuration of SenseCraft Model Assistant first. If you have not installed SenseCraft Model Assistant yet, you can refer to [SenseCraft Model Assistant Installation Guide](../../introduction/installation.md).
 
 :::
 
@@ -72,10 +72,10 @@ Before [Compile and Deploy](#compile-and-deploy), you need to prepare the approp
 
 ### Compile
 
-1. Go to the root directory of the EdgeLab project and run the following command to access the examples directory `examples/esp32`.
+1. Go to the root directory of the [SSCMA](https://github.com/Seeed-Studio/SSCMA/) project and run the following command to access the examples directory `examples/esp32`.
 
 ```sh
-cd examples/esp32 # EdgeLab/examples/esp32
+cd examples/esp32 # SSCMA/examples/esp32
 ```
 
 2. Set `IDF_TARGET` to `esp32s3`.
@@ -125,22 +125,25 @@ Use `Ctrl+]` to exit the monitor serial output screen.
 
 ### Performance Profile
 
-The performance of EdgeLab related models, measured on different chips, is summarized in the following table.
+The performance of [SSCMA](https://github.com/Seeed-Studio/SSCMA/)  related models, measured on different chips, is summarized in the following table.
 
 | Target | Model | Dataset | Input Resolution | Peak RAM | Inferencing  Time | F1 Score | Link |
 |--|--|--|--|--|--|--|--|
-| ESP32-S3 | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/Edgelab/meter.zip) | 112x112 (RGB) | 320KB | 380ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/EdgeLab/releases) |
-| ESP32-S3 | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/Edgelab/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/EdgeLab/releases) |
+| ESP32-S3 | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/sscma/meter.zip) | 112x112 (RGB) | 320KB | 380ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/SSCMA/releases) |
+| ESP32-S3 | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/SSCMA/releases) |
 
+::: tip
+For more models go to [SenseCraft Model Assistant Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
+:::
 ## Contribute
 
-- If you find any issues in these examples, or wish to submit an enhancement request, please use [GitHub Issue](https://github.com/Seeed-Studio/EdgeLab).
+- If you find any issues in these examples, or wish to submit an enhancement request, please use [GitHub Issue](https://github.com/Seeed-Studio/SSCMA).
 
 - For ESP-IDF related issues please refer to [ESP-IDF](https://github.com/espressif/esp-idf).
 
 - For information about TensorFlow Lite Micro, please refer to [TFLite-Micro](https://github.com/tensorflow/tflite-micro).
 
-- For EdgeLab related information, please refer to [EdgeLab](https://github.com/Seeed-Studio/Edgelab/).
+- For SenseCraft Model Assistant related information, please refer to [SSCMA](https://github.com/Seeed-Studio/SSCMA/).
 
 ## Licensing
 

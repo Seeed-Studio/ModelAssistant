@@ -1,6 +1,6 @@
-# Deploying EdgeLab on Grove - Vision AI
+# Deploying SSCMA on Grove - Vision AI
 
-This example is a tutorial for deploying the models from [EdgeLab](https://github.com/Seeed-Studio/Edgelab/) to Grove - Vision AI module, based on the [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain) and [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) implementations.
+This example is a tutorial for deploying the models from [SSCMA](https://github.com/Seeed-Studio/SSCMA/) to Grove - Vision AI module, based on the [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain) and [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) implementations.
 
 ## Prerequisites
 
@@ -37,10 +37,10 @@ Grove - Vision AI uses the [Himax HX6537](https://www.himax.com.tw/zh/products/i
 
 ### Get Examples and the SDK
 
-**Please go to the root of the EdgeLab project**, then run the following command to get the examples and download the SDK.
+**Please go to the root of the SSCMA project**, then run the following command to get the examples and download the SDK.
 
 ```sh
-git clone https://github.com/Seeed-Studio/edgelab-example-vision-ai examples/grove && \
+git clone https://github.com/Seeed-Studio/sscma-example-vision-ai examples/grove && \
 pushd examples/grove && \
 make download && \
 popd
@@ -55,7 +55,7 @@ sudo apt-get update && \
 sudo apt-get install make -y
 ```
 
-In addition, we recommend that you complete the installation and configuration of EdgeLab in advance. If you have not installed EdgeLab yet, you can refer to [EdgeLab Installation Guide](../../introduction/installation.md).
+In addition, we recommend that you complete the installation and configuration of SSCMA in advance. If you have not installed SSCMA yet, you can refer to [SSCMA Installation Guide](../../introduction/installation.md).
 
 :::
 
@@ -81,10 +81,10 @@ Before [Compile and Deploy](#compile-and-deploy), you need to prepare the approp
 
 ### Compile the Firmware and Model Firmware
 
-1. First, please go to the root directory of the EdgeLab project and run the following command to access the example directory `examples/grove`.
+1. First, please go to the root directory of the SSCMA project and run the following command to access the example directory `examples/grove`.
 
    ```sh
-   cd examples/grove # EdgeLab/examples/grove
+   cd examples/grove # SSCMA/examples/grove
    ```
 
 2. Second, choose the compilation parameters according to **selected model** and compile them, the optional parameters are `fomo`, `meter`, etc.
@@ -110,7 +110,7 @@ Before [Compile and Deploy](#compile-and-deploy), you need to prepare the approp
    You can view all optional parameters for APP using the following command.
 
    ```sh
-   ls examples # EdgeLab/examples/grove/examples
+   ls examples # SSCMA/examples/grove/examples
    ```
 
    After compilation, a binary file named `output.img` will be generated in the `tools/image_gen_cstm/output` directory.
@@ -171,12 +171,16 @@ Before flash the firmware, you must check if the device bootloader version match
 
 ### Performance Profile
 
-The performance of EdgeLab related models, measured on different chips, is summarized in the following table.
+The performance of [SSCMA](https://github.com/Seeed-Studio/SSCMA) related models, measured on different chips, is summarized in the following table.
 
 | Target | Model | Dataset | Input Resolution | Peak RAM | Inferencing Time | F1 Score | Link |
 |--|--|--|--|--|--|--|--|
-| Grove Vision AI | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/Edgelab/meter.zip) | 112x112 (RGB) | 320KB | 500ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/EdgeLab/releases) |
-| Grove Vision AI | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/Edgelab/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/EdgeLab/releases) |
+| Grove Vision AI | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/sscma/meter.zip) | 112x112 (RGB) | 320KB | 500ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/SSCMA/releases) |
+| Grove Vision AI | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/SSCMA/releases) |
+
+::: tip
+For more models go to [SenseCraft Model Assistant Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
+:::
 
 ## Troubleshoot
 
@@ -184,13 +188,13 @@ If your Grove Vision AI is not recognized by your computer, we recommend your to
 
 ## Contribute
 
-- If you find any issues in these examples, or wish to submit an enhancement request, please use [GitHub Issue](https://github.com/Seeed-Studio/EdgeLab).
+- If you find any issues in these examples, or wish to submit an enhancement request, please use [GitHub Issue](https://github.com/Seeed-Studio/SSCMA).
 
 - For Synopsys GUN Toolchain related issues please refer to [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain).
 
 - For information about TensorFlow Lite Micro, please refer to [TFLite-Micro](https://github.com/tensorflow/tflite-micro).
 
-- For EdgeLab related information, please refer to [EdgeLab](https://github.com/Seeed-Studio/Edgelab/).
+- For SenseCraft Model Assistant related information, please refer to [SSCMA](https://github.com/Seeed-Studio/SSCMA/).
 
 ## Licensing
 

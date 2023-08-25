@@ -1,12 +1,12 @@
 # Model Training
 
-EdgeLab currently supports the following models. You can refer to the corresponding tutorials to complete the training of the models and obtain the model weights.
+[SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) currently supports the following models. You can refer to the corresponding tutorials to complete the training of the models and obtain the model weights.
 
 - [FOMO Model](./fomo.md): Face mask detection
 
 - [PFLD Model](./pfld.md): Pointer meter reading
 
-- [YOLOv5 Model](./yolov5.md): digital meter reading
+- [YOLO Model](./yolo.md): digital meter reading
 
 ::: tip
 
@@ -21,7 +21,7 @@ For more parameters during model training, you can refer the code below.
 ```sh
 python3 tools/train.py --help
 
-# Train EdgeLab models
+# Train SSCMA models
 
 # positional arguments:
 #   config                the model config file path
