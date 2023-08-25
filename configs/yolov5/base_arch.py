@@ -46,7 +46,7 @@ height = 192
 width = 192
 img_scale = (width, height)  # width, height
 # Dataset type, this will be used to define the dataset
-dataset_type = 'edgelab.CustomYOLOv5CocoDataset'
+dataset_type = 'sscma.CustomYOLOv5CocoDataset'
 # Batch size of a single GPU during validation
 val_batch_size_per_gpu = 1
 # Worker to pre-fetch data for each single GPU during validation
@@ -116,9 +116,9 @@ model = dict(
         act_cfg=dict(type='ReLU', inplace=True),
     ),
     bbox_head=dict(
-        type='edgelab.YOLOV5Head',
+        type='sscma.YOLOV5Head',
         head_module=dict(
-            type='edgelab.DetHead',
+            type='sscma.DetHead',
             num_classes=num_classes,
             in_channels=[256, 512, 1024],
             widen_factor=widen_factor,

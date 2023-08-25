@@ -28,9 +28,9 @@ ENV/
 env.bak/
 venv.bak/
 
-# Datasets (and explicitly disignore edgelab/datasets)
+# Datasets (and explicitly disignore sscma/datasets)
 datasets/
-!edgelab/datasets
+!sscma/datasets
 
 # Work directory
 work_dirs/
@@ -41,9 +41,9 @@ dist/
 *.egg-info/
 *.whl
 
-# Symbolic links of EdgeLab
-edgelab/configs
-edgelab/tools
+# Symbolic links of sscma
+sscma/configs
+sscma/tools
 
 # NodeJS
 node_modules/
@@ -52,5 +52,5 @@ node_modules/
 docs/.vitepress/cache
 docs/.vitepress/dist
 
-# EdgeLab examples
+# sscma examples
 examples/

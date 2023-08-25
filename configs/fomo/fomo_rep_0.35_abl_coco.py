@@ -24,9 +24,9 @@ model = dict(
     type='Fomo',
     backbone=dict(type='MobileNetv2', widen_factor=0.35, out_indices=(2, 3, 4), rep=True),
     head=dict(
-        type='edgelab.YOLOV5Head',
+        type='sscma.YOLOV5Head',
         head_module=dict(
-            type='edgelab.DetHead',
+            type='sscma.DetHead',
             num_classes=num_classes,
             in_channels=[16, 32, 64],
             widen_factor=1,

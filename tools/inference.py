@@ -5,11 +5,11 @@ import tempfile
 import torch
 
 # TODO: Move to config file
-import edgelab.datasets  # noqa
-import edgelab.engine  # noqa
-import edgelab.evaluation  # noqa
-import edgelab.models  # noqa
-import edgelab.visualization  # noqa
+import sscma.datasets  # noqa
+import sscma.engine  # noqa
+import sscma.evaluation  # noqa
+import sscma.models  # noqa
+import sscma.visualization  # noqa
 
 
 def parse_args():
@@ -201,7 +201,7 @@ def get_task_from_config(config_path):
 def build_config(args):
     from mmengine.config import Config
 
-    from edgelab.utils import load_config
+    from sscma.utils import load_config
 
     if args.task == 'auto':
         task = {'mmcls', 'mmdet', 'mmpose'}.intersection(get_task_from_config(args.config))
@@ -322,7 +322,7 @@ def main():
                 runner.register_hook(SaveMetricHook(), 'LOWEST')
 
     elif checkpoint_ext in {'.tflite', '.onnx'}:
-        from edgelab.utils import Infernce
+        from sscma.utils import Infernce
 
         # TODO: Support inference '.tflite', '.onnx' model on different devices
         # TODO: Support MMEngine metric hooks

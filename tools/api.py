@@ -10,7 +10,7 @@ def run_script(script_name, *args):
 
 
 def print_help():
-    print('Usage: python edgelab <task> [<args>]')
+    print('Usage: python sscma <task> [<args>]')
     print('Available tasks:')
     print('  train:    Run the train')
     print('  export:   Run the export')

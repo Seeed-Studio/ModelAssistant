@@ -39,10 +39,10 @@ fi
 echo -en "Creating conda env and installing base deps... "
 if [ "${CUDA_AVAILABLE}" ]; then
     echo -en "${BLUE}Using CUDA${RST}\n"
-    conda env create -n edgelab -f environment_cuda.yml
+    conda env create -n sscma -f environment_cuda.yml
 else
     echo -en "${BLUE}Using CPU${RST}\n"
-    conda env create -n edgelab -f environment.yml
+    conda env create -n sscma -f environment.yml
 fi
 if [ "$?" != 0 ]; then
     echo -en "Conda create env failed... ${RED}Exiting${RST}\n"
@@ -50,7 +50,7 @@ if [ "$?" != 0 ]; then
 fi
 
 eval "$(conda shell.bash hook)" && \
-conda activate edgelab
+conda activate sscma
 if [ "$?" != 0 ]; then
     echo -en "Conda active env failed... ${RED}Exiting${RST}\n"
     exit 1

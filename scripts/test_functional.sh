@@ -17,7 +17,7 @@ classification_test()
 detection_test()
 {
     CONFIG_FILE="configs/yolov5/yolov5_tiny_1xb16_300e_coco.py"
-    DATASETS_URL="https://files.seeedstudio.com/edgelab/datasets/COCO128.zip"
+    DATASETS_URL="https://files.seeedstudio.com/sscma/datasets/COCO128.zip"
 
     functional_test_core "$1" "${CONFIG_FILE}" "${DATASETS_URL}"
     return $?
