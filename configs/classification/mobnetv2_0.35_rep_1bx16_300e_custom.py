@@ -1,6 +1,6 @@
 _base_ = '../_base_/default_runtime_cls.py'
-default_scope = 'edgelab'
-custom_imports = dict(imports=['edgelab'], allow_failed_imports=False)
+default_scope = 'sscma'
+custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
 
 # model settings
 num_classes = 10
@@ -20,7 +20,7 @@ epochs = 100
 
 
 model = dict(
-    type='edgelab.ImageClassifier',
+    type='sscma.ImageClassifier',
     data_preprocessor=dict(type='mmdet.DetDataPreprocessor', mean=[0.0, 0.0, 0.0], std=[255.0, 255.0, 255.0]),
     backbone=dict(type='MobileNetv2', widen_factor=0.35, out_indices=(2,), rep=True),
     neck=dict(type='mmcls.GlobalAveragePooling', dim=2),

@@ -49,7 +49,7 @@ model = dict(
     ),
 )
 # dataset settings
-dataset_type = 'edgelab.CustomCocoDataset'
+dataset_type = 'sscma.CustomCocoDataset'
 # dataset_type = 'CustomVocdataset'
 # data_root = ("http://images.cocodataset.org/zips/train2017.zip", "http://images.cocodataset.org/zips/val2017.zip", "http://images.cocodataset.org/zips/test2017.zip", "http://images.cocodataset.org/annotations/annotations_trainval2017.zip")
 data_root = ''
