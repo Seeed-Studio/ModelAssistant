@@ -1,2 +1,2 @@
 # tflite export dep
-TinyNeuralNetwork @ https://files.seeedstudio.com/edgelab/library/TinyNeuralNetwork-0.1.0-py3-none-any.whl
+TinyNeuralNetwork @ https://files.seeedstudio.com/sscma/library/TinyNeuralNetwork-0.1.0-py3-none-any.whl

@@ -1,4 +1,4 @@
-default_scope = 'edgelab'
+default_scope = 'sscma'
 
 # hooks
 default_hooks = dict(

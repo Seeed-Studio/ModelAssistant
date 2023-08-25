@@ -46,7 +46,7 @@ height = 640
 width = 640
 img_scale = (width, height)  # width, height
 # Dataset type, this will be used to define the dataset
-dataset_type = 'edgelab.CustomYOLOv5CocoDataset'
+dataset_type = 'sscma.CustomYOLOv5CocoDataset'
 # Batch size of a single GPU during validation
 val_batch_size_per_gpu = 1
 # Worker to pre-fetch data for each single GPU during validation

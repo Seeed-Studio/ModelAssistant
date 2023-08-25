@@ -4,7 +4,7 @@ gray = False
 num_classes = 10
 
 model = dict(
-    type='edgelab.ImageClassifier',
+    type='sscma.ImageClassifier',
     data_preprocessor=dict(
         type='mmdet.DetDataPreprocessor',
         mean=[0.0] if gray else [0.0, 0.0, 0.0],

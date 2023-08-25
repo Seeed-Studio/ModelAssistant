@@ -1,5 +1,5 @@
 # defaults to use registries in mmpretrain
-default_scope = 'edgelab'
+default_scope = 'sscma'
 
 # configure default hooks
 default_hooks = dict(
