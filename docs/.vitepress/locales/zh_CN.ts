@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
     lang: 'zh-CN',
-    description: 'Seeed Studio EdgeLab 是一个专注于嵌入式人工智能的开源项目。',
+    description: '*SenseCraft Model Assistant* 是一个专注于嵌入式人工智能的开源项目。',
 
     themeConfig: {
         nav: nav(),
@@ -14,13 +14,13 @@ export default defineConfig({
         returnToTopLabel: '返回顶部',
 
         editLink: {
-            pattern: 'https://github.com/Seeed-Studio/Edgelab/edit/main/docs/zh_cn/:path',
+            pattern: 'https://github.com/Seeed-Studio/SSCMA/edit/main/docs/zh_cn/:path',
             text: '对此页面提出建议'
         },
 
         footer: {
             message: '在 MIT License 授权下发布',
-            copyright: '版权所有 © 2023-目前 Seeed Studio & EdgeLab 贡献者'
+            copyright: '版权所有 © 2023-目前 Seeed Studio 与 SenseCraft Model Assistant 贡献者'
         }
     }
 })
@@ -28,7 +28,7 @@ export default defineConfig({
 function nav() {
     return [
         { text: '主页', link: '/zh_cn/' },
-        { text: '文档', link: '/zh_cn/introduction/what_is_edgelab' }
+        { text: '文档', link: '/zh_cn/introduction/what_is_sscma' }
     ]
 }
 
@@ -38,7 +38,7 @@ function sidebar() {
             text: '入门指南',
             collapsed: false,
             items: [
-                { text: '什么是 EdgeLab?', link: '/zh_cn/introduction/what_is_edgelab' },
+                { text: '什么是 SenseCraft Model Assistant?', link: '/zh_cn/introduction/what_is_sscma' },
                 { text: '快速上手', link: '/zh_cn/introduction/quick_start' },
                 { text: '安装指南', link: '/zh_cn/introduction/installation' }
             ]
@@ -55,7 +55,7 @@ function sidebar() {
                     items: [
                         { text: 'FOMO 模型', link: '/zh_cn/tutorials/training/fomo' },
                         { text: 'PFLD 模型', link: '/zh_cn/tutorials/training/pfld' },
-                        { text: 'YOLOv5 模型', link: '/zh_cn/tutorials/training/yolov5' }
+                        { text: 'YOLO 模型', link: '/zh_cn/tutorials/training/yolo' }
                     ]
                 },
                 {

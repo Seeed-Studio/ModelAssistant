@@ -1,44 +1,43 @@
-# 快速上手
+# 快速入门
 
-在[概述](./what_is_edgelab)中，我们已经介绍了 EdgeLab 提供的功能和特性。考虑到 EdgeLab 分为多个不同的模块，各模块完成相应的任务，我们建议按照以下步骤快速上手。
+在[概述](./what_is_sscma)中，我们已经介绍了 [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 提供的功能和特性。考虑到 [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 被划分为多个不同的模块，每个模块完成其对应的任务，我们建议按照以下步骤快速入门。
 
 ::: tip
-我们建议所有初次上手 EdgeLab 的小伙伴从[入门](#%E5%85%A5%E9%97%A8)开始学习，如果你熟悉 EdgeLab 或 [OpenMMLab](https://github.com/open-mmlab)，想尝试在边缘计算设备上部署、对现有的神经网络进行修改或在自定义的数据集上进行训练，则可以直接参考[进阶](#%E8%BF%9B%E9%98%B6)。
+我们建议 [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 的所有初学者都从[入门指南](#getting-started)开始学习，如果您对 [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 或 [OpenMMLab](https://github.com/open-mmlab) 已经熟悉，并且希望尝试在边缘计算设备上部署、修改现有的神经网络或使用自定义数据集进行训练，您可以直接参考[高级用法](#advanced)。
 :::
 
-现在，您可以在 Google Colab 上试用 [EdgeLab Colab Examples](https://github.com/Seeed-Studio/EdgeLab/tree/main/notebooks)，而无需在您的电脑上安装 EdgeLab。
+现在，您可以在Google Colab上尝试使用[SenseCraft Model Assistant Colab示例](https://github.com/Seeed-Studio/SSCMA/tree/main/notebooks)，无需在计算机上安装[SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA)。
 
-## 入门
+## 入门指南
 
-1. 首先查阅[安装指南](./installation.md)配置 EdgeLab 的运行环境。
+1. 首先，参考[安装指南](./installation.md)配置 [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 的运行环境。
 
-2. 然后熟悉 EdgeLab 的基本使用方法:
+2. 然后，熟悉 [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 的基本用法：
 
-   - **模型训练**，请参考[模型训练](../tutorials/training/overview)了解如何使用 EdgeLab 训练一个模型，我们建议你选取一个示例中的模型进行训练。
+   - **模型训练**，请参考[模型训练](../tutorials/training/overview)以了解如何使用 [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 进行模型训练。我们建议您从示例中选择一个模型进行训练。
 
-   - **模型导出**，在完成模型训练后，为了在设备上进行部署，需要先导出模型，模型的导出教程请参考[模型导出](../tutorials/export/overview)。
+   - **模型导出**。完成模型训练后，为了在边缘计算设备上部署，首先需要导出模型。有关模型导出的教程，请参考[模型导出](../tutorials/export/overview)。
 
-   - **模型验证**，模型验证可以在训练完成后或在导出完成后进行验证，前者验证神经网络和训练结果的正确性，后者主要验证导出模型的正确性，方便之后在边缘计算设备上的部署和调试。一些模型验证的方法在以上两步的文档中已经给出。
+   - **模型验证**。模型验证可在训练或导出后进行。前者验证神经网络和训练结果的正确性，而后者主要验证导出模型的正确性，以便后续在边缘计算设备上进行部署和调试。上述两个步骤的文档中已经提供了一些模型验证的方法。
 
-## 进阶
+## 高级用法
 
-- **模型的部署**，如果您想将训练导出后的模型部署在边缘计算设备上，请参考 [ESP32 部署示例](../deploy/esp32/deploy)或 [Grove Vision AI 部署示例](../deploy/grove/deploy)。
+- **模型部署**。如果您想将导出的训练模型部署在边缘计算设备上，请参考[ESP32部署示例](../deploy/esp32/deploy)或[Grove Vision AI部署示例](../deploy/grove/deploy)。
 
-- **自定义数据集**，如果您想在自定义数据集上进行训练，请参考[数据集](../tutorials/datasets)。
+- **自定义数据集**。如果您想在自定义数据集上进行训练，请参考[数据集](../tutorials/datasets)。
 
-- **自定义模型**，如果您想对现有的神经网络进行修改或设计自己的神经网络，请参考[模型配置](../tutorials/config)。
+- **自定义模型**。如果您想修改现有的神经网络或设计自己的神经网络，请参考[模型配置](../tutorials/config)。
 
-## 必要知识
+## 必备知识
 
-- 计算机视觉：
+- 📸 计算机视觉：
 
-  计算机视觉的基础知识建立在数字图像处理之上。因此，您需要首先学习数字图像处理的基础知识。然后，您可以继续阅读计算机视觉主题，如模式识别和三维几何。您需要了解线性代数，以便能够充分理解计算机视觉的一些概念，如降维。在了解了计算机视觉的基础知识后，您还应该掌握深度学习方面的知识，尤其是卷积神经网络（CNN）方面的知识。
+  计算机视觉的基础建立在数字图像处理之上。因此，您需要先学习数字图像处理的基础知识。然后可以继续学习计算机视觉主题，如模式识别和三维几何。您需要了解线性代数，以便能够充分理解计算机视觉中的某些概念，如降维。在理解计算机视觉基础知识之后，您还应该在深度学习方面建立知识，特别是卷积神经网络（CNN）方面的知识。
 
-- 编程：
+- 💻 编程：
 
-  Python 足够用于设计和原型开发，但如果您想做一些嵌入式工作
-  嵌入式工作，您还应该熟悉 C++。
+  对于设计和原型制作来说，Python就足够了，但如果您想进行嵌入式开发工作，您还应该熟悉C/C++。
 
-- 工具：
+- 🧰 工具：
 
-  OpenCV 是计算机视觉的主要工具，Numpy 是数据处理和分析的重要工具。您必须了解它们。你永远不会知道，但你应该知道有哪些工具可用以及如何使用它们。如何使用它们 您需要熟悉的另一个工具是深度学习框架。框架。你可以从最容易学习的 Keras 开始，然后学习 TensorFlow 或 PyTorch。
+  OpenCV是计算机视觉的主要工具，Numpy是数据处理和分析的重要工具。您必须熟悉它们。您应该了解可用的工具以及如何使用它们。您还需要熟悉深度学习框架，可以从最容易学习的Keras开始，然后学习Tensorflow或PyTorch。

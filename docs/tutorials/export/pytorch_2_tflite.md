@@ -1,4 +1,4 @@
-# PyTorch to TFLite (Experimental)
+# PyTorch to TFLite
 
 This chapter will describe how to convert and export PyTorch models to TFLite models.
 
@@ -6,14 +6,14 @@ This chapter will describe how to convert and export PyTorch models to TFLite mo
 
 ### Environment Configuration
 
-As the [Training](../training/overview.md) step, we recommend you to do it in a **virtual environment** during the model exporting phase. In the `edgelab` virtual environment, make sure that the [Installation - Prerequisites - Install Extra Dependencies](../../introduction/installation#step-4-install-extra-dependencies-optional) step has been completed.
+As the [Training](../training/overview.md) step, we recommend you to do it in a **virtual environment** during the model exporting phase. In the `sscma` virtual environment, make sure that the [Installation - Prerequisites - Install Extra Dependencies](../../introduction/installation#step-4-install-extra-dependencies-optional) step has been completed.
 
 ::: tip
 
 If you have configured a virtual environment but not activated it, you can activate it with the following command.
 
 ```sh
-conda activate edgelab
+conda activate sscma
 ```
 
 :::
@@ -24,7 +24,7 @@ You also need to prepare the PyTorch model and its weights before exporting the 
 
 - Refer to [Training](../training/overview.md) section and choose a model, and train to get the model weights.
 
-- Or download the EdgeLab official pre-trained weights from our [GitHub Releases - Model Zoo](https://github.com/Seeed-Studio/EdgeLab/releases/tag/model_zoo).
+- Or download the [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) official pre-trained weights from our [GitHub Releases - Model Zoo](https://github.com/Seeed-Studio/SSCMA/releases/tag/model_zoo).
 
 ::: tip
 
@@ -81,7 +81,7 @@ python3 tools/export.py \
 
 ## Model Validation
 
-Since in the process of exporting the model, EdgeLab will do some optimization for the model using some tools, such as model pruning, distillation, etc. Although we have tested and evaluated the model weights during the training process, we recommend you to validate the exported model again.
+Since in the process of exporting the model, [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) will do some optimization for the model using some tools, such as model pruning, distillation, etc. Although we have tested and evaluated the model weights during the training process, we recommend you to validate the exported model again.
 
 ```sh
 python3 tools/inference.py \

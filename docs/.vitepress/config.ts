@@ -4,18 +4,18 @@ import en_US from './locales/en_US'
 import zh_CN from './locales/zh_CN'
 
 export default defineConfig({
-    base: '/EdgeLab',
-    title: 'EdgeLab',
+    base: '/sscma',
+    title: 'SenseCraft',
     lastUpdated: true,
     cleanUrls: true,
 
     head: [
-        ['link', { rel: 'icon', type: 'image/png', href: '/EdgeLab/favicon.png' }],
+        ['link', { rel: 'icon', type: 'image/png', href: '/favicon.png' }],
         ['meta', { property: 'og:type', content: 'website' }],
-        ['meta', { property: 'og:title', content: 'EdgeLab' }],
-        ['meta', { property: 'og:image', content: '/EdgeLab/og-image.png' }],
-        ['meta', { property: 'og:url', content: 'https://github.com/Seeed-Studio/EdgeLab' }],
-        ['meta', { property: 'og:description', content: 'Seeed Studio EdgeLab is an open-source project focused on embedded AI.' }],
+        ['meta', { property: 'og:title', content: 'SSCMA' }],
+        ['meta', { property: 'og:image', content: '/og-image.png' }],
+        ['meta', { property: 'og:url', content: 'https://github.com/Seeed-Studio/SSCMA' }],
+        ['meta', { property: 'og:description', content: 'SenSeCraft Model Assiant is an open-source project focused on embedded AI.' }],
         ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
         ['meta', { name: 'twitter:site', content: '@seeedstudio' }],
         ['meta', { name: 'theme-color', content: '#051726' }]
@@ -43,7 +43,7 @@ export default defineConfig({
         outline: [2, 3],
 
         socialLinks: [
-            { icon: 'github', link: 'https://github.com/Seeed-Studio/Edgelab' }
+            { icon: 'github', link: 'https://github.com/Seeed-Studio/SSCMA' }
         ]
     }
 })

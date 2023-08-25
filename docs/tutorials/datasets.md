@@ -1,25 +1,25 @@
 # Datasets
 
-EdgeLab supports a variety of datasets. You can browse and download different datasets on the Internet, or annotate and create your own datasets.
+[SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) supports a variety of datasets. You can browse and download different datasets on the Internet, or annotate and create your own datasets.
 
 ## Internet Datasets
 
-### EdgeLab
+### [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA)
 
-EdgeLab currently provides the following official datasets for training and testing of corresponding models.
+[SSCMA](https://github.com/Seeed-Studio/SSCMA) currently provides the following official datasets for training and testing of corresponding models.
 
-Please make sure you are in the **Root Directory of EdgeLab** before running the command to download a specific datasets. The command will automatically download the datasets and save them in a folder named `datasets` in the current directory, and finally unpacking them.
+Please make sure you are in the **Root Directory of [SSCMA](https://github.com/Seeed-Studio/SSCMA)** before running the command to download a specific datasets. The command will automatically download the datasets and save them in a folder named `datasets` in the current directory, and finally unpacking them.
 
-- [Download Custom Meter Datasets](https://files.seeedstudio.com/wiki/Edgelab/meter.zip):
+- [Download Custom Meter Datasets](https://files.seeedstudio.com/wiki/sscma/meter.zip):
 
   ```sh
-  wget https://files.seeedstudio.com/wiki/Edgelab/meter.zip -P datasets && unzip datasets/meter.zip -d datasets
+  wget https://files.seeedstudio.com/wiki/sscma/meter.zip -P datasets && unzip datasets/meter.zip -d datasets
   ```
 
-- [Download COCO_MASK Datasets](https://files.seeedstudio.com/wiki/Edgelab/coco_mask.zip):
+- [Download COCO_MASK Datasets](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip):
 
   ```sh
-  wget https://files.seeedstudio.com/wiki/Edgelab/coco_mask.zip -P datasets && unzip datasets/coco_mask.zip -d datasets
+  wget https://files.seeedstudio.com/wiki/sscma/coco_mask.zip -P datasets && unzip datasets/coco_mask.zip -d datasets
   ```
 
 ### Roboflow
@@ -31,6 +31,15 @@ Please make sure you are in the **Root Directory of EdgeLab** before running the
 We highly recommend looking for datasets on Roboflow, and you can download hundreds of different datasets from Roboflow for free to meet your specific needs by simply signing up for an account.
 
 :::
+
+you can find some datasets for [SSCMA](https://github.com/Seeed-Studio/SSCMA) on Roboflow below:
+| Dataset | Description |
+| -- | -- |
+| [Digital Meter Water](https://universe.roboflow.com/seeed-studio-dbk14/digital-meter-water/dataset/1) | Digital Meter Water Dataset | 
+| [Digital Meter Seg7](https://universe.roboflow.com/seeed-studio-dbk14/digital-meter-seg7/dataset/1) | Digital Meter Seg7 Dataset |
+| [Digit Seg7 Classification](https://universe.roboflow.com/seeed-studio-ovcjn/digit-seg7/1) | Digit Seg7 Classification Dataset |
+
+
 
 ### Kaggle
 
@@ -50,7 +59,7 @@ Creating a custom dataset usually involves the following steps.
 
 5. **Load Dataset:** Load the converted dataset into the model for training and testing. When loading the dataset, it is important to use the appropriate data loader and batch size.
 
-6. **Data Enhancement (optional, recommended to be done by EdgeLab):** Perform data enhancement on the dataset, such as rotate, flip, crop, etc., to increase the diversity and number of datasets.
+6. **Data Enhancement (optional, recommended to be done by [SSCMA](https://github.com/Seeed-Studio/SSCMA)):** Perform data enhancement on the dataset, such as rotate, flip, crop, etc., to increase the diversity and number of datasets.
 
 ## Datasets Annotation
 

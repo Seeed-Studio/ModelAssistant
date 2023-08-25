@@ -6,9 +6,9 @@ For more information about MobileNet, please refer to the paper [MobileNets: Eff
 
 ## Prepare Datasets
 
-EdgeLab uses [COCO_MASK Datasets](../datasets.md#EdgeLab) by default to train the FOMO model, please refer to the following steps to complete the preparation of datasets.
+[SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) uses [COCO_MASK Datasets](../datasets.md#SSCMA) by default to train the FOMO model, please refer to the following steps to complete the preparation of datasets.
 
-1. Please refer to [Internet Datasets - EdgeLab - COCO_MASK Dataset](../datasets.md#EdgeLab) to download and unpack the dataset.
+1. Please refer to [Internet Datasets - [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) - COCO_MASK Dataset](../datasets.md#SSCMA) to download and unpack the dataset.
 
 2. Remember its **folder path** (e.g. `datasets\mask`) of the unpacked datasets, you may need to use this folder path later.
 
@@ -16,7 +16,7 @@ EdgeLab uses [COCO_MASK Datasets](../datasets.md#EdgeLab) by default to train th
 
 We will choose a appropriate configuration file depending on the type of training task we need to perform, which we have already introduced in [Config](../config.md), for a brief description of the functions, structure, and principles of the configuration file.
 
-For the FOMO model example, we use `fomo_mobnetv2_0.35_x8_abl_coco.py` as the configuration file, which is located in the folder under the EdgeLab root directory `configs/fomo` and its additionally inherits the `default_runtime_det.py` configuration file.
+For the FOMO model example, we use `fomo_mobnetv2_0.35_x8_abl_coco.py` as the configuration file, which is located in the folder under the [SSCMA](https://github.com/Seeed-Studio/SSCMA) root directory `configs/fomo` and its additionally inherits the `default_runtime_det.py` configuration file.
 
 For beginners, we recommend to pay attention to the `data_root` and `epochs` parameters in this configuration file at first.
 
@@ -24,8 +24,8 @@ For beginners, we recommend to pay attention to the `data_root` and `epochs` par
 
 ```python
 _base_='../_base_/default_runtime_det.py'
-default_scope='edgelab'
-custom_imports=dict(imports=['edgelab'], allow_failed_imports=False)
+default_scope='sscma'
+custom_imports=dict(imports=['sscma'], allow_failed_imports=False)
 
 num_classes=2
 model=dict(type='Fomo',
@@ -119,9 +119,9 @@ param_scheduler=[
 
 ## Training Model
 
-Training the model requires using our previously configured EdgeLab working environment, if you follow our [Installation](../../introduction/installation.md) guide using Conda to install EdgeLab in a virtual environment named `edgelab`, please first make sure that you are currently in the virtual environment.
+Training the model requires using our previously configured [SSCMA](https://github.com/Seeed-Studio/SSCMA) working environment, if you follow our [Installation](../../introduction/installation.md) guide using Conda to install [SSCMA](https://github.com/Seeed-Studio/SSCMA) in a virtual environment named `sscma`, please first make sure that you are currently in the virtual environment.
 
-Then, in the EdgeLab project root directory, we execute the following command to train a FOMO mask detection model.
+Then, in the [SSCMA](https://github.com/Seeed-Studio/SSCMA) project root directory, we execute the following command to train a FOMO mask detection model.
 
 ```sh
 python3 tools/train.py \
@@ -144,7 +144,7 @@ After the training is completed, the path of the latest FOMO model weights file 
 If you have a virtual environment configured but not activated, you can activate it with the following command.
 
 ```sh
-conda activate edgelab
+conda activate sscma
 ```
 
 :::
@@ -171,7 +171,7 @@ If you want a real-time preview while testing, you can append a parameter `--sho
 
 ### Evaluation
 
-In order to further test and evaluate the model on a realistic edge computing device, you need to export the model. In the process of exporting the model, EdgeLab will do some optimization on the model, such as model pruning, distillation, etc. You can refer to the [Export](../export/overview) section to learn more about how to export models.
+In order to further test and evaluate the model on a realistic edge computing device, you need to export the model. In the process of exporting the model, [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) will do some optimization on the model, such as model pruning, distillation, etc. You can refer to the [Export](../export/overview) section to learn more about how to export models.
 
 ### Deployment
 

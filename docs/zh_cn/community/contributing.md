@@ -1,6 +1,6 @@
 # 贡献指南
 
-欢迎对 EdgeLab 做出贡献！我们欢迎任何类型的贡献，包括不限于:
+欢迎对 [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA)  做出贡献！我们欢迎任何类型的贡献，包括不限于:
 
 - 修复错误
 

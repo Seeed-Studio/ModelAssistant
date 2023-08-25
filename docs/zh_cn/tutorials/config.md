@@ -1,10 +1,10 @@
 # 模型配置
 
-EdgeLab 使用 [OpenMMLab - MMEngine](https://github.com/open-mmlab/mmengine) 提供的配置处理系统，具有模块化、可继承的设计特点，为用户提供了统一的配置访问接口，便于用户对不同的神经网络进行各种测试与验证。
+[SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) 使用 [OpenMMLab - MMEngine](https://github.com/open-mmlab/mmengine) 提供的配置处理系统，具有模块化、可继承的设计特点，为用户提供了统一的配置访问接口，便于用户对不同的神经网络进行各种测试与验证。
 
 ## 配置的目录结构
 
-EdgeLab 使用的配置文件位于 `configs` 目录下，用于不同任务下不同模型的训练。我们在其根据不同的任务分类划分了子文件夹，在各个子文件夹中，保存有多个模型的不同训练管线参数，配置文件的目录结构如下:
+[SSCMA](https://github.com/Seeed-Studio/SSCMA) 使用的配置文件位于 `configs` 目录下，用于不同任务下不同模型的训练。我们在其根据不同的任务分类划分了子文件夹，在各个子文件夹中，保存有多个模型的不同训练管线参数，配置文件的目录结构如下:
 
 ::: code-group
 
@@ -140,7 +140,7 @@ model=dict(
 
 ### 数据集和验证
 
-在设置好网络模型后，我们还需要设置数据集和数据加载管道来构建数据加载器。由于这部分的复杂性，我们使用中间变量来简化数据加载器配置的编写。完整的数据增强方法可以在 `edgelab/datasets/pipelines` 文件夹中找到。
+在设置好网络模型后，我们还需要设置数据集和数据加载管道来构建数据加载器。由于这部分的复杂性，我们使用中间变量来简化数据加载器配置的编写。完整的数据增强方法可以在 `sscma/datasets/pipelines` 文件夹中找到。
 
 我们将在这里演示 FOMO 的训练和测试管线，该管线使用了[自定义的 COCO_MASK 数据集](./datasets):
 
@@ -230,9 +230,9 @@ opencv_num_threads=1                  # 关闭 OpenCV 多线程降低内存占�
 work_dir='./work_dirs'                # 用于保存当前实验的模型检查点和日志的目录
 ```
 
-## EdgeLab 参数化配置
+## 参数配置
 
-使用 EdgeLab 的 `tools/train.py` 或 `tools/test.py` 提交作业时，可以指定 `--cfg-options` 临时覆写配置。
+使用 [SSCMA](https://github.com/Seeed-Studio/SSCMA)  的 `tools/train.py` 或 `tools/test.py` 提交作业时，可以指定 `--cfg-options` 临时覆写配置。
 
 ::: tip
 
