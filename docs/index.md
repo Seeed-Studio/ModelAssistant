@@ -3,28 +3,28 @@
 layout: home
 
 hero:
-  name: EdgeLab
-  text: Seeed Studio EdgeLab is an open-source project focused on embedded AI.
+  name: SenseCraft Model Assistant
+  text: Open-source project focused on embedded AI.
   tagline: We have optimized excellent algorithms for real-world scenarios and made
     implementation more user-friendly, achieving faster and more accurate inference
     on embedded devices.
   image:
-    src: /images/EdgeLab-Hero.png
-    alt: EdgeLab
+    src: /images/SSCMA-Hero.png
+    alt: SenseCraft
   actions:
     - theme: brand
       text: Get Started
       link: ./introduction/quick_start
     - theme: alt
-      text: Install EdgeLab
+      text: Install SSCMA
       link: ./introduction/installation
     - theme: alt
       text: View on GitHub
-      link: https://github.com/Seeed-Studio/EdgeLab
+      link: https://github.com/Seeed-Studio/SSCMA
 
 features:
   - icon: 🔍
-    title: Anomaly Detection (coming soon)
+    title: Anomaly Detection 
     details: In the real world, anomalous data is often difficult to identify, and
       even if it can be identified, it requires a very high cost. The anomaly detection
       algorithm collects normal data in a low-cost way, and anything outside normal
@@ -32,13 +32,13 @@ features:
   - icon: 👁️
     title: Computer Vision
     details: Here we provide a number of computer vision algorithms such as object
-      detection, image classification, image segmentation and pose estimation.  EdgeLab
+      detection, image classification, image segmentation and pose estimation.  We
       optimizes these computer vision algorithms to achieve good running speed and
       accuracy in low-end devices.
   - icon: ⏱️
     title: Scenario Specific
-    details: EdgeLab provides customized scenarios for specific production environments,
-      such as identification of analog instruments, traditional digital meters, and
-      audio classification. We will continue to add more algorithms for specified
-      scenarios in the future.
+    details: SenseCraft Model Assistant provides customized scenarios for specific
+      production environments, such as identification of analog instruments, traditional 
+      digital meters, and audio classification. We will continue to add more algorithms for 
+      specified scenarios in the future.
 ---

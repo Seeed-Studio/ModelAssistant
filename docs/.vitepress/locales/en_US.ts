@@ -2,20 +2,20 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
     lang: 'en-US',
-    description: 'Seeed Studio EdgeLab is an open-source project focused on embedded AI.',
+    description: 'SenseCraft Model Assistant is an open-source project focused on embedded AI.',
 
     themeConfig: {
         nav: nav(),
         sidebar: { '/': sidebar() },
 
         editLink: {
-            pattern: 'https://github.com/Seeed-Studio/Edgelab/edit/main/docs/:path',
+            pattern: 'https://github.com/Seeed-Studio/SSCMA/edit/main/docs/:path',
             text: 'Suggest changes to this page'
         },
 
         footer: {
             message: 'Released under the MIT License',
-            copyright: 'Copyright © 2023-Present Seeed Studio & EdgeLab Contributors',
+            copyright: 'Copyright © 2023-Present Seeed Studio & SenseCraft Model Assistant Contributors',
         }
     }
 })
@@ -23,7 +23,7 @@ export default defineConfig({
 function nav() {
     return [
         { text: 'Home', link: '/' },
-        { text: 'Documentation', link: '/introduction/what_is_edgelab' }
+        { text: 'Documentation', link: '/introduction/what_is_sscma' }
     ]
 }
 
@@ -33,7 +33,7 @@ function sidebar() {
             text: 'Introduction',
             collapsed: false,
             items: [
-                { text: 'What is EdgeLab?', link: '/introduction/what_is_edgelab' },
+                { text: 'What is SenseCraft Model Assistant?', link: '/introduction/what_is_sscma' },
                 { text: 'Quick Start', link: '/introduction/quick_start' },
                 { text: 'Installation', link: '/introduction/installation' }
             ]
@@ -50,7 +50,7 @@ function sidebar() {
                     items: [
                         { text: 'FOMO Model', link: '/tutorials/training/fomo' },
                         { text: 'PFLD Model', link: '/tutorials/training/pfld' },
-                        { text: 'YOLOv5 Model', link: '/tutorials/training/yolov5' },
+                        { text: 'YOLO Model', link: '/tutorials/training/yolo' },
 
                     ]
                 },

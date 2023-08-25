@@ -1,25 +1,25 @@
 # 数据集
 
-EdgeLab 支持多种数据集。您可以在互联网上浏览并下载不同的数据集，或是自行标注、制作数据集。
+[SSCMA(SensorCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) 支持多种数据集。您可以在互联网上浏览并下载不同的数据集，或是自行标注、制作数据集。
 
 ## 互联网数据集
 
-### EdgeLab
+### SSCMA
 
-EdgeLab 目前提供以下官方数据集，用于对应模型的训练和测试。
+[SSCMA](https://github.com/Seeed-Studio/SSCMA)  目前提供以下官方数据集，用于对应模型的训练和测试。
 
-对于使用命令下载的数据集，请确保在运行命令前处于 **EdgeLab 项目根目录**，命令会自动下载数据集并将其保存在当前目录下的名为 `datasets` 的文件夹中，并完成解压。
+对于使用命令下载的数据集，请确保在运行命令前处于 **[SSCMA](https://github.com/Seeed-Studio/SSCMA) 项目根目录**，命令会自动下载数据集并将其保存在当前目录下的名为 `datasets` 的文件夹中，并完成解压。
 
-- [下载自定义 Meter 数据集](https://files.seeedstudio.com/wiki/Edgelab/meter.zip):
+- [下载自定义 Meter 数据集](https://files.seeedstudio.com/wiki/sscma/meter.zip):
 
   ```sh
-  wget https://files.seeedstudio.com/wiki/Edgelab/meter.zip -P datasets && unzip datasets/meter.zip -d datasets
+  wget https://files.seeedstudio.com/wiki/sscma/meter.zip -P datasets && unzip datasets/meter.zip -d datasets
   ```
 
-- [下载 COCO_MASK 数据集](https://files.seeedstudio.com/wiki/Edgelab/coco_mask.zip):
+- [下载 COCO_MASK 数据集](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip):
 
   ```sh
-  wget https://files.seeedstudio.com/wiki/Edgelab/coco_mask.zip -P datasets && unzip datasets/coco_mask.zip -d datasets
+  wget https://files.seeedstudio.com/wiki/sscma/coco_mask.zip -P datasets && unzip datasets/coco_mask.zip -d datasets
   ```
 
 ### Roboflow
@@ -31,6 +31,13 @@ EdgeLab 目前提供以下官方数据集，用于对应模型的训练和测试
 我们十分推荐您在这里寻找数据集，您只需要注册一个账号，就可以免费下载数百个来自互联网的不同数据集，用于满足您的特定需求。
 
 :::
+
+你可以在 Roboflow 上找到一些 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 的数据集，如下所示:
+| Dataset | Description |
+| -- | -- |
+| [Digital Meter Water](https://universe.roboflow.com/seeed-studio-dbk14/digital-meter-water/dataset/1) | Digital Meter Water Dataset | 
+| [Digital Meter Seg7](https://universe.roboflow.com/seeed-studio-dbk14/digital-meter-seg7/dataset/1) | Digital Meter Seg7 Dataset |
+| [Digit Seg7 Classification](https://universe.roboflow.com/seeed-studio-ovcjn/digit-seg7/1) | Digit Seg7 Classification Dataset |
 
 ### Kaggle
 
@@ -50,7 +57,7 @@ EdgeLab 目前提供以下官方数据集，用于对应模型的训练和测试
 
 5. **加载数据集:** 将转换好的数据集加载到模型中进行训练和测试。在加载数据集时需要注意的是，要使用合适的数据加载器和批量大小。
 
-6. **数据增强 (可选，建议由 EdgeLab 完成):** 对数据集进行数据增强，如旋转、翻转、剪裁等操作，以增加数据集的多样性和数量。
+6. **数据增强 (可选，建议由 SSCMA 完成):** 对数据集进行数据增强，如旋转、翻转、剪裁等操作，以增加数据集的多样性和数量。
 
 ## 数据集标注
 

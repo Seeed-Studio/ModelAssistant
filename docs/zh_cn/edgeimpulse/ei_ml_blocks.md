@@ -2,7 +2,7 @@
 
 [Edge Impulse](https://www.edgeimpulse.com/) 是边缘设备上机器学习的领先开发平台。
 
-EdgeLab 中的模型支持在 Edge Impulse 上运行，具体信息见 GitHub 仓库 [edgelab-ei-ml-blocks](https://github.com/Seeed-Studio/edgelab-ei-ml-blocks)。下面使用 `edgelab-fomo` 模型进行示例，说明如何在 Edge Impulse 上运行 EdgeLab 模型。
+[SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) 中的模型支持在 Edge Impulse 上运行，具体信息见 GitHub 仓库 [sscma-ei-ml-blocks](https://github.com/Seeed-Studio/sscma-ei-ml-blocks)。下面使用 `sscma-fomo` 模型进行示例，说明如何在 Edge Impulse 上运行 SSCMA 模型。
 
 ## 运行管线
 
@@ -13,8 +13,8 @@ EdgeLab 中的模型支持在 Edge Impulse 上运行，具体信息见 GitHub �
 01. 克隆示例仓库。
 
     ```sh
-    git clone https://github.com/Seeed-Studio/edgelab-ei-ml-blocks && \
-    cd edgelab-ei-ml-blocks/edgelab-fomo
+    git clone https://github.com/Seeed-Studio/sscma-ei-ml-blocks && \
+    cd sscma-ei-ml-blocks/sscma-fomo
     ```
 
 02. 安装 [Docker Desktop](https://www.docker.com/products/docker-desktop/)。
@@ -56,13 +56,13 @@ EdgeLab 中的模型支持在 Edge Impulse 上运行，具体信息见 GitHub �
 10. 构建容器。
 
     ```sh
-    docker build -t edgelab-fomo .
+    docker build -t sscma-fomo .
     ```
 
 11. 运行容器来测试脚本 (如果你做了修改，你不需要重建容器)。
 
     ```sh
-    docker run --shm-size=1024m --rm -v $PWD:/scripts edgelab-fomo --data-directory data/ --epochs 30 --learning-rate 0.00001 --out-directory out/.
+    docker run --shm-size=1024m --rm -v $PWD:/scripts sscma-fomo --data-directory data/ --epochs 30 --learning-rate 0.00001 --out-directory out/.
     ```
 
 12. 这将在 `out` 目录下创建一个 `.tflite` 文件。

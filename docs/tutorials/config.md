@@ -1,10 +1,10 @@
 # Model Configuration
 
-EdgeLab uses the configuration processing system provided by [OpenMMLab - MMEngine](https://github.com/open-mmlab/mmengine) with a modular and inheritable design that provides users a unified configuration access interface for various tests and validations of different neural networks.
+[SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) uses the configuration processing system provided by [OpenMMLab - MMEngine](https://github.com/open-mmlab/mmengine) with a modular and inheritable design that provides users a unified configuration access interface for various tests and validations of different neural networks.
 
 ## Directory Structure
 
-The configuration files used by EdgeLab are located in the `configs` directory, which are used for training different models under different tasks. And we have created many subfolders according to different tasks, and in each subfolder, different training pipeline parameters of multiple models are stored.
+The configuration files used by [SSCMA](https://github.com/Seeed-Studio/SSCMA) are located in the `configs` directory, which are used for training different models under different tasks. And we have created many subfolders according to different tasks, and in each subfolder, different training pipeline parameters of multiple models are stored.
 
 ::: code-group
 
@@ -139,7 +139,7 @@ model=dict(
 
 ### Dataset and Evaluator Config
 
-Dataset and data pipeline need to be set to build the dataloader. Due to the complexity of this part, we use intermediate variables to simplify the writing of dataloader configs. More complex data argumentation methods can be found in `edgelab/datasets/pipelines` path.
+Dataset and data pipeline need to be set to build the dataloader. Due to the complexity of this part, we use intermediate variables to simplify the writing of dataloader configs. More complex data argumentation methods can be found in `sscma/datasets/pipelines` path.
 
 We will demonstrate here the training and testing pipeline for FOMO, which uses the [Custom COCO_MASK Dataset](./datasets):
 
@@ -231,7 +231,7 @@ work_dir = './work_dirs'              # Directory to save the model checkpoints 
 
 ## Parameterized Configuration
 
-When submitting a job using `tools/train.py` or `tools/test.py` from EdgeLab, you can specify `--cfg-options` to temporarily overwrite the configuration.
+When submitting a job using `tools/train.py` or `tools/test.py` from [SSCMA](https://github.com/Seeed-Studio/SSCMA), you can specify `--cfg-options` to temporarily overwrite the configuration.
 
 ::: tip
 

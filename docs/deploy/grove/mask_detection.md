@@ -1,6 +1,6 @@
 # Mask Detection with Grove - Vision AI
 
-This tutorial will demonstrate the development process of mask detection using EdgeLab based on Grove - Vision AI module.
+This tutorial will demonstrate the development process of mask detection using [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA)  based on Grove - Vision AI module.
 
 ::: tip
 
@@ -16,15 +16,15 @@ Please refer to [Grove - Deploy - Prerequisites](./deploy.md#prerequisites).
 
 The mask detection feature is based on the FOMO model, in this step you need a FOMO model weight with the suffix `.pth`, you have two ways to get the model weight.
 
-- Download the pre-trained model from our [Model Zoo](https://github.com/Seeed-Studio/edgelab-model-zoo).
+- Download the pre-trained model from our [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo).
 
-- Refer to [Training - FOMO Models](../../tutorials/training/fomo.md) to train the FOMO model and get the model weights using PyTorch and EdgeLab by yourself.
+- Refer to [Training - FOMO Models](../../tutorials/training/fomo.md) to train the FOMO model and get the model weights using PyTorch and [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA)  by yourself.
 
 ## Export Model
 
 Since the trained model is not suitable for running directly on edge computing devices, we need to export it to a TFLite format with a `.tflite` suffix, and you have two ways to get the exported model (with model weights contained).
 
-- Download the exported TFLite model from our [Model Zoo](https://github.com/Seeed-Studio/edgelab-model-zoo).
+- Download the exported TFLite model from our [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo).
 
 - Refer to [Export - PyTorch to TFLite](../../tutorials/export/pytorch_2_tflite.md) to convert the FOMO model from PyTorch format to TFLite format by yourself.
 

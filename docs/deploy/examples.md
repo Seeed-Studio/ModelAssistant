@@ -1,6 +1,6 @@
 # Examples
 
-EdgeLab provides a variety of examples to help you quickly get started with EdgeLab. You can refer to the following examples to learn how to deploy models on different edge computing devices.
+SenseCraft Model Assistant provides a variety of examples to help you quickly get started with [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) . You can refer to the following examples to learn how to deploy models on different edge computing devices.
 
 ## [Grove AI](./grove/deploy.md)
 
