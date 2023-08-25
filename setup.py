@@ -133,9 +133,9 @@ if __name__ == '__main__':
         license='MIT',
         entry_points={
             'console_scripts': [
-                'edgtrain=sscma.tools.train:main',
-                'edginfer=sscma.tools.inference:main',
-                'edgexport=sscma.tools.export:main',
+                'sscma.train=sscma.tools.train:main',
+                'sscma.inference=sscma.tools.inference:main',
+                'sscma.export=sscma.tools.export:main',
                 'sscma=sscma.tools.api:main',
             ]
         },
