@@ -3,7 +3,7 @@
 layout: home
 
 hero:
-  name: SenseCraft Model Assistant
+  name: SSCMA
   text: Open-source project focused on embedded AI.
   tagline: We have optimized excellent algorithms for real-world scenarios and made
     implementation more user-friendly, achieving faster and more accurate inference
@@ -37,7 +37,7 @@ features:
       accuracy in low-end devices.
   - icon: ⏱️
     title: Scenario Specific
-    details: SenseCraft Model Assistant provides customized scenarios for specific
+    details: SSCMA provides customized scenarios for specific
       production environments, such as identification of analog instruments, traditional 
       digital meters, and audio classification. We will continue to add more algorithms for 
       specified scenarios in the future.

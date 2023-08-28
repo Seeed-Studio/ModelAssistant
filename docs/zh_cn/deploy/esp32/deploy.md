@@ -1,6 +1,6 @@
-# 在 Espressif 芯片上部署 SenseCraft Model Assistant 模型
+# 在 Espressif 芯片上部署 SSCMA 模型
 
-本示例为 [SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) 包含的模型在 Espreessif 芯片的部署教程，部署工作基于 [ESP-IDF](https://github.com/espressif/esp-idf) 和 [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) 实现。
+本示例为 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 包含的模型在 Espreessif 芯片的部署教程，部署工作基于 [ESP-IDF](https://github.com/espressif/esp-idf) 和 [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) 实现。
 
 ## 先决条件
 
@@ -133,7 +133,7 @@ idf.py --port <TARGET_SERIAL_PORT> flash monitor
 | ESP32-S3 | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/SSCMA/releases) |
 
 ::: tip
-更多模型请前往 [SenseCraft Model Assistant Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
+更多模型请前往 [SSCMA Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
 :::
 
 ## 贡献
@@ -144,7 +144,7 @@ idf.py --port <TARGET_SERIAL_PORT> flash monitor
 
 - 对于 TensorFlow Lite Micro 相关的信息请参考 [TFLite-Micro](https://github.com/tensorflow/tflite-micro)。
 
-- 对于 [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 相关的信息请参考 [SSCMA](https://github.com/Seeed-Studio/SSCMA/)。
+- 对于 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 相关的信息请参考 [SSCMA](https://github.com/Seeed-Studio/SSCMA/)。
 
 ## 许可
 

@@ -6,9 +6,9 @@ For more information about MobileNet, please refer to the paper [MobileNets: Eff
 
 ## Prepare Datasets
 
-[SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) uses [COCO_MASK Datasets](../datasets.md#SSCMA) by default to train the FOMO model, please refer to the following steps to complete the preparation of datasets.
+[SSCMA](https://github.com/Seeed-Studio/SSCMA) uses [COCO_MASK Datasets](../datasets.md#SSCMA) by default to train the FOMO model, please refer to the following steps to complete the preparation of datasets.
 
-1. Please refer to [Internet Datasets - [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) - COCO_MASK Dataset](../datasets.md#SSCMA) to download and unpack the dataset.
+1. Please refer to [Internet Datasets - [SSCMA](https://github.com/Seeed-Studio/SSCMA) - COCO_MASK Dataset](../datasets.md#SSCMA) to download and unpack the dataset.
 
 2. Remember its **folder path** (e.g. `datasets\mask`) of the unpacked datasets, you may need to use this folder path later.
 
@@ -171,7 +171,7 @@ If you want a real-time preview while testing, you can append a parameter `--sho
 
 ### Evaluation
 
-In order to further test and evaluate the model on a realistic edge computing device, you need to export the model. In the process of exporting the model, [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) will do some optimization on the model, such as model pruning, distillation, etc. You can refer to the [Export](../export/overview) section to learn more about how to export models.
+In order to further test and evaluate the model on a realistic edge computing device, you need to export the model. In the process of exporting the model, [SSCMA](https://github.com/Seeed-Studio/SSCMA) will do some optimization on the model, such as model pruning, distillation, etc. You can refer to the [Export](../export/overview) section to learn more about how to export models.
 
 ### Deployment
 

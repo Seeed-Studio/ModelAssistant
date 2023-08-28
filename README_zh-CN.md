@@ -1,4 +1,4 @@
-# SenseCraft Model Assistant
+# SenseCraft Model Assistant by Seeed Studio
 
 <div align="center">
   <img width="100%" src="docs/public/images/SSCMA-Logo.png">
@@ -9,7 +9,7 @@
 
 ## 简介
 
-SenseCraft Model Assistant 是一个专注于嵌入式人工智能的开源项目。我们从 [OpenMMLab](https://github.com/open-mmlab) 优化了优秀的算法，并使实现更加用户友好，在嵌入式设备上实现更快速、更准确的推理。
+SSCMA 是一个专注于嵌入式人工智能的开源项目。我们从 [OpenMMLab](https://github.com/open-mmlab) 优化了优秀的算法，并使实现更加用户友好，在嵌入式设备上实现更快速、更准确的推理。
 
 
 ## 包含内容

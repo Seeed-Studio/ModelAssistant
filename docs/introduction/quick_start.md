@@ -1,20 +1,20 @@
 # Quick Start
 
-In [Overview](./what_is_sscma), we have introduced the functions and features provided by [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA). Considering that [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) is divided into multiple different modules, each module completing its corresponding tasks, we suggest following the steps below to quickly get started.
+In [Overview](./what_is_sscma), we have introduced the functions and features provided by [SSCMA](https://github.com/Seeed-Studio/SSCMA). Considering that [SSCMA](https://github.com/Seeed-Studio/SSCMA) is divided into multiple different modules, each module completing its corresponding tasks, we suggest following the steps below to quickly get started.
 
 ::: tip
-We suggest that all beginners of [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) start learning from [Getting Started](#getting-started), if you are familiar with [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) or [OpenMMLab](https://github.com/open-mmlab), and you want to try to deploy on edge computing devices, modify existing neural networks, or train on user-defined data sets, you can directly refer to [Advanced](#advanced).
+We suggest that all beginners of [SSCMA](https://github.com/Seeed-Studio/SSCMA) start learning from [Getting Started](#getting-started), if you are familiar with [SSCMA](https://github.com/Seeed-Studio/SSCMA) or [OpenMMLab](https://github.com/open-mmlab), and you want to try to deploy on edge computing devices, modify existing neural networks, or train on user-defined data sets, you can directly refer to [Advanced](#advanced).
 :::
 
-Now, you can try out [SenseCraft Model Assistant Colab Examples](https://github.com/Seeed-Studio/SSCMA/tree/main/notebooks) on Google Colab without setup [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) on your computer.
+Now, you can try out [SSCMA Colab Examples](https://github.com/Seeed-Studio/SSCMA/tree/main/notebooks) on Google Colab without setup [SSCMA](https://github.com/Seeed-Studio/SSCMA) on your computer.
 
 ## Getting Started
 
-1. First, refer to the [Installation Guide](./installation.md) to configure the running environment of [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA).
+1. First, refer to the [Installation Guide](./installation.md) to configure the running environment of [SSCMA](https://github.com/Seeed-Studio/SSCMA).
 
-2. Then, familiar with the basic usage methods of [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA):
+2. Then, familiar with the basic usage methods of [SSCMA](https://github.com/Seeed-Studio/SSCMA):
 
-   - **Model Training**, please refer to [Model Training](../tutorials/training/overview) to learn how to use [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) to train a model. We suggest that you select a model from an example for training.
+   - **Model Training**, please refer to [Model Training](../tutorials/training/overview) to learn how to use [SSCMA](https://github.com/Seeed-Studio/SSCMA) to train a model. We suggest that you select a model from an example for training.
 
    - **Model Export**. After completing model training, in order to deploy on the edge-computing device, it is necessary to first export the model. For the export tutorial of the model, please refer to [Model Export](../tutorials/export/overview).
 

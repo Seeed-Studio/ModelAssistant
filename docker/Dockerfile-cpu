@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt update
 RUN apt install --no-install-recommends -y gcc git zip curl htop libgl1-mesa-glx libglib2.0-0 libpython3-dev gnupg build-essential
 
-# Get SenseCraft Model Assistant
+# Get SSCMA
 RUN git clone https://github.com/Seeed-Studio/SSCMA -b main --depth 1
 
 # Install pip packages

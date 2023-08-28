@@ -1,6 +1,6 @@
 # Meter Reader with Grove - Vision AI
 
-This tutorial will demonstrate the development process of meter reader using [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA)  based on Grove - Vision AI module.
+This tutorial will demonstrate the development process of meter reader using [SSCMA](https://github.com/Seeed-Studio/SSCMA)  based on Grove - Vision AI module.
 
 ::: tip
 

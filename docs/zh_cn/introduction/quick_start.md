@@ -1,20 +1,20 @@
 # 快速入门
 
-在[概述](./what_is_sscma)中，我们已经介绍了 [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 提供的功能和特性。考虑到 [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 被划分为多个不同的模块，每个模块完成其对应的任务，我们建议按照以下步骤快速入门。
+在[概述](./what_is_sscma)中，我们已经介绍了 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 提供的功能和特性。考虑到 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 被划分为多个不同的模块，每个模块完成其对应的任务，我们建议按照以下步骤快速入门。
 
 ::: tip
-我们建议 [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 的所有初学者都从[入门指南](#getting-started)开始学习，如果您对 [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 或 [OpenMMLab](https://github.com/open-mmlab) 已经熟悉，并且希望尝试在边缘计算设备上部署、修改现有的神经网络或使用自定义数据集进行训练，您可以直接参考[高级用法](#advanced)。
+我们建议 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 的所有初学者都从[入门指南](#getting-started)开始学习，如果您对 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 或 [OpenMMLab](https://github.com/open-mmlab) 已经熟悉，并且希望尝试在边缘计算设备上部署、修改现有的神经网络或使用自定义数据集进行训练，您可以直接参考[高级用法](#advanced)。
 :::
 
-现在，您可以在Google Colab上尝试使用[SenseCraft Model Assistant Colab示例](https://github.com/Seeed-Studio/SSCMA/tree/main/notebooks)，无需在计算机上安装[SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA)。
+现在，您可以在Google Colab上尝试使用[SSCMA Colab示例](https://github.com/Seeed-Studio/SSCMA/tree/main/notebooks)，无需在计算机上安装[SSCMA](https://github.com/Seeed-Studio/SSCMA)。
 
 ## 入门指南
 
-1. 首先，参考[安装指南](./installation.md)配置 [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 的运行环境。
+1. 首先，参考[安装指南](./installation.md)配置 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 的运行环境。
 
-2. 然后，熟悉 [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 的基本用法：
+2. 然后，熟悉 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 的基本用法：
 
-   - **模型训练**，请参考[模型训练](../tutorials/training/overview)以了解如何使用 [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 进行模型训练。我们建议您从示例中选择一个模型进行训练。
+   - **模型训练**，请参考[模型训练](../tutorials/training/overview)以了解如何使用 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 进行模型训练。我们建议您从示例中选择一个模型进行训练。
 
    - **模型导出**。完成模型训练后，为了在边缘计算设备上部署，首先需要导出模型。有关模型导出的教程，请参考[模型导出](../tutorials/export/overview)。
 

@@ -1,10 +1,10 @@
 # Datasets
 
-[SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) supports a variety of datasets. You can browse and download different datasets on the Internet, or annotate and create your own datasets.
+[SSCMA](https://github.com/Seeed-Studio/SSCMA) supports a variety of datasets. You can browse and download different datasets on the Internet, or annotate and create your own datasets.
 
 ## Internet Datasets
 
-### [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA)
+### [SSCMA](https://github.com/Seeed-Studio/SSCMA)
 
 [SSCMA](https://github.com/Seeed-Studio/SSCMA) currently provides the following official datasets for training and testing of corresponding models.
 

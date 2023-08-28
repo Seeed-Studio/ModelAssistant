@@ -1,6 +1,6 @@
 # Model Training
 
-[SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) currently supports the following models. You can refer to the corresponding tutorials to complete the training of the models and obtain the model weights.
+[SSCMA(Seeed SSCMA)](https://github.com/Seeed-Studio/SSCMA) currently supports the following models. You can refer to the corresponding tutorials to complete the training of the models and obtain the model weights.
 
 - [FOMO Model](./fomo.md): Face mask detection
 

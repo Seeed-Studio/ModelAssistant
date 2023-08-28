@@ -81,7 +81,7 @@ python3 tools/export.py \
 
 ## 模型验证
 
-[SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 会借助一些工具对模型进行一些优化，如模型的剪枝、蒸馏等，虽然我们在训练过程中已经对模型权重进行了测试和评估，我们建议您对导出后的模型进行再次验证。
+[SSCMA](https://github.com/Seeed-Studio/SSCMA) 会借助一些工具对模型进行一些优化，如模型的剪枝、蒸馏等，虽然我们在训练过程中已经对模型权重进行了测试和评估，我们建议您对导出后的模型进行再次验证。
 
 ```sh
 python3 tools/inference.py \

@@ -1,6 +1,6 @@
 # Copyrights and Licenses
 
-SenseCraft Model Assistant is released under the [MIT license](https://github.com/Seeed-Studio/SSCMA/blob/main/LICENSES).
+SSCMA is released under the [MIT license](https://github.com/Seeed-Studio/SSCMA/blob/main/LICENSES).
 
 ```
 MIT License

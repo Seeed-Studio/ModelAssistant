@@ -1,6 +1,6 @@
 # Mask Detection with Grove - Vision AI
 
-This tutorial will demonstrate the development process of mask detection using [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA)  based on Grove - Vision AI module.
+This tutorial will demonstrate the development process of mask detection using [SSCMA](https://github.com/Seeed-Studio/SSCMA)  based on Grove - Vision AI module.
 
 ::: tip
 
@@ -18,7 +18,7 @@ The mask detection feature is based on the FOMO model, in this step you need a F
 
 - Download the pre-trained model from our [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo).
 
-- Refer to [Training - FOMO Models](../../tutorials/training/fomo.md) to train the FOMO model and get the model weights using PyTorch and [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA)  by yourself.
+- Refer to [Training - FOMO Models](../../tutorials/training/fomo.md) to train the FOMO model and get the model weights using PyTorch and [SSCMA](https://github.com/Seeed-Studio/SSCMA)  by yourself.
 
 ## Export Model
 

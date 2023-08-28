@@ -1,6 +1,6 @@
 # 使用 ESP32 实现口罩检测
 
-本教程将基于 [SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) 示范使用 ESP32 实现口罩检测的开发流程。
+本教程将基于 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 示范使用 ESP32 实现口罩检测的开发流程。
 
 ::: tip
 
