@@ -179,7 +179,7 @@ The performance of [SSCMA](https://github.com/Seeed-Studio/SSCMA) related models
 | Grove Vision AI | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/SSCMA/releases) |
 
 ::: tip
-For more models go to [SenseCraft Model Assistant Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
+For more models go to [SSCMA Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
 :::
 
 ## Troubleshoot
@@ -194,7 +194,7 @@ If your Grove Vision AI is not recognized by your computer, we recommend your to
 
 - For information about TensorFlow Lite Micro, please refer to [TFLite-Micro](https://github.com/tensorflow/tflite-micro).
 
-- For SenseCraft Model Assistant related information, please refer to [SSCMA](https://github.com/Seeed-Studio/SSCMA/).
+- For SSCMA related information, please refer to [SSCMA](https://github.com/Seeed-Studio/SSCMA/).
 
 ## Licensing
 

@@ -1,6 +1,6 @@
-# 在 Grove - Vision AI 上部署 SenseCraft Model Assistant 模型
+# 在 Grove - Vision AI 上部署 SSCMA 模型
 
-本示例为 [SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA/) 包含的模型在 Grove - Vision AI 模块的部署教程，部署工作基于 [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain) 和 [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) 实现。
+本示例为 [SSCMA](https://github.com/Seeed-Studio/SSCMA/) 包含的模型在 Grove - Vision AI 模块的部署教程，部署工作基于 [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain) 和 [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) 实现。
 
 ## 先决条件
 
@@ -55,7 +55,7 @@ sudo apt-get update && \
 sudo apt-get install make -y
 ```
 
-此外，我们建议您提前完成 [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 的安装与配置。如果您还没有安装 [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA), 请参考[SSCMA 安装指南](../../introduction/installation.md)。
+此外，我们建议您提前完成 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 的安装与配置。如果您还没有安装 [SSCMA](https://github.com/Seeed-Studio/SSCMA), 请参考[SSCMA 安装指南](../../introduction/installation.md)。
 
 :::
 
@@ -179,7 +179,7 @@ Grove - Vision AI 的部署流程主要分为两个步骤，这两个步骤需�
 | Grove Vision AI | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/SSCMA/releases) |
 
 ::: tip
-更多模型请前往 [SenseCraft Model Assistant Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
+更多模型请前往 [SSCMA Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
 :::
 
 ## 故障排除

@@ -1,6 +1,6 @@
 # Model Configuration
 
-[SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) uses the configuration processing system provided by [OpenMMLab - MMEngine](https://github.com/open-mmlab/mmengine) with a modular and inheritable design that provides users a unified configuration access interface for various tests and validations of different neural networks.
+[SSCMA](https://github.com/Seeed-Studio/SSCMA) uses the configuration processing system provided by [OpenMMLab - MMEngine](https://github.com/open-mmlab/mmengine) with a modular and inheritable design that provides users a unified configuration access interface for various tests and validations of different neural networks.
 
 ## Directory Structure
 

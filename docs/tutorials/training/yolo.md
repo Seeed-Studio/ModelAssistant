@@ -4,7 +4,7 @@ This section describes how to train the digital meter model on the COCO digital 
 
 ## Prepare Datasets
 
-[SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) uses [Digital Meter Datasets](https://universe.roboflow.com/seeeddatasets/seeed_meter_digit/) by default to train the yolov5 model, please refer to the following steps to complete the preparation of datasets.
+[SSCMA](https://github.com/Seeed-Studio/SSCMA) uses [Digital Meter Datasets](https://universe.roboflow.com/seeeddatasets/seeed_meter_digit/) by default to train the yolov5 model, please refer to the following steps to complete the preparation of datasets.
 
 1. Download digital meter datasets with COCO datasets mode
 

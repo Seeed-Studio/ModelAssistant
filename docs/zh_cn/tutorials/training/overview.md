@@ -1,6 +1,6 @@
 # 模型训练
 
-[SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 目前支持以下模型，您可以参考对应的教程，完成模型的训练，获得模型权重。
+[Seeed SSCMA](https://github.com/Seeed-Studio/SSCMA) 目前支持以下模型，您可以参考对应的教程，完成模型的训练，获得模型权重。
 
 - [FOMO 模型](./fomo.md): 口罩检测
 

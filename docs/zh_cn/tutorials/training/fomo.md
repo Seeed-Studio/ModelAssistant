@@ -6,7 +6,7 @@
 
 ## 准备数据集
 
-[SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) 默认使用 [COCO_MASK 数据集](../datasets.md#SSCMA)训练 FOMO 模型，请参照以下步骤完成数据集的准备。
+[SSCMA](https://github.com/Seeed-Studio/SSCMA) 默认使用 [COCO_MASK 数据集](../datasets.md#SSCMA)训练 FOMO 模型，请参照以下步骤完成数据集的准备。
 
 1. 参考[互联网数据集 - SSCMA - COCO_MASK 数据集](../datasets.md#SSCMA)下载数据集并完成数据集的解压。
 

@@ -1,6 +1,6 @@
 # Meter Reader with ESP32
 
-This tutorial will demonstrate the development process of meter reader using [SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) based on ESP32.
+This tutorial will demonstrate the development process of meter reader using [SSCMA](https://github.com/Seeed-Studio/SSCMA) based on ESP32.
 
 ::: tip
 
@@ -18,7 +18,7 @@ The meter reading feature is based on the PFLD model, in this step you need a PF
 
 - Download the pre-trained model from our [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo).
 
-- Refer to [Training - PFLD Models](../../tutorials/training/pfld.md) to train the PFLD model and get the model weights using PyTorch and [SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) by yourself.
+- Refer to [Training - PFLD Models](../../tutorials/training/pfld.md) to train the PFLD model and get the model weights using PyTorch and [SSCMA](https://github.com/Seeed-Studio/SSCMA) by yourself.
 
 ## Export Model
 

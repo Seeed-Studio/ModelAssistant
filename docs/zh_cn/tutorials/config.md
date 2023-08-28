@@ -1,6 +1,6 @@
 # 模型配置
 
-[SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) 使用 [OpenMMLab - MMEngine](https://github.com/open-mmlab/mmengine) 提供的配置处理系统，具有模块化、可继承的设计特点，为用户提供了统一的配置访问接口，便于用户对不同的神经网络进行各种测试与验证。
+[SSCMA](https://github.com/Seeed-Studio/SSCMA) 使用 [OpenMMLab - MMEngine](https://github.com/open-mmlab/mmengine) 提供的配置处理系统，具有模块化、可继承的设计特点，为用户提供了统一的配置访问接口，便于用户对不同的神经网络进行各种测试与验证。
 
 ## 配置的目录结构
 

@@ -1,6 +1,6 @@
-# Deploying SenseCraft Model Assistant on Espressif Chips
+# Deploying SSCMA on Espressif Chips
 
-This example is a tutorial for deploying the models from [SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA/) to Espreessif chipsets, based on [ESP-IDF](https://github.com/espressif/esp-idf) and [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) implementations.
+This example is a tutorial for deploying the models from [SSCMA](https://github.com/Seeed-Studio/SSCMA/) to Espreessif chipsets, based on [ESP-IDF](https://github.com/espressif/esp-idf) and [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) implementations.
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ This example is a tutorial for deploying the models from [SSCMA(SenseCraft Model
 
 ### Install the ESP-IDF
 
-SenseCraft Model Assistant requires ESP-IDF `4.4.x` for deployment in ESP32, please refer to the following tutorial [ESP-IDF Get Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html) to install and configure the toolchain of ESP-IDF.
+SSCMA requires ESP-IDF `4.4.x` for deployment in ESP32, please refer to the following tutorial [ESP-IDF Get Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html) to install and configure the toolchain of ESP-IDF.
 
 After completed the ESP-IDF installation, please double-check [IDF Environment Config Variables](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html#step-4-set-up-the-environment-variables) is finished:
 
@@ -48,7 +48,7 @@ popd
 
 ::: warning
 
-You need to complete the installation and configuration of SenseCraft Model Assistant first. If you have not installed SenseCraft Model Assistant yet, you can refer to [SenseCraft Model Assistant Installation Guide](../../introduction/installation.md).
+You need to complete the installation and configuration of SSCMA first. If you have not installed SSCMA yet, you can refer to [SSCMA Installation Guide](../../introduction/installation.md).
 
 :::
 
@@ -133,7 +133,7 @@ The performance of [SSCMA](https://github.com/Seeed-Studio/SSCMA/)  related mode
 | ESP32-S3 | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/SSCMA/releases) |
 
 ::: tip
-For more models go to [SenseCraft Model Assistant Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
+For more models go to [SSCMA Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
 :::
 ## Contribute
 
@@ -143,7 +143,7 @@ For more models go to [SenseCraft Model Assistant Model Zoo](https://github.com/
 
 - For information about TensorFlow Lite Micro, please refer to [TFLite-Micro](https://github.com/tensorflow/tflite-micro).
 
-- For SenseCraft Model Assistant related information, please refer to [SSCMA](https://github.com/Seeed-Studio/SSCMA/).
+- For SSCMA related information, please refer to [SSCMA](https://github.com/Seeed-Studio/SSCMA/).
 
 ## Licensing
 

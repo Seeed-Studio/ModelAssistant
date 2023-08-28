@@ -1,6 +1,6 @@
 # 安装
 
-[SSCMA(SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) 运行环境依赖于 PyTorch 和来自 OpenMMLab 的各种第三方库。您可以在 [GitHub](https://github.com/Seeed-Studio/SSCMA) 上找到 SSCMA 的代码。要开始，请确保按照[此处](https://pytorch.org/get-started/locally/)的说明，在本地安装了 PyTorch，并获取所需的 OpenMMLab 库。
+[SSCMA](https://github.com/Seeed-Studio/SSCMA) 运行环境依赖于 PyTorch 和来自 OpenMMLab 的各种第三方库。您可以在 [GitHub](https://github.com/Seeed-Studio/SSCMA) 上找到 SSCMA 的代码。要开始，请确保按照[此处](https://pytorch.org/get-started/locally/)的说明，在本地安装了 PyTorch，并获取所需的 OpenMMLab 库。
 
 - [MMCV](https://github.com/open-mmlab/mmcv): OpenMMLab 计算机视觉基础库。
 - [MMClassification](https://github.com/open-mmlab/mmclassification): OpenMMLab 图像分类工具包和基准测试。除了分类任务外，它还用于提供各种主干网络。
@@ -10,7 +10,7 @@
 
 ## 准备工作
 
-[SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 可在 Linux、Windows 和 macOS 上运行。**我们强烈建议您使用 [Miniconda](https://docs.conda.io/en/latest/miniconda.html) 来管理 Python 包。**请按照以下步骤准备环境。
+[SSCMA](https://github.com/Seeed-Studio/SSCMA) 可在 Linux、Windows 和 macOS 上运行。**我们强烈建议您使用 [Miniconda](https://docs.conda.io/en/latest/miniconda.html) 来管理 Python 包。**请按照以下步骤准备环境。
 
 :::tip
 Miniconda 是 conda 的免费最小安装程序，您可以从[Miniconda 官方网站](https://docs.conda.io/en/latest/miniconda.html)下载并安装 Miniconda3。
@@ -45,7 +45,7 @@ conda activate sscma
 
 ### 第 2 步 - 安装 PyTorch
 
-[SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) 依赖于 PyTorch。在运行以下代码之前，请再次确认您已经**激活**了刚创建的虚拟环境。
+[SSCMA](https://github.com/Seeed-Studio/SSCMA) 依赖于 PyTorch。在运行以下代码之前，请再次确认您已经**激活**了刚创建的虚拟环境。
 
 对于带有 GPU（CUDA）的设备，我们建议安装支持 GPU 加速的依赖项。我们列出了您可以根据硬件环境手动选择的配置选项，请根据以下两种情况之一进行选择。
 

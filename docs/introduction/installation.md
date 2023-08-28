@@ -1,6 +1,6 @@
 # Installation
 
-[SSCMA (SenseCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) runtime environment relies on PyTorch and various third-party libraries from OpenMMLab. You can find the SSCMA code on [GitHub](https://github.com/Seeed-Studio/SSCMA). To get started, make sure you have PyTorch installed locally by following the instructions [here](https://pytorch.org/get-started/locally/), and then obtain the necessary OpenMMLab libraries.
+[SSCMA (SSCMA)](https://github.com/Seeed-Studio/SSCMA) runtime environment relies on PyTorch and various third-party libraries from OpenMMLab. You can find the SSCMA code on [GitHub](https://github.com/Seeed-Studio/SSCMA). To get started, make sure you have PyTorch installed locally by following the instructions [here](https://pytorch.org/get-started/locally/), and then obtain the necessary OpenMMLab libraries.
 
 - [MMCV](https://github.com/open-mmlab/mmcv): OpenMMLab Computer Vision Foundation Library.
 - [MMClassification](https://github.com/open-mmlab/mmclassification): OpenMMLab image classification toolkit and benchmarking. In addition to classification tasks, it is also used to provide a variety of backbone networks.
@@ -10,7 +10,7 @@
 
 ## Prerequisites
 
-[SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) works on Linux, Windows, and macOS. **We strongly recommend you to use [Miniconda](https://docs.conda.io/en/latest/miniconda.html) to manage python packages.** Please follow the steps below to prepare the environment.
+[SSCMA](https://github.com/Seeed-Studio/SSCMA) works on Linux, Windows, and macOS. **We strongly recommend you to use [Miniconda](https://docs.conda.io/en/latest/miniconda.html) to manage python packages.** Please follow the steps below to prepare the environment.
 
 :::tip
 Miniconda is a free minimal installer for conda, you can download and install Miniconda3 from [Miniconda Official Website](https://docs.conda.io/en/latest/miniconda.html).
@@ -45,7 +45,7 @@ conda activate sscma
 
 ### Step 2 - Install PyTorch
 
-[SenseCraft Model Assistant](https://github.com/Seeed-Studio/SSCMA) relies on PyTorch. Before running the following code, please confirm again that you have **activated** the virtual environment you just created.
+[SSCMA](https://github.com/Seeed-Studio/SSCMA) relies on PyTorch. Before running the following code, please confirm again that you have **activated** the virtual environment you just created.
 
 For devices with GPUs (CUDA), we recommend installing dependencies that support GPU acceleration. We have listed the configuration options you can choose from in 2 different cases, please choose manually according to your hardware environment.
 
