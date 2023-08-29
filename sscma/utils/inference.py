@@ -21,6 +21,30 @@ from sscma.utils.cv import NMS, load_image
 
 from .iot_camera import IoTCamera
 
+def _get_adaptive_scale(img_shape: Tuple[int, int],
+                        min_scale: float = 0.3,
+                        max_scale: float = 3.0) -> float:
+    """Get adaptive scale according to image shape.
+
+    The target scale depends on the the short edge length of the image. If the
+    short edge length equals 224, the output is 1.0. And output linear scales
+    according the short edge length.
+
+    You can also specify the minimum scale and the maximum scale to limit the
+    linear scale.
+
+    Args:
+        img_shape (Tuple[int, int]): The shape of the canvas image.
+        min_size (int): The minimum scale. Defaults to 0.3.
+        max_size (int): The maximum scale. Defaults to 3.0.
+
+    Returns:
+        int: The adaptive scale.
+    """
+    short_edge_length = min(img_shape)
+    scale = short_edge_length / 224.
+    return min(max(scale, min_scale), max_scale)
+
 
 class Inter:
     def __init__(self, model: List or AnyStr or Tuple):
@@ -389,19 +413,38 @@ class Infernce:
             elif self.task == 'cls':
                 if img.dtype == np.float32:
                     img = img * 255
+                
+
+                img_scale = 1 / _get_adaptive_scale(img.shape[:2])
+                    
+                img = cv2.resize(img, (int(img.shape[1] * img_scale), int(img.shape[0] * img_scale)))
+                    
                 self.visualizer.set_image(img)
                 label = np.argmax(preds[0], axis=1)
                 data['data_samples'][0].set_pred_score(preds[0][0]).set_pred_label(label)
                 self.evaluator.process(data_samples=data['data_samples'], data_batch=data)
-                self.visualizer = self.visualizer.draw_texts(str(label[0]), np.asarray([[1, 1]]), font_sizes=6)
+                text_cfg = dict()
+                text_cfg = {
+                    'positions': np.array([(img_scale * 3, ) * 2]).astype(np.int32),
+                    'font_sizes': int(img_scale * 4),
+                    'font_families': 'monospace',
+                    'colors': 'white',
+                    'bboxes': dict(facecolor='black', alpha=0.5, boxstyle='Round'),
+                    **text_cfg
+                }
+                texts = self.visualizer.dataset_meta["classes"][label[0]] + ':' + str(preds[0][0][label[0]])
+                self.visualizer.draw_texts(texts, **text_cfg)
+                
                 if self.show:
-                    self.visualizer.show()
+                    self.visualizer.show(backend='cv2')
             else:
                 raise ValueError
         if not self.source:
             metrics = self.evaluator.evaluate(len(self.dataloader.dataset))
             if self.dump is not None and metrics is not None:
                 resultdump(metrics, self.dump)
+                print(metrics)
+                
         if len(P):
             print('P:', sum(P) / len(P))
             print('R:', sum(R) / len(R))
