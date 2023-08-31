@@ -9,3 +9,4 @@ from .transforms import *  # noqa
 from .utils.functions import *  # noqa
 from .vocdataset import *  # noqa
 from .yolodataset import *  # noqa
+from .vww import *  # noqa
