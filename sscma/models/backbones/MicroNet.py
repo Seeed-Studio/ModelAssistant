@@ -115,7 +115,6 @@ class MicroNet(BaseClassifier):
         res = []
         for idx, layer in enumerate(self.layers):
             x = layer(x)
-            print(x.shape)
             if idx in self.out_indices:
                 res.append(x)
                 if idx == max(self.out_indices):
