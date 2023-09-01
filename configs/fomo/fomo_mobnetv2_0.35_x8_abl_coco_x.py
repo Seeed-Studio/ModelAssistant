@@ -26,7 +26,7 @@ model = dict(
 
 # dataset settings
 dataset_type = 'CustomCocoDataset'
-data_root = '/home/hongtai/yolov5/datasets/coco/'
+data_root = 'datasets/coco/'
 height = 96
 width = 96
 batch_size = 128

@@ -1,106 +1,63 @@
-_base_ = '../_base_/default_runtime_cls.py'
+_base_ = './mobnetv2_0.35_rep_1bx16_300e_cifar10.py'
 default_scope = 'sscma'
 custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
 
-# model settings
-num_classes = 10
-gray = True
 
-# dataset settings
+# ========================Suggested optional parameters========================
+# DATA
 dataset_type = 'mmcls.MNIST'
-data_root = 'datasets'
 height = 32
 width = 32
-batch_size = 32
-workers = 8
+imgsz = (width, height)
+data_root = 'datasets/'
+train_ann = ''
+train_data = 'mnist/'
+val_ann = ''
+val_data = 'mnist/'
+
+# TRAIN
+batch = 128
+workers = 16
 persistent_workers = True
-
-# optimizer
-lr = 0.01
-epochs = 10
-
-
-model = dict(
-    type='sscma.ImageClassifier',
-    data_preprocessor=dict(type='mmdet.DetDataPreprocessor', mean=[0.0], std=[255.0]),
-    backbone=dict(type='MobileNetv2', gray_input=gray, widen_factor=0.35, out_indices=(2,), rep=True),
-    neck=dict(type='mmcls.GlobalAveragePooling'),
-    head=dict(
-        type='mmcls.LinearClsHead',
-        in_channels=32,
-        num_classes=num_classes,
-        loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
-        topk=(1, 5),
-    ),
-)
+# ================================END=================================
 
 train_pipeline = [
-    dict(type='mmengine.Resize', scale=(height, width)),
-    dict(type='mmcls.Rotate', angle=30.0, prob=0.6),
-    dict(type='mmcls.RandomFlip', prob=0.5, direction='horizontal'),
+    dict(type='mmengine.Resize', scale=imgsz),
+    dict(type='mmcls.Rotate', angle=10.0, prob=0.5),
     dict(type='mmcls.PackClsInputs'),
 ]
 
 test_pipeline = [
-    dict(type='mmengine.Resize', scale=(height, width)),
+    dict(type='mmengine.Resize', scale=imgsz),
     dict(type='mmcls.PackClsInputs'),
 ]
 
 train_dataloader = dict(
     # Training dataset configurations
-    batch_size=batch_size,
+    batch_size=batch,
     num_workers=workers,
     persistent_workers=persistent_workers,
     dataset=dict(
-        type=dataset_type,
-        data_root=data_root,
-        data_prefix='minst',
-        test_mode=False,
-        pipeline=train_pipeline,
+        type=dataset_type, data_root=data_root, data_prefix=train_data, pipeline=train_pipeline, test_mode=False
     ),
     sampler=dict(type='DefaultSampler', shuffle=True),
+    _delete_=True,
 )
 
 val_dataloader = dict(
-    batch_size=batch_size,
+    # Valid dataset configurations
+    batch_size=batch,
     num_workers=workers,
     persistent_workers=persistent_workers,
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        data_prefix='minst',
-        test_mode=True,
+        data_prefix=val_data,
         pipeline=test_pipeline,
+        test_mode=True,
     ),
     sampler=dict(type='DefaultSampler', shuffle=False),
+    _delete_=True,
 )
 
 test_dataloader = val_dataloader
-
-# evaluator
-val_evaluator = dict(type='mmcls.Accuracy', topk=(1, 5))
-test_evaluator = val_evaluator
-
-
-val_cfg = dict()
-test_cfg = dict()
-
-# optimizer
-optim_wrapper = dict(optimizer=dict(type='SGD', lr=lr, momentum=0.9, weight_decay=0.0001))
-
-# learning policy
-param_scheduler = [
-    dict(type='LinearLR', begin=0, end=30, start_factor=0.001, by_epoch=False),  # warm-up
-    dict(
-        type='MultiStepLR',
-        begin=1,
-        end=500,
-        milestones=[30, 60, 90],
-        gamma=0.1,
-        by_epoch=True,
-    ),
-]
-
-auto_scale_lr = dict(base_batch_size=batch_size)
-
-train_cfg = dict(by_epoch=True, max_epochs=epochs, val_interval=5)
