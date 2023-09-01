@@ -23,3 +23,6 @@ soundfile>=0.12.1
 # visualize
 tensorboard>=2.12.3
 tqdm>=4.65.0
+
+# data 
+pyvww
