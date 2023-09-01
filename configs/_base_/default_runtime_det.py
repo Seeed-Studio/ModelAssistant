@@ -1,10 +1,17 @@
 default_scope = 'mmdet'
+# ========================Suggested optional parameters========================
+# RUNING
+# Model validation interval in epoch
+val_interval = 5
+# Model weight saving interval in epochs
+save_interval = val_interval
 
+# ================================END=================================
 default_hooks = dict(
     timer=dict(type='IterTimerHook'),
     logger=dict(type='sscma.TextLoggerHook', interval=100),
     param_scheduler=dict(type='ParamSchedulerHook'),
-    checkpoint=dict(type='CheckpointHook', interval=1),
+    checkpoint=dict(type='CheckpointHook', interval=save_interval),
     sampler_seed=dict(type='DistSamplerSeedHook'),
     visualization=dict(type='mmdet.DetVisualizationHook'),
 )
@@ -30,6 +37,6 @@ log_level = 'INFO'
 load_from = None
 resume = False
 
-train_cfg = dict(by_epoch=True, max_epochs=300)
+train_cfg = dict(by_epoch=True, max_epochs=300, val_interval=val_interval)
 val_cfg = dict()
 test_cfg = dict()

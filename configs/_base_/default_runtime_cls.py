@@ -1,6 +1,14 @@
 # defaults to use registries in mmpretrain
 default_scope = 'sscma'
 
+# ========================Suggested optional parameters========================
+# RUNING
+# Model validation interval in epoch
+val_interval = 5
+# Model weight saving interval in epochs
+save_interval = val_interval
+
+# ================================END=================================
 # configure default hooks
 default_hooks = dict(
     # record the time of every iteration.
@@ -10,7 +18,7 @@ default_hooks = dict(
     # enable the parameter scheduler.
     param_scheduler=dict(type='ParamSchedulerHook'),
     # save checkpoint per epoch.
-    checkpoint=dict(type='CheckpointHook', save_best='auto', interval=1),
+    checkpoint=dict(type='CheckpointHook', save_best='auto', interval=save_interval),
     # set sampler seed in distributed evrionment.
     sampler_seed=dict(type='DistSamplerSeedHook'),
     # validation results visualization, set True to enable it.
@@ -42,3 +50,5 @@ resume = False
 
 # Defaults to use random seed and disable `deterministic`
 randomness = dict(seed=None, deterministic=False)
+
+train_cfg = dict(by_epoch=True, val_interval=val_interval)

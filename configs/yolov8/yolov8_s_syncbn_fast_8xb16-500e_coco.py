@@ -9,7 +9,7 @@ default_scope = 'mmyolo'
 # but you need to prefix them with the appropriate prefixes to be on the safe side
 dataset_type = 'sscma.CustomYOLOv5CocoDataset'
 # Path to the dataset's root directory
-data_root = 'data/coco/'
+data_root = 'datasets/coco/'
 # Path to the annotation file for the training set, both absolute and relative paths are acceptable,
 # if it is a relative path, it must be relative to "data_root".
 train_ann = 'annotations/instances_train2017.json'
@@ -323,7 +323,7 @@ test_evaluator = val_evaluator
 train_cfg = dict(
     type='EpochBasedTrainLoop',
     max_epochs=epochs,
-    val_interval=save_interval,
+    val_interval=val_interval,
     dynamic_intervals=[((epochs - close_mosaic_epochs), val_interval)],
     _delete_=True,
 )

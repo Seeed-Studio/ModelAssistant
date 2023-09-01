@@ -1,11 +1,18 @@
 default_scope = 'sscma'
+# ========================Suggested optional parameters========================
+# RUNING
+# Model validation interval in epoch
+val_interval = 5
+# Model weight saving interval in epochs
+save_interval = val_interval
 
+# ================================END=================================
 # hooks
 default_hooks = dict(
     timer=dict(type='IterTimerHook'),
     logger=dict(type='TextLoggerHook', interval=100),
     param_scheduler=dict(type='ParamSchedulerHook'),
-    checkpoint=dict(type='CheckpointHook', interval=10),
+    checkpoint=dict(type='CheckpointHook', interval=save_interval),
     sampler_seed=dict(type='DistSamplerSeedHook'),
     visualization=dict(type='Posevisualization'),
 )
@@ -42,6 +49,6 @@ resume = False
 backend_args = dict(backend='local')
 
 # training/validation/testing progress
-train_cfg = dict(by_epoch=True, max_epochs=210, val_interval=5)
+train_cfg = dict(by_epoch=True, max_epochs=210, val_interval=val_interval)
 val_cfg = dict()
 test_cfg = dict()
