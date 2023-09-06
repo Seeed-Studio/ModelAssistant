@@ -300,7 +300,7 @@ class Infernce:
         for data in tqdm(self.dataloader):
             if not self.source:
                 if hasattr(self, 'data_preprocess'):
-                    data = self.data_preprocess(data, True)
+                    data = self.data_preprocess(data, False)
                 inputs = data['inputs'][0]
                 img_path = data['data_samples'][0].get('img_path', None)
                 img = data['inputs'][0].permute(1, 2, 0).cpu().numpy()
