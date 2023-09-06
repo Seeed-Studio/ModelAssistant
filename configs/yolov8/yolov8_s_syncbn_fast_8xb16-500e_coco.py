@@ -42,7 +42,7 @@ num_classes = 80
 # Learning rate of the model
 lr = 0.01
 # Total number of rounds of model training
-epochs = 300
+epochs = 500
 # Number of input data per iteration in the model training phase
 batch = 64
 # Number of threads used to load data during training, this value should be adjusted accordingly to the training batch

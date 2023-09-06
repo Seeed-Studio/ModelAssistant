@@ -4,6 +4,10 @@ custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
 
 
 # ========================Suggested optional parameters========================
+
+# MODEL
+gray = True
+
 # DATA
 dataset_type = 'mmcls.MNIST'
 height = 32
@@ -15,11 +19,33 @@ train_data = 'mnist/'
 val_ann = ''
 val_data = 'mnist/'
 
+
 # TRAIN
 batch = 128
 workers = 16
 persistent_workers = True
 # ================================END=================================
+data_preprocessor = dict(
+    type='mmcls.ClsDataPreprocessor',
+    mean=[0, 0, 0],
+    std=[255.0, 255.0, 255.0],
+    to_rgb=True,
+)
+model = dict(
+    type='sscma.ImageClassifier',
+    data_preprocessor=dict(
+        type='mmdet.DetDataPreprocessor',
+        mean=[0.0] if gray else [0.0, 0.0, 0.0],
+        std=[255.0] if gray else [255.0, 255.0, 255.0],
+    ),
+    backbone=dict(type='MobileNetv2', gray_input=gray, widen_factor=0.35, out_indices=(2,), rep=True),
+    neck=dict(type='mmcls.GlobalAveragePooling'),
+    head=dict(
+        type='mmcls.LinearClsHead',
+        in_channels=32,
+        loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
+    ),
+)
 
 train_pipeline = [
     dict(type='mmengine.Resize', scale=imgsz),
