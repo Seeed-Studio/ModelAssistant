@@ -17,7 +17,7 @@ from mmengine.visualization.visualizer import Visualizer
 from torch.utils.data import DataLoader
 from tqdm.std import tqdm
 
-from sscma.utils.cv import NMS, load_image
+from sscma.utils.cv import NMS, load_image, NMS_FREE
 
 from .iot_camera import IoTCamera
 
@@ -357,8 +357,14 @@ class Infernce:
 
                 else:
                     # performs nms
-                    bbox, conf, classes = preds[:, :4], preds[:, 4], preds[:, 5:]
-                    preds = NMS(bbox, conf, classes, conf_thres=1, bbox_format='xywh')
+                    if preds.shape[1] - len(self.class_name) == 4:
+                        bbox, classes = preds[:, :4], preds[:, 4:]
+                        preds = NMS_FREE(bbox, classes, 3000, conf_thres=20, bbox_format='xyxy')
+                    else:
+                        bbox, conf, classes = preds[:, :4], preds[:, 4], preds[:, 5:]
+                        preds = NMS(bbox, conf, classes, conf_thres=20, bbox_format='xywh')
+
+                    # self.visualizer.add_datasample("test_img", img, data['data_sample'], show=self.show)
                     # show det result and save result
                     show_det(
                         preds,

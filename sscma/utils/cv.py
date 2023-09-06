@@ -27,6 +27,47 @@ def xyxy2cocoxywh(x, coco_format: bool = False):
     return y
 
 
+def NMS_FREE(
+    bbox: Union[np.ndarray, torch.Tensor],
+    classer: Union[np.ndarray, torch.Tensor],
+    topk: int,
+    bbox_format='xyxy',
+    iou_thres=0.4,
+    conf_thres=0.25,
+):
+    bbox = bbox if isinstance(bbox, torch.Tensor) else torch.from_numpy(bbox)
+    classer = classer if isinstance(classer, torch.Tensor) else torch.from_numpy(classer)
+
+    assert bbox.shape[0] == classer.shape[0]
+
+    cls_mask = classer > conf_thres
+    scores = classer[cls_mask]
+
+    cls_idx = torch.nonzero(cls_mask)
+    num_topk = min(topk, cls_idx.size(0))
+
+    scores, idxs = scores.sort(descending=True)
+    scores = scores[:num_topk]
+    topk_idxs = cls_idx[idxs[:num_topk]]
+    keep_idxs, classer = topk_idxs.unbind(dim=1)
+
+    bbox = bbox[keep_idxs]
+
+    if bbox_format == 'xyxy':
+        pass
+    elif bbox_format == 'xywh':
+        bbox = xywh2xyxy(bbox)
+
+    pred = torch.cat((bbox, scores.view(-1, 1), classer[:, None]), 1)
+
+    bbox, confiden = pred[:, :4], pred[:, 4]
+    p = nms(bbox, confiden, iou_thres)
+
+    res = pred[p]
+
+    return res
+
+
 def NMS(
     bbox: Union[np.ndarray, torch.Tensor],
     confiden: Union[np.ndarray, torch.Tensor],
