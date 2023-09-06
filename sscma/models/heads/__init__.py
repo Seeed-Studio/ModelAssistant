@@ -4,7 +4,8 @@ from .fastestdet_head import Fastest_Head
 from .fomo_head import FomoHead
 from .pfld_head import PFLDhead
 from .taggregate_head import TAggregate
-from .yolo_head import YOLOV5Head
+from .yolov5_head import YOLOV5Head
+from .yolov8_head import YOLOv8Head
 
 __all__ = [
     'Audio_head',
@@ -14,4 +15,5 @@ __all__ = [
     'FomoHead',
     'AxesClsHead',
     'YOLOV5Head',
+    'YOLOv8Head',
 ]
