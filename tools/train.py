@@ -177,7 +177,7 @@ def build_config(args):
 
 
 def main():
-    from mmengine.analysis import get_model_complexity_info
+    from sscma.utils.analysis import get_model_complexity_info
 
     args = parse_args()
     args = verify_args(args)
@@ -195,10 +195,13 @@ def main():
         runner.val_evaluator.dataset_meta = runner.val_dataloader.dataset.METAINFO
 
     device = next(runner.model.parameters()).device
-    model = runner.model.to('cpu')
-    model.eval()
-    analysis_results = get_model_complexity_info(model=model, input_shape=tuple(args.input_shape[1:]), show_arch=False)
-    runner.model.to(device)
+    runner.model.eval()
+    analysis_results = get_model_complexity_info(
+        model=runner.model,
+        input_shape=tuple(args.input_shape[1:]),
+        show_arch=False,
+        device=device,
+    )
     print(analysis_results["out_table"])
     print('=' * 40)
     print(f"{'Input Shape':^20}:{str(args.input_shape):^20}")
