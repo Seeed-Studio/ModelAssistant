@@ -42,7 +42,7 @@ num_classes = 80
 # Learning rate of the model
 lr = 0.01
 # Total number of rounds of model training
-epochs = 300
+epochs = 500
 # Number of input data per iteration in the model training phase
 batch = 64
 # Number of threads used to load data during training, this value should be adjusted accordingly to the training batch
@@ -143,9 +143,9 @@ model = dict(
         act_cfg=dict(type='SiLU', inplace=True),
     ),
     bbox_head=dict(
-        type='YOLOv8Head',
+        type='sscma.CusYOLOv8Head',
         head_module=dict(
-            type='YOLOv8HeadModule',
+            type='sscma.CusYOLOv8HeadModule',
             num_classes=num_classes,
             in_channels=[256, 512, last_stage_out_channels],
             widen_factor=widen_factor,
