@@ -315,7 +315,12 @@ class Infernce:
 
             result = InstanceData()
             if self.task == 'pose':
-                show_point(preds, data['data_samples']['image_file'][0])
+                if self.source:
+                    if img.dtype == np.float32:
+                        img = img * 255
+                    show_point(preds, img=img)
+                else:
+                    show_point(preds, img_file=data['data_samples']['image_file'][0])
             elif self.task == 'det':
                 if len(preds[0].shape) > 3:
                     preds = preds[0]
@@ -397,8 +402,9 @@ class Infernce:
                     img = img * 255
                 self.visualizer.set_image(img)
                 label = np.argmax(preds[0], axis=1)
-                data['data_samples'][0].set_pred_score(preds[0][0]).set_pred_label(label)
-                self.evaluator.process(data_samples=data['data_samples'], data_batch=data)
+                if not self.source:
+                    data['data_samples'][0].set_pred_score(preds[0][0]).set_pred_label(label)
+                    self.evaluator.process(data_samples=data['data_samples'], data_batch=data)
                 self.visualizer = self.visualizer.draw_texts(str(label[0]), np.asarray([[1, 1]]), font_sizes=6)
                 if self.show:
                     self.visualizer.show()
