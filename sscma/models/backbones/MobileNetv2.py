@@ -67,7 +67,7 @@ class MobileNetv2(BaseModule):
 
         self.layers = []
         for idx, (t, c, n, s) in enumerate(inverted_residual_setting):
-            out_channels = _make_divisible(c * widen_factor, round_nearest) * 2 if rep else 1
+            out_channels = _make_divisible(c * widen_factor, round_nearest) * (2 if rep else 1)
             tmp_layers = []
             for i in range(n):
                 stride = s if i == 0 else 1
