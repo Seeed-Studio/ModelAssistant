@@ -201,7 +201,8 @@ class YOLOv8Head(YOLOv8Head):
 
     def predict(self, x: Tuple[Tensor], batch_data_samples: SampleList, rescale: bool = False) -> InstanceList:
         batch_img_metas = [data_samples.metainfo for data_samples in batch_data_samples]
-
+        for i in self.mlvl_priors:
+            i.to(x[0].device)
         outs = self.head_module(x)
         predictions = self.predict_by_feat(*outs, batch_img_metas=batch_img_metas, rescale=rescale)
         return predictions
@@ -226,7 +227,7 @@ class YOLOv8Head(YOLOv8Head):
             torch.ones((featmap_size[0] ** 2 * self.num_base_priors,)) * stride
             for featmap_size, stride in zip(featmap_sizes, self.featmap_strides)
         ]
-        flatten_stride = torch.cat(mlvl_strides)
+        flatten_stride = torch.cat(mlvl_strides).to(cls_scores[0].device)
 
         # flatten cls_scores, bbox_preds and objectness
         flatten_cls_scores = [
