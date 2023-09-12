@@ -1,8 +1,8 @@
 # SenseCraft Model Assistant by Seeed Studio
 
 <div align="center">
-  <img width="100%" src="docs/public/images/SSCMA-Logo.png">
-  <h3><a href="https://sensecraftma.seeed.cc/sscma">文档</a> | <a href="https://github.com/Seeed-Studio/sscma-model-zoo">模型仓库</a></h3>
+  <img width="20%" src="docs/public/images/SSCMA-Hero.png">
+  <h3><a href="https://sensecraftma.seeed.cc">文档</a> | <a href="https://github.com/Seeed-Studio/sscma-model-zoo">模型仓库</a></h3>
 </div>
 
 英文 | [简体中文](README_zh-CN.md)

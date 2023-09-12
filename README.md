@@ -1,15 +1,15 @@
 # SenseCraft Model Assistant by Seeed Studio
 
 <div align="center">
-  <img width="100%" src="docs/public/images/SSCMA-Logo.png">
-  <h3> <a href="https://sensecraftma.seeed.cc/sscma"> Documentation </a> | <a href="https://github.com/Seeed-Studio/sscma-model-zoo"> Model Zoo </a>  </h3>
+  <img width="20%" src="docs/public/images/SSCMA-Hero.png">
+  <h3> <a href="https://sensecraftma.seeed.cc"> Documentation </a> | <a href="https://github.com/Seeed-Studio/sscma-model-zoo"> Model Zoo </a>  </h3>
 </div>
 
 English | [简体中文](README_zh-CN.md)
 
 ## Introduction
 
-SSCMA is an open-source project focused on embedded AI. We have optimized excellent algorithms from [OpenMMLab](https://github.com/open-mmlab) for real-world scenarios and made implementation more user-friendly, achieving faster and more accurate inference on embedded devices.
+Seeed SenseCraft Model Assistant (or simply SSCMA) is an open-source project focused on embedded AI. We have optimized excellent algorithms from [OpenMMLab](https://github.com/open-mmlab) for real-world scenarios and made implementation more user-friendly, achieving faster and more accurate inference on embedded devices.
 
 ## What's included?
 
