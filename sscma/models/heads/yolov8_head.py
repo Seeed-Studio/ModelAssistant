@@ -201,8 +201,6 @@ class YOLOv8Head(YOLOv8Head):
 
     def predict(self, x: Tuple[Tensor], batch_data_samples: SampleList, rescale: bool = False) -> InstanceList:
         batch_img_metas = [data_samples.metainfo for data_samples in batch_data_samples]
-        for i in self.mlvl_priors:
-            i.to(x[0].device)
         outs = self.head_module(x)
         predictions = self.predict_by_feat(*outs, batch_img_metas=batch_img_metas, rescale=rescale)
         return predictions
