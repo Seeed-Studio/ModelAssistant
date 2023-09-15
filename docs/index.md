@@ -10,7 +10,7 @@ hero:
     on embedded devices.
   image:
     src: /images/SSCMA-Hero.png
-    alt: SenseCraft
+    alt: SSCMA
   actions:
     - theme: brand
       text: Get Started
