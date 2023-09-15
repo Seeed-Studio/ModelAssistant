@@ -8,7 +8,7 @@ hero:
   tagline: 我们针对实际场景优化了出色的算法，并提供更用户友好的实现，从而在嵌入式设备上实现更快速、更准确的推断。
   image:
     src: /images/SSCMA-Hero.png
-    alt: SenseCraft
+    alt: SSCMA
   actions:
     - theme: brand
       text: 快速入门
