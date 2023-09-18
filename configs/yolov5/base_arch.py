@@ -85,7 +85,7 @@ obj_level_weights = [4.0, 1.0, 0.4]
 lr_factor = 0.01  # Learning rate scaling factor
 weight_decay = 0.0005
 # Save model checkpoint and validation intervals
-save_checkpoint_intervals = 1
+val_interval = 5
 # The maximum checkpoints to keep.
 max_keep_ckpts = 3
 # Single-scale training is recommended to
@@ -241,9 +241,7 @@ default_hooks = dict(
     param_scheduler=dict(
         type='YOLOv5ParamSchedulerHook', scheduler_type='linear', lr_factor=lr_factor, max_epochs=epochs
     ),
-    checkpoint=dict(
-        type='CheckpointHook', interval=save_checkpoint_intervals, save_best='auto', max_keep_ckpts=max_keep_ckpts
-    ),
+    checkpoint=dict(type='CheckpointHook', interval=val_interval, save_best='auto', max_keep_ckpts=max_keep_ckpts),
 )
 
 custom_hooks = [
@@ -257,6 +255,6 @@ val_evaluator = dict(
 )
 test_evaluator = val_evaluator
 
-train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=epochs, val_interval=save_checkpoint_intervals, _delete_=True)
+train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=epochs, val_interval=val_interval, _delete_=True)
 val_cfg = dict(type='ValLoop')
 test_cfg = dict(type='TestLoop')
