@@ -113,7 +113,9 @@ class CustomYOLOv5CocoDataset(YOLOv5CocoDataset):
             with open(self.ann_file, 'r') as f:
                 data = json.load(f)
             if filter_supercat:
-                categories = tuple(cat['name'] for cat in data['categories'] if cat['supercategory'] != 'none')
+                categories = tuple(
+                    cat['name'] for cat in data['categories'] if cat.get('supercategory', None) != 'none'
+                )
             else:
                 categories = tuple(cat['name'] for cat in data['categories'])
             self.METAINFO['classes'] = categories
