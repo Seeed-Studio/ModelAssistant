@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "vitepress": "^1.0.0-rc.12"
+    "vitepress": "^1.0.0-rc.14"
   },
   "scripts": {
     "docs:dev": "vitepress dev docs",
