@@ -3,6 +3,7 @@ import re
 from typing import Optional, Sequence, Union
 
 from mmengine.config import Config
+from sscma.datasets.utils.download import is_link, _download
 
 
 def dump_config_to_log_dir(self) -> None:
@@ -73,6 +74,19 @@ def load_config(filename: str, folder: str, cfg_options: Optional[dict] = None) 
     """
     with open(filename, 'r', encoding='gb2312') as f:
         data = f.read()
+        tmp_dict = {}
+        exec(data, tmp_dict)
+        if cfg_options is None:
+            cfg_options = {}
+            
+        if cfg_options is not None and cfg_options.get("data_root", ''):
+            if is_link(cfg_options.get("data_root")):
+                data_root = _download(cfg_options.get("data_root"))
+                cfg_options['data_root'] = data_root
+        elif 'data_root' in tmp_dict and is_link(tmp_dict.get("data_root")):
+            data_root = _download(tmp_dict.get("data_root"))
+            cfg_options['data_root'] = data_root
+
         data = replace(data, cfg_options)
 
     tmp_dict = {}
