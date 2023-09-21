@@ -5,6 +5,7 @@ custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
 # MODEL
 num_classes = 2
 gray = False
+widen_factor=0.5
 # DATA
 dataset_type = 'VWW'
 data_root = 'datasets/vww/'
@@ -23,7 +24,7 @@ val_data = 'trainval/'
 
 model = dict(
     type='sscma.ImageClassifier',
-    backbone=dict(type='MobileNetv2', widen_factor=0.5, rep=True, gray_input=gray, _delete_=True),
+    backbone=dict(type='MobileNetv2', widen_factor=widen_factor, rep=True, gray_input=gray, _delete_=True),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
         type='mmcls.LinearClsHead',

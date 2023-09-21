@@ -5,7 +5,7 @@ _base_ = './base.py'
 height = 640
 width = 640
 imgsz = (width, height)  # width, height
-num_classes = 80
+num_classes = 71
 
 # TRAIN
 lr_factor = 0.01  # Learning rate scaling factor

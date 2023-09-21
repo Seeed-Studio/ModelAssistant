@@ -4,9 +4,9 @@ custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
 
 
 # ========================Suggested optional parameters========================
-
 # MODEL
 gray = True
+widen_factor=0.35
 
 # DATA
 dataset_type = 'mmcls.MNIST'
@@ -19,10 +19,11 @@ train_data = 'mnist/'
 val_ann = ''
 val_data = 'mnist/'
 
-
 # TRAIN
 batch = 128
 workers = 16
+val_batch=batch
+val_workers=workers
 persistent_workers = True
 # ================================END=================================
 data_preprocessor = dict(
@@ -38,7 +39,7 @@ model = dict(
         mean=[0.0] if gray else [0.0, 0.0, 0.0],
         std=[255.0] if gray else [255.0, 255.0, 255.0],
     ),
-    backbone=dict(type='MobileNetv2', gray_input=gray, widen_factor=0.35, out_indices=(2,), rep=True),
+    backbone=dict(type='MobileNetv2', gray_input=gray, widen_factor=widen_factor, out_indices=(2,), rep=True),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
         type='mmcls.LinearClsHead',
@@ -72,8 +73,8 @@ train_dataloader = dict(
 
 val_dataloader = dict(
     # Valid dataset configurations
-    batch_size=batch,
-    num_workers=workers,
+    batch_size=val_batch,
+    num_workers=val_workers,
     persistent_workers=persistent_workers,
     dataset=dict(
         type=dataset_type,

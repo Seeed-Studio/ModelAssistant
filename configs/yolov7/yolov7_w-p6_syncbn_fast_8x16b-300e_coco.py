@@ -5,7 +5,7 @@ _base_ = './base.py'
 height = 1280
 width = 1280
 imgsz = (width, height)  # height, width
-num_classes = 80  # Number of classes for classification
+num_classes = 71  # Number of classes for classification
 
 # TRAIN
 # The only difference between P6 and P5 in terms of

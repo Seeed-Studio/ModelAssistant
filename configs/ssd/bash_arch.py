@@ -4,7 +4,39 @@ _base_ = [
 
 default_scope = 'mmdet'
 
-input_size = 300
+# ========================Suggested optional parameters========================
+# MODEL
+num_classes = 71
+
+# TRAIN
+# dataset settings
+dataset_type = 'sscma.CustomCocoDataset'
+# dataset link: https://universe.roboflow.com/team-roboflow/coco-128
+data_root = 'https://universe.roboflow.com/ds/z5UOcgxZzD?key=bwx9LQUT0t'
+
+train_ann = 'train/_annotations.coco.json'
+train_data = 'train/'
+val_ann = 'valid/_annotations.coco.json'
+val_data = 'valid/'
+
+height = 300
+width = 300
+imgsz = (width, height)
+batch = 16
+workers = 4
+val_batch = batch
+val_workers = workers
+
+# TRAIN
+lr = 0.001
+epochs = 300
+
+weight_decay = 0.0005
+momentum = 0.9
+
+# ================================END=================================
+
+
 model = dict(
     type='SingleStageDetector',
     data_preprocessor=dict(
@@ -30,11 +62,11 @@ model = dict(
     bbox_head=dict(
         type='SSDHead',
         in_channels=(512, 1024, 512, 256, 256, 256),
-        num_classes=1,
+        num_classes=num_classes,
         anchor_generator=dict(
             type='SSDAnchorGenerator',
             scale_major=False,
-            input_size=input_size,
+            input_size=height,
             basesize_ratio_range=(0.15, 0.9),
             strides=[8, 16, 32, 64, 100, 300],
             ratios=[[2], [2, 3], [2, 3], [2, 3], [2], [2]],
@@ -64,23 +96,13 @@ model = dict(
 )
 cudnn_benchmark = True
 
-# dataset settings
-# dataset_type = 'sscma.CustomCocoDataset'
-dataset_type = 'CocoDataset'
-data_root = ''
 backend_args = None
-
-
-# dataset settings
-input_size = 300
-height = 300
-width = 300
 train_pipeline = [
     dict(type='LoadImageFromFile', backend_args=backend_args),
     dict(type='LoadAnnotations', with_bbox=True),
     dict(type='Expand', mean=[0.0, 0.0, 0.0], to_rgb=True, ratio_range=(1, 4)),
     dict(type='MinIoURandomCrop', min_ious=(0.1, 0.3, 0.5, 0.7, 0.9), min_crop_size=0.3),
-    dict(type='Resize', scale=(height, width), keep_ratio=False),
+    dict(type='Resize', scale=imgsz, keep_ratio=False),
     dict(type='RandomFlip', prob=0.5),
     dict(
         type='PhotoMetricDistortion',
@@ -93,20 +115,20 @@ train_pipeline = [
 ]
 test_pipeline = [
     dict(type='LoadImageFromFile', backend_args=backend_args),
-    dict(type='Resize', scale=(height, width), keep_ratio=False),
+    dict(type='Resize', scale=imgsz, keep_ratio=False),
     dict(type='LoadAnnotations', with_bbox=True),
     dict(type='PackDetInputs', meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape', 'scale_factor')),
 ]
 train_dataloader = dict(
-    batch_size=32,
-    num_workers=4,
+    batch_size=batch,
+    num_workers=workers,
     batch_sampler=None,
     sampler=dict(type='DefaultSampler', shuffle=True, round_up=False),
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        ann_file='train/annotations/train.json',
-        data_prefix=dict(img='train/images/'),
+        ann_file=train_ann,
+        data_prefix=dict(img=train_data),
         filter_cfg=dict(filter_empty_gt=True, min_size=32),
         pipeline=train_pipeline,
         backend_args=backend_args,
@@ -114,16 +136,16 @@ train_dataloader = dict(
 )
 
 val_dataloader = dict(
-    batch_size=1,
-    num_workers=2,
+    batch_size=val_batch,
+    num_workers=val_workers,
     persistent_workers=True,
     drop_last=False,
     sampler=dict(type='DefaultSampler', shuffle=False),
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        ann_file='valid/annotations/valid.json',
-        data_prefix=dict(img='valid/images'),
+        ann_file=val_ann,
+        data_prefix=dict(img=val_data),
         test_mode=True,
         pipeline=test_pipeline,
         backend_args=backend_args,
@@ -133,7 +155,7 @@ test_dataloader = val_dataloader
 
 val_evaluator = dict(
     type='CocoMetric',
-    ann_file=data_root + 'valid/annotations/valid.json',
+    ann_file=data_root + val_ann,
     metric='bbox',
     format_only=False,
     backend_args=backend_args,
@@ -142,9 +164,14 @@ test_evaluator = val_evaluator
 
 
 # optimizer
-optim_wrapper = dict(type='OptimWrapper', optimizer=dict(type='SGD', lr=2e-3, momentum=0.9, weight_decay=5e-4))
+optim_wrapper = dict(
+    type='OptimWrapper', optimizer=dict(type='SGD', lr=lr, momentum=momentum, weight_decay=weight_decay)
+)
 
-custom_hooks = [dict(type='NumClassCheckHook'), dict(type='CheckInvalidLossHook', interval=50, priority='VERY_LOW')]
+custom_hooks = [
+    dict(type='NumClassCheckHook'),
+    dict(type='CheckInvalidLossHook', interval=50, priority='VERY_LOW'),
+]
 
 vis_backends = [dict(type='LocalVisBackend'), dict(type='TensorboardVisBackend')]
 visualizer = dict(type='DetLocalVisualizer', vis_backends=vis_backends, name='visualizer')
@@ -152,4 +179,4 @@ visualizer = dict(type='DetLocalVisualizer', vis_backends=vis_backends, name='vi
 # NOTE: `auto_scale_lr` is for automatically scaling LR,
 # USER SHOULD NOT CHANGE ITS VALUES.
 # base_batch_size = (8 GPUs) x (8 samples per GPU)
-auto_scale_lr = dict(base_batch_size=32)
+auto_scale_lr = dict(base_batch_size=batch)

@@ -8,18 +8,19 @@ default_scope = 'mmyolo'
 # but you need to prefix them with the appropriate prefixes to be on the safe side
 dataset_type = 'sscma.CustomYOLOv5CocoDataset'
 # Path to the dataset's root directory
-data_root = 'data/coco/'
+# dataset link: https://universe.roboflow.com/team-roboflow/coco-128
+data_root = 'https://universe.roboflow.com/ds/z5UOcgxZzD?key=bwx9LQUT0t'
 # Path to the annotation file for the training set, both absolute and relative paths are acceptable,
 # if it is a relative path, it must be relative to "data_root".
-train_ann = 'annotations/instances_train2017.json'
+train_ann = 'train/_annotations.coco.json'
 # Path to the training set data file, both absolute and relative, if relative, it must be relative to "data_root".
-train_data = 'train2017/'
+train_data = 'train/'
 # Path to the validation set annotation file, both absolute and relative paths are acceptable,
 # if it is a relative path, it must be a relative path to data_root.
-val_ann = 'annotations/instances_val2017.json'
+val_ann = 'valid/_annotations.coco.json'
 # Path to the validation set data file, both absolute and relative paths are allowed,
 # if it is a relative path, it must be a relative path to data_root.
-val_data = 'val2017/'
+val_data = 'valid/'
 # Height of the model input data
 height = 640
 # Width of the model input data
@@ -31,7 +32,7 @@ persistent_workers = True
 
 # MODEL
 # Number of categories in the dataset
-num_classes = 80
+num_classes = 71
 
 # TRAIN
 # Learning rate of the model
@@ -43,23 +44,24 @@ batch = 64
 # Number of threads used to load data during training, this value should be adjusted accordingly to the training batch
 workers = 8
 # Model weight saving interval in epochs
-save_interval = 1
+save_interval = 5
 # Last epoch number to switch training pipeline
 num_last_epochs = 15
 # Learning rate scaling factor
 lr_factor = 0.01
 # Optimizer weight decay value
 weight_decay = 0.0005
+momentum = 0.937
 
 # VAL
 # Number of input data per iteration in the model validation phase
-val_batch = 1
+val_batch = batch
 # Number of threads used to load data during validation, this value should be adjusted accordingly to the validation batch
 val_workers = workers
 # Model validation interval in epoch
-val_interval = 1
+val_interval = 5
 # The maximum checkpoints to keep.
-max_keep_ckpts = 1
+max_keep_ckpts = 3
 # ================================END=================================
 # -----model related-----
 # Basic size of multi-scale prior box
@@ -289,7 +291,7 @@ optim_wrapper = dict(
     optimizer=dict(
         type='SGD',
         lr=lr,
-        momentum=0.937,
+        momentum=momentum,
         weight_decay=weight_decay,
         nesterov=True,
         batch_size_per_gpu=batch,

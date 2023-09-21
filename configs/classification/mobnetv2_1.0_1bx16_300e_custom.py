@@ -3,39 +3,40 @@ default_scope = 'sscma'
 custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
 
 # ========================Suggested optional parameters========================
-# model settings
-num_classes = 10
+# MODEL
+num_classes = 3
+widen_factor = 1.0
 
-# dataset settings
+# DATA
 dataset_type = 'mmcls.CustomDataset'
-data_root = 'datasets/'
+# datasets link: https://public.roboflow.com/classification/rock-paper-scissors
+data_root = 'https://public.roboflow.com/ds/dTMAyuzrmY?key=VbTbUwLEYG'
+train_data = 'train/'
+val_data = 'valid/'
+train_ann = ''
+val_ann = ''
 
 height = 96
 width = 96
 imgsz = (width, height)
-
-train_ann = ''
-train_data = 'train/'
-val_ann = ''
-val_data = 'valid/'
 # ================================END=================================
 
 model = dict(
     type='sscma.ImageClassifier',
-    backbone=dict(type='mmcls.MobileNetV2', widen_factor=1.0),
+    backbone=dict(type='mmcls.MobileNetV2', widen_factor=widen_factor),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
         type='mmcls.LinearClsHead',
         in_channels=1280,
         num_classes=num_classes,
         loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
-        topk=(1, 5),
+        topk=(1, 5) if num_classes > 5 else 1,
     ),
 )
 
 train_pipeline = [
     dict(type='LoadImageFromFile'),
-    dict(type='mmengine.Resize', scale=(height, width)),
+    dict(type='mmengine.Resize', scale=imgsz),
     dict(type='mmcls.ColorJitter', brightness=0.3, contrast=0.2),
     dict(type='mmcls.Rotate', angle=30.0, prob=0.6),
     dict(type='mmcls.RandomFlip', prob=0.5, direction='horizontal'),
@@ -44,7 +45,7 @@ train_pipeline = [
 
 test_pipeline = [
     dict(type='LoadImageFromFile'),
-    dict(type='mmengine.Resize', scale=(height, width)),
+    dict(type='mmengine.Resize', scale=imgsz),
     dict(type='mmcls.PackClsInputs'),
 ]
 
