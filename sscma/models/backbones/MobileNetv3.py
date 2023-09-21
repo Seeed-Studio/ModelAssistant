@@ -3,11 +3,11 @@ from typing import Callable, List
 
 import torch.nn as nn
 from mmdet.models.utils.make_divisible import make_divisible
-from mmdet.registry import VISBACKENDS
 from mmengine.model import BaseModule
 from torch import Tensor
 from torchvision.ops.misc import SqueezeExcitation as SElayer
 
+from sscma.registry import BACKBONES
 from sscma.models.base.general import ConvNormActivation, get_norm
 
 
@@ -105,7 +105,7 @@ class InvertedResidual(nn.Module):
         return result
 
 
-@VISBACKENDS.register_module()
+@BACKBONES.register_module()
 class MobileNetV3(BaseModule):
     def __init__(
         self,

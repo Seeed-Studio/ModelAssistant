@@ -82,7 +82,7 @@ class InvertedResidual(nn.Module):
         return out
 
 
-@BACKBONES.register_module(name='TmpShuffleNetV2')
+@BACKBONES.register_module(name='CusShuffleNetV2')
 class ShuffleNetV2(BaseModule):
     def __init__(
         self,
