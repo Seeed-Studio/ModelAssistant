@@ -1,11 +1,11 @@
 import torch
 import torch.nn as nn
-from mmdet.registry import MODELS
 
+from sscma.registry import NECKS
 from ..base.general import CBR
 
 
-@MODELS.register_module()
+@NECKS.register_module()
 class SPP(nn.Module):
     def __init__(self, input_channels, output_channels, layers=[1, 2, 3]) -> None:
         super(SPP, self).__init__()
