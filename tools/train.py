@@ -156,8 +156,8 @@ def build_config(args):
 
     if args.input_shape is None:
         try:
-            if 'shape' in cfg:
-                args.input_shape = cfg.shape
+            if 'imgsz' in cfg:
+                args.input_shape = [1, 1 if cfg.get('gray', False) else 3, *cfg.imgsz]
             elif 'width' in cfg and 'height' in cfg:
                 args.input_shape = [
                     1,
