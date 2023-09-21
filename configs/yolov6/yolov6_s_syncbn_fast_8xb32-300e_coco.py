@@ -9,18 +9,19 @@ default_scope = 'mmyolo'
 # but you need to prefix them with the appropriate prefixes to be on the safe side
 dataset_type = 'sscma.CustomYOLOv5CocoDataset'
 # Path to the dataset's root directory
-data_root = 'data/coco/'
+# dataset link: https://universe.roboflow.com/team-roboflow/coco-128
+data_root = 'https://universe.roboflow.com/ds/z5UOcgxZzD?key=bwx9LQUT0t'
 # Path to the annotation file for the training set, both absolute and relative paths are acceptable,
 # if it is a relative path, it must be relative to "data_root".
-train_ann = 'annotations/instances_train2017.json'
+train_ann = 'train/_annotations.coco.json'
 # Path to the training set data file, both absolute and relative, if relative, it must be relative to "data_root".
-train_data = 'train2017/'
+train_data = 'train/'
 # Path to the validation set annotation file, both absolute and relative paths are acceptable,
 # if it is a relative path, it must be a relative path to data_root.
-val_ann = 'annotations/instances_val2017.json'
+val_ann = 'valid/_annotations.coco.json'
 # Path to the validation set data file, both absolute and relative paths are allowed,
 # if it is a relative path, it must be a relative path to data_root.
-val_data = 'val2017/'
+val_data = 'valid/'
 # Height of the model input data
 height = 640
 # Width of the model input data
@@ -36,7 +37,7 @@ deepen_factor = 0.33
 # Scaling factor for model width
 widen_factor = 0.5
 # Number of categories in the dataset
-num_classes = 80
+num_classes = 71
 
 # TRAIN
 # Learning rate of the model
@@ -55,6 +56,7 @@ num_last_epochs = 15
 lr_factor = 0.01
 # Optimizer weight decay value
 weight_decay = 0.0005
+momentum=0.937
 
 # VAL
 # Number of input data per iteration in the model validation phase
@@ -231,7 +233,7 @@ optim_wrapper = dict(
     optimizer=dict(
         type='SGD',
         lr=lr,
-        momentum=0.937,
+        momentum=momentum,
         weight_decay=weight_decay,
         nesterov=True,
         batch_size_per_gpu=batch,

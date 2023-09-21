@@ -2,22 +2,36 @@ _base_ = '../_base_/default_runtime_cls.py'
 default_scope = 'sscma'
 custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
 
-# model settings
-num_classes = 10
+# ========================Suggested optional parameters========================
 
+# MODEL
+num_classes = 3
 gray = True
-# dataset settings
+
+# DATA
 dataset_type = 'mmcls.CustomDataset'
-data_root = ''
+# datasets link: https://public.roboflow.com/classification/rock-paper-scissors
+data_root = 'https://public.roboflow.com/ds/dTMAyuzrmY?key=VbTbUwLEYG'
+train_data = 'train/'
+val_data = 'valid/'
 height = 32
 width = 32
-batch_size = 32
-workers = 8
-persistent_workers = True
+imgsz = (width, height)
 
-# optimizer
+# TRAIN
+batch = 32
+workers = 8
+val_batch = batch
+val_workers = workers
+persistent_workers = True
 lr = 0.01
 epochs = 200
+
+weight_decay = 0.0005
+momentum = 0.95
+
+# ================================END=================================
+
 
 data_preprocessor = dict(
     type='mmcls.ClsDataPreprocessor',
@@ -40,14 +54,14 @@ model = dict(
         in_channels=276,
         num_classes=num_classes,
         loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
-        topk=(1, 5),
+        topk=(1, 5) if num_classes > 5 else 1,
     ),
 )
 
 
 train_pipeline = [
     dict(type='LoadImageFromFile'),
-    dict(type='mmengine.Resize', scale=(height, width)),
+    dict(type='mmengine.Resize', scale=imgsz),
     dict(type='mmcls.ColorJitter', brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
     dict(type='mmcls.Rotate', angle=30.0, prob=0.6),
     dict(type='mmcls.RandomFlip', prob=0.5, direction='horizontal'),
@@ -56,7 +70,7 @@ train_pipeline = [
 
 test_pipeline = [
     dict(type='LoadImageFromFile'),
-    dict(type='mmengine.Resize', scale=(height, width)),
+    dict(type='mmengine.Resize', scale=imgsz),
     dict(type='mmcls.PackClsInputs'),
 ]
 if gray:
@@ -65,26 +79,26 @@ if gray:
 
 train_dataloader = dict(
     # Training dataset configurations
-    batch_size=batch_size,
+    batch_size=batch,
     num_workers=workers,
     persistent_workers=persistent_workers,
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        data_prefix='train/',
+        data_prefix=train_data,
         pipeline=train_pipeline,
     ),
     sampler=dict(type='DefaultSampler', shuffle=True),
 )
 
 val_dataloader = dict(
-    batch_size=batch_size,
-    num_workers=workers,
+    batch_size=val_batch,
+    num_workers=val_workers,
     persistent_workers=persistent_workers,
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        data_prefix='valid/',
+        data_prefix=val_data,
         pipeline=test_pipeline,
     ),
     sampler=dict(type='DefaultSampler', shuffle=False),
@@ -93,7 +107,7 @@ val_dataloader = dict(
 test_dataloader = val_dataloader
 
 # evaluator
-val_evaluator = dict(type='mmcls.Accuracy', topk=1)
+val_evaluator = dict(type='mmcls.Accuracy', topk=(1, 5) if num_classes > 5 else 1)
 test_evaluator = val_evaluator
 
 
@@ -101,7 +115,7 @@ val_cfg = dict()
 test_cfg = dict()
 
 # optimizer
-optim_wrapper = dict(optimizer=dict(type='SGD', lr=lr, momentum=0.95, weight_decay=0.0005))
+optim_wrapper = dict(optimizer=dict(type='SGD', lr=lr, momentum=momentum, weight_decay=weight_decay))
 # learning policy
 param_scheduler = [
     dict(type='LinearLR', begin=0, end=30, start_factor=0.001, by_epoch=False),  # warm-up
@@ -115,6 +129,6 @@ param_scheduler = [
     ),
 ]
 
-auto_scale_lr = dict(base_batch_size=batch_size)
+auto_scale_lr = dict(base_batch_size=batch)
 
-train_cfg = dict(by_epoch=True, max_epochs=epochs, val_interval=5)
+train_cfg = dict(by_epoch=True, max_epochs=epochs)

@@ -4,9 +4,10 @@ custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
 
 # ========================Suggested optional parameters========================
 
-# model settings
+# MODEL
 num_classes = 100
-# dataset settings
+widen_factor=1.0
+# DATA
 dataset_type = 'mmcls.CIFAR100'
 data_root = 'datasets/'
 train_ann = ''
@@ -17,7 +18,7 @@ val_data = 'cifar100/'
 
 model = dict(
     type='sscma.ImageClassifier',
-    backbone=dict(type='mmcls.MobileNetV2', widen_factor=1.0),
+    backbone=dict(type='mmcls.MobileNetV2', widen_factor=widen_factor),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
         type='mmcls.LinearClsHead',

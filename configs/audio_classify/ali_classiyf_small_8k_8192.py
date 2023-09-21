@@ -43,11 +43,34 @@ words = [
     'yes',
     'zero',
 ]
-# model settings
+# ========================Suggested optional parameters========================
+# MODEL
 num_classes = 35
+
+# DATA
+dataset_type = 'Speechcommand'
+data_root = 'http://download.tensorflow.org/data/speech_commands_v0.02.tar.gz'
+width = 8192
+
+# TRAIN
+batch = 128
+workers = 6
+persistent_workers = True
+
+val_batch = batch
+val_workers = workers
+
+lr = 0.0003
+epochs = 1500
+
+weight_decay = 0.0005
+momentum = (0.9, 0.99)
+# ================================END=================================
+
+
 model = dict(
     type='Audio_classify',
-    n_cls=len(words),
+    n_cls=num_classes,
     multilabel=False,
     loss=dict(type='LabelSmoothCrossEntropyLoss', reduction='sum', smoothing=0.1),
     backbone=dict(type='SoundNetRaw', nf=2, clip_length=64, factors=[4, 4, 4], out_channel=36),
@@ -55,8 +78,6 @@ model = dict(
     loss_cls=dict(type='LabelSmoothCrossEntropyLoss', reduction='sum', smoothing=0.1),
 )
 
-# dataset settings
-dataset_type = 'Speechcommand'
 
 transforms = [
     'amp',
@@ -75,18 +96,14 @@ transforms = [
     'sine',
 ]
 
-data_root = 'http://download.tensorflow.org/data/speech_commands_v0.02.tar.gz'
-width = 8192
-batch_size = 128
-workers = 8
 
 train_pipeline = dict(type='AudioAugs', k_augs=transforms)
 
 
 train_dataloader = dict(
-    batch_size=64,
-    num_workers=8,
-    persistent_workers=True,
+    batch_size=batch,
+    num_workers=workers,
+    persistent_workers=persistent_workers,
     drop_last=False,
     sampler=dict(type='DefaultSampler', shuffle=True),
     dataset=dict(
@@ -102,9 +119,9 @@ train_dataloader = dict(
     ),
 )
 val_dataloader = dict(
-    batch_size=32,
-    num_workers=4,
-    persistent_workers=True,
+    batch_size=val_batch,
+    num_workers=val_workers,
+    persistent_workers=persistent_workers,
     drop_last=False,
     sampler=dict(type='DefaultSampler', shuffle=True),
     dataset=dict(
@@ -135,21 +152,16 @@ data_preprocessor = dict(
 )
 
 # optimizer
-lr = 0.0003
-epochs = 1500
+
 find_unused_parameters = True
 
-optim_wrapper = dict(optimizer=dict(type='AdamW', lr=lr, betas=(0.9, 0.99), weight_decay=5e-4, eps=1e-7))
+optim_wrapper = dict(
+    optimizer=dict(type='AdamW', lr=lr, betas=momentum, weight_decay=weight_decay, eps=1e-7),
+)
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 
 # evaluator
-val_evaluator = dict(
-    type='mmcls.Accuracy',
-    topk=(
-        1,
-        5,
-    ),
-)
+val_evaluator = dict(type='mmcls.Accuracy', topk=(1, 5) if num_classes > 5 else 1)
 test_evaluator = val_evaluator
 
 train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=1000)
