@@ -48,7 +48,6 @@ class AccelerometerClassifier(BaseClassifier):
         pretrained: Optional[str] = None,
         train_cfg: Optional[dict] = None,
         data_preprocessor: Optional[dict] = None,
-        softmax: bool = True,
         init_cfg: Optional[dict] = None,
     ):
         if pretrained is not None:
@@ -76,13 +75,15 @@ class AccelerometerClassifier(BaseClassifier):
         self.neck = neck
         self.head = head
 
-        self.softmax = softmax
-
     def forward(self, inputs: torch.Tensor, data_samples: Optional[List[ClsDataSample]] = None, mode: str = 'tensor'):
         if mode == 'tensor':
             feats = self.extract_feat(inputs)
             head_out = self.head(feats) if self.with_head else feats
-            return F.softmax(head_out, dim=1) if self.softmax else head_out
+            if head_out.shape[-1] > 2:
+                head_out = F.softmax(head_out, dim=-1)
+            else:
+                head_out = torch.sigmoid(head_out)
+            return 
         elif mode == 'loss':
             return self.loss(inputs, data_samples)
         elif mode == 'predict':
