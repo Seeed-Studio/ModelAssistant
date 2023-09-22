@@ -62,8 +62,13 @@ def _download(url: str, api_key: Optional[str] = None) -> str:
     if api_key is None:
         # download link
         pwd = os.getcwd()
-        extrapath = os.path.join(pwd, url.split('=')[-1]) + os.path.sep
-        zippath = os.path.join(pwd, url.split('=')[-1]) + '.zip'
+        if not os.path.exists(os.path.join(pwd, 'datasets')):
+            os.mkdir(os.path.join(pwd, 'datasets'))
+            
+        extrapath = os.path.join(pwd, 'datasets', url.split('=')[-1]) + os.path.sep
+        zippath = os.path.join(pwd,'datasets', url.split('=')[-1]) + '.zip'
+        print(zippath)
+        print(extrapath)
         download_file(url, zippath)
         if os.path.exists(extrapath):
             print("The compressed file has been extracted, skip the decompression!!!")
