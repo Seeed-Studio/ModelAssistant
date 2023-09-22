@@ -2,8 +2,8 @@ _base_ = './base.py'
 
 # ========================Suggested optional parameters========================
 # MODEL
-deepen_factor = 0.33
-widen_factor = 0.25
+deepen_factor = 0.15
+widen_factor = 0.15
 
 # ================================END=================================
 

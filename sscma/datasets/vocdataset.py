@@ -4,9 +4,9 @@ from collections import OrderedDict
 import numpy as np
 import torch
 from mmdet.datasets.voc import VOCDataset
-from mmdet.registry import DATASETS
 from sklearn.metrics import confusion_matrix
 
+from sscma.registry import DATASETS
 from .utils.download import check_file
 
 

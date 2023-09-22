@@ -26,8 +26,8 @@ class Fastest_Head(BaseModule):
     ) -> None:
         super(Fastest_Head, self).__init__(init_cfg)
 
-        self.loss_cls = MODELS.build(loss_cls)
-        self.loss_conf = MODELS.build(loss_conf)
+        self.loss_cls = nn.SmoothL1Loss(reduction='none')
+        self.loss_conf = nn.NLLLoss()
 
         self.num_classes = num_classes
 

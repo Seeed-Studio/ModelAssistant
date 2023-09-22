@@ -4,37 +4,37 @@ custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
 
 # ========================Suggested optional parameters========================
 # MODEL
-num_classes = 2
+num_classes = 3
+widen_factor = 0.5
 
 gray = False
 # DATA
-dataset_type = ''
-data_root = ''
+dataset_type = 'mmcls.CustomDataset'
+# datasets link: https://public.roboflow.com/classification/rock-paper-scissors
+data_root = 'https://public.roboflow.com/ds/dTMAyuzrmY?key=VbTbUwLEYG'
+train_data = 'train/'
+val_data = 'valid/'
 train_ann = ''
-train_data = ''
 val_ann = ''
-val_data = ''
+
 
 height = 96
 width = 96
+imgsz = (width, height)
 
 # TRAIN
 batch = 128
 workers = 16
+
+val_batch = batch
+val_workers = workers
 persistent_workers = True
 lr = 0.01
-epochs = 300
+epochs = 100
 weight_decay = 0.0001
+momentum = 0.9
 
 # ================================END=================================
-
-
-data_preprocessor = dict(
-    type='mmcls.ClsDataPreprocessor',
-    mean=[0, 0, 0],
-    std=[255.0, 255.0, 255.0],
-    to_rgb=True,
-)
 
 model = dict(
     type='sscma.ImageClassifier',
@@ -43,12 +43,11 @@ model = dict(
         mean=[0.0] if gray else [0.0, 0.0, 0.0],
         std=[255.0] if gray else [255.0, 255.0, 255.0],
     ),
-    # backbone=dict(type='MobileNetv2', widen_factor=0.5, rep=True, gray_input=gray),
-    backbone=dict(type='MobileNetv2', widen_factor=0.5),
+    backbone=dict(type='MobileNetv2', widen_factor=widen_factor),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
         type='mmcls.LinearClsHead',
-        in_channels=128,
+        in_channels=32,
         num_classes=num_classes,
         loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
         topk=(1, 5) if num_classes > 5 else 1,
@@ -74,13 +73,13 @@ train_pipeline = [
         transforms=albu_train_transforms,
         keymap={'img': 'image'},
     ),
-    dict(type='mmengine.Resize', scale=(height, width)),
+    dict(type='mmengine.Resize', scale=imgsz),
     dict(type='mmcls.Rotate', angle=30.0, prob=0.5),
     dict(type='mmcls.PackClsInputs'),
 ]
 
 test_pipeline = [
-    dict(type='mmengine.Resize', scale=(height, width)),
+    dict(type='mmengine.Resize', scale=imgsz),
     dict(type='mmcls.PackClsInputs'),
 ]
 if gray:
@@ -90,8 +89,8 @@ if gray:
 
 train_dataloader = dict(
     # Training dataset configurations
-    batch_size=batch,
-    num_workers=workers,
+    batch_size=val_batch,
+    num_workers=val_workers,
     persistent_workers=persistent_workers,
     dataset=dict(
         type=dataset_type,
@@ -105,8 +104,8 @@ train_dataloader = dict(
 
 val_dataloader = dict(
     # Valid dataset configurations
-    batch_size=batch,
-    num_workers=workers,
+    batch_size=val_batch,
+    num_workers=val_workers,
     persistent_workers=persistent_workers,
     dataset=dict(
         type=dataset_type,
@@ -129,7 +128,7 @@ val_cfg = dict()
 test_cfg = dict()
 
 # optimizer
-optim_wrapper = dict(optimizer=dict(type='SGD', lr=lr, momentum=0.9, weight_decay=0.001))
+optim_wrapper = dict(optimizer=dict(type='SGD', lr=lr, momentum=momentum, weight_decay=weight_decay))
 # learning policy
 param_scheduler = [
     dict(type='LinearLR', begin=0, end=30, start_factor=0.001, by_epoch=False),  # warm-up

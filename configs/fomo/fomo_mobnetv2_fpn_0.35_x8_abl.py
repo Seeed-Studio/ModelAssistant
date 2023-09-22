@@ -1,8 +1,13 @@
 _base_ = './fomo_mobnetv2_0.35_x8_abl_coco.py'
 
+# ========================Suggested optional parameters========================
+# MODEL
 num_classes = 2
+widen_factor = 0.35
+# ================================END=================================
+
 model = dict(
-    backbone=dict(type='mmdet.MobileNetV2', widen_factor=0.35, out_indices=(2, 3, 5)),
+    backbone=dict(type='mmdet.MobileNetV2', widen_factor=widen_factor, out_indices=(2, 3, 5), _delete_=True),
     neck=dict(
         type='FPN',
         in_channels=[16, 24, 56],

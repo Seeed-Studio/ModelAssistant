@@ -1,9 +1,10 @@
 _base_ = './base.py'
 # ========================Suggested optional parameters========================
-# model settings
+# MODEL
 num_classes = 10
+widen_factor = 1.0
 
-# dataset settings
+# DATA
 dataset_type = 'mmcls.CIFAR10'
 data_root = 'datasets/'
 train_ann = ''
@@ -14,7 +15,7 @@ val_data = 'cifar10/'
 
 model = dict(
     type='sscma.ImageClassifier',
-    backbone=dict(type='mmcls.MobileNetV2', widen_factor=1.0),
+    backbone=dict(type='mmcls.MobileNetV2', widen_factor=widen_factor),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
         type='mmcls.LinearClsHead',
