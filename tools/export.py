@@ -180,6 +180,9 @@ def build_config(args):
         cfg.work_dir = args.work_dir
     elif cfg.get('work_dir', None) is None:
         args.work_dir = cfg.work_dir = os.path.join('work_dirs', os.path.splitext(os.path.basename(args.config))[0])
+    else:
+        args.work_dir = cfg.work_dir
+        
 
     if args.device.startswith('cuda'):
         args.device = args.device if torch.cuda.is_available() else 'cpu'
