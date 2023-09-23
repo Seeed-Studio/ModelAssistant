@@ -67,7 +67,7 @@ function sidebar() {
         {
             text: 'Deploy',
             collapsed: false,
-            link: '/deploy/examples',
+            link: '/deploy/overview',
             items: [
                 {
                     text: 'ESP32 - Deploy',
