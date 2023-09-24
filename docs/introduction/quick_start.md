@@ -10,6 +10,35 @@ Now, you can try out [SSCMA Colab Examples](https://github.com/Seeed-Studio/SSCM
 
 ## Getting Started
 
+### Model Deployment
+
+If you want to deploy the model on the device, please refer to the section [Deploy](../deploy/overview) to learn how to deploy the model.
+
+### Model Training
+
+If you want to train a model, we highly recommend that you first try to train a model on the Colab platform. You can refer to the following tutorials:
+
+### Image Classification
+| Model                                                                                                         | Colab                                                                                                                                                                                                                            |
+|:--------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Person_Classification_MobileNetV2_0.35_Rep_64](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Person_Classification_MobileNetV2_0.35_Rep_64.md)     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Person_Classification_MobileNetV2_0.35_Rep_64.ipynb)   |
+| [Person_Classification_MobileNetV2_0.35_Rep_96](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Person_Classification_MobileNetV2_0.35_Rep_96.md)     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Person_Classification_MobileNetV2_0.35_Rep_96.ipynb)   |
+| [Person_Classification_MobileNetV2_0.35_Rep_32](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Person_Classification_MobileNetV2_0.35_Rep_32.md)     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Person_Classification_MobileNetV2_0.35_Rep_32.ipynb)   |
+| [CIFAR-10_Classification_MobileNetV2_0.35_Rep_32](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/CIFAR-10_Classification_MobileNetV2_0.35_Rep_32.md) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/CIFAR-10_Classification_MobileNetV2_0.35_Rep_32.ipynb) |
+| [Gender_Classification_MobileNetV2_0.35_Rep_64](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Gender_Classification_MobileNetV2_0.35_Rep_64.md)     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Gender_Classification_MobileNetV2_0.35_Rep_64.ipynb)   |
+| [MNIST_Classification_MobileNetV2_0.5_Rep_32](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/MNIST_Classification_MobileNetV2_0.5_Rep_32.md)         | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/MNIST_Classification_MobileNetV2_0.5_Rep_32.ipynb)     |
+
+### Object Detection
+
+| Model                                                                                           | Colab                                                                                                                                                                                                                     |
+|:------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Digital_Meter_Water_Swift-YOLO_192](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Digital_Meter_Water_Swift-YOLO_192.md)             | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Digital_Meter_Water_Swift-YOLO_192.ipynb)       |
+| [Face_Detection_Swift-YOLO_192](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Face_Detection_Swift-YOLO_192.md)                       | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Face_Detection_Swift-YOLO_192.ipynb)            |
+| [Gender_Detection_Swift-YOLO_96](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Gender_Detection_Swift-YOLO_96.md)                     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Gender_Detection_Swift-YOLO_96.ipynb)           |
+| [Digital_Meter_Electricity_Swift-YOLO_192](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Digital_Meter_Electricity_Swift-YOLO_192.md) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Digital_Meter_Electricity_Swift-YOLO_192.ipynb) |
+
+## Advanced
+
 1. First, refer to the [Installation Guide](./installation.md) to configure the running environment of [SSCMA](https://github.com/Seeed-Studio/SSCMA).
 
 2. Then, familiar with the basic usage methods of [SSCMA](https://github.com/Seeed-Studio/SSCMA):
@@ -19,8 +48,6 @@ Now, you can try out [SSCMA Colab Examples](https://github.com/Seeed-Studio/SSCM
    - **Model Export**. After completing model training, in order to deploy on the edge-computing device, it is necessary to first export the model. For the export tutorial of the model, please refer to [Model Export](../tutorials/export/overview).
 
    - **Model Verification**. Model verification can be performed after training or export. The former verifies the correctness of the neural network and training results, while the latter mainly verifies the correctness of the exported model, facilitating deployment and debugging on edge computing devices later. Some methods for model validation have been provided in the documents in the above two steps.
-
-## Advanced
 
 - **Model Deployment**. If you want to deploy the exported training model on edge computing devices, please refer to [ESP32 Deployment Example](../deploy/esp32/deploy) or [Grove Vision AI Deployment Example](../deploy/grove/deploy).
 
