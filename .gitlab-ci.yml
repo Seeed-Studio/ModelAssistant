@@ -15,7 +15,7 @@ variables:
 train_job:
 
   stage: train
-  image: SSCMA
+  image: sscma
   tags:
     - runner-gpu
   script:
