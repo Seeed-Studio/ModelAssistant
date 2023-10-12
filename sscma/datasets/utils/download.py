@@ -29,12 +29,9 @@ def download_file(url, path) -> bool:
                     f.write(chunk)
                     f.flush()
         return True
-    except TimeoutError:
+    except Exception as e:
         print('Warning: Connection timed out, this may cause an error to occur!')
         return False
-    except Exception as e:
-        print(f'An error occurred downloading the file, please check if the link "{url}" is correct.')
-        raise e
 
 
 def _download(url: str, api_key: Optional[str] = None) -> str:
