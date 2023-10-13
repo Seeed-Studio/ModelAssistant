@@ -18,18 +18,20 @@ class ImageClassifier(MMImageClassifier):
         pretrained: Optional[str] = None,
         train_cfg: Optional[dict] = None,
         data_preprocessor: Optional[dict] = None,
-        softmax: bool = True,
         init_cfg: Optional[dict] = None,
     ):
         super(ImageClassifier, self).__init__(backbone, neck, head, pretrained, train_cfg, data_preprocessor, init_cfg)
-
-        self.softmax = softmax
+    
 
     def forward(self, inputs: torch.Tensor, data_samples: Optional[List[ClsDataSample]] = None, mode: str = 'tensor'):
         if mode == 'tensor':
             feats = self.extract_feat(inputs)
             head_out = self.head(feats) if self.with_head else feats
-            return F.softmax(head_out, dim=1) if self.softmax else head_out
+            if head_out.shape[-1] > 2: # multi-class
+                head_out = F.softmax(head_out, dim=-1)
+            else: # binary
+                head_out = torch.sigmoid(head_out)
+            return head_out
         elif mode == 'loss':
             return self.loss(inputs, data_samples)
         elif mode == 'predict':

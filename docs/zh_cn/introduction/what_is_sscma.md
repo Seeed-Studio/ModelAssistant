@@ -1,8 +1,10 @@
+<div align="center">
+  <img width="20%" src="/public/images/SSCMA-Hero.png">
+</div>
+
 # 项目简介
 
-![SSCMA-logo](/images/SSCMA-Logo.png)
-
-[SSCMA](https://github.com/Seeed-Studio/SSCMA) 是一个专注于嵌入式人工智能的开源项目。我们从 [OpenMMLab](https://github.com/open-mmlab) 优化了出色的算法，针对实际场景进行了改进，并使实现更加用户友好，从而在嵌入式设备上实现更快速、更准确的推断。
+Seeed SenseCraft Model Assistant (SSCMA)  是一个专注于嵌入式人工智能的开源项目。我们从 [OpenMMLab](https://github.com/open-mmlab) 优化了出色的算法，针对实际场景进行了改进，并使实现更加用户友好，从而在嵌入式设备上实现更快速、更准确的推断。
 
 ## 包含哪些内容？
 
@@ -19,11 +21,11 @@
 
 ## 特点
 
-### 用户友好
+### 🤝 用户友好
 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 提供了一个用户友好的平台，让用户可以轻松地对收集的数据进行训练，并通过在训练过程中生成的可视化结果更好地了解算法的性能。
 
-### 低计算能力高性能模型
+### 🔋 M低计算能力高性能模型
 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 专注于边缘端AI算法研究，算法模型可部署在微处理器上，类似于[ESP32](https://www.espressif.com/en/products/socs/esp32)、一些[Arduino](https://arduino.cc)开发板，甚至嵌入式SBC（如 [Raspberry Pi](https://www.raspberrypi.org) ）等设备上。
 
-### 支持多种模型导出格式
+### 🗂️ 支持多种模型导出格式
 [TensorFlow Lite](https://www.tensorflow.org/lite) 主要用于微控制器，而 [ONNX](https://onnx.ai) 主要用于嵌入式Linux设备。还有一些特殊格式，如 [TensorRT](https://developer.nvidia.com/tensorrt)、[OpenVINO](https://docs.openvino.ai)，这些格式已经得到OpenMMLab的良好支持。[SSCMA](https://github.com/Seeed-Studio/SSCMA)添加了用于微控制器的TFLite模型导出功能，可以直接转换为 [TensorRT](https://developer.nvidia.com/tensorrt) 格式。

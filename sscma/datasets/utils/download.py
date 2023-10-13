@@ -29,6 +29,7 @@ def download_file(url, path) -> bool:
                     f.write(chunk)
                     f.flush()
         return True
+      
     except Exception as e:
         print('Warning: Connection timed out, this may cause an error to occur!')
         return False

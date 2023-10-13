@@ -49,6 +49,19 @@ SenseCraft 模型助手专注于边缘端人工智能算法研究，算法模型
 
 更多应用示例请参考 [模型仓库](https://github.com/Seeed-Studio/sscma-model-zoo)。
 
+## 应用示例
+
+### 目标检测
+<div align=center><img width=800 src="./docs/public/static/esp32/images/person_detection.png"/></div>
+
+### 模拟仪器识别
+<div align=center><img width=800 src="./docs/public/static/grove/images/pfld_meter.gif"/></div>
+
+### 传统数字仪表识别
+<div align=center><img width=800 src="./docs/public/static/grove/images/digital_meter.gif"/></div>
+
+更多应用示例请参考 [模型仓库](https://github.com/Seeed-Studio/sscma-model-zoo)。
+
 ## 致谢
 
 SenseCraft模型助手参考了以下项目：
