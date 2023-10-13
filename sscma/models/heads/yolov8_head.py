@@ -1,5 +1,4 @@
 import math
-from functools import partial
 from typing import List, Sequence, Tuple, Union
 from mmdet.structures import SampleList
 

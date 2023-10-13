@@ -31,7 +31,7 @@ def download_file(url, path) -> bool:
         return True
       
     except Exception as e:
-        print('Warning: Connection timed out, this may cause an error to occur!')
+        print('Warning: Connection timed out, this may cause an error to occur!', e)
         return False
 
 
