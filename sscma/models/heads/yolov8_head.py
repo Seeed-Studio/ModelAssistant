@@ -1,4 +1,5 @@
 import math
+from functools import partial
 from typing import List, Sequence, Tuple, Union
 from mmdet.structures import SampleList
 
@@ -155,14 +156,6 @@ class YOLOv8HeadModule(BaseModule):
         assert len(x) == self.num_levels
         return multi_apply(self.forward_single, x, self.cls_preds, self.reg_preds)
 
-    def _forward(self, x: Tuple[Tensor]) -> Tensor:
-        assert len(x) == self.num_levels
-        out = multi_apply(self.forward_single, x, self.cls_preds, self.reg_preds)
-        cls_ = torch.cat(list(map(lambda x: x.permute(0, 2, 3, 1).reshape(1, -1, self.num_classes), out[0])), 1)
-        bbox_ = torch.cat(list(map(lambda x: x.permute(0, 2, 3, 1).reshape(1, -1, 4), out[1])), 1)
-        result = torch.cat((bbox_, cls_), -1)
-        return result
-
     def forward_single(self, x: torch.Tensor, cls_pred: nn.ModuleList, reg_pred: nn.ModuleList) -> Tuple:
         """Forward feature of a single scale level."""
         b, _, h, w = x.shape
@@ -170,7 +163,6 @@ class YOLOv8HeadModule(BaseModule):
         bbox_dist_preds = reg_pred(x)
         if self.reg_max > 1:
             bbox_dist_preds = bbox_dist_preds.reshape([-1, 4, self.reg_max, h * w]).permute(0, 3, 1, 2)
-
             # TODO: The get_flops script cannot handle the situation of
             #  matmul, and needs to be fixed later
             # bbox_preds = bbox_dist_preds.softmax(3).matmul(self.proj)
@@ -212,29 +204,31 @@ class YOLOv8Head(YOLOv8Head):
 
     def export(self, cls_scores: List[Tensor], bbox_preds: List[Tensor], batch_num: int = 1) -> Tensor:
         assert len(cls_scores) == len(bbox_preds)
+        featmap_len = len(cls_scores)
+        tmp = [torch.cat((bbox_preds[idx], cls_scores[idx]), 1) for idx in range(featmap_len)]
+        anchors, stides = (i.transpose(0, 1) for i in make_anchors(tmp, self.head_module.featmap_strides, 0.5))
+        x_cat = torch.cat([i.reshape(batch_num, 4 + self.num_classes, -1) for i in tmp], 2)
+        bbox, cls = x_cat.split((4, self.num_classes), 1)
+        lt, rb = bbox.chunk(2, 1)
+        x1y1 = anchors.unsqueeze(0) - lt
+        x2y2 = anchors.unsqueeze(0) + rb
+        dbox = torch.cat((x1y1, x2y2), 1) * stides
+        preds = torch.cat((dbox.permute(0, 2, 1), cls.sigmoid().permute(0, 2, 1) * 100), 2)
+        return preds
 
-        featmap_sizes = [cls_score.shape[2:] for cls_score in cls_scores]
 
-        self.mlvl_priors = self.prior_generator.grid_priors(
-            featmap_sizes, dtype=cls_scores[0].dtype, device=cls_scores[0].device
-        )
-        self.featmap_sizes = featmap_sizes
-        flatten_priors = torch.cat(self.mlvl_priors)
-
-        mlvl_strides = [
-            torch.ones((featmap_size[0] ** 2 * self.num_base_priors,)) * stride
-            for featmap_size, stride in zip(featmap_sizes, self.featmap_strides)
-        ]
-        flatten_stride = torch.cat(mlvl_strides).to(cls_scores[0].device)
-
-        # flatten cls_scores, bbox_preds and objectness
-        flatten_cls_scores = [
-            cls_score.permute(0, 2, 3, 1).reshape(batch_num, -1, self.num_classes) for cls_score in cls_scores
-        ]
-        flatten_bbox_preds = [bbox_pred.permute(0, 2, 3, 1).reshape(batch_num, -1, 4) for bbox_pred in bbox_preds]
-        # In order to reduce the quantization error
-        flatten_cls_scores = torch.cat(flatten_cls_scores, dim=1).sigmoid() * 100
-        flatten_bbox_preds = torch.cat(flatten_bbox_preds, dim=1)
-        flatten_decoded_bboxes = self.bbox_coder.decode(flatten_priors[None], flatten_bbox_preds, flatten_stride)
-        result = torch.cat((flatten_decoded_bboxes, flatten_cls_scores), dim=-1)
-        return result
+def make_anchors(feats, strides, grid_cell_offset=0.5):
+    """Generate anchors from features."""
+    anchor_points, stride_tensor = [], []
+    assert feats is not None
+    dtype, device = feats[0].dtype, feats[0].device
+    for i, stride in enumerate(strides):
+        _, _, h, w = feats[i].shape
+        sx = torch.arange(0, w, device=device) + grid_cell_offset  # shift x
+        sy = torch.arange(0, h, device=device) + grid_cell_offset  # shift y
+        sx = sx.to(dtype=dtype)
+        sy = sy.to(dtype=dtype)
+        sy, sx = torch.meshgrid(sy, sx, indexing='ij') if torch.__version__ == '1.10.0' else torch.meshgrid(sy, sx)
+        anchor_points.append(torch.stack((sx, sy), -1).view(-1, 2))
+        stride_tensor.append(torch.full((w * h, 1), stride, dtype=dtype, device=device))
+    return torch.cat(anchor_points), torch.cat(stride_tensor)
