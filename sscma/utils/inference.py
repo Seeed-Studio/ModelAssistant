@@ -1,6 +1,7 @@
 import os
 import os.path as osp
 import time
+import math
 from typing import AnyStr, List, Optional, Sequence, Tuple, Union
 
 import cv2
@@ -14,6 +15,7 @@ from mmengine.evaluator import Evaluator
 from mmengine.registry import MODELS
 from mmengine.structures import InstanceData
 from mmengine.visualization.visualizer import Visualizer
+from mmengine.runner import Runner
 from torch.utils.data import DataLoader
 from tqdm.std import tqdm
 
@@ -21,9 +23,8 @@ from sscma.utils.cv import NMS, load_image, NMS_FREE
 
 from .iot_camera import IoTCamera
 
-def _get_adaptive_scale(img_shape: Tuple[int, int],
-                        min_scale: float = 0.3,
-                        max_scale: float = 3.0) -> float:
+
+def _get_adaptive_scale(img_shape: Tuple[int, int], min_scale: float = 0.3, max_scale: float = 3.0) -> float:
     """Get adaptive scale according to image shape.
 
     The target scale depends on the the short edge length of the image. If the
@@ -42,13 +43,13 @@ def _get_adaptive_scale(img_shape: Tuple[int, int],
         int: The adaptive scale.
     """
     short_edge_length = min(img_shape)
-    scale = short_edge_length / 224.
+    scale = short_edge_length / 224.0
     return min(max(scale, min_scale), max_scale)
 
 
 class Inter:
     def __init__(self, model: List or AnyStr or Tuple):
-        if isinstance(model, list):
+        if isinstance(model, list) or '.param' in model or '.bin' in model:
             try:
                 import ncnn
             except ImportError:
@@ -56,15 +57,29 @@ class Inter:
                     'You have not installed ncnn yet, please execute the "pip install ncnn" command to install and run again'
                 )
             net = ncnn.Net()
+            if isinstance(model, str):
+                if '.bin' in model:
+                    model = [model, model.replace('.bin', '.param')]
+                else:
+                    model = [model, model.replace('.param', '.bin')]
             for p in model:
                 if p.endswith('param'):
                     param = p
                 if p.endswith('bin'):
                     bin = p
+            # load model weights
             net.load_param(param)
             net.load_model(bin)
-            # net.opt.use_vulkan_compute = True
+            net.opt.use_vulkan_compute = False
+            # computer intput shape,non-strict calculation
+            extra = net.create_extractor()
+            input_name = net.input_names()[0]
+            output_name = net.output_names()[0]
+            extra.input(input_name, ncnn.Mat(np.random.randn(1, 3, 192, 192)))  # noqa
+            H = extra.extract(output_name)[1].h
+            w = h = int(math.sqrt(H / 21) * 32)
             self.engine = 'ncnn'
+            self._input_shape = [3, h, w]
         elif model.endswith('onnx'):
             try:
                 import onnxruntime
@@ -142,11 +157,15 @@ class Inter:
             result = self.inter.run([self.inter.get_outputs()[0].name], {self.inter.get_inputs()[0].name: img})[0]
             results.append(result)
         elif self.engine == 'ncnn':  # ncnn
+            import ncnn
+
             self.inter.opt.use_vulkan_compute = False
             extra = self.inter.create_extractor()
+            input_name = self.inter.input_names()[0]
+            output_name = self.inter.output_names()[0]
             extra.input(input_name, ncnn.Mat(img[0]))  # noqa
             result = extra.extract(output_name)[1]
-            result = [result[i] for i in range(len(result))]
+            return [np.expand_dims(np.array(result), axis=0)]
         else:  # tf
             input_, outputs = self.inter.get_input_details()[0], (
                 self.inter.get_output_details()[0] for i in range(result_num)
@@ -267,7 +286,7 @@ class Infernce:
         model: List or AnyStr or Tuple,
         dataloader: Union[DataLoader, str, int, None] = None,
         cfg: Optional[Config] = None,
-        runner=None,
+        runner: Runner = None,
         dump: Optional[str] = None,
         source: Optional[str] = None,
         task: str = 'det',
@@ -424,28 +443,27 @@ class Infernce:
             elif self.task == 'cls':
                 if img.dtype == np.float32:
                     img = img * 255
-                
 
                 img_scale = 1 / _get_adaptive_scale(img.shape[:2])
-                    
+
                 img = cv2.resize(img, (int(img.shape[1] * img_scale), int(img.shape[0] * img_scale)))
-                    
+
                 self.visualizer.set_image(img)
                 label = np.argmax(preds[0], axis=1)
                 data['data_samples'][0].set_pred_score(preds[0][0]).set_pred_label(label)
                 self.evaluator.process(data_samples=data['data_samples'], data_batch=data)
                 text_cfg = dict()
                 text_cfg = {
-                    'positions': np.array([(img_scale * 3, ) * 2]).astype(np.int32),
+                    'positions': np.array([(img_scale * 3) * 2]).astype(np.int32),
                     'font_sizes': int(img_scale * 4),
                     'font_families': 'monospace',
                     'colors': 'white',
                     'bboxes': dict(facecolor='black', alpha=0.5, boxstyle='Round'),
-                    **text_cfg
+                    **text_cfg,
                 }
                 texts = self.visualizer.dataset_meta["classes"][label[0]] + ':' + str(preds[0][0][label[0]])
                 self.visualizer.draw_texts(texts, **text_cfg)
-                
+
                 if self.show:
                     self.visualizer.show(backend='cv2')
             else:
@@ -516,7 +534,15 @@ def show_det(
     for i in pred:
         x1, y1, x2, y2 = map(int, i[:4])
         img = cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 1)
-        cv2.putText(img, class_name[int(i[5])], (x1, y1), 1, color=(0, 0, 255), thickness=1, fontScale=1)
+        cv2.putText(
+            img,
+            class_name[int(i[5])] if class_name else 'None',
+            (x1, y1),
+            1,
+            color=(0, 0, 255),
+            thickness=1,
+            fontScale=1,
+        )
         cv2.putText(img, str(round(i[4].item(), 2)), (x1, y1 - 15), 1, color=(0, 0, 255), thickness=1, fontScale=1)
     if show:
         cv2.imshow(win_name, img)
