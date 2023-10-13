@@ -15,7 +15,7 @@ variables:
 train_job:
 
   stage: train
-  image: SSCMA
+  image: sscma
   tags:
     - runner-gpu
   script:
@@ -30,9 +30,9 @@ train_job:
     - df -h
     - cd /builds/awesome-se/SSCMA
     - pip install .
-    - mkdir -p /builds/awesome-se/SSCMA
-    - mount -t cifs -o username=$USER,password=$PASSWORD,vers=3.0,uid=`id -u`,gid=`id -g`,rw,file_mode=0664  $SMBUS /builds/awesome-se/SSCMA
-    - ln -s /builds/awesome-se/SSCMA/datasets datasets
+    - mkdir -p /builds/awesome-se/work
+    - mount -t cifs -o username=$USER,password=$PASSWORD,vers=3.0,uid=`id -u`,gid=`id -g`,rw,file_mode=0664  $SMBUS /builds/awesome-se/work
+    - ln -s /builds/awesome-se/work/datasets datasets
     - ls -l datasets/
     - python tools/train.py ${CONFIG} --cfg-options data_root=$DATAROOT epochs=$EPOCH $EXTRA
     - python tools/export.py ${CONFIG} "$(cat work_dirs/$PROJECT/last_checkpoint)" --cfg-options data_root=$DATAROOT $EXTRA
@@ -48,5 +48,5 @@ train_job:
     - python tools/inference.py ${CONFIG} ${FILENAMETFLITE} --dump ${FILENAMETFLITE}.json --cfg-options data_root=$DATAROOT $EXTRA
     - python tools/inference.py ${CONFIG} ${FILENAMEINT8} --dump ${FILENAMEINT8}.json --cfg-options data_root=$DATAROOT $EXTRA
     - tar -czvf $PROJECT.tar.gz work_dirs
-    - mkdir -p /builds/awesome-se/SSCMA/result/$(date "+%Y-%m-%d_%H-%M-%S")
-    - cp $PROJECT.tar.gz /builds/awesome-se/SSCMA/result/$(date "+%Y-%m-%d_%H-%M-%S")/
+    - mkdir -p /builds/awesome-se/work/result/$(date "+%Y-%m-%d_%H-%M-%S")
+    - cp $PROJECT.tar.gz /builds/awesome-se/work/result/$(date "+%Y-%m-%d_%H-%M-%S")/

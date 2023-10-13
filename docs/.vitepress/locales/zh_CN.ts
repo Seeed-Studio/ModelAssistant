@@ -71,7 +71,7 @@ function sidebar() {
         {
             text: '部署示例',
             collapsed: false,
-            link: '/zh_cn/deploy/examples',
+            link: '/zh_cn/deploy/overview',
             items: [
                 {
                     text: 'ESP32 - 部署教程',

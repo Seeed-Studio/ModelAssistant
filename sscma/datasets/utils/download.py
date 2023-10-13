@@ -13,7 +13,7 @@ def download_file(url, path) -> bool:
             'An error occurred importing the "requests" module, please execute "pip install requests" and try again.'
         )
     try:
-        response = requests.get(url, stream=True)
+        response = requests.get(url, stream=True, timeout=10)
         if os.path.exists(path) and int(response.headers.get("content-length")) == os.path.getsize(path):
             print("File A already exists, skip download!!!")
             return
@@ -28,9 +28,11 @@ def download_file(url, path) -> bool:
                 if chunk:
                     f.write(chunk)
                     f.flush()
+        return True
+      
     except Exception as e:
-        print(f'An error occurred downloading the file, please check if the link "{url}" is correct.')
-        raise e
+        print('Warning: Connection timed out, this may cause an error to occur!', e)
+        return False
 
 
 def _download(url: str, api_key: Optional[str] = None) -> str:
@@ -64,15 +66,16 @@ def _download(url: str, api_key: Optional[str] = None) -> str:
         pwd = os.getcwd()
         if not os.path.exists(os.path.join(pwd, 'datasets')):
             os.mkdir(os.path.join(pwd, 'datasets'))
-            
+
         extrapath = os.path.join(pwd, 'datasets', url.split('=')[-1]) + os.path.sep
-        zippath = os.path.join(pwd,'datasets', url.split('=')[-1]) + '.zip'
-        print(zippath)
-        print(extrapath)
-        download_file(url, zippath)
+        zippath = os.path.join(pwd, 'datasets', url.split('=')[-1]) + '.zip'
+
+        flag = download_file(url, zippath)
         if os.path.exists(extrapath):
             print("The compressed file has been extracted, skip the decompression!!!")
             return extrapath
+        elif not flag:
+            raise ConnectionError("'Connection timed out, please check network connection and retry!'")
         os.makedirs(extrapath, exist_ok=True)
         with zipfile.ZipFile(zippath, "r") as zip_ref:
             for member in tqdm(

@@ -8,7 +8,37 @@
 
 现在，您可以在Google Colab上尝试使用[SSCMA Colab示例](https://github.com/Seeed-Studio/SSCMA/tree/main/notebooks)，无需在计算机上安装[SSCMA](https://github.com/Seeed-Studio/SSCMA)。
 
+### 图像分类
+
+| 模型                                                                                                         | Colab                                                                                                                                                                                                                            |
+|:--------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Person_Classification_MobileNetV2_0.35_Rep_64](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Person_Classification_MobileNetV2_0.35_Rep_64.md)     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Person_Classification_MobileNetV2_0.35_Rep_64.ipynb)   |
+| [Person_Classification_MobileNetV2_0.35_Rep_96](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Person_Classification_MobileNetV2_0.35_Rep_96.md)     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Person_Classification_MobileNetV2_0.35_Rep_96.ipynb)   |
+| [Person_Classification_MobileNetV2_0.35_Rep_32](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Person_Classification_MobileNetV2_0.35_Rep_32.md)     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Person_Classification_MobileNetV2_0.35_Rep_32.ipynb)   |
+| [CIFAR-10_Classification_MobileNetV2_0.35_Rep_32](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/CIFAR-10_Classification_MobileNetV2_0.35_Rep_32.md) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/CIFAR-10_Classification_MobileNetV2_0.35_Rep_32.ipynb) |
+| [Gender_Classification_MobileNetV2_0.35_Rep_64](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Gender_Classification_MobileNetV2_0.35_Rep_64.md)     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Gender_Classification_MobileNetV2_0.35_Rep_64.ipynb)   |
+| [MNIST_Classification_MobileNetV2_0.5_Rep_32](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/MNIST_Classification_MobileNetV2_0.5_Rep_32.md)         | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/MNIST_Classification_MobileNetV2_0.5_Rep_32.ipynb)     |
+
+### 目标检测
+
+| 模型                                                                                           | Colab                                                                                                                                                                                                                     |
+|:------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Digital_Meter_Water_Swift-YOLO_192](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Digital_Meter_Water_Swift-YOLO_192.md)             | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Digital_Meter_Water_Swift-YOLO_192.ipynb)       |
+| [Face_Detection_Swift-YOLO_192](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Face_Detection_Swift-YOLO_192.md)                       | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Face_Detection_Swift-YOLO_192.ipynb)            |
+| [Gender_Detection_Swift-YOLO_96](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Gender_Detection_Swift-YOLO_96.md)                     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Gender_Detection_Swift-YOLO_96.ipynb)           |
+| [Digital_Meter_Electricity_Swift-YOLO_192](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Digital_Meter_Electricity_Swift-YOLO_192.md) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Digital_Meter_Electricity_Swift-YOLO_192.ipynb) |
+
 ## 入门指南
+
+### 模型部署
+
+如果您想在设备上部署模型，请参考[部署](../deploy/overview)章节，了解如何部署模型。
+
+### 模型训练
+
+如果您想训练一个模型，我们强烈建议您首先在Colab平台上尝试训练一个模型。您可以参考以下教程：
+
+## 高级用法
 
 1. 首先，参考[安装指南](./installation.md)配置 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 的运行环境。
 
@@ -19,8 +49,6 @@
    - **模型导出**。完成模型训练后，为了在边缘计算设备上部署，首先需要导出模型。有关模型导出的教程，请参考[模型导出](../tutorials/export/overview)。
 
    - **模型验证**。模型验证可在训练或导出后进行。前者验证神经网络和训练结果的正确性，而后者主要验证导出模型的正确性，以便后续在边缘计算设备上进行部署和调试。上述两个步骤的文档中已经提供了一些模型验证的方法。
-
-## 高级用法
 
 - **模型部署**。如果您想将导出的训练模型部署在边缘计算设备上，请参考[ESP32部署示例](../deploy/esp32/deploy)或[Grove Vision AI部署示例](../deploy/grove/deploy)。
 

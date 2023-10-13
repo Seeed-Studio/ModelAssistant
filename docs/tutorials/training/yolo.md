@@ -1,10 +1,10 @@
 # YOLO Model Training
 
-This section describes how to train the digital meter model on the COCO digital meter datasets. The implementations of yolo digital meter detection model is based on the [yolo](https://github.com/ultralytics/yolov5) and power by [mmyolo](https://github.com/open-mmlab/mmyolo)
+This section describes how to train the digital meter model on the COCO digital meter datasets. The implementations of yolo digital meter detection model is based on the Swfit-YOLO and power by [mmyolo](https://github.com/open-mmlab/mmyolo)
 
 ## Prepare Datasets
 
-[SSCMA](https://github.com/Seeed-Studio/SSCMA) uses [Digital Meter Datasets](https://universe.roboflow.com/seeeddatasets/seeed_meter_digit/) by default to train the yolov5 model, please refer to the following steps to complete the preparation of datasets.
+[SSCMA](https://github.com/Seeed-Studio/SSCMA) uses [Digital Meter Datasets](https://universe.roboflow.com/seeeddatasets/seeed_meter_digit/) by default to train the Swfit-YOLO model, please refer to the following steps to complete the preparation of datasets.
 
 1. Download digital meter datasets with COCO datasets mode
 
@@ -14,7 +14,7 @@ This section describes how to train the digital meter model on the COCO digital 
 
 We will choose a appropriate configuration file depending on the type of training task we need to perform, which we have already introduced in [Config](../config.md), for a brief description of the functions, structure, and principles of the configuration file.
 
-For the yolov5 model example, we use `yolov5_tiny_1xb16_300e_coco.py` as the configuration file, which is located in the folder under the SSCMA root directory `configs/yolov5` and its additionally inherits the `base_arch.py` configuration file.
+For the Swfit-YOLO model example, we use `yolov5_tiny_1xb16_300e_coco.py` as the configuration file, which is located in the folder under the SSCMA root directory `configs/yolov5` and its additionally inherits the `base_arch.py` configuration file.
 
 For beginners, we recommend to pay attention to the `data_root` and `epochs` parameters in this configuration file at first.
 
@@ -63,7 +63,7 @@ model = dict(
 
 Training the model requires using our previously configured SSCMA working environment, if you follow our [Installation](../../introduction/installation.md) guide using Conda to install [SSCMA](https://github.com/Seeed-Studio/SSCMA) in a virtual environment named `sscma`, please first make sure that you are currently in the virtual environment.
 
-Then, in the [SSCMA](https://github.com/Seeed-Studio/SSCMA) project root directory, we execute the following command to train a yolov5 digital meter detection model.
+Then, in the [SSCMA](https://github.com/Seeed-Studio/SSCMA) project root directory, we execute the following command to train a Swfit-YOLO digital meter detection model.
 
 ```sh
 python3 tools/train.py \
@@ -79,7 +79,7 @@ During training, the model weights and related log information are saved to the 
 tensorboard --logdir work_dirs/yolov5_tiny_1xb16_300e_coco
 ```
 
-After the training is completed, the path of the latest yolov5 model weights file is saved in the `work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint` file. Please take care of the path of the weight file, as it is needed when converting the model to other formats.
+After the training is completed, the path of the latest Swfit-YOLO model weights file is saved in the `work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint` file. Please take care of the path of the weight file, as it is needed when converting the model to other formats.
 
 ::: tip
 
@@ -95,7 +95,7 @@ conda activate sscma
 
 ### Testing
 
-After have finished training the yolov5 model, you can specify specific weights and test the model using the following command.
+After have finished training the Swfit-YOLO model, you can specify specific weights and test the model using the following command.
 
 ```sh
 python3 tools/inference.py \
@@ -118,4 +118,4 @@ In order to further test and evaluate the model on a realistic edge computing de
 
 ### Deployment
 
-After exporting the model, you can deploy the model to the edge computing device for testing and evaluation. You can refer to the [Deploy](../../deploy/examples.md) section to learn more about how to deploy models.
+After exporting the model, you can deploy the model to the edge computing device for testing and evaluation. You can refer to the [Deploy](./../../deploy/overview.md) section to learn more about how to deploy models.

@@ -29,9 +29,11 @@ def replace(data: str, args: Optional[dict] = None) -> str:
         return data
     for key, value in args.items():
         if isinstance(value, (int, float)):
-            data = re.sub(f'^{key}\s?=\s?[^,{key}].*?[^,{key}].*?$\n', f'{key}={value}\n', data, flags=re.MULTILINE)
+            data = re.sub(f'^{key}\s?=\s?[^,{key}].*?$\n', f'{key}={value}\n', data, flags=re.MULTILINE)
         elif isinstance(value, (list, tuple)):
-            data = re.sub(f"^{key}\s?=\s?['\"]{{1}}.*?['\"]{{1}}.*?$\n", f'{key}="{value}"\n', data, flags=re.MULTILINE)
+            data = re.sub(
+                f"^{key}\s?=\s?[\[\(]{{1}}.*?[\]\)]{{1}}.*?$\n", f'{key}={tuple(value)}\n', data, flags=re.MULTILINE
+            )
         elif isinstance(value, str):
             value = value.replace('\\', '/')
             data = re.sub(f"^{key}\s?=\s?['\"]{{1}}.*?['\"]{{1}}.*?$\n", f'{key}="{value}"\n', data, flags=re.MULTILINE)
@@ -103,7 +105,7 @@ def load_config(filename: str, folder: str, cfg_options: Optional[dict] = None) 
                 osp.join(cfg_dir, base),
                 folder=folder,
                 cfg_options=cfg_options,
-            )
+            ).replace('\\', '/')
             data = replace_base_(data, _base_path)
 
         elif isinstance(base, (tuple, list)):
@@ -113,7 +115,7 @@ def load_config(filename: str, folder: str, cfg_options: Optional[dict] = None) 
                     osp.join(cfg_dir, _base),
                     folder=folder,
                     cfg_options=cfg_options,
-                )
+                ).replace('\\', '/')
                 _tmp_base.append(_base_path)
 
             data = replace_base_(data, _tmp_base)

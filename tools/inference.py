@@ -119,6 +119,8 @@ def verify_args(args):
         '.pth',
         '.onnx',
         '.tflite',
+        '.param',
+        '.bin',
     }, "The chackpoint model should be ended with a '.pth', '.onnx' or '.tflite' extension"
     assert os.path.exists(args.checkpoint), 'The chackpoint model does not exist'
     assert args.interval > 0, 'The interval of visualization per samples should be larger than 0'
@@ -321,7 +323,7 @@ def main():
 
                 runner.register_hook(SaveMetricHook(), 'LOWEST')
 
-    elif checkpoint_ext in {'.tflite', '.onnx'}:
+    elif checkpoint_ext in {'.tflite', '.onnx', '.param', '.bin'}:
         from sscma.utils import Infernce
 
         # TODO: Support inference '.tflite', '.onnx' model on different devices
