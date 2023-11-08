@@ -1,7 +1,6 @@
 import os
 import os.path as osp
 import time
-import math
 from typing import AnyStr, List, Optional, Sequence, Tuple, Union
 
 import cv2
@@ -71,15 +70,8 @@ class Inter:
             net.load_param(param)
             net.load_model(bin)
             net.opt.use_vulkan_compute = False
-            # computer intput shape,non-strict calculation
-            extra = net.create_extractor()
-            input_name = net.input_names()[0]
-            output_name = net.output_names()[0]
-            extra.input(input_name, ncnn.Mat(np.random.randn(1, 3, 192, 192)))  # noqa
-            H = extra.extract(output_name)[1].h
-            w = h = int(math.sqrt(H / 21) * 32)
             self.engine = 'ncnn'
-            self._input_shape = [3, h, w]
+            self._input_shape = [3, 640, 640]
         elif model.endswith('onnx'):
             try:
                 import onnxruntime
@@ -395,7 +387,8 @@ class Infernce:
                     if not self.source:
                         ori_shape = data['data_samples'][0].ori_shape
                         bboxes = data['data_samples'][0].gt_instances
-                        target = build_target(preds.shape[1:], (96, 96), bboxes)
+                        # target = build_target(preds.shape[1:], (H*8, W*8), bboxes)
+                        target = torch.as_tensor(data['data_samples'][0].fomo_mask[0])
 
                         data['data_samples'][0].pred_instances = InstanceData(
                             pred=tuple([torch.from_numpy(preds).permute(0, 3, 1, 2)]), labels=tuple([target])
@@ -445,17 +438,16 @@ class Infernce:
                     img = img * 255
 
                 img_scale = 1 / _get_adaptive_scale(img.shape[:2])
-                
-                
+
                 img = cv2.resize(img, (int(img.shape[1] * img_scale), int(img.shape[0] * img_scale)))
-          
+
                 self.visualizer.set_image(img)
                 label = np.argmax(preds[0], axis=1)
                 data['data_samples'][0].set_pred_score(preds[0][0]).set_pred_label(label)
                 self.evaluator.process(data_samples=data['data_samples'], data_batch=data)
-               
+
                 texts = self.visualizer.dataset_meta["classes"][label[0]] + ':' + str(preds[0][0][label[0]])
-            
+
                 text_cfg = dict()
                 text_cfg = {
                     'positions': np.array([[0, 5]]),
@@ -465,7 +457,7 @@ class Infernce:
                     'bboxes': dict(facecolor='black', alpha=0.5, boxstyle='Round'),
                     **text_cfg,
                 }
-                
+
                 self.visualizer.draw_texts(texts, **text_cfg)
 
                 if self.show:
