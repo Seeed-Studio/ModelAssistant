@@ -5,6 +5,7 @@ from .logger import (
     WandbLoggerHook,
 )
 from .visualization_hook import DetFomoVisualizationHook, Posevisualization
+from .semihook import SemidHook
 
 __all__ = [
     'TextLoggerHook',
@@ -14,4 +15,5 @@ __all__ = [
     'ClearMLLoggerHook',
     'Posevisualization',
     'DetFomoVisualizationHook',
+    "SemiHook",
 ]

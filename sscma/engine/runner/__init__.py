@@ -1,3 +1,3 @@
-from .loops import GetEpochBasedTrainLoop
+from .loops import GetEpochBasedTrainLoop, SemiValLoop
 
-__all__ = ['GetEpochBasedTrainLoop']
+__all__ = ['GetEpochBasedTrainLoop', 'SemiValLoop']
