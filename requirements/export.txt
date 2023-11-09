@@ -3,3 +3,6 @@ TinyNeuralNetwork @ https://files.seeedstudio.com/sscma/library/TinyNeuralNetwor
 
 # ncnn
 pnnx
+
+# vela
+ethos-u-vela

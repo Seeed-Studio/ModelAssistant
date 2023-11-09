@@ -11,6 +11,7 @@ import sscma.engine  # noqa
 import sscma.evaluation  # noqa
 import sscma.models  # noqa
 import sscma.visualization  # noqa
+from sscma.utils.check import check_lib
 
 
 def parse_args():
@@ -25,7 +26,7 @@ def parse_args():
         '--targets',
         type=str,
         nargs='+',
-        default=['tflite', 'onnx', 'pnnx'],
+        default=['tflite', 'onnx', 'pnnx', 'vela'],
         help='the target type of model(s) to export e.g. tflite onnx',
     )
     parser.add_argument(
@@ -77,6 +78,12 @@ def parse_args():
         nargs='+',
         action=DictAction,
         help="override some settings in the used config, the key-value pair in 'xxx=yyy' format will be merged into config file",
+    )
+    parser.add_argument(
+        '--vela',
+        nargs='+',
+        action=DictAction,
+        help='Parameters required for exporting vela model, need to correspond to vela command line parameters.',
     )
     parser.add_argument(
         '--simplify',
@@ -150,7 +157,7 @@ def verify_args(args):
     ), "The chackpoint model should be a PyTorch model with '.pth' extension"
     assert os.path.exists(args.checkpoint), 'The chackpoint model does not exist'
     assert {str(t).lower() for t in args.targets}.issubset(
-        {'tflite', 'onnx', 'pnnx'}
+        {'tflite', 'onnx', 'pnnx', 'vela'}
     ), 'Supported in target type(s): onnx, tflite'
     assert {str(p).lower() for p in args.precisions}.issubset(
         {'int8', 'uint8', 'int16', 'float16', 'float32'}
@@ -182,7 +189,6 @@ def build_config(args):
         args.work_dir = cfg.work_dir = os.path.join('work_dirs', os.path.splitext(os.path.basename(args.config))[0])
     else:
         args.work_dir = cfg.work_dir
-        
 
     if args.device.startswith('cuda'):
         args.device = args.device if torch.cuda.is_available() else 'cpu'
@@ -195,8 +201,8 @@ def build_config(args):
 
     if args.input_shape is None:
         try:
-            if 'shape' in cfg:
-                args.input_shape = cfg.shape
+            if 'imgsz' in cfg:
+                args.input_shape = [1, 1 if cfg.get('gray', False) else 3, *cfg.imgsz]
             elif 'width' in cfg and 'height' in cfg:
                 args.input_shape = [
                     1,
@@ -376,6 +382,9 @@ def export_tflite(args, model, loader):
             converter.convert()
         except Exception as exp:
             raise RuntimeError('TFLite: Failed exporting the model') from exp
+        else:
+            if 'vela' in args.targets:
+                export_vela(args, tflite_file)
 
         print('TFLite: Successfully export model: {}'.format(tflite_file))
 
@@ -422,6 +431,23 @@ def export_onnx(args, model):
             else:
                 print("ONNX: Failed to simplify the model: '{}', revert to the original".format(onnx_file))
         print('ONNX: Successfully export model: {}'.format(onnx_file))
+
+
+def export_vela(args, model):
+    if check_lib('ethos-u-vela'):
+        from ethosu.vela.vela import main as vela_main
+    else:
+        raise ImportError(
+            'An error occurred while importing "ethosu", please check if "ethosu" is already installed,',
+            'or run "pip install ethos-u-vela" and try again.',
+        )
+
+    vela_args = [model, '--output-dir', os.path.dirname(model)]
+    if args.vela is not None:
+        for key, value in args.vela.items():
+            vela_args.append('--' + key)
+            vela_args.append(value)
+    vela_main(vela_args)
 
 
 def main():
