@@ -1,13 +1,12 @@
 from typing import Iterator, List, Optional, Any, Union
-from mmengine.dataset import DefaultSampler
-from mmengine.dataset.sampler import DefaultSampler
-from sscma.registry import DATA_SANPLERS
 
-from torch.utils.data import ConcatDataset, DataLoader, Dataset
-
-import numpy as np
 import torch
 import random
+import numpy as np
+from torch.utils.data import ConcatDataset
+from mmengine.dataset import DefaultSampler
+
+from sscma.registry import DATA_SANPLERS
 
 
 @DATA_SANPLERS.register_module()
@@ -50,13 +49,12 @@ class SemiSampler(DefaultSampler):
         self.shuffle = shuffle
         sample_ratio = [scale / sum(sample_ratio) for scale in sample_ratio]
         self.sample_ratio = sample_ratio
-        self.sample_size = [int(sample_ratio[0] * batch_size), batch_size - int(sample_ratio[0] * batch_size)]
 
         data_index = np.arange(dataset.cumulative_sizes[1])
         self.data1 = data_index[: dataset.cumulative_sizes[0]]
         self.data2 = data_index[dataset.cumulative_sizes[0] :]
-
-        # 是否加载无标签数据
+        self.computer_sampler_size()
+        # Whether to load unlabeled data
         self._with_unlabel = False
         self.datasets_len = dataset.cumulative_sizes[-1]
         self.computer_epoch()
@@ -87,6 +85,15 @@ class SemiSampler(DefaultSampler):
     def __len__(self) -> int:
         return self.total_epoch * self._batch_size
 
+    def computer_sampler_size(self):
+        frist_size = int(self.sample_ratio[0] * self.batch_size)
+        if frist_size >= self.batch_size:
+            frist_size = self.batch_size - 1
+        elif frist_size <= 0:
+            frist_size = 1
+
+        self.sample_size = [frist_size, self.batch_size - frist_size]
+
     def computer_epoch(self):
         if self.with_unlabel:
             if self.round_up:
@@ -103,7 +110,7 @@ class SemiSampler(DefaultSampler):
     @batch_size.setter
     def batch_size(self, batch: int) -> None:
         self._batch_size = batch
-        self.sample_size = [int(self.sample_ratio[0] * batch), batch - int(self.sample_ratio[0] * batch)]
+        self.computer_sampler_size()
 
     def set_seed(self, seed: int) -> None:
         # set seed
@@ -122,29 +129,3 @@ class SemiSampler(DefaultSampler):
 
     def set_epoch(self, epoch: int) -> None:
         self.epoch = epoch
-
-
-if __name__ == "__main__":
-
-    class TestSet(Dataset):
-        def __init__(self, start=0, end=100) -> None:
-            super().__init__()
-            self.start = start
-            self.end = end
-            self.data = [i for i in range(start, end)]
-
-        def __getitem__(self, index) -> Any:
-            return self.data[index]
-
-        def __len__(self):
-            return len(self.data)
-
-    datasets = ConcatDataset([TestSet(), TestSet(start=100, end=200)])
-    batch = 8
-    sampler = SemiSampler(datasets, batch, [2, 6])
-    data_loader = DataLoader(dataset=datasets, batch_size=batch, sampler=sampler, num_workers=1)
-    for idx, data in enumerate(data_loader):
-        print(idx, data)
-    data_loader.sampler.with_unlabel = True
-    for idx, data in enumerate(data_loader):
-        print(idx, data)
