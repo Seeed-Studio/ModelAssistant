@@ -1,4 +1,4 @@
-from typing import Iterator, List, Optional, Any, Union
+from typing import Iterator, List, Optional, Union
 
 import torch
 import random
@@ -55,30 +55,40 @@ class SemiSampler(DefaultSampler):
         self.data2 = data_index[dataset.cumulative_sizes[0] :]
         self.computer_sampler_size()
         # Whether to load unlabeled data
-        self._with_unlabel = False
+        self._only_label = True
+        self._only_unlabel = False
+        self._all_data = False
+        self.labels = ['_only_label', '_only_unlabel', '_all_data']
         self.datasets_len = dataset.cumulative_sizes[-1]
+
         self.computer_epoch()
 
     def __iter__(self) -> Iterator[int]:
         indexs = []
         num1 = 0
         num2 = 0
+        data1_len = len(self.data1)
+        data2_len = len(self.data2)
         if self.shuffle:
             np.random.shuffle(self.data1)
             np.random.shuffle(self.data2)
 
-        for i in range(self.total_epoch):
-            if self.with_unlabel:
+        for _ in range(self.total_epoch):
+            if self.all_data:
                 for _ in range(self.sample_size[0]):
-                    indexs.append(self.data1[num1 % len(self.data1)])
+                    indexs.append(self.data1[num1 % data1_len])
                     num1 += 1
                 for _ in range(self.sample_size[1]):
-                    indexs.append(self.data2[num2 % len(self.data2)])
+                    indexs.append(self.data2[num2 % data2_len])
                     num2 += 1
+            elif self.only_label:
+                for _ in range(self.sample_size[0] + self.sample_size[1]):
+                    indexs.append(self.data1[num1 % data1_len])
+                    num1 += 1
             else:
                 for _ in range(self.sample_size[0] + self.sample_size[1]):
-                    indexs.append(self.data1[num1 % len(self.data1)])
-                    num1 += 1
+                    indexs.append(self.data2[num2 % data2_len])
+                    num2 += 1
 
         return iter(indexs)
 
@@ -95,13 +105,15 @@ class SemiSampler(DefaultSampler):
         self.sample_size = [frist_size, self.batch_size - frist_size]
 
     def computer_epoch(self):
-        if self.with_unlabel:
+        if self.all_data:
             if self.round_up:
                 self.total_epoch = max(len(self.data1) // self.sample_size[0], len(self.data2) // self.sample_size[1])
             else:
                 self.total_epoch = min(len(self.data1) // self.sample_size[0], len(self.data2) // self.sample_size[1])
-        else:
+        elif self.only_label:
             self.total_epoch = len(self.data1) // sum(self.sample_size)
+        else:
+            self.total_epoch = len(self.data2) // sum(self.sample_size)
 
     @property
     def batch_size(self) -> int:
@@ -118,14 +130,37 @@ class SemiSampler(DefaultSampler):
         torch.manual_seed(seed)
         random.seed(seed)
 
-    @property
-    def with_unlabel(self) -> bool:
-        return self._with_unlabel
-
-    @with_unlabel.setter
-    def with_unlabel(self, unlabel: bool) -> None:
-        self._with_unlabel = unlabel
+    def set_label(self, attr: str, flag):
+        for i in self.labels:
+            if attr in i:
+                setattr(self, i, flag)
+            else:
+                setattr(self, i, not flag)
         self.computer_epoch()
+
+    @property
+    def only_label(self):
+        return self._only_label
+
+    @only_label.setter
+    def only_label(self, flag: bool):
+        self.set_label('only_label', flag)
+
+    @property
+    def only_unlabel(self):
+        return self._only_unlabel
+
+    @only_label.setter
+    def only_unlabel(self, flag: bool):
+        self.set_label('only_unlabel', flag)
+
+    @property
+    def all_data(self):
+        return self._all_data
+
+    @all_data.setter
+    def all_data(self, flag: bool):
+        self.set_label('all_data', flag)
 
     def set_epoch(self, epoch: int) -> None:
         self.epoch = epoch
