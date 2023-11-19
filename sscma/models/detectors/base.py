@@ -4,7 +4,7 @@ import copy
 from mmdet.models.detectors import BaseDetector, SemiBaseDetector
 from mmdet.utils import OptConfigType, OptMultiConfig, ConfigType
 from mmdet.models.utils import rename_loss_dict, reweight_loss_dict
-from mmdet.structures import SampleList, OptSampleList
+from mmdet.structures import SampleList
 import torch
 from torch import Tensor
 from mmengine.optim import OptimWrapper
