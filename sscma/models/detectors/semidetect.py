@@ -1,5 +1,4 @@
-import copy
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict,  Union
 
 from mmdet.models.detectors import SemiBaseDetector, BaseDetector
 from mmdet.structures import SampleList
