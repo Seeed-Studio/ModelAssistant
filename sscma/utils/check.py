@@ -37,7 +37,7 @@ def install_lib(name: Union[str, Iterable[str]], version: Optional[Union[str, It
         print(f"Third-party library {name} being installed")
         subprocess.check_output(f'pip install --no-cache {name}', shell=True).decode()
         return True
-    except Exception as e:
+    except Exception:
         print(f"Warning ⚠️: Installation of {name} has failed, the installation process has been skipped")
         return False
 

@@ -5,7 +5,7 @@ from .logger import (
     WandbLoggerHook,
 )
 from .visualization_hook import DetFomoVisualizationHook, Posevisualization
-from .semihook import SemidHook
+from .semihook import SemiHook
 
 __all__ = [
     'TextLoggerHook',

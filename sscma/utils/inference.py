@@ -386,7 +386,7 @@ class Infernce:
                         show_point(points, img=img, labels=texts, show=self.show, img_file=img_path)
                     if not self.source:
                         ori_shape = data['data_samples'][0].ori_shape
-                        bboxes = data['data_samples'][0].gt_instances
+                        # bboxes = data['data_samples'][0].gt_instances
                         # target = build_target(preds.shape[1:], (H*8, W*8), bboxes)
                         target = torch.as_tensor(data['data_samples'][0].fomo_mask[0])
 

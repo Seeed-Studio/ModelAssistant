@@ -1,9 +1,8 @@
-from typing import Dict, List, Optional, Sequence, Tuple, Union
-from mmengine.evaluator import Evaluator
+from typing import Dict, List, Sequence, Union
 
 import onnx
 import torch
-from mmengine.evaluator.evaluator import Evaluator
+from mmengine.evaluator import Evaluator
 from mmengine.runner import Runner, ValLoop
 from mmengine.runner.loops import BaseLoop, EpochBasedTrainLoop
 from mmengine.model import is_model_wrapper
