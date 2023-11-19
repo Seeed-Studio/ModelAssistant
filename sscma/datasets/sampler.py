@@ -150,7 +150,7 @@ class SemiSampler(DefaultSampler):
     def only_unlabel(self):
         return self._only_unlabel
 
-    @only_label.setter
+    @only_unlabel.setter
     def only_unlabel(self, flag: bool):
         self.set_label('only_unlabel', flag)
 
