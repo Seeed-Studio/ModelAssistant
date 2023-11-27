@@ -80,7 +80,7 @@ class FastShuffleNetV2(BaseModule):
     Reference: https://github.com/dog-qiuqiu/FastestDet/blob/50473cd155cb088aa4a99e64ff6a4b3c24fa07e1/module/shufflenetv2.py#L64C6-L64C7
     """
 
-    def __init__(self, stage_repeats, stage_out_channels, pretrain=None, *args, **kwargs) -> None:
+    def __init__(self, stage_repeats, stage_out_channels, *args, **kwargs) -> None:
         super(FastShuffleNetV2, self).__init__(*args, **kwargs)
 
         self.stage_repeats = stage_repeats
@@ -117,8 +117,6 @@ class FastShuffleNetV2(BaseModule):
                 input_channel = output_channel
             setattr(self, stage_names[idxstage], nn.Sequential(*stageSeq))
 
-        self._initialize_weights(pretrain)
-
     def forward(self, x) -> Tuple[torch.Tensor]:
         x = self.first_conv(x)
         x = self.maxpool(x)
@@ -127,13 +125,6 @@ class FastShuffleNetV2(BaseModule):
         P3 = self.stage4(P2)
 
         return (P1, P2, P3)
-
-    def _initialize_weights(self, param_file) -> None:
-        if param_file is not None:
-            print(f"Initialize params from:{param_file}")
-            self.load_state_dict(torch.load(param_file), strict=True)
-        else:
-            self.init_weights()
 
 
 @BACKBONES.register_module()
