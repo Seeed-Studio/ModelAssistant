@@ -17,7 +17,7 @@ class MutiBranchPipe(BaseTransform):
             multi_results[branch] = {'inputs': None, 'data_samples': None}
         for branch, pipeline in self.branch_pipelines.items():
             branch_results = pipeline(copy.deepcopy(results))
-            if branch == 'unsup_teacher':
+            if branch == self.piece_key:
                 results['img'] = branch_results['inputs'].permute(1, 2, 0).cpu().numpy()
             # If one branch pipeline returns None,
             # it will sample another data from dataset.

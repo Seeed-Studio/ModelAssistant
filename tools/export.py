@@ -15,7 +15,7 @@ import sscma.engine  # noqa
 import sscma.evaluation  # noqa
 import sscma.models  # noqa
 import sscma.visualization  # noqa
-from sscma.utils.check import check_lib
+from sscma.utils.check import check_lib # noqa
 
 
 def parse_args():
