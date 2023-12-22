@@ -3,10 +3,11 @@ import os
 import tempfile
 import sys
 import os.path as osp
-current_path = osp.dirname(osp.abspath(__file__))
-sys.path.append(osp.dirname(current_path))
 import torch
 from tqdm import tqdm
+
+current_path = osp.dirname(osp.abspath(__file__))
+sys.path.append(osp.dirname(current_path))
 
 # TODO: Move to config file
 import sscma.datasets  # noqa
