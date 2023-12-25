@@ -1,9 +1,13 @@
 import argparse
 import os
 import tempfile
-
+import sys
+import os.path as osp
 import torch
 from tqdm import tqdm
+
+current_path = osp.dirname(osp.abspath(__file__))
+sys.path.append(osp.dirname(current_path))
 
 # TODO: Move to config file
 import sscma.datasets  # noqa
@@ -11,7 +15,7 @@ import sscma.engine  # noqa
 import sscma.evaluation  # noqa
 import sscma.models  # noqa
 import sscma.visualization  # noqa
-from sscma.utils.check import check_lib
+from sscma.utils.check import check_lib # noqa
 
 
 def parse_args():
@@ -446,7 +450,8 @@ def export_vela(args, model):
     if args.vela is not None:
         for key, value in args.vela.items():
             vela_args.append('--' + key)
-            vela_args.append(value)
+            vela_args.append(str(value))
+
     vela_main(vela_args)
 
 

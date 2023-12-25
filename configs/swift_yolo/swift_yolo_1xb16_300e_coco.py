@@ -3,8 +3,8 @@ _base_ = ['./base_arch.py']
 # ========================Suggested optional parameters========================
 # MODEL
 num_classes = 71
-deepen_factor = 0.67
-widen_factor = 0.75
+deepen_factor = 0.33
+widen_factor = 0.15
 
 # DATA
 dataset_type = 'sscma.CustomYOLOv5CocoDataset'
@@ -85,8 +85,22 @@ pre_transform = [
     dict(type='LoadAnnotations', with_bbox=True),
 ]
 
+# from mmyolo.datasets.transforms import YOLOv5RandomAffine
+
+color_space = [
+    [dict(type='mmdet.ColorTransform')],
+    [dict(type='mmdet.AutoContrast')],
+    [dict(type='mmdet.Equalize')],
+    [dict(type='mmdet.Sharpness')],
+    [dict(type='mmdet.Posterize')],
+    [dict(type='mmdet.Solarize')],
+    [dict(type='mmdet.Color')],
+    [dict(type='mmdet.Contrast')],
+    [dict(type='mmdet.Brightness')],
+]
 train_pipeline = [
-    *pre_transform,
+    dict(type='LoadImageFromFile', file_client_args=dict(backend='disk')),
+    dict(type='LoadAnnotations', with_bbox=True),
     dict(type='Mosaic', img_scale=imgsz, pad_val=114.0, pre_transform=pre_transform),
     dict(
         type='YOLOv5RandomAffine',
@@ -102,6 +116,13 @@ train_pipeline = [
         transforms=albu_train_transforms,
         bbox_params=dict(type='BboxParams', format='pascal_voc', label_fields=['gt_bboxes_labels', 'gt_ignore_flags']),
         keymap={'img': 'image', 'gt_bboxes': 'bboxes'},
+    ),
+    dict(
+        type='mmdet.RandomOrder',
+        transforms=[
+            dict(type='mmdet.RandAugment', aug_space=color_space, aug_num=1),
+            # dict(type='mmdet.RandAugment', aug_space=geometric, aug_num=1),
+        ],
     ),
     dict(type='YOLOv5HSVRandomAug'),
     dict(type='mmdet.RandomFlip', prob=0.5),

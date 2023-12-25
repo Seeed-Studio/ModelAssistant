@@ -3,8 +3,8 @@ _base_ = ['./base_arch.py']
 # ========================Suggested optional parameters========================
 # MODEL
 num_classes = 71
-deepen_factor = 0.33
-widen_factor = 0.25
+deepen_factor = 1.0
+widen_factor = 1.0
 
 # DATA
 dataset_type = 'sscma.CustomYOLOv5CocoDataset'
@@ -15,14 +15,13 @@ val_data = 'valid/'  # Prefix of val image path
 
 # dataset link: https://universe.roboflow.com/team-roboflow/coco-128
 data_root = 'https://universe.roboflow.com/ds/z5UOcgxZzD?key=bwx9LQUT0t'
-height = 640
-width = 640
-imgsz = (width, height)
+height = 320
+width = 320
 batch = 16
 workers = 2
 val_batch = batch
 val_workers = workers
-
+imgsz = (width, height)
 
 # TRAIN
 persistent_workers = True
@@ -32,7 +31,7 @@ persistent_workers = True
 # DATA
 affine_scale = 0.5
 # MODEL
-strides = [8, 16, 32]
+strides = [8, 16, 21]
 
 anchors = [
     [(10, 13), (16, 30), (33, 23)],  # P3/8
@@ -43,19 +42,29 @@ anchors = [
 model = dict(
     type='mmyolo.YOLODetector',
     backbone=dict(
-        type='YOLOv5CSPDarknet',
-        deepen_factor=deepen_factor,
-        widen_factor=widen_factor,
+        type='FastShuffleNetV2',
+        stage_repeats=[4, 8, 4],
+        stage_out_channels=[-1, 24, 48, 96, 192],
+        init_cfg=dict(
+            type='Pretrained',
+            checkpoint='https://files.seeedstudio.com/sscma/model_zoo/backbone/fastshufllenet2_sha1_90be6b843860adcc72555d8699dafaf99624bddd.pth',
+        ),
+        _delete_=True,
     ),
     neck=dict(
         type='YOLOv5PAFPN',
         deepen_factor=deepen_factor,
         widen_factor=widen_factor,
+        in_channels=[48, 96, 192],
+        out_channels=[48, 96, 192],
+        num_csp_blocks=1,
+        # norm_cfg=norm_cfg,
+        act_cfg=dict(type='ReLU', inplace=True),
     ),
     bbox_head=dict(
         head_module=dict(
             num_classes=num_classes,
-            in_channels=[256, 512, 1024],
+            in_channels=[48, 96, 192],
             widen_factor=widen_factor,
         ),
     ),
