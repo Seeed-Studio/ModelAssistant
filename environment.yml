@@ -7,9 +7,9 @@ channels:
 dependencies:
   - python>=3.8, <= 3.10
   - cpuonly>=2.0
-  - pytorch>=2.0.0
-  - torchaudio>=2.0.0
-  - torchvision>=0.15.0
+  - pytorch<=2.0.1
+  - torchaudio<=2.0.2
+  - torchvision<=0.15.2
   - pip>=23.0.1
   - pip:
     - -r requirements/base.txt
