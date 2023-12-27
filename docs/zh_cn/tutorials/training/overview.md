@@ -1,6 +1,6 @@
 # 模型训练
 
-[Seeed SSCMA](https://github.com/Seeed-Studio/SSCMA) 目前支持以下模型，您可以参考对应的教程，完成模型的训练，获得模型权重。
+[Seeed ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) 目前支持以下模型，您可以参考对应的教程，完成模型的训练，获得模型权重。
 
 - [FOMO 模型](./fomo.md): 口罩检测
 
@@ -21,7 +21,7 @@
 ```sh
 python3 tools/train.py --help
 
-# Train SSCMA models
+# Train ModelAssistant models
 
 # positional arguments:
 #   config                the model config file path

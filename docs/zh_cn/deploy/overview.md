@@ -1,25 +1,27 @@
 # 部署示例
 
-SSCMA是一个提供No-Code可视化模型部署工具和基于CPP的SDK的开源项目。它使用户能够轻松地将模型部署到不同的平台上，无需编写复杂的代码。
+ModelAssistant是一个提供No-Code可视化模型部署工具和基于CPP的SDK的开源项目。它使用户能够轻松地将模型部署到不同的平台上，无需编写复杂的代码。
 
 目前支持的平台包括：
-| 设备 | SenseCraft-Web-Toolkit | SSCMA-Micro SDK |
+| 设备 | SenseCraft-Web-Toolkit | ModelAssistant-Micro SDK |
 | :--- | :--- | :--- |
 | [Xiao ESP32S3](https://www.seeedstudio.com/XIAO-ESP32S3-Sense-p-5639.html) | ✅ | ✅ |
 | [Grove Vision AI](https://www.seeedstudio.com/Grove-Vision-AI-Module-p-5457.html) | 🔜 | 🔜 |
 
 ## SenseCraft-Web-Toolkit
 
-SenseCraft-Web-Toolkit是SSCMA提供的可视化模型部署工具。使用该工具，用户可以通过简单的操作将模型部署到各种平台上。这个工具提供了用户友好的界面，不需要编写任何代码。
+SenseCraft-Web-Toolkit是ModelAssistant提供的可视化模型部署工具。使用该工具，用户可以通过简单的操作将模型部署到各种平台上。这个工具提供了用户友好的界面，不需要编写任何代码。
 
 [SenseCraft-Web-Toolkit](https://seeed-studio.github.io/SenseCraft-Web-Toolkit/)的主要特点包括：
+
 - 可视化操作界面，无需编码技能
 - 快速部署模型到不同的平台
 - 支持TFLite格式的模型
 
 Step 1. 打开SenseCraft-Web-Toolkit网站
+
 <!-- <div align="center">
-  <a href="https://seeed-studio.github.io/SenseCraft-Web-Toolk"><img width="10%" src="/public/images/SSCMA-Hero.png"/></a>
+  <a href="https://seeed-studio.github.io/SenseCraft-Web-Toolk"><img width="10%" src="/public/images/ModelAssistant-Hero.png"/></a>
 </div> -->
 
 Step 2. 连接设备到电脑
@@ -50,11 +52,12 @@ Step 5. 部署你的模型
 
 ![step5-2](/static/deploy/step5-2.png)
 
-## SSCMA-Micro SDK
+## ModelAssistant-Micro SDK
 
-SSCMA还提供了基于CPP的SDK，名为SSCMA-Micro，使用户能够将模型部署到自己的项目中。通过集成SSCMA-Micro，用户可以方便地在自己的应用程序中使用部署好的模型。
+ModelAssistant还提供了基于CPP的SDK，名为ModelAssistant-Micro，使用户能够将模型部署到自己的项目中。通过集成ModelAssistant-Micro，用户可以方便地在自己的应用程序中使用部署好的模型。
 
-[SSCMA-Micro](https://github.com/Seeed-Studio/SSCMA-Micro) SDK的特点包括：
+[ModelAssistant-Micro](https://github.com/Seeed-Studio/ModelAssistant-Micro) SDK的特点包括：
+
 - 基于CPP，适用于各种嵌入式系统和平台
 - 提供简单而强大的API，方便用户进行模型调用和推理
 - 支持TFLite格式的模型

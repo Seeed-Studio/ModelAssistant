@@ -1,6 +1,6 @@
 # 模型导出
 
-[SSCMA](https://github.com/Seeed-Studio/SSCMA) 目前支持以下模型导出方式，您可以参考对应的教程，完成模型的导出，然后将导出的模型投入部署。
+[ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) 目前支持以下模型导出方式，您可以参考对应的教程，完成模型的导出，然后将导出的模型投入部署。
 
 ::: tip
 默认情况下，会同时导出 ONNX 和 TFLite 模型，如果您只需要导出其中一个，可以使用 `--targets` 参数指定导出的模型类型，例如 `--targets onnx` 或 `--targets tflite`。

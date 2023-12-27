@@ -2,7 +2,7 @@
 
 [Edge Impulse](https://www.edgeimpulse.com/) 是边缘设备上机器学习的领先开发平台。
 
-[SSCMA](https://github.com/Seeed-Studio/SSCMA) 中的模型支持在 Edge Impulse 上运行，具体信息见 GitHub 仓库 [sscma-ei-ml-blocks](https://github.com/Seeed-Studio/sscma-ei-ml-blocks)。下面使用 `sscma-fomo` 模型进行示例，说明如何在 Edge Impulse 上运行 SSCMA 模型。
+[ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) 中的模型支持在 Edge Impulse 上运行，具体信息见 GitHub 仓库 [sscma-ei-ml-blocks](https://github.com/Seeed-Studio/sscma-ei-ml-blocks)。下面使用 `sscma-fomo` 模型进行示例，说明如何在 Edge Impulse 上运行 ModelAssistant 模型。
 
 ## 运行管线
 

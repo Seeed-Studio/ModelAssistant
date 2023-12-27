@@ -1,6 +1,6 @@
 # 使用 ESP32 实现口罩检测
 
-本教程将基于 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 示范使用 ESP32 实现口罩检测的开发流程。
+本教程将基于 [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) 示范使用 ESP32 实现口罩检测的开发流程。
 
 ::: tip
 
@@ -18,7 +18,7 @@
 
 - 在我们的 [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo) 下载预训练好的模型。
 
-- 参考[模型训练 - FOMO 模型](../../tutorials/training/fomo.md)，基于 PyTorch 和 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 自行训练 FOMO 模型得到模型权重。
+- 参考[模型训练 - FOMO 模型](../../tutorials/training/fomo.md)，基于 PyTorch 和 [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) 自行训练 FOMO 模型得到模型权重。
 
 ## 导出模型
 
@@ -32,7 +32,7 @@
 
 在完成[导出模型](#%E5%AF%BC%E5%87%BA%E6%A8%A1%E5%9E%8B)后，我们还需要进一步处理，将其转换为嵌入式设备支持的格式。
 
-- 进入 `examples/esp32` 目录 (在 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 项目根目录运行):
+- 进入 `examples/esp32` 目录 (在 [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) 项目根目录运行):
 
   ```sh
   cd examples/esp32
@@ -46,7 +46,7 @@
 
 ::: tip
 
-您需要将 `<TFLITE_MODEL_PATH>` 替换为在[模型导出](#%E5%AF%BC%E5%87%BA%E6%A8%A1%E5%9E%8B)步骤取得的 TFLite 模型的路径，转换生成的 C 文件将默认输出到 `SSCMA/example/esp32` 目录中的 `components/modules/model` 目录。
+您需要将 `<TFLITE_MODEL_PATH>` 替换为在[模型导出](#%E5%AF%BC%E5%87%BA%E6%A8%A1%E5%9E%8B)步骤取得的 TFLite 模型的路径，转换生成的 C 文件将默认输出到 `ModelAssistant/example/esp32` 目录中的 `components/modules/model` 目录。
 
 :::
 
