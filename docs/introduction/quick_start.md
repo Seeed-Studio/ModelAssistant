@@ -1,12 +1,10 @@
 # Quick Start
 
-In [Overview](./what_is), we have introduced the functions and features provided by [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant). Considering that [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) is divided into multiple different modules, each module completing its corresponding tasks, we suggest following the steps below to quickly get started.
+In [Overview](./overview) we have introduced the functions and features provided by [SSCMA](https://github.com/Seeed-Studio/SSCMA). Considering that [SSCMA](https://github.com/Seeed-Studio/SSCMA) is divided into multiple different modules, each module completing its corresponding tasks, we suggest following the steps below to quickly get started.
 
 ::: tip
-We suggest that all beginners of [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) start learning from [Getting Started](#getting-started), if you are familiar with [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) or [OpenMMLab](https://github.com/open-mmlab), and you want to try to deploy on edge computing devices, modify existing neural networks, or train on user-defined data sets, you can directly refer to [Advanced](#advanced).
+We suggest that all beginners of [SSCMA](https://github.com/Seeed-Studio/SSCMA) start learning from [Getting Started](#getting-started), if you are familiar with [SSCMA](https://github.com/Seeed-Studio/SSCMA) or [OpenMMLab](https://github.com/open-mmlab), and you want to try to deploy on edge computing devices, modify existing neural networks, or train on user-defined data sets, you can directly refer to [Advanced](#advanced).
 :::
-
-Now, you can try out [ModelAssistant Colab Examples](https://github.com/Seeed-Studio/ModelAssistanttree/main/notebooks) on Google Colab without setup [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) on your computer.
 
 ## Getting Started
 
@@ -18,33 +16,37 @@ If you want to deploy the model on the device, please refer to the section [Depl
 
 If you want to train a model, we highly recommend that you first try to train a model on the Colab platform. You can refer to the following tutorials:
 
-### Image Classification
-
-| Model                                                                                                         | Colab                                                                                                                                                                                                                            |
-|:--------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [Person_Classification_MobileNetV2_0.35_Rep_64](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Person_Classification_MobileNetV2_0.35_Rep_64.md)     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Person_Classification_MobileNetV2_0.35_Rep_64.ipynb)   |
-| [Person_Classification_MobileNetV2_0.35_Rep_96](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Person_Classification_MobileNetV2_0.35_Rep_96.md)     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Person_Classification_MobileNetV2_0.35_Rep_96.ipynb)   |
-| [Person_Classification_MobileNetV2_0.35_Rep_32](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Person_Classification_MobileNetV2_0.35_Rep_32.md)     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Person_Classification_MobileNetV2_0.35_Rep_32.ipynb)   |
-| [CIFAR-10_Classification_MobileNetV2_0.35_Rep_32](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/CIFAR-10_Classification_MobileNetV2_0.35_Rep_32.md) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/CIFAR-10_Classification_MobileNetV2_0.35_Rep_32.ipynb) |
-| [Gender_Classification_MobileNetV2_0.35_Rep_64](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Gender_Classification_MobileNetV2_0.35_Rep_64.md)     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Gender_Classification_MobileNetV2_0.35_Rep_64.ipynb)   |
-| [MNIST_Classification_MobileNetV2_0.5_Rep_32](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/MNIST_Classification_MobileNetV2_0.5_Rep_32.md)         | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/MNIST_Classification_MobileNetV2_0.5_Rep_32.ipynb)     |
-
-### Object Detection
+#### Object Detection
 
 | Model                                                                                           | Colab                                                                                                                                                                                                                     |
 |:------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [Digital_Meter_Water_Swift-YOLO_192](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Digital_Meter_Water_Swift-YOLO_192.md)             | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Digital_Meter_Water_Swift-YOLO_192.ipynb)       |
-| [Face_Detection_Swift-YOLO_192](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Face_Detection_Swift-YOLO_192.md)                       | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Face_Detection_Swift-YOLO_192.ipynb)            |
-| [Gender_Detection_Swift-YOLO_96](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Gender_Detection_Swift-YOLO_96.md)                     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Gender_Detection_Swift-YOLO_96.ipynb)           |
-| [Digital_Meter_Electricity_Swift-YOLO_192](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Digital_Meter_Electricity_Swift-YOLO_192.md) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Digital_Meter_Electricity_Swift-YOLO_192.ipynb) |
+| [Gender_Detection_Swift-YOLO_192](docs/en/Gender_Detection_Swift-YOLO_192.md)                   | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Gender_Detection_Swift-YOLO_192.ipynb)          |
+| [Digital_Meter_Water_Swift-YOLO_192](docs/en/Digital_Meter_Water_Swift-YOLO_192.md)             | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Digital_Meter_Water_Swift-YOLO_192.ipynb)       |
+| [Apple_Detection_Swift-YOLO_192](docs/en/Apple_Detection_Swift-YOLO_192.md)                     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Apple_Detection_Swift-YOLO_192.ipynb)           |
+| [person_Detection_Swift-YOLO_192](docs/en/person_Detection_Swift-YOLO_192.md)                   | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/person_Detection_Swift-YOLO_192.ipynb)          |
+| [Face_Detection_Swift-YOLO_96](docs/en/Face_Detection_Swift-YOLO_96.md)                         | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Face_Detection_Swift-YOLO_96.ipynb)             |
+| [COCO_Detection_Swift-YOLO_320](docs/en/COCO_Detection_Swift-YOLO_320.md)                       | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/COCO_Detection_Swift-YOLO_320.ipynb)            |
+| [Gesture_Detection_Swift-YOLO_192](docs/en/Gesture_Detection_Swift-YOLO_192.md)                 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Gesture_Detection_Swift-YOLO_192.ipynb)         |
+| [Digital_Meter_Electricity_Swift-YOLO_192](docs/en/Digital_Meter_Electricity_Swift-YOLO_192.md) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Digital_Meter_Electricity_Swift-YOLO_192.ipynb) |
+
+#### Image Classification
+
+| Model                                                                                                         | Colab                                                                                                                                                                                                                            |
+|:--------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [MNIST_Classification_MobileNetV2_0.5_Rep_32](docs/en/MNIST_Classification_MobileNetV2_0.5_Rep_32.md)         | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/MNIST_Classification_MobileNetV2_0.5_Rep_32.ipynb)     |
+| [Gender_Classification_MobileNetV2_0.35_Rep_64](docs/en/Gender_Classification_MobileNetV2_0.35_Rep_64.md)     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Gender_Classification_MobileNetV2_0.35_Rep_64.ipynb)   |
+| [Person_Classification_MobileNetV2_0.35_Rep_64](docs/en/Person_Classification_MobileNetV2_0.35_Rep_64.md)     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Person_Classification_MobileNetV2_0.35_Rep_64.ipynb)   |
+| [Person_Classification_MobileNetV2_0.35_Rep_96](docs/en/Person_Classification_MobileNetV2_0.35_Rep_96.md)     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Person_Classification_MobileNetV2_0.35_Rep_96.ipynb)   |
+| [Person_Classification_MobileNetV2_0.35_Rep_32](docs/en/Person_Classification_MobileNetV2_0.35_Rep_32.md)     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Person_Classification_MobileNetV2_0.35_Rep_32.ipynb)   |
+| [CIFAR-10_Classification_MobileNetV2_0.35_Rep_32](docs/en/CIFAR-10_Classification_MobileNetV2_0.35_Rep_32.md) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/CIFAR-10_Classification_MobileNetV2_0.35_Rep_32.ipynb) |
 
 ## Advanced
 
-1. First, refer to the [Installation Guide](./installation.md) to configure the running environment of [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant).
+1. First, refer to the [Installation Guide](./installation.md) to configure the running environment of [SSCMA](https://github.com/Seeed-Studio/SSCMA).
 
-2. Then, familiar with the basic usage methods of [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant):
+2. Then, familiar with the basic usage methods of [SSCMA](https://github.com/Seeed-Studio/SSCMA):
 
-   - **Model Training**, please refer to [Model Training](../tutorials/training/overview) to learn how to use [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) to train a model. We suggest that you select a model from an example for training.
+   - **Model Training**, please refer to [Model Training](../tutorials/training/overview) to learn how to use [SSCMA](https://github.com/Seeed-Studio/SSCMA) to train a model. We suggest that you select a model from an example for training.
 
    - **Model Export**. After completing model training, in order to deploy on the edge-computing device, it is necessary to first export the model. For the export tutorial of the model, please refer to [Model Export](../tutorials/export/overview).
 
@@ -58,15 +60,15 @@ If you want to train a model, we highly recommend that you first try to train a 
 
 ## Necessary Knowledge
 
-- 📸 Computer Vision:
+### 📸 Computer Vision:
 
-  The basics of computer vision are built upon digital image processing. So, you need to learn the basics of the DlP first. Then you can move forward to read computer vision topics like pattern recognition and 3D geometry. You need to know linear algebra to be able to fully understand some concepts of the computer vision like dimensionality reduction. After understanding the fundamentals of computer vision you should also build your knowledge in deep learning, especially in Convolutional Neural Networks (CNN).
+The basics of computer vision are built upon digital image processing. So, you need to learn the basics of the DlP first. Then you can move forward to read computer vision topics like pattern recognition and 3D geometry. You need to know linear algebra to be able to fully understand some concepts of the computer vision like dimensionality reduction. After understanding the fundamentals of computer vision you should also build your knowledge in deep learning, especially in Convolutional Neural Networks (CNN).
 
-- 💻 Programming:
+### 💻 Programming:
 
-  Python will be enough for design and prototyping, but if you want to do some
-  embedded work, you should also be familiar with C++.
+Python will be enough for design and prototyping, but if you want to do some
+embedded work, you should also be familiar with C++.
 
-- 🧰 Tools:
+### 🧰 Tools:
 
-  OpenCV is the main tool for computer vision, and Numpy is an important tool for data processing and analysis. You must know them. You never know, but you should know what tools are available and how to use them. How to use them. Another tool you need to familiarize yourself with is the deep learning framework. Frameworks. You can start with Keras which is the easiest to learn and then learn Tensorflow or PyTorch.
+OpenCV is the main tool for computer vision, and Numpy is an important tool for data processing and analysis. You must know them. You never know, but you should know what tools are available and how to use them. How to use them. Another tool you need to familiarize yourself with is the deep learning framework. Frameworks. You can start with Keras which is the easiest to learn and then learn Tensorflow or PyTorch.

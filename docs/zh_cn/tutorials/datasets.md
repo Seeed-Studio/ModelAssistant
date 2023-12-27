@@ -1,14 +1,14 @@
 # 数据集
 
-[ModelAssistant(SensorCraft Model Assistant)](https://github.com/Seeed-Studio/ModelAssistant) 支持多种数据集。您可以在互联网上浏览并下载不同的数据集，或是自行标注、制作数据集。
+[SSCMA(SensorCraft Model Assistant)](https://github.com/Seeed-Studio/SSCMA) 支持多种数据集。您可以在互联网上浏览并下载不同的数据集，或是自行标注、制作数据集。
 
 ## 互联网数据集
 
-### ModelAssistant
+### SSCMA
 
-[ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant)  目前提供以下官方数据集，用于对应模型的训练和测试。
+[SSCMA](https://github.com/Seeed-Studio/SSCMA)  目前提供以下官方数据集，用于对应模型的训练和测试。
 
-对于使用命令下载的数据集，请确保在运行命令前处于 **[ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) 项目根目录**，命令会自动下载数据集并将其保存在当前目录下的名为 `datasets` 的文件夹中，并完成解压。
+对于使用命令下载的数据集，请确保在运行命令前处于 **[SSCMA](https://github.com/Seeed-Studio/SSCMA) 项目根目录**，命令会自动下载数据集并将其保存在当前目录下的名为 `datasets` 的文件夹中，并完成解压。
 
 - [下载自定义 Meter 数据集](https://files.seeedstudio.com/wiki/sscma/meter.zip):
 
@@ -32,7 +32,7 @@
 
 :::
 
-你可以在 Roboflow 上找到一些 [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) 的数据集，如下所示:
+你可以在 Roboflow 上找到一些 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 的数据集，如下所示:
 | Dataset | Description |
 | -- | -- |
 | [Digital Meter Water](https://universe.roboflow.com/seeed-studio-dbk14/digital-meter-water/dataset/1) | Digital Meter Water Dataset |
@@ -57,7 +57,7 @@
 
 5. **加载数据集:** 将转换好的数据集加载到模型中进行训练和测试。在加载数据集时需要注意的是，要使用合适的数据加载器和批量大小。
 
-6. **数据增强 (可选，建议由 ModelAssistant 完成):** 对数据集进行数据增强，如旋转、翻转、剪裁等操作，以增加数据集的多样性和数量。
+6. **数据增强 (可选，建议由 SSCMA 完成):** 对数据集进行数据增强，如旋转、翻转、剪裁等操作，以增加数据集的多样性和数量。
 
 ## 数据集标注
 

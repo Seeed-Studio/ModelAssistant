@@ -1,6 +1,6 @@
 # Model Export
 
-[ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) currently supports the following methods to convert and export models.
+[SSCMA](https://github.com/Seeed-Studio/SSCMA) currently supports the following methods to convert and export models.
 You can refer to the corresponding tutorials to complete the model export, and
 then put the exported model into deployment.
 

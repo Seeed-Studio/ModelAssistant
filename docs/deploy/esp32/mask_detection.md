@@ -1,6 +1,6 @@
 # Mask Detection with ESP32
 
-This tutorial will demonstrate the development process of mask detection using [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) based on ESP32.
+This tutorial will demonstrate the development process of mask detection using [SSCMA](https://github.com/Seeed-Studio/SSCMA) based on ESP32.
 
 ::: tip
 
@@ -18,7 +18,7 @@ The mask detection feature is based on the FOMO model, in this step you need a F
 
 - Download the pre-trained model from our [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo).
 
-- Refer to [Training - FOMO Models](../../tutorials/training/fomo.md) to train the FOMO model and get the model weights using PyTorch and [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) by yourself.
+- Refer to [Training - FOMO Models](../../tutorials/training/fomo.md) to train the FOMO model and get the model weights using PyTorch and [SSCMA](https://github.com/Seeed-Studio/SSCMA) by yourself.
 
 ## Export Model
 
@@ -32,7 +32,7 @@ Since the trained model is not suitable for running directly on edge computing d
 
 After completing [Export Model](#export-model), we need a further process to convert it to a format that supported by embedded devices.
 
-- Go to the `examples/esp32` directory (run at the root of the [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) project):
+- Go to the `examples/esp32` directory (run at the root of the [SSCMA](https://github.com/Seeed-Studio/SSCMA) project):
 
   ```sh
   cd examples/esp32
@@ -46,7 +46,7 @@ After completing [Export Model](#export-model), we need a further process to con
 
 ::: tip
 
-You need to replace `<TFLITE_MODEL_PATH>` with the path of the TFLite model obtained in the [Export Model](#export-model) step, the final C file will be exported to the `components/modules/model` directory in the `ModelAssistant/example/esp32` directory by default.
+You need to replace `<TFLITE_MODEL_PATH>` with the path of the TFLite model obtained in the [Export Model](#export-model) step, the final C file will be exported to the `components/modules/model` directory in the `SSCMA/example/esp32` directory by default.
 
 :::
 

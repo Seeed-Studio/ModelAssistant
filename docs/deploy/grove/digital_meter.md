@@ -1,6 +1,6 @@
 # Digital Meter Reader with Grove - Vision AI
 
-This tutorial will demonstrate the development process of digital meter reader using [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) based on Grove - Vision AI module.
+This tutorial will demonstrate the development process of digital meter reader using [SSCMA](https://github.com/Seeed-Studio/SSCMA) based on Grove - Vision AI module.
 
 ::: tip
 
@@ -18,7 +18,7 @@ The meter reading feature is based on the YOLOv5 model, in this step you need a 
 
 - Download the pre-trained model from our [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo).
 
-- Refer to [Training - YOLOv5 Models](../../tutorials/training/yolo.md) to train the YOLOv5 model and get the model weights using PyTorch and [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) by yourself.
+- Refer to [Training - YOLOv5 Models](../../tutorials/training/yolo.md) to train the YOLOv5 model and get the model weights using PyTorch and [SSCMA](https://github.com/Seeed-Studio/SSCMA) by yourself.
 
 ## Export Model
 

@@ -1,6 +1,6 @@
-# 在 Grove - Vision AI 上部署 ModelAssistant 模型
+# 在 Grove - Vision AI 上部署 SSCMA 模型
 
-本示例为 [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) 包含的模型在 Grove - Vision AI 模块的部署教程，部署工作基于 [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain) 和 [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) 实现。
+本示例为 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 包含的模型在 Grove - Vision AI 模块的部署教程，部署工作基于 [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain) 和 [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) 实现。
 
 ## 先决条件
 
@@ -37,7 +37,7 @@ Grove - Vision AI 使用了 [Himax HX6537](https://www.himax.com.tw/zh/products/
 
 ### 获取示例并配置 SDK
 
-**进入 [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) 项目的根目录**，运行下面的命令来获取示例和。
+**进入 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 项目的根目录**，运行下面的命令来获取示例和。
 
 ```sh
 git clone https://github.com/Seeed-Studio/sscma-example-vision-ai examples/grove && \
@@ -55,7 +55,7 @@ sudo apt-get update && \
 sudo apt-get install make -y
 ```
 
-此外，我们建议您提前完成 [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) 的安装与配置。如果您还没有安装 [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant), 请参考[ModelAssistant 安装指南](../../introduction/installation.md)。
+此外，我们建议您提前完成 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 的安装与配置。如果您还没有安装 [SSCMA](https://github.com/Seeed-Studio/SSCMA), 请参考[SSCMA 安装指南](../../introduction/installation.md)。
 
 :::
 
@@ -81,10 +81,10 @@ sudo apt-get install make -y
 
 ### 编译固件和模型固件
 
-1. 进入 [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant)  项目的根目录，运行以下命令进入示例目录 `examples/grove`:
+1. 进入 [SSCMA](https://github.com/Seeed-Studio/SSCMA)  项目的根目录，运行以下命令进入示例目录 `examples/grove`:
 
    ```sh
-   cd examples/grove # ModelAssistant/examples/grove
+   cd examples/grove # SSCMA/examples/grove
    ```
 
 2. 根据**模型种类**选择编译参数并编译，可选的参数有 `fomo`、`meter` 等:
@@ -110,7 +110,7 @@ sudo apt-get install make -y
    关于 APP 的所有可选参数在可以使用以下命令查看:
 
    ```sh
-   ls examples # ModelAssistant/examples/grove/examples
+   ls examples # SSCMA/examples/grove/examples
    ```
 
    编译完成后，会在 `tools/image_gen_cstm/output` 目录下产生名为 `output.img` 的二进制文件。
@@ -171,15 +171,15 @@ Grove - Vision AI 的部署流程主要分为两个步骤，这两个步骤需�
 
 ### 性能简介
 
-通过在不同的芯片上测量，对 [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) 相关模型的性能总结如下表所示。
+通过在不同的芯片上测量，对 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 相关模型的性能总结如下表所示。
 
 | Target | Model | Dataset | Input Resolution | Peak RAM | Inferencing Time | F1 Score | Link |
 |--|--|--|--|--|--|--|--|
-| Grove Vision AI | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/sscma/meter.zip) | 112x112 (RGB) | 320KB | 500ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/ModelAssistantreleases) |
-| Grove Vision AI | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/ModelAssistantreleases) |
+| Grove Vision AI | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/sscma/meter.zip) | 112x112 (RGB) | 320KB | 500ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/SSCMAreleases) |
+| Grove Vision AI | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/SSCMAreleases) |
 
 ::: tip
-更多模型请前往 [ModelAssistant Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
+更多模型请前往 [SSCMA Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
 :::
 
 ## 故障排除
@@ -188,13 +188,13 @@ Grove - Vision AI 的部署流程主要分为两个步骤，这两个步骤需�
 
 ## 贡献
 
-- 如果你在这些例子中发现了问题，或者希望提交一个增强请求，请使用 [GitHub Issue](https://github.com/Seeed-Studio/ModelAssistant)。
+- 如果你在这些例子中发现了问题，或者希望提交一个增强请求，请使用 [GitHub Issue](https://github.com/Seeed-Studio/SSCMA)。
 
 - 对于 Synopsys GUN Toolchain 相关的问题请参考 [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain)。
 
 - 对于 TensorFlow Lite Micro 相关的信息请参考 [TFLite-Micro](https://github.com/tensorflow/tflite-micro)。
 
-- 对于 SenseCraft Model Zoo 相关的信息请参考 [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant)。
+- 对于 SenseCraft Model Zoo 相关的信息请参考 [SSCMA](https://github.com/Seeed-Studio/SSCMA)。
 
 ## 许可
 

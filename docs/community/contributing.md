@@ -1,6 +1,6 @@
 # Contribute
 
-Contributions to [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) are welcome! We welcome contributions of any kind, including but not limited to:
+Contributions to [SSCMA](https://github.com/Seeed-Studio/SSCMA) are welcome! We welcome contributions of any kind, including but not limited to:
 
 - Fixing bugs
 

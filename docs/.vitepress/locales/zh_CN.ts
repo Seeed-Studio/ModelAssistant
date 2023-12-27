@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
     lang: 'zh-CN',
-    description: '*ModelAssistant* 是一个专注于嵌入式人工智能的开源项目。',
+    description: '*SSCMA* 是一个专注于嵌入式人工智能的开源项目。',
 
     themeConfig: {
         nav: nav(),
@@ -14,13 +14,13 @@ export default defineConfig({
         returnToTopLabel: '返回顶部',
 
         editLink: {
-            pattern: 'https://github.com/Seeed-Studio/ModelAssistantedit/main/docs/zh_cn/:path',
+            pattern: 'https://github.com/Seeed-Studio/SSCMAedit/main/docs/zh_cn/:path',
             text: '对此页面提出建议'
         },
 
         footer: {
             message: '在 MIT License 授权下发布',
-            copyright: '版权所有 © 2023-目前 Seeed Studio 与 ModelAssistant 贡献者'
+            copyright: '版权所有 © 2023-目前 Seeed Studio 与 SSCMA 贡献者'
         }
     }
 })
@@ -28,7 +28,7 @@ export default defineConfig({
 function nav() {
     return [
         { text: '主页', link: '/zh_cn/' },
-        { text: '文档', link: '/zh_cn/introduction/what_is_sscma' }
+        { text: '文档', link: '/zh_cn/introduction/overview' }
     ]
 }
 
@@ -38,7 +38,7 @@ function sidebar() {
             text: '入门指南',
             collapsed: false,
             items: [
-                { text: '什么是 ModelAssistant?', link: '/zh_cn/introduction/what_is_sscma' },
+                { text: '什么是 SSCMA?', link: '/zh_cn/introduction/overview' },
                 { text: '快速上手', link: '/zh_cn/introduction/quick_start' },
                 { text: '安装指南', link: '/zh_cn/introduction/installation' }
             ]

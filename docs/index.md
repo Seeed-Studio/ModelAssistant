@@ -3,22 +3,22 @@
 layout: home
 
 hero:
-  name: ModelAssistant
+  name: SSCMA
   text: Open-source project focused on embedded AI.
   tagline: We have optimized excellent algorithms for real-world scenarios and made implementation more user-friendly, achieving faster and more accurate inference on embedded devices.
   image:
-    src: /images/ModelAssistant-Hero.png
-    alt: ModelAssistant
+    src: /images/SSCMA-Hero.png
+    alt: SSCMA
   actions:
     - theme: brand
       text: Get Started
       link: ./introduction/quick_start
     - theme: alt
-      text: Install ModelAssistant
+      text: Install SSCMA
       link: ./introduction/installation
     - theme: alt
       text: View on GitHub
-      link: https://github.com/Seeed-Studio/ModelAssistant
+      link: https://github.com/Seeed-Studio/SSCMA
 
 features:
   - icon: 🔍
@@ -29,5 +29,5 @@ features:
     details: Here we provide a number of computer vision algorithms such as object detection, image classification, image segmentation and pose estimation.  We optimizes these computer vision algorithms to achieve good running speed and accuracy in low-end devices.
   - icon: ⏱️
     title: Scenario Specific
-    details: ModelAssistant provides customized scenarios for specific production environments, such as identification of analog instruments, traditional digital meters, and audio classification. We will continue to add more algorithms for specified scenarios in the future.
+    details: SSCMA provides customized scenarios for specific production environments, such as identification of analog instruments, traditional digital meters, and audio classification. We will continue to add more algorithms for specified scenarios in the future.
 ---

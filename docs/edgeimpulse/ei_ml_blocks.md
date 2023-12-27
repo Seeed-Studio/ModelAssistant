@@ -2,7 +2,7 @@
 
 [Edge Impulse](https://www.edgeimpulse.com/) is the leading development platform for machine learning on edge devices.
 
-The models in [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) support running on Edge Impulse specific information is available in the [sscma-ei-ml-blocks](https://github.com/Seeed-Studio/sscma-ei-ml-blocks). The following is an example of how to run the [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) model on Edge Impulse, using the `sscma-fomo` model.
+The models in [SSCMA](https://github.com/Seeed-Studio/SSCMA) support running on Edge Impulse specific information is available in the [sscma-ei-ml-blocks](https://github.com/Seeed-Studio/sscma-ei-ml-blocks). The following is an example of how to run the [SSCMA](https://github.com/Seeed-Studio/SSCMA) model on Edge Impulse, using the `sscma-fomo` model.
 
 ## Run the Pipeline
 
