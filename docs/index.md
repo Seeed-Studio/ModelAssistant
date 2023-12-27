@@ -18,7 +18,7 @@ hero:
       link: ./introduction/installation
     - theme: alt
       text: View on GitHub
-      link: https://github.com/Seeed-Studio/SSCMA
+      link: https://github.com/Seeed-Studio/ModelAssistant
 
 features:
   - icon: 🔍

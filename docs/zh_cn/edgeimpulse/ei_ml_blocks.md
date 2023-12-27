@@ -2,7 +2,7 @@
 
 [Edge Impulse](https://www.edgeimpulse.com/) 是边缘设备上机器学习的领先开发平台。
 
-[SSCMA](https://github.com/Seeed-Studio/SSCMA) 中的模型支持在 Edge Impulse 上运行，具体信息见 GitHub 仓库 [sscma-ei-ml-blocks](https://github.com/Seeed-Studio/sscma-ei-ml-blocks)。下面使用 `sscma-fomo` 模型进行示例，说明如何在 Edge Impulse 上运行 SSCMA 模型。
+[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 中的模型支持在 Edge Impulse 上运行，具体信息见 GitHub 仓库 [sscma-ei-ml-blocks](https://github.com/Seeed-Studio/ModelAssistant-ei-ml-blocks)。下面使用 `sscma-fomo` 模型进行示例，说明如何在 Edge Impulse 上运行 SSCMA 模型。
 
 ## 运行管线
 
@@ -13,7 +13,7 @@
 01. 克隆示例仓库。
 
     ```sh
-    git clone https://github.com/Seeed-Studio/sscma-ei-ml-blocks && \
+    git clone https://github.com/Seeed-Studio/ModelAssistant-ei-ml-blocks && \
     cd sscma-ei-ml-blocks/sscma-fomo
     ```
 
@@ -25,19 +25,19 @@
 
     - 点击"创建新项目"按钮。
 
-      ![create-project-1](/static/ei/ei-ml-blocks-create-project.png)
+      ![create-project-1](https://files.seeedstudio.com/sscma/docs/static/ei/ei-ml-blocks-create-project.png)
 
     - 思考一个项目名称并完成设置。
 
-      ![create-project-2](/static/ei/ei-ml-blocks-create-project2.png)
+      ![create-project-2](https://files.seeedstudio.com/sscma/docs/static/ei/ei-ml-blocks-create-project2.png)
 
 05. 添加标签和一些数据。
 
-    ![dataset](/static/ei/ei-ml-blocks-dataset.png)
+    ![dataset](https://files.seeedstudio.com/sscma/docs/static/ei/ei-ml-blocks-dataset.png)
 
 06. 在 **Create Impulse** 下设置图像大小 (例如:`160x160`，`320x320`或`640x640`)，添加一个`图像` DSP 块和一个`物体检测`学习块。
 
-    ![dataset](/static/ei/ei-ml-blocks-design.png)
+    ![dataset](https://files.seeedstudio.com/sscma/docs/static/ei/ei-ml-blocks-design.png)
 
 07. 打开一个命令提示符或终端窗口。
 
@@ -99,8 +99,8 @@
 
 2. 该块现在可以在你的任何项目下使用，通过 **Create impulse > Add learning block > Object Detection (Images)**。
 
-   ![object-detection](/static/ei/ei-ml-blocks-obj-det.png)
+   ![object-detection](https://files.seeedstudio.com/sscma/docs/static/ei/ei-ml-blocks-obj-det.png)
 
 3. 下载块的输出。
 
-   ![dl](/static/ei/ei-ml-blocks-dl.png)
+   ![dl](https://files.seeedstudio.com/sscma/docs/static/ei/ei-ml-blocks-dl.png)

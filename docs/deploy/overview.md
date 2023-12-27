@@ -32,25 +32,25 @@ Step 3. Select and connect your device
 
 After entering the homepage of SenseCraft-Web-Toolkit, we need to connect the device first. Please click the connect button.
 
-![step3-1](/static/deploy/step3-1.png)
+![step3-1](https://files.seeedstudio.com/sscma/docs/static/deploy/step3-1.png)
 
 Then, a window will pop up in the browser. We need to select the correct Xiao port here. For Windows systems, the port usually starts with COM, while for MacOS systems, the port usually starts with /dev/tty and has the USB JTAG label. If you are unsure about the correct port, refresh this page after connecting the device and click the connect button again, and you will see the new port appearing in the dropdown list.
 
-![step3-2](/static/deploy/step3-2.png)
+![step3-2](https://files.seeedstudio.com/sscma/docs/static/deploy/step3-2.png)
 
 Step 4. Choose your model
 
 Once the connect button turns into a red disconnect button, we can select the model from the "Available AI Models" list. Here, I chose face recognition as a demonstration. After selection, click the send button and wait for a few seconds.
 
-![step4-1](/static/deploy/step4-1.png)
+![step4-1](https://files.seeedstudio.com/sscma/docs/static/deploy/step4-1.png)
 
 Step 5. Deploy your model
 
-![step5-1](/static/deploy/step5-1.png)
+![step5-1](https://files.seeedstudio.com/sscma/docs/static/deploy/step5-1.png)
 
 Finally, we come to the preview section. Click the stop button once in the upper right corner, and then click the invoke button. If everything goes well, you can see real-time screen effects.
 
-![step5-2](/static/deploy/step5-2.png)
+![step5-2](https://files.seeedstudio.com/sscma/docs/static/deploy/step5-2.png)
 
 ## SSCMA-Micro SDK
 

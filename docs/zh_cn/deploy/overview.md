@@ -32,25 +32,25 @@ Step 3. 选择并连接你的设备
 
 再进入SenseCraft-Web-Toolkit的主页后，我们需要首先连接设备，请点击连接按钮。
 
-![step3-1](/static/deploy/step3-1.png)
+![step3-1](https://files.seeedstudio.com/sscma/docs/static/deploy/step3-1.png)
 
 然后，浏览器将弹出一个窗口。我们需要在此处选择正确的XIAO端口。对于Windows系统，该端口通常以COM开头，而对于MacOS系统，该端口通常以/dev/tty开头，并且会带有USB JTAG字样。如果您不确定正确的端口是什么，请在连接设备后刷新此页面，然后再次点击连接按钮，您将看到新的端口出现在下拉列表中。
 
-![step3-2](/static/deploy/step3-2.png)
+![step3-2](https://files.seeedstudio.com/sscma/docs/static/deploy/step3-2.png)
 
 Step 4. 选择你的模型
 
 一旦连接按钮变为红色的断开连接按钮，我们可以从“可供使用的AI模型”列表中选择模型。在这里，我选择了人脸识别作为演示。选择后，点击发送按钮并等待几秒钟。
 
-![step4-1](/static/deploy/step4-1.png)
+![step4-1](https://files.seeedstudio.com/sscma/docs/static/deploy/step4-1.png)
 
 Step 5. 部署你的模型
 
-![step5-1](/static/deploy/step5-1.png)
+![step5-1](https://files.seeedstudio.com/sscma/docs/static/deploy/step5-1.png)
 
 最后，我们来到预览部分，在右上角单击一次停止按钮，然后点击调用按钮，如果一切顺利，您可以看到实时屏幕效果。
 
-![step5-2](/static/deploy/step5-2.png)
+![step5-2](https://files.seeedstudio.com/sscma/docs/static/deploy/step5-2.png)
 
 ## SSCMA-Micro SDK
 

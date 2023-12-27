@@ -1,6 +1,6 @@
 # Meter Reader with ESP32
 
-This tutorial will demonstrate the development process of meter reader using [SSCMA](https://github.com/Seeed-Studio/SSCMA) based on ESP32.
+This tutorial will demonstrate the development process of meter reader using [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) based on ESP32.
 
 ::: tip
 
@@ -16,15 +16,15 @@ Please refer to [ESP32 - Deploy - Prerequisites](./deploy.md#prerequisites).
 
 The meter reading feature is based on the PFLD model, in this step you need a PFLD model weight with the suffix `.pth`, you have two ways to get the model weight.
 
-- Download the pre-trained model from our [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo).
+- Download the pre-trained model from our [Model Zoo](https://github.com/Seeed-Studio/ModelAssistant-model-zoo).
 
-- Refer to [Training - PFLD Models](../../tutorials/training/pfld.md) to train the PFLD model and get the model weights using PyTorch and [SSCMA](https://github.com/Seeed-Studio/SSCMA) by yourself.
+- Refer to [Training - PFLD Models](../../tutorials/training/pfld.md) to train the PFLD model and get the model weights using PyTorch and [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) by yourself.
 
 ## Export Model
 
 Since the trained model is not suitable for running directly on edge computing devices, we need to export it to a TFLite format with a `.tflite` suffix, and you have two ways to get the exported model (with model weights contained).
 
-- Download the exported TFLite model from our [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo).
+- Download the exported TFLite model from our [Model Zoo](https://github.com/Seeed-Studio/ModelAssistant-model-zoo).
 
 - Refer to [Export - PyTorch to TFLite](../../tutorials/export/pytorch_2_tflite.md) to convert the PFLD model from PyTorch format to TFLite format by yourself.
 
@@ -32,7 +32,7 @@ Since the trained model is not suitable for running directly on edge computing d
 
 After completing [Export Model](#export-model), we need a further process to convert it to a format that supported by embedded devices.
 
-- Go to the `examples/esp32` directory (run at the root of the [SSCMA](https://github.com/Seeed-Studio/SSCMA) project):
+- Go to the `examples/esp32` directory (run at the root of the [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) project):
 
   ```sh
   cd examples/esp32
@@ -56,4 +56,4 @@ This is the last and most important step to complete the meter reading, in this 
 
 ## Run Example
 
-![PFLD Meter Reader](/static/esp32/images/pfld_meter.gif)
+![PFLD Meter Reader](https://files.seeedstudio.com/sscma/docs/static/esp32/images/pfld_meter.gif)
