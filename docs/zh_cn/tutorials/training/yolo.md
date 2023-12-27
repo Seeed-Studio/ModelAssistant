@@ -14,11 +14,11 @@
 
 我们将根据我们需要执行的训练任务的类型选择一个合适的配置文件，我们已经在[Config](../config.md)中介绍了配置文件的功能、结构和原理。
 
-对于 Swfit-YOLO 模型的例子，我们使用 `yolov5_tiny_1xb16_300e_coco.py` 作为配置文件，它位于[SSCMA](https://github.com/Seeed-Studio/ModelAssistant)根目录 `configs/yolov5` 下的文件夹中，其另外继承了 `base_arch.py` 配置文件。
+对于 Swfit-YOLO 模型的例子，我们使用 `swift_yolo_tiny_1xb16_300e_coco.py` 作为配置文件，它位于[SSCMA](https://github.com/Seeed-Studio/ModelAssistant)根目录 `configs/swift_yolo` 下的文件夹中，其另外继承了 `base_arch.py` 配置文件。
 
 对于初学者，我们建议首先注意这个配置文件中的 `data_root` 和 `epochs` 参数。
 
-::: details `yolov5_tiny_1xb16_300e_coco.py`
+::: details `swift_yolo_tiny_1xb16_300e_coco.py`
 
 ```python
 _base_='../_base_/default_runtime_det.py'
@@ -67,19 +67,19 @@ model = dict(
 
 ```sh
 python3 tools/train.py \
-    configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
+    configs/swift_yolo/swift_yolo_tiny_1xb16_300e_coco.py \
     --cfg-options \
         data_root='datasets/digital_meter' \
         epochs=50
 ```
 
-在训练过程中，模型权重和相关日志信息默认保存在 `work_dirs/yolov5_tiny_1xb16_300e_coco` 路径下，你可以使用 [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) 等工具来监测训练情况。
+在训练过程中，模型权重和相关日志信息默认保存在 `work_dirs/swift_yolo_tiny_1xb16_300e_coco` 路径下，你可以使用 [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) 等工具来监测训练情况。
 
 ```sh
-tensorboard --logdir work_dirs/word_dirs/yolov5_tiny_1xb16_300e_coco
+tensorboard --logdir work_dirs/word_dirs/swift_yolo_tiny_1xb16_300e_coco
 ```
 
-训练完成后，最新的 Swfit-YOLO 模型权重文件的路径被保存在 `work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint` 文件中。请注意权重文件的路径，因为将模型转换为其他格式时需要它。
+训练完成后，最新的 Swfit-YOLO 模型权重文件的路径被保存在 `work_dirs/swift_yolo_tiny_1xb16_300e_coco/last_checkpoint` 文件中。请注意权重文件的路径，因为将模型转换为其他格式时需要它。
 
 提示
 
@@ -99,8 +99,8 @@ conda activate sscma
 
 ```sh
 python3 tools/inference.py \
-    configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
-    "$(cat work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint)" \
+    configs/swift_yolo/swift_yolo_tiny_1xb16_300e_coco.py \
+    "$(cat work_dirs/swift_yolo_tiny_1xb16_300e_coco/last_checkpoint)" \
     --show \
     --cfg-options \
         data_root='datasets/digital_meter'
