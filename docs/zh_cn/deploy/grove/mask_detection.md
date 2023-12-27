@@ -1,6 +1,6 @@
 # 使用 Grove - Vision AI 模块实现口罩检测
 
-本教程将基于 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 示范使用 Grove - Vision AI 模块实现口罩检测的开发流程。
+本教程将基于 [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) 示范使用 Grove - Vision AI 模块实现口罩检测的开发流程。
 
 ::: tip
 
@@ -18,7 +18,7 @@
 
 - 在我们的 [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo) 下载预训练好的模型。
 
-- 参考[模型训练 - FOMO 模型](../../tutorials/training/fomo.md)，基于 PyTorch 和 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 自行训练 FOMO 模型得到模型权重。
+- 参考[模型训练 - FOMO 模型](../../tutorials/training/fomo.md)，基于 PyTorch 和 [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) 自行训练 FOMO 模型得到模型权重。
 
 ## 导出模型
 

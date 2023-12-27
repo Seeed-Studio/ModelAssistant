@@ -24,7 +24,7 @@ You also need to prepare the PyTorch model and its weights before exporting the 
 
 - Refer to [Training](../training/overview.md) section and choose a model, and train to get the model weights.
 
-- Or download the [SSCMA](https://github.com/Seeed-Studio/SSCMA) official pre-trained weights from our [GitHub Releases - Model Zoo](https://github.com/Seeed-Studio/ModelAssistantreleases/tag/model_zoo).
+- Or download the [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) official pre-trained weights from our [GitHub Releases - Model Zoo](https://github.com/Seeed-Studio/ModelAssistantreleases/tag/model_zoo).
 
 ## Export Model
 
@@ -74,7 +74,7 @@ python3 tools/export.py \
 
 ## Model Validation
 
-Since in the process of exporting the model, [SSCMA](https://github.com/Seeed-Studio/SSCMA) will do some optimization for the model using some tools, such as model pruning, distillation, etc. Although we have tested and evaluated the model weights during the training process, we recommend you to validate the exported model again.
+Since in the process of exporting the model, [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) will do some optimization for the model using some tools, such as model pruning, distillation, etc. Although we have tested and evaluated the model weights during the training process, we recommend you to validate the exported model again.
 
 ```sh
 python3 tools/inference.py \

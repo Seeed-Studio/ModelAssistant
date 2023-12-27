@@ -4,7 +4,7 @@ This section describes how to train the digital meter model on the COCO digital 
 
 ## Prepare Datasets
 
-[SSCMA](https://github.com/Seeed-Studio/SSCMA) uses [Digital Meter Datasets](https://universe.roboflow.com/seeeddatasets/seeed_meter_digit/) by default to train the Swfit-YOLO model, please refer to the following steps to complete the preparation of datasets.
+[ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) uses [Digital Meter Datasets](https://universe.roboflow.com/seeeddatasets/seeed_meter_digit/) by default to train the Swfit-YOLO model, please refer to the following steps to complete the preparation of datasets.
 
 1. Download digital meter datasets with COCO datasets mode
 
@@ -14,7 +14,7 @@ This section describes how to train the digital meter model on the COCO digital 
 
 We will choose a appropriate configuration file depending on the type of training task we need to perform, which we have already introduced in [Config](../config.md), for a brief description of the functions, structure, and principles of the configuration file.
 
-For the Swfit-YOLO model example, we use `yolov5_tiny_1xb16_300e_coco.py` as the configuration file, which is located in the folder under the SSCMA root directory `configs/yolov5` and its additionally inherits the `base_arch.py` configuration file.
+For the Swfit-YOLO model example, we use `yolov5_tiny_1xb16_300e_coco.py` as the configuration file, which is located in the folder under the ModelAssistant root directory `configs/yolov5` and its additionally inherits the `base_arch.py` configuration file.
 
 For beginners, we recommend to pay attention to the `data_root` and `epochs` parameters in this configuration file at first.
 
@@ -61,9 +61,9 @@ model = dict(
 
 ## Training Model
 
-Training the model requires using our previously configured SSCMA working environment, if you follow our [Installation](../../introduction/installation.md) guide using Conda to install [SSCMA](https://github.com/Seeed-Studio/SSCMA) in a virtual environment named `sscma`, please first make sure that you are currently in the virtual environment.
+Training the model requires using our previously configured ModelAssistant working environment, if you follow our [Installation](../../introduction/installation.md) guide using Conda to install [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) in a virtual environment named `sscma`, please first make sure that you are currently in the virtual environment.
 
-Then, in the [SSCMA](https://github.com/Seeed-Studio/SSCMA) project root directory, we execute the following command to train a Swfit-YOLO digital meter detection model.
+Then, in the [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) project root directory, we execute the following command to train a Swfit-YOLO digital meter detection model.
 
 ```sh
 python3 tools/train.py \
@@ -114,7 +114,7 @@ If you want a real-time preview while testing, you can append a parameter `--sho
 
 ### Evaluation
 
-In order to further test and evaluate the model on a realistic edge computing device, you need to export the model. In the process of exporting the model, [SSCMA](https://github.com/Seeed-Studio/SSCMA) will do some optimization on the model, such as model pruning, distillation, etc. You can refer to the [Export](../export/overview) section to learn more about how to export models.
+In order to further test and evaluate the model on a realistic edge computing device, you need to export the model. In the process of exporting the model, [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) will do some optimization on the model, such as model pruning, distillation, etc. You can refer to the [Export](../export/overview) section to learn more about how to export models.
 
 ### Deployment
 
