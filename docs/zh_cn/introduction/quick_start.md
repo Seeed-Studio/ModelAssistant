@@ -6,7 +6,7 @@
 我们建议 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 的所有初学者都从[入门指南](#getting-started)开始学习，如果您对 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 或 [OpenMMLab](https://github.com/open-mmlab) 已经熟悉，并且希望尝试在边缘计算设备上部署、修改现有的神经网络或使用自定义数据集进行训练，您可以直接参考[高级用法](#advanced)。
 :::
 
-现在，您可以在Google Colab上尝试使用[SSCMA Colab示例](https://github.com/Seeed-Studio/SSCMA/tree/main/notebooks)，无需在计算机上安装[SSCMA](https://github.com/Seeed-Studio/SSCMA)。
+现在，您可以在Google Colab上尝试使用[SSCMA Colab示例](https://github.com/Seeed-Studio/ModelAssistanttree/main/notebooks)，无需在计算机上安装[SSCMA](https://github.com/Seeed-Studio/SSCMA)。
 
 ### 图像分类
 

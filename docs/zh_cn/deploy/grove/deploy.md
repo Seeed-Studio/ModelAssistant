@@ -1,6 +1,6 @@
 # 在 Grove - Vision AI 上部署 SSCMA 模型
 
-本示例为 [SSCMA](https://github.com/Seeed-Studio/SSCMA/) 包含的模型在 Grove - Vision AI 模块的部署教程，部署工作基于 [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain) 和 [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) 实现。
+本示例为 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 包含的模型在 Grove - Vision AI 模块的部署教程，部署工作基于 [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain) 和 [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) 实现。
 
 ## 先决条件
 
@@ -37,7 +37,7 @@ Grove - Vision AI 使用了 [Himax HX6537](https://www.himax.com.tw/zh/products/
 
 ### 获取示例并配置 SDK
 
-**进入 [SSCMA](https://github.com/Seeed-Studio/SSCMA/) 项目的根目录**，运行下面的命令来获取示例和。
+**进入 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 项目的根目录**，运行下面的命令来获取示例和。
 
 ```sh
 git clone https://github.com/Seeed-Studio/sscma-example-vision-ai examples/grove && \
@@ -81,7 +81,7 @@ sudo apt-get install make -y
 
 ### 编译固件和模型固件
 
-1. 进入 [SSCMA](https://github.com/Seeed-Studio/SSCMA/)  项目的根目录，运行以下命令进入示例目录 `examples/grove`:
+1. 进入 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant)  项目的根目录，运行以下命令进入示例目录 `examples/grove`:
 
    ```sh
    cd examples/grove # SSCMA/examples/grove
@@ -171,12 +171,12 @@ Grove - Vision AI 的部署流程主要分为两个步骤，这两个步骤需�
 
 ### 性能简介
 
-通过在不同的芯片上测量，对 [SSCMA](https://github.com/Seeed-Studio/SSCMA/) 相关模型的性能总结如下表所示。
+通过在不同的芯片上测量，对 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 相关模型的性能总结如下表所示。
 
 | Target | Model | Dataset | Input Resolution | Peak RAM | Inferencing Time | F1 Score | Link |
 |--|--|--|--|--|--|--|--|
-| Grove Vision AI | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/sscma/meter.zip) | 112x112 (RGB) | 320KB | 500ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/SSCMA/releases) |
-| Grove Vision AI | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/SSCMA/releases) |
+| Grove Vision AI | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/sscma/meter.zip) | 112x112 (RGB) | 320KB | 500ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/ModelAssistantreleases) |
+| Grove Vision AI | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/ModelAssistantreleases) |
 
 ::: tip
 更多模型请前往 [SSCMA Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
@@ -194,7 +194,7 @@ Grove - Vision AI 的部署流程主要分为两个步骤，这两个步骤需�
 
 - 对于 TensorFlow Lite Micro 相关的信息请参考 [TFLite-Micro](https://github.com/tensorflow/tflite-micro)。
 
-- 对于 SenseCraft Model Zoo 相关的信息请参考 [SSCMA](https://github.com/Seeed-Studio/SSCMA/)。
+- 对于 SenseCraft Model Zoo 相关的信息请参考 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant)。
 
 ## 许可
 

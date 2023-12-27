@@ -24,7 +24,7 @@ You also need to prepare the PyTorch model and its weights before exporting the 
 
 - Refer to [Training](../training/overview.md) section and choose a model, and train to get the model weights.
 
-- Or download the [SSCMA](https://github.com/Seeed-Studio/SSCMA) official pre-trained weights from our [GitHub Releases - Model Zoo](https://github.com/Seeed-Studio/SSCMA/releases/tag/model_zoo).
+- Or download the [SSCMA](https://github.com/Seeed-Studio/SSCMA) official pre-trained weights from our [GitHub Releases - Model Zoo](https://github.com/Seeed-Studio/ModelAssistantreleases/tag/model_zoo).
 
 ::: tip
 

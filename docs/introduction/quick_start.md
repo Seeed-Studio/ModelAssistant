@@ -6,7 +6,7 @@ In [Overview](./what_is_sscma), we have introduced the functions and features pr
 We suggest that all beginners of [SSCMA](https://github.com/Seeed-Studio/SSCMA) start learning from [Getting Started](#getting-started), if you are familiar with [SSCMA](https://github.com/Seeed-Studio/SSCMA) or [OpenMMLab](https://github.com/open-mmlab), and you want to try to deploy on edge computing devices, modify existing neural networks, or train on user-defined data sets, you can directly refer to [Advanced](#advanced).
 :::
 
-Now, you can try out [SSCMA Colab Examples](https://github.com/Seeed-Studio/SSCMA/tree/main/notebooks) on Google Colab without setup [SSCMA](https://github.com/Seeed-Studio/SSCMA) on your computer.
+Now, you can try out [SSCMA Colab Examples](https://github.com/Seeed-Studio/ModelAssistanttree/main/notebooks) on Google Colab without setup [SSCMA](https://github.com/Seeed-Studio/SSCMA) on your computer.
 
 ## Getting Started
 
@@ -19,6 +19,7 @@ If you want to deploy the model on the device, please refer to the section [Depl
 If you want to train a model, we highly recommend that you first try to train a model on the Colab platform. You can refer to the following tutorials:
 
 ### Image Classification
+
 | Model                                                                                                         | Colab                                                                                                                                                                                                                            |
 |:--------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [Person_Classification_MobileNetV2_0.35_Rep_64](https://github.com/Seeed-Studio/sscma-model-zoo/blob/main/docs/en/Person_Classification_MobileNetV2_0.35_Rep_64.md)     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seeed-studio/sscma-model-zoo/blob/main/notebooks/en/Person_Classification_MobileNetV2_0.35_Rep_64.ipynb)   |

@@ -1,6 +1,6 @@
 # Copyrights and Licenses
 
-SSCMA is released under the [MIT license](https://github.com/Seeed-Studio/SSCMA/blob/main/LICENSES).
+SSCMA is released under the [MIT license](https://github.com/Seeed-Studio/ModelAssistantblob/main/LICENSES).
 
 ```
 MIT License

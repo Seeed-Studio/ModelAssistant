@@ -1,4 +1,4 @@
-# PyTorch 导出 ONNX 
+# PyTorch 导出 ONNX
 
 本章将介绍如何将 PyTorch 模型转换为 ONNX 模型。
 
@@ -24,7 +24,7 @@ conda activate sscma
 
 - 参考[模型训练](../training/overview.md)部分文档，选择一个模型自行训练得到模型权重。
 
-- 或在我们的 [GitHub Releases - Model Zoo](https://github.com/Seeed-Studio/SSCMA/releases/tag/model_zoo) 中下载官方预训练的权重。
+- 或在我们的 [GitHub Releases - Model Zoo](https://github.com/Seeed-Studio/ModelAssistantreleases/tag/model_zoo) 中下载官方预训练的权重。
 
 ## 模型导出
 

@@ -9,7 +9,7 @@ export default defineConfig({
         sidebar: { '/': sidebar() },
 
         editLink: {
-            pattern: 'https://github.com/Seeed-Studio/SSCMA/edit/main/docs/:path',
+            pattern: 'https://github.com/Seeed-Studio/ModelAssistantedit/main/docs/:path',
             text: 'Suggest changes to this page'
         },
 
