@@ -1,10 +1,10 @@
 # 模型配置
 
-[SSCMA](https://github.com/Seeed-Studio/SSCMA) 使用 [OpenMMLab - MMEngine](https://github.com/open-mmlab/mmengine) 提供的配置处理系统，具有模块化、可继承的设计特点，为用户提供了统一的配置访问接口，便于用户对不同的神经网络进行各种测试与验证。
+[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 使用 [OpenMMLab - MMEngine](https://github.com/open-mmlab/mmengine) 提供的配置处理系统，具有模块化、可继承的设计特点，为用户提供了统一的配置访问接口，便于用户对不同的神经网络进行各种测试与验证。
 
 ## 配置的目录结构
 
-[SSCMA](https://github.com/Seeed-Studio/SSCMA) 使用的配置文件位于 `configs` 目录下，用于不同任务下不同模型的训练。我们在其根据不同的任务分类划分了子文件夹，在各个子文件夹中，保存有多个模型的不同训练管线参数，配置文件的目录结构如下:
+[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 使用的配置文件位于 `configs` 目录下，用于不同任务下不同模型的训练。我们在其根据不同的任务分类划分了子文件夹，在各个子文件夹中，保存有多个模型的不同训练管线参数，配置文件的目录结构如下:
 
 ::: code-group
 
@@ -232,7 +232,7 @@ work_dir='./work_dirs'                # 用于保存当前实验的模型检查�
 
 ## 参数配置
 
-使用 [SSCMA](https://github.com/Seeed-Studio/SSCMA)  的 `tools/train.py` 或 `tools/test.py` 提交作业时，可以指定 `--cfg-options` 临时覆写配置。
+使用 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant)  的 `tools/train.py` 或 `tools/test.py` 提交作业时，可以指定 `--cfg-options` 临时覆写配置。
 
 ::: tip
 

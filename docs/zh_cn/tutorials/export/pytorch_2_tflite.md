@@ -24,7 +24,7 @@ conda activate sscma
 
 - 参考[模型训练](../training/overview.md)部分文档，选择一个模型自行训练得到模型权重。
 
-- 或在我们的 [GitHub Releases - Model Zoo](https://github.com/Seeed-Studio/SSCMAreleases/tag/model_zoo) 中下载官方预训练的权重。
+- 或在我们的 [GitHub Releases - Model Zoo](https://github.com/Seeed-Studio/ModelAssistantreleases/tag/model_zoo) 中下载官方预训练的权重。
 
 ::: tip
 
@@ -81,7 +81,7 @@ python3 tools/export.py \
 
 ## 模型验证
 
-[SSCMA](https://github.com/Seeed-Studio/SSCMA) 会借助一些工具对模型进行一些优化，如模型的剪枝、蒸馏等，虽然我们在训练过程中已经对模型权重进行了测试和评估，我们建议您对导出后的模型进行再次验证。
+[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 会借助一些工具对模型进行一些优化，如模型的剪枝、蒸馏等，虽然我们在训练过程中已经对模型权重进行了测试和评估，我们建议您对导出后的模型进行再次验证。
 
 ```sh
 python3 tools/inference.py \

@@ -1,14 +1,14 @@
 # Datasets
 
-[SSCMA](https://github.com/Seeed-Studio/SSCMA) supports a variety of datasets. You can browse and download different datasets on the Internet, or annotate and create your own datasets.
+[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) supports a variety of datasets. You can browse and download different datasets on the Internet, or annotate and create your own datasets.
 
 ## Internet Datasets
 
-### [SSCMA](https://github.com/Seeed-Studio/SSCMA)
+### [SSCMA](https://github.com/Seeed-Studio/ModelAssistant)
 
-[SSCMA](https://github.com/Seeed-Studio/SSCMA) currently provides the following official datasets for training and testing of corresponding models.
+[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) currently provides the following official datasets for training and testing of corresponding models.
 
-Please make sure you are in the **Root Directory of [SSCMA](https://github.com/Seeed-Studio/SSCMA)** before running the command to download a specific datasets. The command will automatically download the datasets and save them in a folder named `datasets` in the current directory, and finally unpacking them.
+Please make sure you are in the **Root Directory of [SSCMA](https://github.com/Seeed-Studio/ModelAssistant)** before running the command to download a specific datasets. The command will automatically download the datasets and save them in a folder named `datasets` in the current directory, and finally unpacking them.
 
 - [Download Custom Meter Datasets](https://files.seeedstudio.com/wiki/sscma/meter.zip):
 
@@ -32,7 +32,7 @@ We highly recommend looking for datasets on Roboflow, and you can download hundr
 
 :::
 
-you can find some datasets for [SSCMA](https://github.com/Seeed-Studio/SSCMA) on Roboflow below:
+you can find some datasets for [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) on Roboflow below:
 | Dataset | Description |
 | -- | -- |
 | [Digital Meter Water](https://universe.roboflow.com/seeed-studio-dbk14/digital-meter-water/dataset/1) | Digital Meter Water Dataset |
@@ -57,7 +57,7 @@ Creating a custom dataset usually involves the following steps.
 
 5. **Load Dataset:** Load the converted dataset into the model for training and testing. When loading the dataset, it is important to use the appropriate data loader and batch size.
 
-6. **Data Enhancement (optional, recommended to be done by [SSCMA](https://github.com/Seeed-Studio/SSCMA)):** Perform data enhancement on the dataset, such as rotate, flip, crop, etc., to increase the diversity and number of datasets.
+6. **Data Enhancement (optional, recommended to be done by [SSCMA](https://github.com/Seeed-Studio/ModelAssistant)):** Perform data enhancement on the dataset, such as rotate, flip, crop, etc., to increase the diversity and number of datasets.
 
 ## Datasets Annotation
 

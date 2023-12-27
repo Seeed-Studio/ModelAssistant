@@ -18,7 +18,7 @@ hero:
       link: ./introduction/installation
     - theme: alt
       text: 在 GitHub 上查看
-      link: https://github.com/Seeed-Studio/SSCMA
+      link: https://github.com/Seeed-Studio/ModelAssistant
 
 features:
   - icon: 🔍

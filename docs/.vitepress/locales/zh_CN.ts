@@ -14,7 +14,7 @@ export default defineConfig({
         returnToTopLabel: '返回顶部',
 
         editLink: {
-            pattern: 'https://github.com/Seeed-Studio/SSCMAedit/main/docs/zh_cn/:path',
+            pattern: 'https://github.com/Seeed-Studio/ModelAssistantedit/main/docs/zh_cn/:path',
             text: '对此页面提出建议'
         },
 

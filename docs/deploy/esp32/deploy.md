@@ -1,6 +1,6 @@
 # Deploying SSCMA on Espressif Chips
 
-This example is a tutorial for deploying the models from [SSCMA](https://github.com/Seeed-Studio/SSCMA) to Espreessif chipsets, based on [ESP-IDF](https://github.com/espressif/esp-idf) and [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) implementations.
+This example is a tutorial for deploying the models from [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) to Espreessif chipsets, based on [ESP-IDF](https://github.com/espressif/esp-idf) and [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) implementations.
 
 ## Prerequisites
 
@@ -36,10 +36,10 @@ In addition, if your ESP-IDF is not configured in a virtual environment, any ope
 
 ### Get Examples and Submodules
 
-**Go to the root directory of the [SSCMA](https://github.com/Seeed-Studio/SSCMA) project** and run the following command to get the examples and its submodules.
+**Go to the root directory of the [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) project** and run the following command to get the examples and its submodules.
 
 ```sh
-git clone https://github.com/Seeed-Studio/sscma-example-esp32 examples/esp32 && \
+git clone https://github.com/Seeed-Studio/ModelAssistant-example-esp32 examples/esp32 && \
 pushd examples/esp32 && \
 git submodule init && \
 git submodule update && \
@@ -72,7 +72,7 @@ Before [Compile and Deploy](#compile-and-deploy), you need to prepare the approp
 
 ### Compile
 
-1. Go to the root directory of the [SSCMA](https://github.com/Seeed-Studio/SSCMA) project and run the following command to access the examples directory `examples/esp32`.
+1. Go to the root directory of the [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) project and run the following command to access the examples directory `examples/esp32`.
 
 ```sh
 cd examples/esp32 # SSCMA/examples/esp32
@@ -125,26 +125,26 @@ Use `Ctrl+]` to exit the monitor serial output screen.
 
 ### Performance Profile
 
-The performance of [SSCMA](https://github.com/Seeed-Studio/SSCMA)  related models, measured on different chips, is summarized in the following table.
+The performance of [SSCMA](https://github.com/Seeed-Studio/ModelAssistant)  related models, measured on different chips, is summarized in the following table.
 
 | Target | Model | Dataset | Input Resolution | Peak RAM | Inferencing  Time | F1 Score | Link |
 |--|--|--|--|--|--|--|--|
-| ESP32-S3 | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/sscma/meter.zip) | 112x112 (RGB) | 320KB | 380ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/SSCMAreleases) |
-| ESP32-S3 | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/SSCMAreleases) |
+| ESP32-S3 | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/sscma/meter.zip) | 112x112 (RGB) | 320KB | 380ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/ModelAssistantreleases) |
+| ESP32-S3 | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/ModelAssistantreleases) |
 
 ::: tip
-For more models go to [SSCMA Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
+For more models go to [SSCMA Model Zoo](https://github.com/Seeed-Studio/ModelAssistant-model-zoo)
 :::
 
 ## Contribute
 
-- If you find any issues in these examples, or wish to submit an enhancement request, please use [GitHub Issue](https://github.com/Seeed-Studio/SSCMA).
+- If you find any issues in these examples, or wish to submit an enhancement request, please use [GitHub Issue](https://github.com/Seeed-Studio/ModelAssistant).
 
 - For ESP-IDF related issues please refer to [ESP-IDF](https://github.com/espressif/esp-idf).
 
 - For information about TensorFlow Lite Micro, please refer to [TFLite-Micro](https://github.com/tensorflow/tflite-micro).
 
-- For SSCMA related information, please refer to [SSCMA](https://github.com/Seeed-Studio/SSCMA).
+- For SSCMA related information, please refer to [SSCMA](https://github.com/Seeed-Studio/ModelAssistant).
 
 ## Licensing
 

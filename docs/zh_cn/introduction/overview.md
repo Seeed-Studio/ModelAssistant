@@ -16,22 +16,22 @@ Seeed SenseCraft Model Assistant (SSCMA)  是一个专注于嵌入式人工智�
 
 ### 👁️ 计算机视觉
 
-我们提供了许多计算机视觉算法，如目标检测、图像分类、图像分割和姿态估计。然而，这些算法无法在低成本硬件上运行。[SSCMA](https://github.com/Seeed-Studio/SSCMA) 优化了这些计算机视觉算法，在低端设备上实现了良好的运行速度和准确性。
+我们提供了许多计算机视觉算法，如目标检测、图像分类、图像分割和姿态估计。然而，这些算法无法在低成本硬件上运行。[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 优化了这些计算机视觉算法，在低端设备上实现了良好的运行速度和准确性。
 
 ### ⏱️ 特定场景
 
-[SSCMA](https://github.com/Seeed-Studio/SSCMA) 为特定的生产环境提供定制化场景，例如模拟仪器的识别、传统数字仪表和音频分类。我们将继续在未来为指定场景添加更多算法。
+[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 为特定的生产环境提供定制化场景，例如模拟仪器的识别、传统数字仪表和音频分类。我们将继续在未来为指定场景添加更多算法。
 
 ## 特点
 
 ### 🤝 用户友好
 
-[SSCMA](https://github.com/Seeed-Studio/SSCMA) 提供了一个用户友好的平台，让用户可以轻松地对收集的数据进行训练，并通过在训练过程中生成的可视化结果更好地了解算法的性能。
+[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 提供了一个用户友好的平台，让用户可以轻松地对收集的数据进行训练，并通过在训练过程中生成的可视化结果更好地了解算法的性能。
 
-### 🔋 M低计算能力高性能模型
+### 🔋 低计算能力高性能模型
 
-[SSCMA](https://github.com/Seeed-Studio/SSCMA) 专注于边缘端AI算法研究，算法模型可部署在微处理器上，类似于[ESP32](https://www.espressif.com/en/products/socs/esp32)、一些[Arduino](https://arduino.cc)开发板，甚至嵌入式SBC（如 [Raspberry Pi](https://www.raspberrypi.org) ）等设备上。
+[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 专注于边缘端AI算法研究，算法模型可部署在微处理器上，类似于[ESP32](https://www.espressif.com/en/products/socs/esp32)、一些[Arduino](https://arduino.cc)开发板，甚至嵌入式SBC（如 [Raspberry Pi](https://www.raspberrypi.org) ）等设备上。
 
 ### 🗂️ 支持多种模型导出格式
 
-[TensorFlow Lite](https://www.tensorflow.org/lite) 主要用于微控制器，而 [ONNX](https://onnx.ai) 主要用于嵌入式Linux设备。还有一些特殊格式，如 [TensorRT](https://developer.nvidia.com/tensorrt)、[OpenVINO](https://docs.openvino.ai)，这些格式已经得到OpenMMLab的良好支持。[SSCMA](https://github.com/Seeed-Studio/SSCMA)添加了用于微控制器的TFLite模型导出功能，可以直接转换为 [TensorRT](https://developer.nvidia.com/tensorrt) 格式。
+[TensorFlow Lite](https://www.tensorflow.org/lite) 主要用于微控制器，而 [ONNX](https://onnx.ai) 主要用于嵌入式Linux设备。还有一些特殊格式，如 [TensorRT](https://developer.nvidia.com/tensorrt)、[OpenVINO](https://docs.openvino.ai)，这些格式已经得到OpenMMLab的良好支持。[SSCMA](https://github.com/Seeed-Studio/ModelAssistant)添加了用于微控制器的TFLite模型导出功能，可以直接转换为 [TensorRT](https://developer.nvidia.com/tensorrt) 格式。
