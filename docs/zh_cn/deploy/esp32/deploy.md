@@ -39,7 +39,7 @@ conda deactivate
 **进入 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 项目的根目录**，运行下面的命令来获取示例和子模块。
 
 ```sh
-git clone https://github.com/Seeed-Studio/ModelAssistant-example-esp32 examples/esp32 && \
+git clone https://github.com/Seeed-Studio/sscma-example-esp32 examples/esp32 && \
 pushd examples/esp32 && \
 git submodule init && \
 git submodule update && \
@@ -129,11 +129,11 @@ idf.py --port <TARGET_SERIAL_PORT> flash monitor
 
 | Target | Model | Dataset | Input Resolution | Peak RAM | Inferencing  Time | F1 Score | Link |
 |--|--|--|--|--|--|--|--|
-| ESP32-S3 | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/sscma/meter.zip) | 112x112 (RGB) | 320KB | 380ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/ModelAssistantreleases) |
-| ESP32-S3 | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/ModelAssistantreleases) |
+| ESP32-S3 | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/sscma/meter.zip) | 112x112 (RGB) | 320KB | 380ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/ModelAssistant/releases/tag/model_zoo) |
+| ESP32-S3 | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/ModelAssistant/releases/tag/model_zoo) |
 
 ::: tip
-更多模型请前往 [SSCMA Model Zoo](https://github.com/Seeed-Studio/ModelAssistant-model-zoo)
+更多模型请前往 [SSCMA Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
 :::
 
 ## 贡献

@@ -2,7 +2,7 @@
 
 [Edge Impulse](https://www.edgeimpulse.com/) is the leading development platform for machine learning on edge devices.
 
-The models in [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) support running on Edge Impulse specific information is available in the [sscma-ei-ml-blocks](https://github.com/Seeed-Studio/ModelAssistant-ei-ml-blocks). The following is an example of how to run the [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) model on Edge Impulse, using the `sscma-fomo` model.
+The models in [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) support running on Edge Impulse specific information is available in the [sscma-ei-ml-blocks](https://github.com/Seeed-Studio/sscma-ei-ml-blocks). The following is an example of how to run the [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) model on Edge Impulse, using the `sscma-fomo` model.
 
 ## Run the Pipeline
 
@@ -13,7 +13,7 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
 01. Clone the sample repository.
 
     ```sh
-    git clone https://github.com/Seeed-Studio/ModelAssistant-ei-ml-blocks && \
+    git clone https://github.com/Seeed-Studio/sscma-ei-ml-blocks && \
     cd sscma-ei-ml-blocks/sscma-fomo
     ```
 

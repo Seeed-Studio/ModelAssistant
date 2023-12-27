@@ -7,7 +7,7 @@ hero:
   text: Open-source project focused on embedded AI.
   tagline: We have optimized excellent algorithms for real-world scenarios and made implementation more user-friendly, achieving faster and more accurate inference on embedded devices.
   image:
-    src: /images/SSCMA-Hero.png
+    src: https://files.seeedstudio.com/sscma/docs/images/SSCMA-Hero.png
     alt: SSCMA
   actions:
     - theme: brand

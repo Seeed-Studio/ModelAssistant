@@ -40,7 +40,7 @@ Grove - Vision AI 使用了 [Himax HX6537](https://www.himax.com.tw/zh/products/
 **进入 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 项目的根目录**，运行下面的命令来获取示例和。
 
 ```sh
-git clone https://github.com/Seeed-Studio/ModelAssistant-example-vision-ai examples/grove && \
+git clone https://github.com/Seeed-Studio/sscma-example-vision-ai examples/grove && \
 pushd examples/grove && \
 make download && \
 popd
@@ -175,11 +175,11 @@ Grove - Vision AI 的部署流程主要分为两个步骤，这两个步骤需�
 
 | Target | Model | Dataset | Input Resolution | Peak RAM | Inferencing Time | F1 Score | Link |
 |--|--|--|--|--|--|--|--|
-| Grove Vision AI | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/sscma/meter.zip) | 112x112 (RGB) | 320KB | 500ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/ModelAssistantreleases) |
-| Grove Vision AI | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/ModelAssistantreleases) |
+| Grove Vision AI | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/sscma/meter.zip) | 112x112 (RGB) | 320KB | 500ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/ModelAssistant/releases/tag/model_zoo) |
+| Grove Vision AI | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/ModelAssistant/releases/tag/model_zoo) |
 
 ::: tip
-更多模型请前往 [SSCMA Model Zoo](https://github.com/Seeed-Studio/ModelAssistant-model-zoo)
+更多模型请前往 [SSCMA Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
 :::
 
 ## 故障排除
