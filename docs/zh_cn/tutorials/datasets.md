@@ -10,16 +10,16 @@
 
 对于使用命令下载的数据集，请确保在运行命令前处于 **[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 项目根目录**，命令会自动下载数据集并将其保存在当前目录下的名为 `datasets` 的文件夹中，并完成解压。
 
-- [下载自定义 Meter 数据集](https://files.seeedstudio.com/wiki/sscma/meter.zip):
+- [下载自定义 Meter 数据集](https://files.seeedstudio.com/sscma/datasets/meter.zip):
 
   ```sh
-  wget https://files.seeedstudio.com/wiki/sscma/meter.zip -P datasets && unzip datasets/meter.zip -d datasets
+  wget https://files.seeedstudio.com/sscma/datasets/meter.zip -P datasets && unzip datasets/meter.zip -d datasets
   ```
 
-- [下载 COCO_MASK 数据集](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip):
+- [下载 COCO_MASK 数据集](https://files.seeedstudio.com/sscma/datasets/coco_mask.zip):
 
   ```sh
-  wget https://files.seeedstudio.com/wiki/sscma/coco_mask.zip -P datasets && unzip datasets/coco_mask.zip -d datasets
+  wget https://files.seeedstudio.com/sscma/datasets/coco_mask.zip -P datasets && unzip datasets/coco_mask.zip -d datasets
   ```
 
 ### Roboflow

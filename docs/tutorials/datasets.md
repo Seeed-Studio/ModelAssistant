@@ -10,16 +10,16 @@
 
 Please make sure you are in the **Root Directory of [SSCMA](https://github.com/Seeed-Studio/ModelAssistant)** before running the command to download a specific datasets. The command will automatically download the datasets and save them in a folder named `datasets` in the current directory, and finally unpacking them.
 
-- [Download Custom Meter Datasets](https://files.seeedstudio.com/wiki/sscma/meter.zip):
+- [Download Custom Meter Datasets](https://files.seeedstudio.com/sscma/datasets/meter.zip):
 
   ```sh
-  wget https://files.seeedstudio.com/wiki/sscma/meter.zip -P datasets && unzip datasets/meter.zip -d datasets
+  wget https://files.seeedstudio.com/sscma/datasets/meter.zip -P datasets && unzip datasets/meter.zip -d datasets
   ```
 
-- [Download COCO_MASK Datasets](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip):
+- [Download COCO_MASK Datasets](https://files.seeedstudio.com/sscma/datasets/coco_mask.zip):
 
   ```sh
-  wget https://files.seeedstudio.com/wiki/sscma/coco_mask.zip -P datasets && unzip datasets/coco_mask.zip -d datasets
+  wget https://files.seeedstudio.com/sscma/datasets/coco_mask.zip -P datasets && unzip datasets/coco_mask.zip -d datasets
   ```
 
 ### Roboflow
