@@ -50,4 +50,4 @@ SSCMA focuses on end-side AI algorithm research, and the algorithm models can be
 
 <div align=center><img width=800 src="https://files.seeedstudio.com/sscma/docs/static/grove/images/digital_meter.gif"/></div>
 
-More application examples can be found in [Model Zoo](https://github.com/Seeed-Studio/ModelAssistant-model-zoo)。
+More application examples can be found in [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)。

@@ -39,7 +39,7 @@ In addition, if your ESP-IDF is not configured in a virtual environment, any ope
 **Go to the root directory of the [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) project** and run the following command to get the examples and its submodules.
 
 ```sh
-git clone https://github.com/Seeed-Studio/ModelAssistant-example-esp32 examples/esp32 && \
+git clone https://github.com/Seeed-Studio/sscma-example-esp32 examples/esp32 && \
 pushd examples/esp32 && \
 git submodule init && \
 git submodule update && \
@@ -129,11 +129,11 @@ The performance of [SSCMA](https://github.com/Seeed-Studio/ModelAssistant)  rela
 
 | Target | Model | Dataset | Input Resolution | Peak RAM | Inferencing  Time | F1 Score | Link |
 |--|--|--|--|--|--|--|--|
-| ESP32-S3 | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/sscma/meter.zip) | 112x112 (RGB) | 320KB | 380ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/ModelAssistantreleases) |
-| ESP32-S3 | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/ModelAssistantreleases) |
+| ESP32-S3 | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/sscma/meter.zip) | 112x112 (RGB) | 320KB | 380ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/ModelAssistant/releases/tag/model_zoo) |
+| ESP32-S3 | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/ModelAssistant/releases/tag/model_zoo) |
 
 ::: tip
-For more models go to [SSCMA Model Zoo](https://github.com/Seeed-Studio/ModelAssistant-model-zoo)
+For more models go to [SSCMA Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
 :::
 
 ## Contribute

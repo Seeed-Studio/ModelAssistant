@@ -16,7 +16,7 @@
 
 表计读数功能基于 SWIFT-YOLO 模型实现，在这一步您需要一个后缀为 `.pth` 的 SWIFT-YOLO 模型权重，您有两种方法获取该模型权重:
 
-- 在我们的 [Model Zoo](https://github.com/Seeed-Studio/ModelAssistant-model-zoo) 下载预训练好的模型。
+- 在我们的 [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo) 下载预训练好的模型。
 
 - 参考[模型训练 - SWIFT-YOLO 模型](../../tutorials/training/yolo.md)，基于 PyTorch 和 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 自行训练 SWIFT-YOLO 模型得到模型权重。
 
@@ -24,7 +24,7 @@
 
 由于训练得到的模型并不适合直接在边缘计算设备上运行，我们首先需要将其导出为后缀是 `.tflite` 的 TFLite 格式，您有两种方法获取导出的模型 (包含模型权重):
 
-- 在我们的 [Model Zoo](https://github.com/Seeed-Studio/ModelAssistant-model-zoo) 下载导出为 TFLite 格式的模型。
+- 在我们的 [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo) 下载导出为 TFLite 格式的模型。
 
 - 参考[模型导出 - PyTorch 转 TFLite](../../tutorials/export/pytorch_2_tflite.md)，自行将 SWIFT-YOLO 模型从 PyTorch 格式转换为 TFLite 格式。
 
