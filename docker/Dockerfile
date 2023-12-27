@@ -7,7 +7,7 @@ RUN apt update
 RUN apt install --no-install-recommends -y gcc git zip curl htop libgl1-mesa-glx libglib2.0-0 libpython3-dev gnupg build-essential
 
 # Get SSCMA
-RUN git clone https://github.com/Seeed-Studio/SSCMA -b main --depth 1
+RUN git clone https://github.com/Seeed-Studio/ModelAssistant -b main --depth 1
 
 # Install pip packages
 RUN python3 -m pip install --upgrade pip wheel
@@ -15,6 +15,7 @@ RUN cd SSCMA && pip install --no-cache -r requirements/base.txt
 RUN cd SSCMA && pip install --no-cache -r requirements/export.txt
 RUN cd SSCMA && pip install --no-cache -r requirements/inference.txt
 RUN cd SSCMA && mim install --no-cache -r requirements/mmlab.txt
+RUN cd SSCMA && pip install .
 
 WORKDIR /workspace
 
