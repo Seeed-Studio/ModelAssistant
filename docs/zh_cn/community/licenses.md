@@ -1,6 +1,6 @@
 # Copyrights and Licenses
 
-[SSCMA](https://github.com/Seeed-Studio/SSCMA)  采用 [MIT 开源许可证](https://github.com/Seeed-Studio/SSCMA/blob/main/LICENSES)。
+[SSCMA](https://github.com/Seeed-Studio/SSCMA)  采用 [MIT 开源许可证](https://github.com/Seeed-Studio/ModelAssistantblob/main/LICENSES)。
 
 ```
 MIT License
