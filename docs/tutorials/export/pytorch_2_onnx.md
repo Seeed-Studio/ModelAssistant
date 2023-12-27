@@ -61,10 +61,10 @@ python3 tools/export.py \
         data_root='datasets/meter'
 ```
 
-```sh [YOLOv5 Model Conversion]
+```sh [SWIFT-YOLO Model Conversion]
 python3 tools/export.py \
-    configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
-    "$(cat work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint)" \
+    configs/swift_yolo/swift_yolo_tiny_1xb16_300e_coco.py \
+    "$(cat work_dirs/swift_yolo_tiny_1xb16_300e_coco/last_checkpoint)" \
     --target onnx \
     --cfg-options \
         data_root='datasets/digital_meter'
@@ -112,10 +112,10 @@ python3 tools/inference.py \
         data_root='datasets/meter'
 ```
 
-```sh [YOLOv5 Model Validation]
+```sh [SWIFT-YOLO Model Validation]
 python3 tools/inference.py \
-    configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
-    "$(cat work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint | sed -e 's/.pth/.onnx/g')" \
+    configs/swift_yolo/swift_yolo_tiny_1xb16_300e_coco.py \
+    "$(cat work_dirs/swift_yolo_tiny_1xb16_300e_coco/last_checkpoint | sed -e 's/.pth/.onnx/g')" \
     --show \
     --cfg-options \
         data_root='datasets/digital_meter'

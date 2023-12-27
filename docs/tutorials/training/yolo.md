@@ -14,11 +14,11 @@ This section describes how to train the digital meter model on the COCO digital 
 
 We will choose a appropriate configuration file depending on the type of training task we need to perform, which we have already introduced in [Config](../config.md), for a brief description of the functions, structure, and principles of the configuration file.
 
-For the Swfit-YOLO model example, we use `yolov5_tiny_1xb16_300e_coco.py` as the configuration file, which is located in the folder under the SSCMA root directory `configs/yolov5` and its additionally inherits the `base_arch.py` configuration file.
+For the Swfit-YOLO model example, we use `swift_yolo_tiny_1xb16_300e_coco.py` as the configuration file, which is located in the folder under the SSCMA root directory `configs/swift_yolo` and its additionally inherits the `base_arch.py` configuration file.
 
 For beginners, we recommend to pay attention to the `data_root` and `epochs` parameters in this configuration file at first.
 
-::: details `yolov5_tiny_1xb16_300e_coco.py`
+::: details `swift_yolo_tiny_1xb16_300e_coco.py`
 
 ```python
 _base_='../_base_/default_runtime_det.py'
@@ -67,19 +67,19 @@ Then, in the [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) project roo
 
 ```sh
 python3 tools/train.py \
-    configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
+    configs/swift_yolo/swift_yolo_tiny_1xb16_300e_coco.py \
     --cfg-options \
         data_root='datasets/digital_meter' \
         epochs=50
 ```
 
-During training, the model weights and related log information are saved to the path `work_dirs/yolov5_tiny_1xb16_300e_coco` by default, and you can use tools such as [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) to monitor for training.
+During training, the model weights and related log information are saved to the path `work_dirs/swift_yolo_tiny_1xb16_300e_coco` by default, and you can use tools such as [TensorBoard](https://www.tensorflow.org/tensorboard/get_started) to monitor for training.
 
 ```sh
-tensorboard --logdir work_dirs/yolov5_tiny_1xb16_300e_coco
+tensorboard --logdir work_dirs/swift_yolo_tiny_1xb16_300e_coco
 ```
 
-After the training is completed, the path of the latest Swfit-YOLO model weights file is saved in the `work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint` file. Please take care of the path of the weight file, as it is needed when converting the model to other formats.
+After the training is completed, the path of the latest Swfit-YOLO model weights file is saved in the `work_dirs/swift_yolo_tiny_1xb16_300e_coco/last_checkpoint` file. Please take care of the path of the weight file, as it is needed when converting the model to other formats.
 
 ::: tip
 
@@ -99,8 +99,8 @@ After have finished training the Swfit-YOLO model, you can specify specific weig
 
 ```sh
 python3 tools/inference.py \
-    configs/yolov5/yolov5_tiny_1xb16_300e_coco.py \
-    "$(cat work_dirs/yolov5_tiny_1xb16_300e_coco/last_checkpoint)" \
+    configs/swift_yolo/swift_yolo_tiny_1xb16_300e_coco.py \
+    "$(cat work_dirs/swift_yolo_tiny_1xb16_300e_coco/last_checkpoint)" \
     --show \
     --cfg-options \
         data_root='datasets/digital_meter'
