@@ -1,6 +1,6 @@
 # Copyrights and Licenses
 
-ModelAssistant is released under the [MIT license](https://github.com/Seeed-Studio/ModelAssistantblob/main/LICENSES).
+SSCMA is released under the [MIT license](https://github.com/Seeed-Studio/SSCMAblob/main/LICENSES).
 
 ```
 MIT License

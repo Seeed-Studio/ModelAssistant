@@ -5,16 +5,16 @@ import zh_CN from './locales/zh_CN'
 
 export default defineConfig({
     base: '/',
-    title: 'ModelAssistant',
+    title: 'SSCMA',
     lastUpdated: true,
     cleanUrls: true,
 
     head: [
         ['link', { rel: 'icon', type: 'image/png', href: '/favicon.png' }],
         ['meta', { property: 'og:type', content: 'website' }],
-        ['meta', { property: 'og:title', content: 'ModelAssistant' }],
+        ['meta', { property: 'og:title', content: 'SSCMA' }],
         ['meta', { property: 'og:image', content: '/og-image.png' }],
-        ['meta', { property: 'og:url', content: 'https://github.com/Seeed-Studio/ModelAssistant' }],
+        ['meta', { property: 'og:url', content: 'https://github.com/Seeed-Studio/SSCMA' }],
         ['meta', { property: 'og:description', content: 'Seeed SenSeCraft Model Assiant is an open-source project focused on embedded AI.' }],
         ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
         ['meta', { name: 'twitter:site', content: '@seeedstudio' }],
@@ -43,7 +43,7 @@ export default defineConfig({
         outline: [2, 3],
 
         socialLinks: [
-            { icon: 'github', link: 'https://github.com/Seeed-Studio/ModelAssistant' }
+            { icon: 'github', link: 'https://github.com/Seeed-Studio/SSCMA' }
         ]
     }
 })

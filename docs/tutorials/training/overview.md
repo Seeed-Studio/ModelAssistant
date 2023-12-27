@@ -1,6 +1,6 @@
 # Model Training
 
-[ModelAssistant(Seeed ModelAssistant)](https://github.com/Seeed-Studio/ModelAssistant) currently supports the following models. You can refer to the corresponding tutorials to complete the training of the models and obtain the model weights.
+[SSCMA(Seeed SSCMA)](https://github.com/Seeed-Studio/SSCMA) currently supports the following models. You can refer to the corresponding tutorials to complete the training of the models and obtain the model weights.
 
 - [FOMO Model](./fomo.md): Face mask detection
 
@@ -21,7 +21,7 @@ For more parameters during model training, you can refer the code below.
 ```sh
 python3 tools/train.py --help
 
-# Train ModelAssistant models
+# Train SSCMA models
 
 # positional arguments:
 #   config                the model config file path

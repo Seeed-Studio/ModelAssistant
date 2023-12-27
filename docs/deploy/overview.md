@@ -1,16 +1,16 @@
 # Model Deployment
 
-ModelAssistant is an open-source project that provides a No-Code visual model deployment tool and a CPP-based SDK. It allows users to easily deploy models to different platforms without writing complex code.
+SSCMA is an open-source project that provides a No-Code visual model deployment tool and a CPP-based SDK. It allows users to easily deploy models to different platforms without writing complex code.
 
 The currently supported platforms include:
-| Device | SenseCraft-Web-Toolkit | ModelAssistant-Micro SDK |
+| Device | SenseCraft-Web-Toolkit | SSCMA-Micro SDK |
 | :--- | :--- | :--- |
 | [Xiao ESP32S3](https://www.seeedstudio.com/XIAO-ESP32S3-Sense-p-5639.html) | ✅ | ✅ |
 | [Grove Vision AI](https://www.seeedstudio.com/Grove-Vision-AI-Module-p-5457.html) | 🔜 | 🔜 |
 
 ## SenseCraft-Web-Toolkit
 
-SenseCraft-Web-Toolkit is a visual model deployment tool provided by ModelAssistant. With this tool, users can easily deploy models to various platforms through simple operations. The tool provides a user-friendly interface and does not require any coding.
+SenseCraft-Web-Toolkit is a visual model deployment tool provided by SSCMA. With this tool, users can easily deploy models to various platforms through simple operations. The tool provides a user-friendly interface and does not require any coding.
 
 The main features of [SenseCraft-Web-Toolkit](https://seeed-studio.github.io/SenseCraft-Web-Toolkit/) include:
 
@@ -21,7 +21,7 @@ The main features of [SenseCraft-Web-Toolkit](https://seeed-studio.github.io/Sen
 Step 1. Open the SenseCraft-Web-Toolkit website
 
 <div align="center">
-  <a href="https://seeed-studio.github.io/SenseCraft-Web-Toolk"><img width="10%" src="/public/images/ModelAssistant-Hero.png"/></a>
+  <a href="https://seeed-studio.github.io/SenseCraft-Web-Toolk"><img width="10%" src="https://files.seeedstudio.com/sscma/docs/images/SSCMA-Hero.png"/></a>
 </div>
 
 Step 2. Connect the device to your computer
@@ -52,11 +52,11 @@ Finally, we come to the preview section. Click the stop button once in the upper
 
 ![step5-2](/static/deploy/step5-2.png)
 
-## ModelAssistant-Micro SDK
+## SSCMA-Micro SDK
 
-ModelAssistant also provides a CPP-based SDK called ModelAssistant-Micro, enabling users to deploy models into their own projects. By integrating ModelAssistant-Micro, users can conveniently use the deployed models in their applications.
+SSCMA also provides a CPP-based SDK called SSCMA-Micro, enabling users to deploy models into their own projects. By integrating SSCMA-Micro, users can conveniently use the deployed models in their applications.
 
-The features of the [ModelAssistant-Micro](https://github.com/Seeed-Studio/ModelAssistant-Micro) SDK include:
+The features of the [SSCMA-Micro](https://github.com/Seeed-Studio/SSCMA-Micro) SDK include:
 
 - CPP-based, suitable for various embedded systems and platforms
 - Provides a simple yet powerful API for model invocation and inference

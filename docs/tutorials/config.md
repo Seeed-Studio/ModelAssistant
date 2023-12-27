@@ -1,10 +1,10 @@
 # Model Configuration
 
-[ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) uses the configuration processing system provided by [OpenMMLab - MMEngine](https://github.com/open-mmlab/mmengine) with a modular and inheritable design that provides users a unified configuration access interface for various tests and validations of different neural networks.
+[SSCMA](https://github.com/Seeed-Studio/SSCMA) uses the configuration processing system provided by [OpenMMLab - MMEngine](https://github.com/open-mmlab/mmengine) with a modular and inheritable design that provides users a unified configuration access interface for various tests and validations of different neural networks.
 
 ## Directory Structure
 
-The configuration files used by [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant) are located in the `configs` directory, which are used for training different models under different tasks. And we have created many subfolders according to different tasks, and in each subfolder, different training pipeline parameters of multiple models are stored.
+The configuration files used by [SSCMA](https://github.com/Seeed-Studio/SSCMA) are located in the `configs` directory, which are used for training different models under different tasks. And we have created many subfolders according to different tasks, and in each subfolder, different training pipeline parameters of multiple models are stored.
 
 ::: code-group
 
@@ -231,7 +231,7 @@ work_dir = './work_dirs'              # Directory to save the model checkpoints 
 
 ## Parameterized Configuration
 
-When submitting a job using `tools/train.py` or `tools/test.py` from [ModelAssistant](https://github.com/Seeed-Studio/ModelAssistant), you can specify `--cfg-options` to temporarily overwrite the configuration.
+When submitting a job using `tools/train.py` or `tools/test.py` from [SSCMA](https://github.com/Seeed-Studio/SSCMA), you can specify `--cfg-options` to temporarily overwrite the configuration.
 
 ::: tip
 

@@ -2,20 +2,20 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
     lang: 'en-US',
-    description: 'ModelAssistant is an open-source project focused on embedded AI.',
+    description: 'SSCMA is an open-source project focused on embedded AI.',
 
     themeConfig: {
         nav: nav(),
         sidebar: { '/': sidebar() },
 
         editLink: {
-            pattern: 'https://github.com/Seeed-Studio/ModelAssistantedit/main/docs/:path',
+            pattern: 'https://github.com/Seeed-Studio/SSCMAedit/main/docs/:path',
             text: 'Suggest changes to this page'
         },
 
         footer: {
             message: 'Released under the MIT License',
-            copyright: 'Copyright © 2023-Present Seeed Studio & ModelAssistant Contributors',
+            copyright: 'Copyright © 2023-Present Seeed Studio & SSCMA Contributors',
         }
     }
 })
@@ -23,7 +23,7 @@ export default defineConfig({
 function nav() {
     return [
         { text: 'Home', link: '/' },
-        { text: 'Documentation', link: '/introduction/what_is_sscma' }
+        { text: 'Documentation', link: '/introduction/overview' }
     ]
 }
 
@@ -33,7 +33,7 @@ function sidebar() {
             text: 'Introduction',
             collapsed: false,
             items: [
-                { text: 'What is ModelAssistant?', link: '/introduction/what_is_sscma' },
+                { text: 'What is SSCMA?', link: '/introduction/overview' },
                 { text: 'Quick Start', link: '/introduction/quick_start' },
                 { text: 'Installation', link: '/introduction/installation' }
             ]
