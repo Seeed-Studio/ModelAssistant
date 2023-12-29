@@ -20,7 +20,7 @@ Miniconda 是 conda 的免费最小安装程序，您可以从[Miniconda 官方�
 
 首先，您需要将 [SSCMA 源代码](https://github.com/Seeed-Studio/ModelAssistant) 克隆到本地。我们使用 Git 来管理和托管它在 GitHub 上，并提供了以下两种不同的克隆方式（选择其中一种）。如果您没有安装 Git，可以参考 [Git 文档](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) 在您的计算机上配置 Git。
 
-::: code-group
+:::code-group
 
 ```sh [HTTPS]
 git clone https://github.com/Seeed-Studio/ModelAssistant.git --depth 1 && \
@@ -28,7 +28,7 @@ cd SSCMA
 ```
 
 ```sh [SSH]
-git clone git@github.com:Seeed-Studio/SSCMA.git --depth 1 && \
+git clone git@github.com:Seeed-Studio/ModelAssistant.git --depth 1 && \
 cd SSCMA
 ```
 
@@ -51,7 +51,7 @@ conda activate sscma
 
 - 仅 CPU 平台：
 
-  ::: code-group
+  :::code-group
 
   ```sh [conda]
   conda install pytorch torchvision torchaudio cpuonly -c pytorch
@@ -65,7 +65,7 @@ conda activate sscma
 
 - GPU（CUDA）平台：
 
-  ::: code-group
+  :::code-group
 
   ```sh [conda]
   conda install pytorch torchvision torchaudio pytorch-cuda=11.7 cudatoolkit=11.7 -c pytorch -c nvidia
@@ -77,7 +77,7 @@ conda activate sscma
 
   :::
 
-::: tip
+:::tip
 如果您的平台尚未安装 NVIDIA GPU 的 CUDA，请在[NVIDIA CUDA 工具包存档网站](https://developer.nvidia.com/cuda-toolkit-archive)上找到 CUDA 安装程序，我们建议在主机环境中使用 CUDA 11.7 或更高版本。有关在其他平台上安装 PyTorch 的方法，请阅读 [PyTorch 官方网站](https://pytorch.org/get-started/locally/) 的更多信息。
 :::
 
@@ -118,7 +118,7 @@ bash scripts/setup_linux.sh
 
 或者您可以手动使用 Conda 的配置文件进行配置。
 
-::: code-group
+:::code-group
 
 ```sh [仅 CPU]
 conda env create -n sscma -f environment.yml && \

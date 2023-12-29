@@ -22,7 +22,7 @@ After completed the ESP-IDF installation, please double-check [IDF Environment C
 
 - Make sure that tools like `idf.py` and Xtensa-ESP32 (e.g. `xtensa-esp32-elf-gcc`) are included in `$PATH`.
 
-::: tip
+:::tip
 
 We do not recommend that you configure ESP-IDF in a virtual environment, you can use the following command to exit a virtual environment (use the command multiple times to exit nested virtual environments).
 
@@ -46,9 +46,9 @@ git submodule update && \
 popd
 ```
 
-::: warning
+:::warning
 
-You need to complete the installation and configuration of SSCMA first. If you have not installed SSCMA yet, you can refer to [SSCMA Installation Guide](../../introduction/installation.md).
+You need to complete the installation and configuration of SSCMA first. If you have not installed SSCMA yet, you can refer to [SSCMA Installation Guide](../../introduction/installation).
 
 :::
 
@@ -58,11 +58,11 @@ Before you start compiling and deploying, you need to prepare the models that ne
 
 To help you understand the process in a more organized way, we have written complete documentation for different application scenarios.
 
-- [**ESP32 Mask Detection**](./mask_detection.md)
+- [**ESP32 Mask Detection**](./mask_detection)
 
-- [**ESP32 Meter Reader**](./meter_reader.md)
+- [**ESP32 Meter Reader**](./meter_reader)
 
-::: warning
+:::warning
 
 Before [Compile and Deploy](#compile-and-deploy), you need to prepare the appropriate model.
 
@@ -111,7 +111,7 @@ idf.py --port <TARGET_SERIAL_PORT> flash
 idf.py --port <TARGET_SERIAL_PORT> monitor
 ```
 
-::: tip
+:::tip
 
 The two commands to flash the firmware and monitor the serial port can be combined.
 
@@ -132,7 +132,7 @@ The performance of [SSCMA](https://github.com/Seeed-Studio/ModelAssistant)  rela
 | ESP32-S3 | Meter | [Custom Meter](https://files.seeedstudio.com/sscma/datasets/meter.zip) | 112x112 (RGB) | 320KB | 380ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/ModelAssistant/releases/tag/model_zoo) |
 | ESP32-S3 | Fomo | [COCO MASK](https://files.seeedstudio.com/sscma/datasets/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/ModelAssistant/releases/tag/model_zoo) |
 
-::: tip
+:::tip
 For more models go to [SSCMA Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
 :::
 
@@ -148,7 +148,7 @@ For more models go to [SSCMA Model Zoo](https://github.com/Seeed-Studio/sscma-mo
 
 ## Licensing
 
-These examples are released under the [MIT License](../../community/licenses.md).
+These examples are released under the [MIT License](../../community/licenses).
 
 These examples use ESP-IDF, which is released under the [Apache 2.0 License](https://github.com/espressif/esp-idf/blob/master/LICENSE).
 

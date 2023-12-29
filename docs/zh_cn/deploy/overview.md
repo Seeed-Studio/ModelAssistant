@@ -3,6 +3,7 @@
 SSCMA是一个提供No-Code可视化模型部署工具和基于CPP的SDK的开源项目。它使用户能够轻松地将模型部署到不同的平台上，无需编写复杂的代码。
 
 目前支持的平台包括：
+
 | 设备 | SenseCraft-Web-Toolkit | SSCMA-Micro SDK |
 | :--- | :--- | :--- |
 | [Xiao ESP32S3](https://www.seeedstudio.com/XIAO-ESP32S3-Sense-p-5639.html) | ✅ | ✅ |
@@ -62,17 +63,17 @@ SSCMA还提供了基于CPP的SDK，名为SSCMA-Micro，使用户能够将模型�
 - 提供简单而强大的API，方便用户进行模型调用和推理
 - 支持TFLite格式的模型
 
-## [Grove AI](./grove/deploy.md)
+## [Grove AI](./grove/deploy)
 
-- [mask_detection](./grove/mask_detection.md)： 面罩检测
-- [meter_reading](./grove/meter_reader.md)： 指针式仪表读数
-- [digital_meter](./grove/digital_meter.md)： 数字式仪表读数
+- [mask_detection](./grove/mask_detection)： 面罩检测
+- [meter_reading](./grove/meter_reader)： 指针式仪表读数
+- [digital_meter](./grove/digital_meter)： 数字式仪表读数
 
-## [ESP32](./esp32/deploy.md)
+## [ESP32](./esp32/deploy)
 
-- [mask_detection](./esp32/mask_detection.md)： 面罩检测
-- [meter_reading](./esp32/meter_reader.md)： 指针式仪表读数
+- [mask_detection](./esp32/mask_detection)： 面罩检测
+- [meter_reading](./esp32/meter_reader)： 指针式仪表读数
 
-::: tip
+:::tip
 更多的例子即将到来，敬请期待。
 :::

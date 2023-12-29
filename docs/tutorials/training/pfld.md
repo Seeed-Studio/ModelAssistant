@@ -4,21 +4,21 @@ This section describes how to train the PFLD model on the PFLD meter dataset. Th
 
 ## Prepare Datasets
 
-SSCMA uses [Custom Meter Datasets](../datasets.md#SSCMA) by default to train the PFLD model, please refer to the following steps to complete the preparation of datasets.
+SSCMA uses [Custom Meter Datasets](../datasets#SSCMA) by default to train the PFLD model, please refer to the following steps to complete the preparation of datasets.
 
-1. Please refer to [Internet Datasets - SSCMA - Custom Meter Dataset](../datasets.md#SSCMA) to download and unpack the dataset.
+1. Please refer to [Internet Datasets - SSCMA - Custom Meter Dataset](../datasets#SSCMA) to download and unpack the dataset.
 
 2. Remember its **folder path** (e.g. `datasets\meter`) of the unpacked datasets, you may need to use this folder path later.
 
 ## Choose a Configuration
 
-We will choose a appropriate configuration file depending on the type of training task we need to perform, which we have already introduced in [Config](../config.md), for a brief description of the functions, structure, and principles of the configuration file.
+We will choose a appropriate configuration file depending on the type of training task we need to perform, which we have already introduced in [Config](../config), for a brief description of the functions, structure, and principles of the configuration file.
 
 For the meter PFLD model example, we use `pfld_mbv2n_112.py` as the configuration file, which is located in the folder under the SSCMA root directory `configs/pfld` and its additionally inherits the `default_runtime_pose.py` configuration file.
 
 For beginners, we recommend to pay attention to the `data_root` and `epochs` parameters in this configuration file at first.
 
-::: details `pfld_mbv2n_112.py`
+:::details `pfld_mbv2n_112.py`
 
 ```python
 _base_='../_base_/default_runtime_pose.py'
@@ -114,7 +114,7 @@ param_scheduler=[
 
 ## Training Model
 
-Training the model requires using our previously configured SSCMA working environment, if you follow our [Installation](../../introduction/installation.md) guide using Conda to install SSCMA in a virtual environment named `sscma`, please first make sure that you are currently in the virtual environment.
+Training the model requires using our previously configured SSCMA working environment, if you follow our [Installation](../../introduction/installation) guide using Conda to install SSCMA in a virtual environment named `sscma`, please first make sure that you are currently in the virtual environment.
 
 Then, in the SSCMA project root directory, we execute the following command to train an end-to-end meter PFLD model.
 
@@ -134,7 +134,7 @@ tensorboard --logdir work_dirs/pfld_mbv2n_112
 
 After the training is completed, the path of the latest FOMO model weights file is saved in the `work_dirs/pfld_mbv2n_112/last_checkpoint` file. Please take care of the path of the weight file, as it is needed when converting the model to other formats.
 
-::: tip
+:::tip
 
 If you have a virtual environment configured but not activated, you can activate it with the following command.
 
@@ -158,7 +158,7 @@ python3 tools/inference.py \
         data_root='datasets/meter'
 ```
 
-::: tip
+:::tip
 
 If you want a real-time preview while testing, you can append a parameter `--show` to the test command to show the predicted results. For more optional parameters, please refer to the source code `tools/test.py`.
 
@@ -170,4 +170,4 @@ In order to further test and evaluate the model on a realistic edge computing de
 
 ### Deployment
 
-After exporting the model, you can deploy the model to the edge computing device for testing and evaluation. You can refer to the [Deploy](./../../deploy/overview.md) section to learn more about how to deploy models.
+After exporting the model, you can deploy the model to the edge computing device for testing and evaluation. You can refer to the [Deploy](./../../deploy/overview) section to learn more about how to deploy models.

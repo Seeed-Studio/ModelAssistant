@@ -12,13 +12,13 @@
 
 ## 选择一个配置
 
-我们将根据我们需要执行的训练任务的类型选择一个合适的配置文件，我们已经在[Config](../config.md)中介绍了配置文件的功能、结构和原理。
+我们将根据我们需要执行的训练任务的类型选择一个合适的配置文件，我们已经在[Config](../config)中介绍了配置文件的功能、结构和原理。
 
 对于 Swfit-YOLO 模型的例子，我们使用 `swift_yolo_tiny_1xb16_300e_coco.py` 作为配置文件，它位于[SSCMA](https://github.com/Seeed-Studio/ModelAssistant)根目录 `configs/swift_yolo` 下的文件夹中，其另外继承了 `base_arch.py` 配置文件。
 
 对于初学者，我们建议首先注意这个配置文件中的 `data_root` 和 `epochs` 参数。
 
-::: details `swift_yolo_tiny_1xb16_300e_coco.py`
+:::details `swift_yolo_tiny_1xb16_300e_coco.py`
 
 ```python
 _base_='../_base_/default_runtime_det.py'
@@ -61,7 +61,7 @@ model = dict(
 
 ## 训练模型
 
-训练模型需要使用我们之前配置的 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 工作环境，如果你按照我们的[安装](../../introduction/installation.md)指南使用 Conda 将 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 安装在一个名为 `sscma` 的虚拟环境中，请首先确保你当前处于虚拟环境。
+训练模型需要使用我们之前配置的 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 工作环境，如果你按照我们的[安装](../../introduction/installation)指南使用 Conda 将 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 安装在一个名为 `sscma` 的虚拟环境中，请首先确保你当前处于虚拟环境。
 
 然后，在 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant)  项目根目录下，我们执行以下命令来训练一个 Swfit-YOLO 数字仪表检测模型。
 
@@ -118,4 +118,4 @@ python3 tools/inference.py \
 
 ### 部署
 
-在导出模型后，你可以将模型部署到边缘计算设备上进行测试和评估。你可以参考 [Deploy](./../../deploy/overview.md) 部分来了解更多关于如何部署模型的信息。
+在导出模型后，你可以将模型部署到边缘计算设备上进行测试和评估。你可以参考 [Deploy](./../../deploy/overview) 部分来了解更多关于如何部署模型的信息。

@@ -1,5 +1,5 @@
 <div align="center">
-  <img width="20%" src="https://files.seeedstudio.com/sscma/docs/images/SSCMA-Hero.png">
+  <img width="20%" src="https://files.seeedstudio.com/sscma/docs/images/SSCMA-Hero.png"/>
 </div>
 
 # 项目简介
@@ -35,3 +35,19 @@ Seeed SenseCraft Model Assistant (SSCMA)  是一个专注于嵌入式人工智�
 ### 🗂️ 支持多种模型导出格式
 
 [TensorFlow Lite](https://www.tensorflow.org/lite) 主要用于微控制器，而 [ONNX](https://onnx.ai) 主要用于嵌入式Linux设备。还有一些特殊格式，如 [TensorRT](https://developer.nvidia.com/tensorrt)、[OpenVINO](https://docs.openvino.ai)，这些格式已经得到OpenMMLab的良好支持。[SSCMA](https://github.com/Seeed-Studio/ModelAssistant)添加了用于微控制器的TFLite模型导出功能，可以直接转换为 [TensorRT](https://developer.nvidia.com/tensorrt) 格式。
+
+## 应用示例
+
+### 目标检测
+
+<div align="center"><img width="800" src="https://files.seeedstudio.com/sscma/docs/static/esp32/images/person_detection.png"/></div>
+
+### 指针表计
+
+<div align="center"><img width="800" src="https://files.seeedstudio.com/sscma/docs/static/grove/images/pfld_meter.gif"/></div>
+
+### 数字表计
+
+<div align="center"><img width="800" src="https://files.seeedstudio.com/sscma/docs/static/grove/images/digital_meter.gif"/></div>
+
+More application examples can be found in [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)。

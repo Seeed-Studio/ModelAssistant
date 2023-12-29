@@ -33,6 +33,7 @@
 :::
 
 你可以在 Roboflow 上找到一些 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 的数据集，如下所示:
+
 | Dataset | Description |
 | -- | -- |
 | [Digital Meter Water](https://universe.roboflow.com/seeed-studio-dbk14/digital-meter-water/dataset/1) | Digital Meter Water Dataset |

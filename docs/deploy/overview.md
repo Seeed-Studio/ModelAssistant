@@ -3,6 +3,7 @@
 SSCMA is an open-source project that provides a No-Code visual model deployment tool and a CPP-based SDK. It allows users to easily deploy models to different platforms without writing complex code.
 
 The currently supported platforms include:
+
 | Device | SenseCraft-Web-Toolkit | SSCMA-Micro SDK |
 | :--- | :--- | :--- |
 | [Xiao ESP32S3](https://www.seeedstudio.com/XIAO-ESP32S3-Sense-p-5639.html) | ✅ | ✅ |
@@ -62,17 +63,17 @@ The features of the [SSCMA-Micro](https://github.com/Seeed-Studio/SSCMA-Micro) S
 - Provides a simple yet powerful API for model invocation and inference
 - Support for TFLite models
 
-### [Grove AI](./grove/deploy.md)
+### [Grove AI](./grove/deploy)
 
-- [mask_detection](./grove/mask_detection.md): Face mask detection
-- [meter_reading](./grove/meter_reader.md): Pointer meter reading
-- [digital_meter](./grove/digital_meter.md): Digital meter reading
+- [mask_detection](./grove/mask_detection): Face mask detection
+- [meter_reading](./grove/meter_reader): Pointer meter reading
+- [digital_meter](./grove/digital_meter): Digital meter reading
 
-### [ESP32](./esp32/deploy.md)
+### [ESP32](./esp32/deploy)
 
-- [mask_detection](./esp32/mask_detection.md): Face mask detection
-- [meter_reading](./esp32/meter_reader.md): Pointer meter reading
+- [mask_detection](./esp32/mask_detection): Face mask detection
+- [meter_reading](./esp32/meter_reader): Pointer meter reading
 
-::: tip
+:::tip
 More examples are coming soon, stay tuned.
 :::
