@@ -2,15 +2,15 @@
 
 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 目前支持以下模型导出方式，您可以参考对应的教程，完成模型的导出，然后将导出的模型投入部署。
 
-::: tip
+:::tip
 默认情况下，会同时导出 ONNX 和 TFLite 模型，如果您只需要导出其中一个，可以使用 `--targets` 参数指定导出的模型类型，例如 `--targets onnx` 或 `--targets tflite`。
 :::
 
-- [PyTorch 转 ONNX](./pytorch_2_onnx.md): 将 PyTorch 模型和 `.pth` 权重转换为 ONNX 模型 `.onnx`
+- [PyTorch 转 ONNX](./pytorch_2_onnx): 将 PyTorch 模型和 `.pth` 权重转换为 ONNX 模型 `.onnx`
 
-- [PyTorch 转 TFLite](./pytorch_2_tflite.md): 将 PyTorch 模型和 `.pth` 权重转换为 TFLite 模型 `.tflite`
+- [PyTorch 转 TFLite](./pytorch_2_tflite): 将 PyTorch 模型和 `.pth` 权重转换为 TFLite 模型 `.tflite`
 
-::: tip
+:::tip
 
 在开始导出前，您需要先完成[模型训练](../training/overview)部分内容并获得 `.pth` 模型权重。
 

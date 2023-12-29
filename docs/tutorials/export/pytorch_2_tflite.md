@@ -6,9 +6,9 @@ This chapter will describe how to convert and export PyTorch models to TFLite mo
 
 ### Environment Configuration
 
-As the [Training](../training/overview.md) step, we recommend you to do it in a **virtual environment** during the model exporting phase. In the `sscma` virtual environment, make sure that the [Installation - Prerequisites - Install Extra Dependencies](../../introduction/installation#step-4-install-extra-dependencies-optional) step has been completed.
+As the [Training](../training/overview) step, we recommend you to do it in a **virtual environment** during the model exporting phase. In the `sscma` virtual environment, make sure that the [Installation - Prerequisites - Install Extra Dependencies](../../introduction/installation#step-4-install-extra-dependencies-optional) step has been completed.
 
-::: tip
+:::tip
 
 If you have configured a virtual environment but not activated it, you can activate it with the following command.
 
@@ -20,13 +20,13 @@ conda activate sscma
 
 ### Models and Weights
 
-You also need to prepare the PyTorch model and its weights before exporting the model. For the model, you can find it in the [Config](../config.md) section, we have already preconfigured. For the weights, you can refer to the following steps to get the model weights.
+You also need to prepare the PyTorch model and its weights before exporting the model. For the model, you can find it in the [Config](../config) section, we have already preconfigured. For the weights, you can refer to the following steps to get the model weights.
 
-- Refer to [Training](../training/overview.md) section and choose a model, and train to get the model weights.
+- Refer to [Training](../training/overview) section and choose a model, and train to get the model weights.
 
 - Or download the [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) official pre-trained weights from our [GitHub Releases - Model Zoo](https://github.com/Seeed-Studio/ModelAssistantreleases/tag/model_zoo).
 
-::: tip
+:::tip
 
 Export TFLite model requires a training set as a representative dataset, if it not found, the program will download it automatically. However, for some large datasets, this can take a long time, so please be patient.
 
@@ -47,7 +47,7 @@ python3 tools/export.py \
 
 Here are some model conversion examples (`int8` precision) for reference.
 
-::: code-group
+:::code-group
 
 ```sh [FOMO Model Conversion]
 python3 tools/export.py \
@@ -91,7 +91,7 @@ python3 tools/inference.py \
     --cfg-options "<CFG_OPTIONS>"
 ```
 
-::: tip
+:::tip
 
 For more parameters supported, please refer to the source code `tools/inference.py` or run `python3 tools/inference.py --help`.
 
@@ -101,7 +101,7 @@ For more parameters supported, please refer to the source code `tools/inference.
 
 Here are some examples for validating converted model (`int8` precision), for reference only.
 
-::: code-group
+:::code-group
 
 ```sh [FOMO Model Validation]
 python3 tools/inference.py \

@@ -1,5 +1,5 @@
 <div align="center">
-  <img width="20%" src="https://files.seeedstudio.com/sscma/docs/images/SSCMA-Hero.png">
+  <img width="20%" src="https://files.seeedstudio.com/sscma/docs/images/SSCMA-Hero.png"/>
 </div>
 
 ## Introduction
@@ -40,14 +40,14 @@ SSCMA focuses on end-side AI algorithm research, and the algorithm models can be
 
 ### Object Detection
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/sscma/docs/static/esp32/images/person_detection.png"/></div>
+<div align="center"><img width="800" src="https://files.seeedstudio.com/sscma/docs/static/esp32/images/person_detection.png"/></div>
 
 ### Pointer Meter Recognition
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/sscma/docs/static/grove/images/pfld_meter.gif"/></div>
+<div align="center"><img width="800" src="https://files.seeedstudio.com/sscma/docs/static/grove/images/pfld_meter.gif"/></div>
 
 ### Digital Meter Recognition
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/sscma/docs/static/grove/images/digital_meter.gif"/></div>
+<div align="center"><img width="800" src="https://files.seeedstudio.com/sscma/docs/static/grove/images/digital_meter.gif"/></div>
 
 More application examples can be found in [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)。

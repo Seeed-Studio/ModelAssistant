@@ -6,21 +6,21 @@
 
 ## 准备数据集
 
-[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 默认使用 [COCO_MASK 数据集](../datasets.md#SSCMA)训练 FOMO 模型，请参照以下步骤完成数据集的准备。
+[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 默认使用 [COCO_MASK 数据集](../datasets#SSCMA)训练 FOMO 模型，请参照以下步骤完成数据集的准备。
 
-1. 参考[互联网数据集 - SSCMA - COCO_MASK 数据集](../datasets.md#SSCMA)下载数据集并完成数据集的解压。
+1. 参考[互联网数据集 - SSCMA - COCO_MASK 数据集](../datasets#SSCMA)下载数据集并完成数据集的解压。
 
 2. 记住数据集解压后的**文件夹路径** (如: `datasets\mask`)，在之后修改配置文件时需要使用该文件夹路径。
 
 ## 选择配置文件
 
-我们将根据需要执行的训练任务类型来选择合适的配置文件，我们已经在[模型配置](../config.md)中对配置文件的功能、结构、原理进行了简单介绍。
+我们将根据需要执行的训练任务类型来选择合适的配置文件，我们已经在[模型配置](../config)中对配置文件的功能、结构、原理进行了简单介绍。
 
 对于 FOMO 模型示例，我们使用 `fomo_mobnetv2_0.35_x8_abl_coco.py` 作为配置文件，它位于 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 主目录路径 `configs/fomo` 下的文件夹中，并额外继承了 `default_runtime_det.py` 配置文件。
 
 配置文件内容如下，对于初学者，我们建议首先注意该配置文件中 `data_root` 和 `epochs` 这两个参数。
 
-::: details `fomo_mobnetv2_0.35_x8_abl_coco.py`
+:::details `fomo_mobnetv2_0.35_x8_abl_coco.py`
 
 ```python
 _base_='../_base_/default_runtime_det.py'
@@ -119,7 +119,7 @@ param_scheduler=[
 
 ## 训练模型
 
-训练模型需要使用我们之前配置好的 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant)  工作环境，如果您按照我们的[安装指南](../../introduction/installation.md)使用 Conda 将 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant)  安装在了名为 `sscma` 的虚拟环境中，请首先确保您目前正处在虚拟环境中。
+训练模型需要使用我们之前配置好的 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant)  工作环境，如果您按照我们的[安装指南](../../introduction/installation)使用 Conda 将 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant)  安装在了名为 `sscma` 的虚拟环境中，请首先确保您目前正处在虚拟环境中。
 
 然后，在 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant)  项目根目录，我们执行如下的指令，训练一个 FOMO 口罩识别模型。
 
@@ -139,7 +139,7 @@ tensorboard --logdir work_dirs/fomo_mobnetv2_0.35_x8_abl_coco
 
 在训练完成后，最新的 FOMO 模型权重文件的路径会保存在 `work_dirs/fomo_mobnetv2_0.35_x8_abl_coco/last_checkpoint` 文件中。请留意权重文件路径，在将模型转换为其他格式时需要用到。
 
-::: tip
+:::tip
 
 如果您配置了虚拟环境但并未激活，您可以使用以下命令激活虚拟环境:
 
@@ -163,7 +163,7 @@ python3 tools/inference.py \
         data_root='datasets/mask'
 ```
 
-::: tip
+:::tip
 
 如果您在测试时希望实时的可视化预览，您可以在测试命令后追加一个参数 `--show` 来显示预测结果。对于更多可选的参数，请参考源代码 `tools/test.py`。
 
@@ -175,4 +175,4 @@ python3 tools/inference.py \
 
 ### 部署
 
-在导出模型后，你可以将模型部署到边缘计算设备上进行测试和评估。你可以参考 [Deploy](./../../deploy/overview.md) 部分来了解更多关于如何部署模型的信息。
+在导出模型后，你可以将模型部署到边缘计算设备上进行测试和评估。你可以参考 [Deploy](./../../deploy/overview) 部分来了解更多关于如何部署模型的信息。

@@ -20,7 +20,7 @@ Miniconda is a free minimal installer for conda, you can download and install Mi
 
 First, you need to clone the [SSCMA Source Code](https://github.com/Seeed-Studio/ModelAssistant) locally. We use Git to manage and host it on GitHub, and provide two different ways to clone it below (choose either one). If you don't have Git installed, you can configure Git on your computer by referring to the [Git Documentation](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
 
-::: code-group
+:::code-group
 
 ```sh [HTTPS]
 git clone https://github.com/Seeed-Studio/ModelAssistant.git --depth 1 && \
@@ -28,7 +28,7 @@ cd SSCMA
 ```
 
 ```sh [SSH]
-git clone git@github.com:Seeed-Studio/SSCMA.git --depth 1 && \
+git clone git@github.com:Seeed-Studio/ModelAssistant.git --depth 1 && \
 cd SSCMA
 ```
 
@@ -51,7 +51,7 @@ For devices with GPUs (CUDA), we recommend installing dependencies that support 
 
 - CPU-Only platform:
 
-  ::: code-group
+  :::code-group
 
   ```sh [conda]
   conda install pytorch torchvision torchaudio cpuonly -c pytorch
@@ -65,7 +65,7 @@ For devices with GPUs (CUDA), we recommend installing dependencies that support 
 
 - GPUs (CUDA) platform:
 
-  ::: code-group
+  :::code-group
 
   ```sh [conda]
   conda install pytorch torchvision torchaudio pytorch-cuda=11.7 cudatoolkit=11.7 -c pytorch -c nvidia
@@ -77,7 +77,7 @@ For devices with GPUs (CUDA), we recommend installing dependencies that support 
 
   :::
 
-::: tip
+:::tip
 You can find CUDA installers on [NVIDIA CUDA Toolkit Archive Website](https://developer.nvidia.com/cuda-toolkit-archive) if your platform have not CUDA installed for NVIDIA GPUs, we recommend to use CUDA 11.7 or above on your host environment. For installing PyTorch on other platforms, please read more on [PyTorch Official Website](https://pytorch.org/get-started/locally/).
 :::
 
@@ -118,7 +118,7 @@ bash scripts/setup_linux.sh
 
 Or you can do the configuration manually using Conda's configuration file.
 
-::: code-group
+:::code-group
 
 ```sh [CPU]
 conda env create -n sscma -f environment.yml && \

@@ -67,7 +67,7 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
 
 12. This creates a `.tflite` file in the `out` directory.
 
-::: tip
+:::tip
 
 If you have extra packages that you want to install within the container, add them to `requirements.txt` and rebuild the container.
 
