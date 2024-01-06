@@ -1,8 +1,8 @@
 # SenseCraft Model Assistant by Seeed Studio
 
 <div align="center">
-  <img width="20%" src="docs/public/images/SSCMA-Hero.png">
-  <h3><a href="https://sensecraftma.seeed.cc">文档</a> | <a href="https://github.com/Seeed-Studio/ModelAssistant-model-zoo">模型仓库</a></h3>
+  <img width="20%" src="docs/public/images/SSCMA-Hero.png"/>
+  <h3><a href="https://sensecraftma.seeed.cc">文档</a> | <a href="https://github.com/Seeed-Studio/sscma-model-zoo">模型仓库</a></h3>
 </div>
 
 英文 | [简体中文](README_zh-CN.md)
@@ -55,23 +55,23 @@ SenseCraft 模型助手专注于边缘端人工智能算法研究，算法模型
 
 <div align=center><img width=800 src="https://files.seeedstudio.com/sscma/docs/static/grove/images/digital_meter.gif"/></div>
 
-更多应用示例请参考 [模型仓库](https://github.com/Seeed-Studio/ModelAssistant-model-zoo)。
+更多应用示例请参考 [模型仓库](https://github.com/Seeed-Studio/sscma-model-zoo)。
 
 ## 应用示例
 
 ### 目标检测
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/sscma/docs/static/esp32/images/person_detection.png"/></div>
+<div align="center"><img width="800" src="https://files.seeedstudio.com/sscma/docs/static/esp32/images/person_detection.png"/></div>
 
 ### 模拟仪器识别
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/sscma/docs/static/grove/images/pfld_meter.gif"/></div>
+<div align="center"><img width="800" src="https://files.seeedstudio.com/sscma/docs/static/grove/images/pfld_meter.gif"/></div>
 
 ### 传统数字仪表识别
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/sscma/docs/static/grove/images/digital_meter.gif"/></div>
+<div align="center"><img width="800" src="https://files.seeedstudio.com/sscma/docs/static/grove/images/digital_meter.gif"/></div>
 
-更多应用示例请参考 [模型仓库](https://github.com/Seeed-Studio/ModelAssistant-model-zoo)。
+更多应用示例请参考 [模型仓库](https://github.com/Seeed-Studio/sscma-model-zoo)。
 
 ## 致谢
 

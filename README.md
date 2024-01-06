@@ -1,8 +1,8 @@
 # SenseCraft Model Assistant by Seeed Studio
 
 <div align="center">
-  <img width="20%" src="docs/public/images/SSCMA-Hero.png">
-  <h3> <a href="https://sensecraftma.seeed.cc"> Documentation </a> | <a href="https://github.com/Seeed-Studio/ModelAssistant-model-zoo"> Model Zoo </a>  </h3>
+  <img width="20%" src="docs/public/images/SSCMA-Hero.png"/>
+  <h3> <a href="https://sensecraftma.seeed.cc"> Documentation </a> | <a href="https://github.com/Seeed-Studio/sscma-model-zoo"> Model Zoo </a>  </h3>
 </div>
 
 English | [简体中文](README_zh-CN.md)
@@ -45,17 +45,17 @@ SSCMA focuses on end-side AI algorithm research, and the algorithm models can be
 
 ### Object Detection
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/sscma/docs/static/esp32/images/person_detection.png"/></div>
+<div align="center"><img width="800" src="https://files.seeedstudio.com/sscma/docs/static/esp32/images/person_detection.png"/></div>
 
 ### Pointer Meter Recognition
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/sscma/docs/static/grove/images/pfld_meter.gif"/></div>
+<div align="center"><img width="800" src="https://files.seeedstudio.com/sscma/docs/static/grove/images/pfld_meter.gif"/></div>
 
 ### Digital Meter Recognition
 
-<div align=center><img width=800 src="https://files.seeedstudio.com/sscma/docs/static/grove/images/digital_meter.gif"/></div>
+<div align="center"><img width="800" src="https://files.seeedstudio.com/sscma/docs/static/grove/images/digital_meter.gif"/></div>
 
-More application examples can be found in [Model Zoo](https://github.com/Seeed-Studio/ModelAssistant-model-zoo)。
+More application examples can be found in [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
 
 ## Acknowledgement
 
