@@ -10,7 +10,7 @@ We suggest that all beginners of [SSCMA](https://github.com/Seeed-Studio/ModelAs
 
 ### Model Deployment
 
-If you want to deploy the model on the device, please refer to the section [Deploy](../../deploy/overview) to learn how to deploy the model.
+If you want to deploy the model on the device, please refer to the section [Deploy](../deploy/overview) to learn how to deploy the model.
 
 ### Model Training
 

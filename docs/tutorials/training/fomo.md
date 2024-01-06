@@ -175,4 +175,4 @@ In order to further test and evaluate the model on a realistic edge computing de
 
 ### Deployment
 
-After exporting the model, you can deploy the model to the edge computing device for testing and evaluation. You can refer to the [Deploy](./../../deploy/overview) section to learn more about how to deploy models.
+After exporting the model, you can deploy the model to the edge computing device for testing and evaluation. You can refer to the [Deploy](../../deploy/overview) section to learn more about how to deploy models.
