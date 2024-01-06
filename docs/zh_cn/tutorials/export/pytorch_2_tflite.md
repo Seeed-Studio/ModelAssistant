@@ -24,7 +24,7 @@ conda activate sscma
 
 - 参考[模型训练](../training/overview)部分文档，选择一个模型自行训练得到模型权重。
 
-- 或在我们的 [GitHub Releases - Model Zoo](https://github.com/Seeed-Studio/ModelAssistantreleases/tag/model_zoo) 中下载官方预训练的权重。
+- 或在我们的 [GitHub Releases - Model Zoo](https://github.com/Seeed-Studio/ModelAssistant/releases/tag/model_zoo) 中下载官方预训练的权重。
 
 :::tip
 
