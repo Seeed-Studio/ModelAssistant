@@ -149,7 +149,7 @@ class CustomCocoDataset(CocoDataset):
         self.cat_ids = self.coco.get_cat_ids(
             cat_names=self.metainfo['classes']
             if len(self.metainfo['classes'])
-            else [cat['name'] for cat in self.coco.dataset['categories'] if (cat['supercategory'] != "none")],
+            else [cat['name'] for cat in self.coco.dataset['categories']],
             sup_names=[
                 cat['supercategory'] for cat in self.coco.dataset['categories'] if (cat['supercategory'] != "none")
             ],
