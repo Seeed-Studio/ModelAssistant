@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: "pip"
     directory: "requirements/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     target-branch: "dev"
     labels:
       - "pip dependencies"
@@ -11,7 +11,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     target-branch: "dev"
     labels:
       - "npm dependencies"
