@@ -9,7 +9,7 @@ export default defineConfig({
         sidebar: { '/': sidebar() },
 
         editLink: {
-            pattern: 'https://github.com/Seeed-Studio/SSCMA/edit/main/docs/:path',
+            pattern: 'https://github.com/Seeed-Studio/ModelAssistant/edit/main/docs/:path',
             text: 'Suggest changes to this page'
         },
 
@@ -23,7 +23,7 @@ export default defineConfig({
 function nav() {
     return [
         { text: 'Home', link: '/' },
-        { text: 'Documentation', link: '/introduction/what_is_sscma' }
+        { text: 'Documentation', link: '/introduction/overview' }
     ]
 }
 
@@ -33,7 +33,7 @@ function sidebar() {
             text: 'Introduction',
             collapsed: false,
             items: [
-                { text: 'What is SSCMA?', link: '/introduction/what_is_sscma' },
+                { text: 'What is SSCMA?', link: '/introduction/overview' },
                 { text: 'Quick Start', link: '/introduction/quick_start' },
                 { text: 'Installation', link: '/introduction/installation' }
             ]

@@ -2,7 +2,7 @@
 
 [Edge Impulse](https://www.edgeimpulse.com/) is the leading development platform for machine learning on edge devices.
 
-The models in [SSCMA](https://github.com/Seeed-Studio/SSCMA) support running on Edge Impulse specific information is available in the [sscma-ei-ml-blocks](https://github.com/Seeed-Studio/sscma-ei-ml-blocks). The following is an example of how to run the [SSCMA](https://github.com/Seeed-Studio/SSCMA) model on Edge Impulse, using the `sscma-fomo` model.
+The models in [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) support running on Edge Impulse specific information is available in the [sscma-ei-ml-blocks](https://github.com/Seeed-Studio/sscma-ei-ml-blocks). The following is an example of how to run the [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) model on Edge Impulse, using the `sscma-fomo` model.
 
 ## Run the Pipeline
 
@@ -25,19 +25,19 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
 
     - Click **'Create New Project'** button.
 
-      ![create-project-1](/static/ei/ei-ml-blocks-create-project.png)
+      ![create-project-1](https://files.seeedstudio.com/sscma/docs/static/ei/ei-ml-blocks-create-project.png)
 
     - Guess a project name and finish setup.
 
-      ![create-project-2](/static/ei/ei-ml-blocks-create-project2.png)
+      ![create-project-2](https://files.seeedstudio.com/sscma/docs/static/ei/ei-ml-blocks-create-project2.png)
 
 05. Add labels and some data.
 
-    ![dataset](/static/ei/ei-ml-blocks-dataset.png)
+    ![dataset](https://files.seeedstudio.com/sscma/docs/static/ei/ei-ml-blocks-dataset.png)
 
 06. Under **Create Impulse** set the image size (e.g. `160x160`, `320x320` or `640x640`), add an `Image` DSP block and an `Object Detection` learn block.
 
-    ![dataset](/static/ei/ei-ml-blocks-design.png)
+    ![dataset](https://files.seeedstudio.com/sscma/docs/static/ei/ei-ml-blocks-design.png)
 
 07. Open a command prompt or terminal window.
 
@@ -67,7 +67,7 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
 
 12. This creates a `.tflite` file in the `out` directory.
 
-::: tip
+:::tip
 
 If you have extra packages that you want to install within the container, add them to `requirements.txt` and rebuild the container.
 
@@ -99,8 +99,8 @@ You can also push this block back to Edge Impulse, that makes it available like 
 
 2. The block is now available under any of your projects, via **Create impulse > Add learning block > Object Detection (Images)**.
 
-   ![object-detection](/static/ei/ei-ml-blocks-obj-det.png)
+   ![object-detection](https://files.seeedstudio.com/sscma/docs/static/ei/ei-ml-blocks-obj-det.png)
 
 3. Download block output.
 
-   ![dl](/static/ei/ei-ml-blocks-dl.png)
+   ![dl](https://files.seeedstudio.com/sscma/docs/static/ei/ei-ml-blocks-dl.png)

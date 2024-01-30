@@ -1,6 +1,6 @@
 # 在 Espressif 芯片上部署 SSCMA 模型
 
-本示例为 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 包含的模型在 Espreessif 芯片的部署教程，部署工作基于 [ESP-IDF](https://github.com/espressif/esp-idf) 和 [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) 实现。
+本示例为 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 包含的模型在 Espreessif 芯片的部署教程，部署工作基于 [ESP-IDF](https://github.com/espressif/esp-idf) 和 [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) 实现。
 
 ## 先决条件
 
@@ -14,7 +14,7 @@
 
 ### 安装 ESP-IDF
 
-[SSCMA](https://github.com/Seeed-Studio/SSCMA) 包含的模型在 ESP32 的部署需要 ESP-IDF `4.4.x`，请参考以下教程 [ESP-IDF Get Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html)，安装配置工具链和 ESP-IDF。
+[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 包含的模型在 ESP32 的部署需要 ESP-IDF `4.4.x`，请参考以下教程 [ESP-IDF Get Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html)，安装配置工具链和 ESP-IDF。
 
 在成功 ESP-IDF 安装后，请再次确认[配置 IDF 环境变量](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html#step-4-set-up-the-environment-variables)是否完成:
 
@@ -22,7 +22,7 @@
 
 - 确定 `idf.py` 和 Xtensa-ESP32 等工具（例如 `xtensa-esp32-elf-gcc`）都在包含在 `$PATH` 中。
 
-::: tip
+:::tip
 
 我们不建议您在虚拟环境中配置 ESP-IDF，您可以使用以下命令退出虚拟环境 (可多次使用退出嵌套的虚拟环境):
 
@@ -36,7 +36,7 @@ conda deactivate
 
 ### 获取示例和子模块
 
-**进入 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 项目的根目录**，运行下面的命令来获取示例和子模块。
+**进入 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 项目的根目录**，运行下面的命令来获取示例和子模块。
 
 ```sh
 git clone https://github.com/Seeed-Studio/sscma-example-esp32 examples/esp32 && \
@@ -46,9 +46,9 @@ git submodule update && \
 popd
 ```
 
-::: warning
+:::warning
 
-您需要提前完成 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 的安装与配置。如果您还没有安装 [SSCMA](https://github.com/Seeed-Studio/SSCMA), 请参考[SSCMA 安装指南](../../introduction/installation.md)。
+您需要提前完成 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 的安装与配置。如果您还没有安装 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant), 请参考[SSCMA 安装指南](../../introduction/installation)。
 
 :::
 
@@ -58,11 +58,11 @@ popd
 
 为了让您更有条理地理解该过程，我们针对不同的应用场景编写了完整的文档:
 
-- [**ESP32 口罩检测**](./mask_detection.md)
+- [**ESP32 口罩检测**](./mask_detection)
 
-- [**ESP32 表计读数**](./meter_reader.md)
+- [**ESP32 表计读数**](./meter_reader)
 
-::: warning
+:::warning
 
 在[编译和部署](#%E7%BC%96%E8%AF%91%E5%92%8C%E9%83%A8%E7%BD%B2)前，您需要提前准备好相应的模型。
 
@@ -72,7 +72,7 @@ popd
 
 ### 编译例程
 
-1. 进入 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 项目的根目录，运行以下命令进入示例目录 `examples/esp32`:
+1. 进入 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 项目的根目录，运行以下命令进入示例目录 `examples/esp32`:
 
 ```sh
 cd examples/esp32 # SSCMA/examples/esp32
@@ -111,7 +111,7 @@ idf.py --port <TARGET_SERIAL_PORT> flash
 idf.py --port <TARGET_SERIAL_PORT> monitor
 ```
 
-::: tip
+:::tip
 
 刷写固件和监控串口的两条命令可以合并使用:
 
@@ -125,30 +125,30 @@ idf.py --port <TARGET_SERIAL_PORT> flash monitor
 
 ### 性能简介
 
-通过在不同的芯片上测量，对 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 相关模型的性能总结如下表所示。
+通过在不同的芯片上测量，对 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 相关模型的性能总结如下表所示。
 
 | Target | Model | Dataset | Input Resolution | Peak RAM | Inferencing  Time | F1 Score | Link |
 |--|--|--|--|--|--|--|--|
-| ESP32-S3 | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/sscma/meter.zip) | 112x112 (RGB) | 320KB | 380ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/SSCMA/releases) |
-| ESP32-S3 | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/SSCMA/releases) |
+| ESP32-S3 | Meter | [Custom Meter](https://files.seeedstudio.com/sscma/datasets/meter.zip) | 112x112 (RGB) | 320KB | 380ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/ModelAssistant/releases/tag/model_zoo) |
+| ESP32-S3 | Fomo | [COCO MASK](https://files.seeedstudio.com/sscma/datasets/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/ModelAssistant/releases/tag/model_zoo) |
 
-::: tip
+:::tip
 更多模型请前往 [SSCMA Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
 :::
 
 ## 贡献
 
-- 如果你在这些例子中发现了问题，或者希望提交一个增强请求，请使用 [GitHub Issue](https://github.com/Seeed-Studio/SSCMA)。
+- 如果你在这些例子中发现了问题，或者希望提交一个增强请求，请使用 [GitHub Issue](https://github.com/Seeed-Studio/ModelAssistant)。
 
 - 对于 ESP-IDF 相关的问题请参考 [ESP-IDF](https://github.com/espressif/esp-idf)。
 
 - 对于 TensorFlow Lite Micro 相关的信息请参考 [TFLite-Micro](https://github.com/tensorflow/tflite-micro)。
 
-- 对于 [SSCMA](https://github.com/Seeed-Studio/SSCMA) 相关的信息请参考 [SSCMA](https://github.com/Seeed-Studio/SSCMA/)。
+- 对于 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 相关的信息请参考 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant)。
 
 ## 许可
 
-这些例子是在 [MIT 许可](../../community/licenses.md)下发布的。
+这些例子是在 [MIT 许可](../../community/licenses)下发布的。
 
 这些例子使用 ESP-IDF，它是在 [Apache 2.0 许可](https://github.com/espressif/esp-idf/blob/master/LICENSE)下发布的。
 

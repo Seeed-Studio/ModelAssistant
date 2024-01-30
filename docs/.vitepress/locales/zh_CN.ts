@@ -14,7 +14,7 @@ export default defineConfig({
         returnToTopLabel: '返回顶部',
 
         editLink: {
-            pattern: 'https://github.com/Seeed-Studio/SSCMA/edit/main/docs/zh_cn/:path',
+            pattern: 'https://github.com/Seeed-Studio/ModelAssistant/edit/main/docs/zh_cn/:path',
             text: '对此页面提出建议'
         },
 
@@ -28,7 +28,7 @@ export default defineConfig({
 function nav() {
     return [
         { text: '主页', link: '/zh_cn/' },
-        { text: '文档', link: '/zh_cn/introduction/what_is_sscma' }
+        { text: '文档', link: '/zh_cn/introduction/overview' }
     ]
 }
 
@@ -38,7 +38,7 @@ function sidebar() {
             text: '入门指南',
             collapsed: false,
             items: [
-                { text: '什么是 SSCMA?', link: '/zh_cn/introduction/what_is_sscma' },
+                { text: '什么是 SSCMA?', link: '/zh_cn/introduction/overview' },
                 { text: '快速上手', link: '/zh_cn/introduction/quick_start' },
                 { text: '安装指南', link: '/zh_cn/introduction/installation' }
             ]

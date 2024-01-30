@@ -1,16 +1,16 @@
 # 模型训练
 
-[Seeed SSCMA](https://github.com/Seeed-Studio/SSCMA) 目前支持以下模型，您可以参考对应的教程，完成模型的训练，获得模型权重。
+[Seeed SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 目前支持以下模型，您可以参考对应的教程，完成模型的训练，获得模型权重。
 
-- [FOMO 模型](./fomo.md): 口罩检测
+- [FOMO 模型](./fomo): 口罩检测
 
-- [PFLD 模型](./pfld.md): 指针表计读数
+- [PFLD 模型](./pfld): 指针表计读数
 
-- [YOLO 模型](./yolo.md): 数字表读数
+- [YOLO 模型](./yolo): 数字表读数
 
-::: tip
+:::tip
 
-在开始训练前，我们建议您先阅读[模型配置](../config.md)和[数据集](../datasets.md)部分内容。
+在开始训练前，我们建议您先阅读[模型配置](../config)和[数据集](../datasets)部分内容。
 
 :::
 
@@ -50,4 +50,4 @@ python3 tools/train.py --help
 
 ### 部署
 
-在导出模型后，你可以将模型部署到边缘计算设备上进行测试和评估。你可以参考 [Deploy](./../../deploy/overview.md) 部分来了解更多关于如何部署模型的信息。
+在导出模型后，你可以将模型部署到边缘计算设备上进行测试和评估。你可以参考 [Deploy](../../deploy/overview) 部分来了解更多关于如何部署模型的信息。

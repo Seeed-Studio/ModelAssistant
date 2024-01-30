@@ -1,12 +1,12 @@
 # 模型配置
 
-[SSCMA](https://github.com/Seeed-Studio/SSCMA) 使用 [OpenMMLab - MMEngine](https://github.com/open-mmlab/mmengine) 提供的配置处理系统，具有模块化、可继承的设计特点，为用户提供了统一的配置访问接口，便于用户对不同的神经网络进行各种测试与验证。
+[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 使用 [OpenMMLab - MMEngine](https://github.com/open-mmlab/mmengine) 提供的配置处理系统，具有模块化、可继承的设计特点，为用户提供了统一的配置访问接口，便于用户对不同的神经网络进行各种测试与验证。
 
 ## 配置的目录结构
 
-[SSCMA](https://github.com/Seeed-Studio/SSCMA) 使用的配置文件位于 `configs` 目录下，用于不同任务下不同模型的训练。我们在其根据不同的任务分类划分了子文件夹，在各个子文件夹中，保存有多个模型的不同训练管线参数，配置文件的目录结构如下:
+[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 使用的配置文件位于 `configs` 目录下，用于不同任务下不同模型的训练。我们在其根据不同的任务分类划分了子文件夹，在各个子文件夹中，保存有多个模型的不同训练管线参数，配置文件的目录结构如下:
 
-::: code-group
+:::code-group
 
 ```sh [整体结构]
 configs
@@ -88,7 +88,7 @@ configs // [!code focus]
 
 :::
 
-::: tip
+:::tip
 
 其中名为 `_base_` 的任务文件夹是我们其他任务的继承对象，关于配置文件继承的详细说明，请参考 [MMEngine - 配置文件的继承](https://mmengine.readthedocs.io/zh_CN/latest/advanced_tutorials/config.html#id3)。
 
@@ -96,7 +96,7 @@ configs // [!code focus]
 
 ## 配置的内容结构
 
-以 [FOMO 模型训练](./training/fomo.md)中的 `fomo_mobnetv2_0.35_x8_abl_coco.py` 配置文件为例，我们根据不同的功能模块介绍该配置文件中的各个字段。
+以 [FOMO 模型训练](./training/fomo)中的 `fomo_mobnetv2_0.35_x8_abl_coco.py` 配置文件为例，我们根据不同的功能模块介绍该配置文件中的各个字段。
 
 ### 重要参数
 
@@ -232,9 +232,9 @@ work_dir='./work_dirs'                # 用于保存当前实验的模型检查�
 
 ## 参数配置
 
-使用 [SSCMA](https://github.com/Seeed-Studio/SSCMA)  的 `tools/train.py` 或 `tools/test.py` 提交作业时，可以指定 `--cfg-options` 临时覆写配置。
+使用 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant)  的 `tools/train.py` 或 `tools/test.py` 提交作业时，可以指定 `--cfg-options` 临时覆写配置。
 
-::: tip
+:::tip
 
 可以按照原始配置中字典键的顺序指定配置选项并更新字典链的配置键。例如 `--cfg-options data_root='./dataset/coco'` 更改数据集的数据根目录。
 

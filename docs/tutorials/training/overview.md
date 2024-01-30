@@ -1,16 +1,16 @@
 # Model Training
 
-[SSCMA(Seeed SSCMA)](https://github.com/Seeed-Studio/SSCMA) currently supports the following models. You can refer to the corresponding tutorials to complete the training of the models and obtain the model weights.
+[SSCMA(Seeed SSCMA)](https://github.com/Seeed-Studio/ModelAssistant) currently supports the following models. You can refer to the corresponding tutorials to complete the training of the models and obtain the model weights.
 
-- [FOMO Model](./fomo.md): Face mask detection
+- [FOMO Model](./fomo): Face mask detection
 
-- [PFLD Model](./pfld.md): Pointer meter reading
+- [PFLD Model](./pfld): Pointer meter reading
 
-- [YOLO Model](./yolo.md): digital meter reading
+- [YOLO Model](./yolo): digital meter reading
 
-::: tip
+:::tip
 
-Before start training, we recommend you to read [Config](../config.md) and [Datasets](../datasets.md) sections first.
+Before start training, we recommend you to read [Config](../config) and [Datasets](../datasets) sections first.
 
 :::
 
@@ -50,4 +50,4 @@ python3 tools/train.py --help
 
 ### Deployment
 
-After exporting the model, you can deploy the model to an edge computing device for testing and evaluation. You can refer to [Deploy](./../../deploy/overview.md) section to learn more about how to deploy the model.
+After exporting the model, you can deploy the model to an edge computing device for testing and evaluation. You can refer to [Deploy](../../deploy/overview) section to learn more about how to deploy the model.

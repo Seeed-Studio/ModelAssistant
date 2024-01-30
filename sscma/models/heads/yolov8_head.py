@@ -1,4 +1,5 @@
 import math
+from functools import partial
 from typing import List, Sequence, Tuple, Union
 from mmdet.structures import SampleList
 
@@ -142,25 +143,33 @@ class YOLOv8HeadModule(BaseModule):
         proj = torch.arange(self.reg_max, dtype=torch.float)
         self.register_buffer('proj', proj, persistent=False)
 
-    def forward(self, x: Tuple[Tensor]) -> Tuple[List]:
+    def forward(self, x: Tuple[Tensor], export: bool = False) -> Tuple[List]:
         """Forward features from the upstream network.
 
         Args:
             x (Tuple[Tensor]): Features from the upstream network, each is
                 a 4D-tensor.
+            export (bool): Whether to inference in export mode
         Returns:
             Tuple[List]: A tuple of multi-level classification scores, bbox
             predictions
         """
         assert len(x) == self.num_levels
-        return multi_apply(self.forward_single, x, self.cls_preds, self.reg_preds)
+        return multi_apply(
+            partial(self.forward_single, export=export),
+            x,
+            self.cls_preds,
+            self.reg_preds,
+        )
 
-    def forward_single(self, x: torch.Tensor, cls_pred: nn.ModuleList, reg_pred: nn.ModuleList) -> Tuple:
+    def forward_single(
+        self, x: torch.Tensor, cls_pred: nn.ModuleList, reg_pred: nn.ModuleList, export: bool = False
+    ) -> Tuple:
         """Forward feature of a single scale level."""
         b, _, h, w = x.shape
         cls_logit = cls_pred(x)
         bbox_dist_preds = reg_pred(x)
-        if self.reg_max > 1:
+        if self.reg_max > 1 and not export:
             bbox_dist_preds = bbox_dist_preds.reshape([-1, 4, self.reg_max, h * w]).permute(0, 3, 1, 2)
             # TODO: The get_flops script cannot handle the situation of
             #  matmul, and needs to be fixed later
@@ -198,22 +207,25 @@ class YOLOv8Head(YOLOv8Head):
 
     def forward(self, x: Tuple[Tensor]) -> Tensor:
         B = x[0].shape[0]
-        out = super().forward(x=x)
+        out = self.head_module(x, export=True)
         return self.export(*out, batch_num=B)
 
     def export(self, cls_scores: List[Tensor], bbox_preds: List[Tensor], batch_num: int = 1) -> Tensor:
         assert len(cls_scores) == len(bbox_preds)
         featmap_len = len(cls_scores)
         tmp = [torch.cat((bbox_preds[idx], cls_scores[idx]), 1) for idx in range(featmap_len)]
-        anchors, stides = (i.transpose(0, 1) for i in make_anchors(tmp, self.head_module.featmap_strides, 0.5))
-        x_cat = torch.cat([i.reshape(batch_num, 4 + self.num_classes, -1) for i in tmp], 2)
-        bbox, cls = x_cat.split((4, self.num_classes), 1)
-        lt, rb = bbox.chunk(2, 1)
-        x1y1 = anchors.unsqueeze(0) - lt
-        x2y2 = anchors.unsqueeze(0) + rb
-        dbox = torch.cat((x1y1, x2y2), 1) * stides
-        preds = torch.cat((dbox.permute(0, 2, 1), cls.sigmoid().permute(0, 2, 1) * 100), 2)
-        return preds
+        x_cat = torch.cat(
+            [i.reshape(batch_num, 4 * self.head_module.reg_max + self.num_classes, -1).permute(0, 2, 1) for i in tmp], 1
+        )
+        return x_cat
+
+        # bbox, cls = x_cat.split((4, self.num_classes), 1)
+        # lt, rb = bbox.chunk(2, 1)
+        # x1y1 = anchors.unsqueeze(0) - lt
+        # x2y2 = anchors.unsqueeze(0) + rb
+        # dbox = torch.cat((x1y1, x2y2), 1) * stides
+        # preds = torch.cat((dbox.permute(0, 2, 1), cls.sigmoid().permute(0, 2, 1) * 100), 2)
+        # return preds
 
 
 def make_anchors(feats, strides, grid_cell_offset=0.5):

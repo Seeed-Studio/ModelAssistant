@@ -2,12 +2,56 @@ from typing import Dict, List, Sequence, Union
 
 import onnx
 import torch
-from mmengine.evaluator.evaluator import Evaluator
-from mmengine.runner import Runner
+from mmengine.evaluator import Evaluator
+from mmengine.runner import Runner, ValLoop
 from mmengine.runner.loops import BaseLoop, EpochBasedTrainLoop
+from mmengine.model import is_model_wrapper
 from torch.utils.data import DataLoader
 
 from sscma.registry import LOOPS
+
+
+@LOOPS.register_module()
+class SemiValLoop(ValLoop):
+    """Loop for validation of model teacher and student."""
+
+    runner: Runner
+
+    def __init__(self, bure_epoch: int, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.bure_epoch = bure_epoch
+
+    def run(self) -> None:
+        """Launch validation for model teacher and student."""
+        self.runner.call_hook('before_val')
+        self.runner.call_hook('before_val_epoch')
+        self.runner.model.eval()
+
+        model = self.runner.model
+        if is_model_wrapper(model):
+            model = model.module
+        assert hasattr(model, 'teacher')
+        assert hasattr(model, 'student')
+
+        predict_on = model.semi_test_cfg.get('predict_on', None)
+        multi_metrics = dict()
+
+        if self.runner.epoch < self.bure_epoch:
+            eval_model = ['student']
+        else:
+            eval_model = ['student', 'teacher']
+
+        for _predict_on in eval_model:
+            model.semi_test_cfg['predict_on'] = _predict_on
+            for idx, data_batch in enumerate(self.dataloader):
+                self.run_iter(idx, data_batch)
+            # compute metrics
+            metrics = self.evaluator.evaluate(len(self.dataloader.dataset))
+            multi_metrics.update({'/'.join((_predict_on, k)): v for k, v in metrics.items()})
+        model.semi_test_cfg['predict_on'] = predict_on
+
+        self.runner.call_hook('after_val_epoch', metrics=multi_metrics)
+        self.runner.call_hook('after_val')
 
 
 @LOOPS.register_module()
@@ -37,7 +81,7 @@ class EdgeTestLoop(BaseLoop):
         dataloader: Union[DataLoader, Dict],
         evaluator: Union[Evaluator, Dict, List],
         fp16: bool = False,
-    ):
+    ) -> None:
         super().__init__(runner, dataloader)
 
 

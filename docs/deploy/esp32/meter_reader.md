@@ -1,16 +1,16 @@
 # Meter Reader with ESP32
 
-This tutorial will demonstrate the development process of meter reader using [SSCMA](https://github.com/Seeed-Studio/SSCMA) based on ESP32.
+This tutorial will demonstrate the development process of meter reader using [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) based on ESP32.
 
-::: tip
+:::tip
 
-Before starting, we recommend that you should read [ESP32 - Deploy](./deploy.md) first.
+Before starting, we recommend that you should read [ESP32 - Deploy](./deploy) first.
 
 :::
 
 ## Preparation
 
-Please refer to [ESP32 - Deploy - Prerequisites](./deploy.md#prerequisites).
+Please refer to [ESP32 - Deploy - Prerequisites](./deploy#prerequisites).
 
 ## Train Model
 
@@ -18,7 +18,7 @@ The meter reading feature is based on the PFLD model, in this step you need a PF
 
 - Download the pre-trained model from our [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo).
 
-- Refer to [Training - PFLD Models](../../tutorials/training/pfld.md) to train the PFLD model and get the model weights using PyTorch and [SSCMA](https://github.com/Seeed-Studio/SSCMA) by yourself.
+- Refer to [Training - PFLD Models](../../tutorials/training/pfld) to train the PFLD model and get the model weights using PyTorch and [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) by yourself.
 
 ## Export Model
 
@@ -26,13 +26,13 @@ Since the trained model is not suitable for running directly on edge computing d
 
 - Download the exported TFLite model from our [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo).
 
-- Refer to [Export - PyTorch to TFLite](../../tutorials/export/pytorch_2_tflite.md) to convert the PFLD model from PyTorch format to TFLite format by yourself.
+- Refer to [Export - PyTorch to TFLite](../../tutorials/export/pytorch_2_tflite) to convert the PFLD model from PyTorch format to TFLite format by yourself.
 
 ## Convert Model
 
 After completing [Export Model](#export-model), we need a further process to convert it to a format that supported by embedded devices.
 
-- Go to the `examples/esp32` directory (run at the root of the [SSCMA](https://github.com/Seeed-Studio/SSCMA) project):
+- Go to the `examples/esp32` directory (run at the root of the [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) project):
 
   ```sh
   cd examples/esp32
@@ -44,7 +44,7 @@ After completing [Export Model](#export-model), we need a further process to con
   python3 tools/tflite2c.py --input <TFLITE_MODEL_PATH> --name fomo --output_dir components/modules/model --classes='("unmask", "mask")'
   ```
 
-::: tip
+:::tip
 
 You need to replace `<TFLITE_MODEL_PATH>` with the path of the TFLite model obtained in the [Export Model](#export-model) step, the final C file will be exported to the `components/modules/model` directory in the `SSCMA/example/esp32` directory by default.
 
@@ -52,8 +52,8 @@ You need to replace `<TFLITE_MODEL_PATH>` with the path of the TFLite model obta
 
 ## Deploy Model
 
-This is the last and most important step to complete the meter reading, in this step you need to compile and flash the firmware to the ESP32 MCU. Please refer to [ESP32 - Deployment - Compile and Deploy](./deploy.md#compile-and-deploy) to complete the deployment of the model.
+This is the last and most important step to complete the meter reading, in this step you need to compile and flash the firmware to the ESP32 MCU. Please refer to [ESP32 - Deployment - Compile and Deploy](./deploy#compile-and-deploy) to complete the deployment of the model.
 
 ## Run Example
 
-![PFLD Meter Reader](/static/esp32/images/pfld_meter.gif)
+![PFLD Meter Reader](https://files.seeedstudio.com/sscma/docs/static/esp32/images/pfld_meter.gif)

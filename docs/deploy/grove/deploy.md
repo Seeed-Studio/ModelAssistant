@@ -1,6 +1,6 @@
 # Deploying SSCMA on Grove - Vision AI
 
-This example is a tutorial for deploying the models from [SSCMA](https://github.com/Seeed-Studio/SSCMA/) to Grove - Vision AI module, based on the [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain) and [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) implementations.
+This example is a tutorial for deploying the models from [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) to Grove - Vision AI module, based on the [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain) and [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) implementations.
 
 ## Prerequisites
 
@@ -29,7 +29,7 @@ Grove - Vision AI uses the [Himax HX6537](https://www.himax.com.tw/zh/products/i
    echo 'export PATH="$HOME/arc_gnu_2020.09_prebuilt_elf32_le_linux_install/bin:$PATH" # Synopsys GUN Toolchain' >> ~/.bashrc
    ```
 
-   ::: tip
+   :::tip
 
    If you are using Zsh or other Shells, the above `~/.bashrc` should be adjusted accordingly.
 
@@ -46,7 +46,7 @@ make download && \
 popd
 ```
 
-::: tip
+:::tip
 
 If you have not installed [Make](https://www.gnu.org/software/make/), on Linux distributions that use APT as the default package manager, you can install it with the following command.
 
@@ -55,7 +55,7 @@ sudo apt-get update && \
 sudo apt-get install make -y
 ```
 
-In addition, we recommend that you complete the installation and configuration of SSCMA in advance. If you have not installed SSCMA yet, you can refer to [SSCMA Installation Guide](../../introduction/installation.md).
+In addition, we recommend that you complete the installation and configuration of SSCMA in advance. If you have not installed SSCMA yet, you can refer to [SSCMA Installation Guide](../../introduction/installation).
 
 :::
 
@@ -67,11 +67,11 @@ Therefore, you may need to go through steps such as model or neural network sele
 
 To help you understand the process in a more organized way, we have written complete documentation for different application scenarios.
 
-- [**Grove Mask Detection**](./mask_detection.md)
+- [**Grove Mask Detection**](./mask_detection)
 
-- [**Grove Meter Reader**](./meter_reader.md)
+- [**Grove Meter Reader**](./meter_reader)
 
-::: warning
+:::warning
 
 Before [Compile and Deploy](#compile-and-deploy), you need to prepare the appropriate model.
 
@@ -89,7 +89,7 @@ Before [Compile and Deploy](#compile-and-deploy), you need to prepare the approp
 
 2. Second, choose the compilation parameters according to **selected model** and compile them, the optional parameters are `fomo`, `meter`, etc.
 
-   ::: code-group
+   :::code-group
 
    ```sh [fomo]
    make HW=grove_vision_ai APP=fomo && make flash
@@ -105,7 +105,7 @@ Before [Compile and Deploy](#compile-and-deploy), you need to prepare the approp
 
    :::
 
-   ::: tip
+   :::tip
 
    You can view all optional parameters for APP using the following command.
 
@@ -129,7 +129,7 @@ Before [Compile and Deploy](#compile-and-deploy), you need to prepare the approp
    python3 tools/ufconv/uf2conv.py -t 1 -c <TFLITE_MODEL_PATH> -o model.uf2
    ```
 
-   ::: tip
+   :::tip
 
    You need to replace `<TFLITE_MODEL_PATH>` with the path to the TFLite model obtained in the [Prepare the Model](#prepare-the-model) step. You can also use the pre-trained model, which is located in the `model_zone` directory, and simply copy its path.
 
@@ -149,13 +149,13 @@ The deployment process of Grove - Vision AI is divided into two main steps, whic
 
 4. In the browser interface and [Grove Vision AI Console](https://files.seeedstudio.com/grove_ai_vision/index.html), select **Grove AI** in the pop-up window and click **Connect** button to connect.
 
-::: warning
+:::warning
 
 Before flash the firmware, you must check if the device bootloader version matches the firmware version. If it does not match, you will need to flush the bootloader firmware first, and then the firmware.
 
 :::
 
-::: tip
+:::tip
 
 **How to flash the firmware and model?**
 
@@ -171,14 +171,14 @@ Before flash the firmware, you must check if the device bootloader version match
 
 ### Performance Profile
 
-The performance of [SSCMA](https://github.com/Seeed-Studio/SSCMA) related models, measured on different chips, is summarized in the following table.
+The performance of [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) related models, measured on different chips, is summarized in the following table.
 
 | Target | Model | Dataset | Input Resolution | Peak RAM | Inferencing Time | F1 Score | Link |
 |--|--|--|--|--|--|--|--|
-| Grove Vision AI | Meter | [Custom Meter](https://files.seeedstudio.com/wiki/sscma/meter.zip) | 112x112 (RGB) | 320KB | 500ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/SSCMA/releases) |
-| Grove Vision AI | Fomo | [COCO MASK](https://files.seeedstudio.com/wiki/sscma/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/SSCMA/releases) |
+| Grove Vision AI | Meter | [Custom Meter](https://files.seeedstudio.com/sscma/datasets/meter.zip) | 112x112 (RGB) | 320KB | 500ms | 97% | [pfld_meter_int8.tflite](https://github.com/Seeed-Studio/ModelAssistant/releases/tag/model_zoo) |
+| Grove Vision AI | Fomo | [COCO MASK](https://files.seeedstudio.com/sscma/datasets/coco_mask.zip) | 96x96 (GRAY) | 244KB | 150ms | 99.5% | [fomo_mask_int8.tflite](https://github.com/Seeed-Studio/ModelAssistant/releases/tag/model_zoo) |
 
-::: tip
+:::tip
 For more models go to [SSCMA Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
 :::
 
@@ -188,17 +188,17 @@ If your Grove Vision AI is not recognized by your computer, we recommend your to
 
 ## Contribute
 
-- If you find any issues in these examples, or wish to submit an enhancement request, please use [GitHub Issue](https://github.com/Seeed-Studio/SSCMA).
+- If you find any issues in these examples, or wish to submit an enhancement request, please use [GitHub Issue](https://github.com/Seeed-Studio/ModelAssistant).
 
 - For Synopsys GUN Toolchain related issues please refer to [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain).
 
 - For information about TensorFlow Lite Micro, please refer to [TFLite-Micro](https://github.com/tensorflow/tflite-micro).
 
-- For SSCMA related information, please refer to [SSCMA](https://github.com/Seeed-Studio/SSCMA/).
+- For SSCMA related information, please refer to [SSCMA](https://github.com/Seeed-Studio/ModelAssistant).
 
 ## Licensing
 
-These examples are released under the [MIT License](../../community/licenses.md).
+These examples are released under the [MIT License](../../community/licenses).
 
 For Synopsys GUN Toolchain, it is released under the [GPLv3 License](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/blob/arc-releases/COPYING).
 
