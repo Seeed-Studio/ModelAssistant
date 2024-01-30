@@ -16,20 +16,20 @@ class PfldMobileNetV2(nn.Module):
         layer = []
         for idx, oup in enumerate(layer1):
             if idx == 0:
-                layer.append(InvertedResidual(inp, oup, 2, False, 2))
+                layer.append(InvertedResidual(inp, oup, 2, 2))
             else:
-                layer.append(InvertedResidual(inp, oup, 1, True, 2))
+                layer.append(InvertedResidual(inp, oup, 1, 2))
             inp = oup
         self.layer1 = nn.Sequential(*layer)
-        self.block1 = InvertedResidual(inp, 32, 2, False, 2)
+        self.block1 = InvertedResidual(inp, 32, 2, 2)
         inp = 32
 
         layer = []
         for idx, oup in enumerate(layer2):
-            layer.append(InvertedResidual(inp, oup, 1, True if idx else False, 4))
+            layer.append(InvertedResidual(inp, oup, 1, 4))
             inp = oup
         self.layer2 = nn.Sequential(*layer)
-        self.block2 = InvertedResidual(inp, out_channel, 1, False, 2)
+        self.block2 = InvertedResidual(inp, out_channel, 1, 2)
 
     def forward(self, x):
         x = self.conv1(x)
