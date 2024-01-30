@@ -451,6 +451,9 @@ def export_vela(args, model):
         for key, value in args.vela.items():
             vela_args.append('--' + key)
             vela_args.append(str(value))
+    else:
+        vela_args.append('--accelerator-config')
+        vela_args.append('ethos-u55-64')
 
     vela_main(vela_args)
 
