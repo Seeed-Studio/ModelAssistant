@@ -49,18 +49,11 @@ if [ "$?" != 0 ]; then
     exit 1
 fi
 
-eval "$(conda shell.bash hook)" && \
-conda activate sscma
-if [ "$?" != 0 ]; then
-    echo -en "Conda active env failed... ${RED}Exiting${RST}\n"
-    exit 1
-fi
-
 
 # openmim install deps
 echo -en "Installing OpenMIM deps... \n"
-mim install -r requirements/mmlab.txt && \
-mim install -e .
+conda run -n sscma mim install -r requirements/mmlab.txt && \
+conda run -n sscma mim install -e .
 if [ "$?" != 0 ]; then
     echo -en "OpenMIM install deps failed... ${RED}Exiting${RST}\n"
     exit 1
@@ -69,8 +62,8 @@ fi
 
 # install optional deps
 if [ "${INSTALL_OPTIONAL}" == true ]; then
-    pip3 install -r requirements/inference.txt -r requirements/export.txt -r requirements/tests.txt
-    pre-commit install
+    conda run -n sscma pip3 install -r requirements/inference.txt -r requirements/export.txt -r requirements/tests.txt
+    conda run -n sscma pre-commit install
 fi
 
 
@@ -81,6 +74,5 @@ fi
 
 
 echo -en "Finished setup... ${GREEN}OK${RST}\n"
-conda deactivate
 
 exit 0
