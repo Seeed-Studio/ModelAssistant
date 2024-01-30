@@ -39,7 +39,7 @@ conda deactivate
 **进入 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 项目的根目录**，运行下面的命令来获取示例和子模块。
 
 ```sh
-git clone https://github.com/Seeed-Studio/sscma-example-esp32 examples/esp32 && \
+git clone https://github.com/Seeed-Studio/sscma-example-esp32 -b 1.0.0  examples/esp32 && \
 pushd examples/esp32 && \
 git submodule init && \
 git submodule update && \

@@ -39,7 +39,7 @@ In addition, if your ESP-IDF is not configured in a virtual environment, any ope
 **Go to the root directory of the [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) project** and run the following command to get the examples and its submodules.
 
 ```sh
-git clone https://github.com/Seeed-Studio/sscma-example-esp32 examples/esp32 && \
+git clone https://github.com/Seeed-Studio/sscma-example-esp32 -b 1.0.0 examples/esp32 && \
 pushd examples/esp32 && \
 git submodule init && \
 git submodule update && \
