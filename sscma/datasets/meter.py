@@ -51,6 +51,8 @@ class MeterData(Dataset, metaclass=ABCMeta):
     """
 
     CLASSES = 'meter'
+    
+    METAINFO = dict()
 
     def __init__(
         self,
