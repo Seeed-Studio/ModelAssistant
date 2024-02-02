@@ -1,8 +1,9 @@
 import argparse
 import os
-import tempfile
-import sys
 import os.path as osp
+import sys
+import tempfile
+
 import torch
 
 current_path = osp.dirname(osp.abspath(__file__))
@@ -169,6 +170,9 @@ def build_config(args):
                     cfg.width,
                     cfg.height,
                 ]
+            elif 'shape' in cfg:
+                args.input_shape = cfg.shape
+
         except Exception as exc:
             raise ValueError('Please specify the input shape') from exc
         print(
@@ -200,13 +204,15 @@ def main():
 
     device = next(runner.model.parameters()).device
     runner.model.eval()
+    print(args.input_shape)
+
     analysis_results = get_model_complexity_info(
         model=runner.model,
         input_shape=tuple(args.input_shape[1:]),
         show_arch=False,
         device=device,
     )
-    print(analysis_results["out_table"])
+    print(analysis_results['out_table'])
     print('=' * 40)
     print(f"{'Input Shape':^20}:{str(args.input_shape):^20}")
     print(f"{'Model Flops':^20}:{analysis_results['flops_str']:^20}")

@@ -1,6 +1,10 @@
 default_scope = 'mmdet'
+
+# defaults input type image
+input_type = 'image'
+
 # ========================Suggested optional parameters========================
-# RUNING
+# RUNNING
 # Model validation interval in epoch
 val_interval = 5
 # Model weight saving interval in epochs

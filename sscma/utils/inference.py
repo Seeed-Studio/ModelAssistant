@@ -8,17 +8,17 @@ import numpy as np
 import onnx
 import torch
 from mmdet.models.utils import samplelist_boxtype2tensor
-from mmengine.config import Config
 from mmengine import dump as resultdump
+from mmengine.config import Config
 from mmengine.evaluator import Evaluator
 from mmengine.registry import MODELS
+from mmengine.runner import Runner
 from mmengine.structures import InstanceData
 from mmengine.visualization.visualizer import Visualizer
-from mmengine.runner import Runner
 from torch.utils.data import DataLoader
 from tqdm.std import tqdm
 
-from sscma.utils.cv import NMS, load_image, NMS_FREE
+from sscma.utils.cv import NMS, NMS_FREE, load_image
 
 from .iot_camera import IoTCamera
 
@@ -118,35 +118,31 @@ class Inter:
 
     def __call__(
         self,
-        img: Union[np.array, torch.Tensor],
+        data: Union[np.array, torch.Tensor],
         input_name: AnyStr = 'input',
         output_name: AnyStr = 'output',
         result_num=1,
     ):
-        # img.resize_(3,192,192)
-        if len(img.shape) == 2:  # audio
-            if img.shape[1] > 10:  # (1, 8192) to (8192, 1)
-                img = img.transpose(1, 0) if self.engine == 'tf' else img
-            img = np.array([img])  # add batch dim.
-        elif len(img.shape) == 3:
-            C, H, W = img.shape
+        if len(data.shape) == 3:
+            C, H, W = data.shape
             if C not in [1, 3]:
-                img = img.transpose(2, 0, 1)
-            if isinstance(img, torch.Tensor):
-                img = img.numpy()
-            img = np.array([img])  # add batch dim.
-        elif len(img.shape) == 4:
-            B, C, H, W = img.shape
+                data = data.transpose(2, 0, 1)
+            if isinstance(data, torch.Tensor):
+                data = data.numpy()
+            data = np.array([data])  # add batch dim.
+        elif len(data.shape) == 4:
+            B, C, H, W = data.shape
             if C not in [1, 3]:
-                img = img.transpose(0, 3, 1, 2)
-            if isinstance(img, torch.Tensor):
-                img = img.numpy()
+                data = data.transpose(0, 3, 1, 2)
+            if isinstance(data, torch.Tensor):
+                data = data.numpy()
+        else:
+            if isinstance(data, torch.Tensor):
+                data = data.numpy()
 
-        else:  # error
-            raise ValueError
         results = []
         if self.engine == 'onnx':  # onnx
-            result = self.inter.run([self.inter.get_outputs()[0].name], {self.inter.get_inputs()[0].name: img})[0]
+            result = self.inter.run([self.inter.get_outputs()[0].name], {self.inter.get_inputs()[0].name: data})[0]
             results.append(result)
         elif self.engine == 'ncnn':  # ncnn
             import ncnn
@@ -155,7 +151,7 @@ class Inter:
             extra = self.inter.create_extractor()
             input_name = self.inter.input_names()[0]
             output_name = self.inter.output_names()[0]
-            extra.input(input_name, ncnn.Mat(img[0]))  # noqa
+            extra.input(input_name, ncnn.Mat(data[0]))  # noqa
             result = extra.extract(output_name)[1]
             return [np.expand_dims(np.array(result), axis=0)]
         else:  # tf
@@ -163,11 +159,12 @@ class Inter:
                 self.inter.get_output_details()[0] for i in range(result_num)
             )
             int8 = input_['dtype'] == np.int8 or input_['dtype'] == np.uint8
-            img = img.transpose(0, 2, 3, 1) if len(img.shape) == 4 else img
+            data = data.transpose(0, 2, 3, 1) if len(data.shape) == 4 else data
             if int8:
                 scale, zero_point = input_['quantization']
-                img = (img / scale + zero_point).astype(np.int8)
-            self.inter.set_tensor(input_['index'], img)
+                data = (data / scale + zero_point).astype(np.int8)
+
+            self.inter.set_tensor(input_['index'], data)
             self.inter.invoke()
             for output in outputs:
                 result = self.inter.get_tensor(output['index'])
@@ -329,6 +326,7 @@ class Infernce:
     def test(self) -> None:
         self.time_cost = 0
         self.preds = []
+        img = None
         P = []
         R = []
         F1 = []
@@ -337,14 +335,16 @@ class Infernce:
                 if hasattr(self, 'data_preprocess'):
                     data = self.data_preprocess(data, False)
                 inputs = data['inputs'][0]
-                img_path = data['data_samples'][0].get('img_path', None)
-                img = data['inputs'][0].permute(1, 2, 0).cpu().numpy()
+                if self.cfg.input_type == 'image':
+                    img_path = data['data_samples'][0].get('img_path', None)
+                    img = data['inputs'][0].permute(1, 2, 0).cpu().numpy()
             else:
                 img = data
                 inputs = data
                 img_path = None
 
             t0 = time.time()
+
             preds = self.model(inputs)
             self.time_cost += time.time() - t0
 
@@ -434,31 +434,31 @@ class Infernce:
                     self.evaluator.process(data_batch=data, data_samples=data['data_samples'])
 
             elif self.task == 'cls':
-                if img.dtype == np.float32:
-                    img = img * 255
-
-                img_scale = 1 / _get_adaptive_scale(img.shape[:2])
-
-                img = cv2.resize(img, (int(img.shape[1] * img_scale), int(img.shape[0] * img_scale)))
-
-                self.visualizer.set_image(img)
                 label = np.argmax(preds[0], axis=1)
                 data['data_samples'][0].set_pred_score(preds[0][0]).set_pred_label(label)
                 self.evaluator.process(data_samples=data['data_samples'], data_batch=data)
 
-                texts = self.visualizer.dataset_meta["classes"][label[0]] + ':' + str(preds[0][0][label[0]])
+                if self.cfg.input_type == 'sensor':
+                    self.visualizer.add_datasample(name=0, data=inputs, data_sample=data['data_samples'][0])
+                else:
+                    if img.dtype == np.float32:
+                        img = img * 255
+                    img_scale = 1 / _get_adaptive_scale(img.shape[:2])
+                    img = cv2.resize(img, (int(img.shape[1] * img_scale), int(img.shape[0] * img_scale)))
+                    self.visualizer.set_image(img)
+                    texts = self.visualizer.dataset_meta['classes'][label[0]] + ':' + str(preds[0][0][label[0]])
 
-                text_cfg = dict()
-                text_cfg = {
-                    'positions': np.array([[0, 5]]),
-                    'font_sizes': int(img.shape[0] / 20),
-                    'font_families': 'monospace',
-                    'colors': 'white',
-                    'bboxes': dict(facecolor='black', alpha=0.5, boxstyle='Round'),
-                    **text_cfg,
-                }
-
-                self.visualizer.draw_texts(texts, **text_cfg)
+                    text_cfg = dict()
+                    text_cfg = {
+                        'texts': texts,
+                        'positions': np.array([[0, 5]]),
+                        'font_sizes': int(img.shape[0] / 20),
+                        'font_families': 'monospace',
+                        'colors': 'white',
+                        'bboxes': dict(facecolor='black', alpha=0.5, boxstyle='Round'),
+                        **text_cfg,
+                    }
+                    self.visualizer.draw_texts(**text_cfg)
 
                 if self.show:
                     self.visualizer.show(backend='cv2')
