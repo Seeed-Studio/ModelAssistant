@@ -1,16 +1,16 @@
-_base_ = '../_base_/default_runtime_cls.py'
+_base_ = './base.py'
 
 default_scope = 'sscma'
 # ========================Suggested optional parameters========================
 # MODEL
 num_classes = 3
 num_axes = 3
-window_size = 30
+window_size = 62
 stride = 20
 
 # DATA
 dataset_type = 'sscma.SensorDataset'
-data_root = 'datasets/aixs-export'
+data_root = 'datasets/sensor-export'
 train_ann = 'info.labels'
 train_data = 'training'
 val_ann = 'info.labels'

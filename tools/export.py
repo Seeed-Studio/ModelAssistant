@@ -1,8 +1,9 @@
 import argparse
 import os
-import tempfile
-import sys
 import os.path as osp
+import sys
+import tempfile
+
 import torch
 from tqdm import tqdm
 
@@ -15,7 +16,7 @@ import sscma.engine  # noqa
 import sscma.evaluation  # noqa
 import sscma.models  # noqa
 import sscma.visualization  # noqa
-from sscma.utils.check import check_lib # noqa
+from sscma.utils.check import check_lib  # noqa
 
 
 def parse_args():
@@ -72,7 +73,7 @@ def parse_args():
         '--input_type',
         '--input-type',
         type=str,
-        default='image',
+        default=None,
         choices=['audio', 'image', 'sensor'],
         help='the type of input data',
     )
@@ -203,6 +204,20 @@ def build_config(args):
     if 'batch_shapes_cfg' in cfg.val_dataloader.dataset:
         cfg.val_dataloader.dataset.batch_shapes_cfg = None
 
+    if args.input_type is None:
+        try:
+            if 'input_type' in cfg:
+                args.input_type = cfg.input_type
+            else:
+                raise ValueError('Please specify the input type')
+        except Exception as exc:
+            raise ValueError('Please specify the input type') from exc
+        print(
+            "Using automatically generated input type (from config '{}'): {}".format(
+                os.path.basename(args.config), args.input_type
+            )
+        )
+
     if args.input_shape is None:
         try:
             if 'imgsz' in cfg:
@@ -214,6 +229,8 @@ def build_config(args):
                     cfg.width,
                     cfg.height,
                 ]
+            elif 'shape' in cfg:
+                args.input_shape = cfg.shape
         except Exception as exc:
             raise ValueError('Please specify the input shape') from exc
         print(
@@ -269,40 +286,41 @@ def get_exported_file_name_from_precision(args, precision, ext: str = '') -> str
 
 
 def export_pnnx(args, model):
+    import os.path as osp
     import sys
+
     import pnnx
     from pnnx.wrapper import convert_inputshape_to_cmd
-    import os.path as osp
 
     model.eval()
     pnnx_bin_path = osp.join(osp.dirname(pnnx.__file__), 'bin')
     bin_list = os.listdir(pnnx_bin_path)
     x = torch.randn(args.input_shape)
 
-    cmd = ""
+    cmd = ''
     dir_dict = {}
     for dir_name in bin_list:
         if 'ubuntu' in dir_name:
-            dir_dict["linux"] = dir_name
+            dir_dict['linux'] = dir_name
         elif 'windows' in dir_name:
             dir_dict['win'] = dir_name
         elif 'macos' in dir_name:
             dir_dict['darwin'] = dir_name
     if sys.platform.startswith('linux'):
-        cmd += os.path.join(pnnx_bin_path, dir_dict["linux"], "pnnx ")
+        cmd += os.path.join(pnnx_bin_path, dir_dict['linux'], 'pnnx ')
     elif sys.platform.startswith('win'):
-        cmd += os.path.join(pnnx_bin_path, dir_dict["win"], "pnnx.exe ")
+        cmd += os.path.join(pnnx_bin_path, dir_dict['win'], 'pnnx.exe ')
     elif sys.platform.startswith('darwin'):
-        cmd += os.path.join(pnnx_bin_path, dir_dict["darwin"], "pnnx ")
+        cmd += os.path.join(pnnx_bin_path, dir_dict['darwin'], 'pnnx ')
     cmd += 'model.pt '
     cmd += convert_inputshape_to_cmd(x)
-    cmd += " pnnxparam=" + get_exported_file_name_from_precision(args, 'float', '.pnnx.param')
-    cmd += " pnnxbin=" + get_exported_file_name_from_precision(args, 'float', '.pnnx.bin')
-    cmd += " pnnxpy=" + get_exported_file_name_from_precision(args, 'float', '.pnnx.py')
-    cmd += " pnnxonnx=" + get_exported_file_name_from_precision(args, 'float', '.pnnx.onnx')
-    cmd += " ncnnparam=" + get_exported_file_name_from_precision(args, 'float', '.ncnn.param')
-    cmd += " ncnnbin=" + get_exported_file_name_from_precision(args, 'float', '.ncnn.bin')
-    cmd += " ncnnpy=" + get_exported_file_name_from_precision(args, 'float', '.ncnn.py')
+    cmd += ' pnnxparam=' + get_exported_file_name_from_precision(args, 'float', '.pnnx.param')
+    cmd += ' pnnxbin=' + get_exported_file_name_from_precision(args, 'float', '.pnnx.bin')
+    cmd += ' pnnxpy=' + get_exported_file_name_from_precision(args, 'float', '.pnnx.py')
+    cmd += ' pnnxonnx=' + get_exported_file_name_from_precision(args, 'float', '.pnnx.onnx')
+    cmd += ' ncnnparam=' + get_exported_file_name_from_precision(args, 'float', '.ncnn.param')
+    cmd += ' ncnnbin=' + get_exported_file_name_from_precision(args, 'float', '.ncnn.bin')
+    cmd += ' ncnnpy=' + get_exported_file_name_from_precision(args, 'float', '.ncnn.py')
 
     trace_model = torch.jit.trace(model, x)
     trace_model.save('model.pt')
@@ -339,7 +357,7 @@ def export_tflite(args, model, loader):
                     for ms, ss in args.mean_and_std
                 ]
             else:
-                raise NotImplementedError
+                means_and_stds = None
             with model_tracer():
                 quantizer = PostQuantizer(
                     model,
