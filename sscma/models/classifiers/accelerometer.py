@@ -83,7 +83,7 @@ class AccelerometerClassifier(BaseClassifier):
                 head_out = F.softmax(head_out, dim=-1)
             else:
                 head_out = torch.sigmoid(head_out)
-            return 
+            return head_out
         elif mode == 'loss':
             return self.loss(inputs, data_samples)
         elif mode == 'predict':
