@@ -32,7 +32,6 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - macos-latest
           - windows-latest
         python-version:
           - '3.8'
@@ -69,42 +68,6 @@ jobs:
         run: |
             python3 tools/train.py --help
 
-  conda-installation:
-    name: conda installation test for (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-
-    steps:
-      - name: checkout repository
-        uses: actions/checkout@v4
-
-      - name: conda install deps (CPU)
-        run: |
-            conda env create -n edgelab_cpu -f environment.yml
-            conda run -n edgelab_cpu mim install -r requirements/mmlab.txt
-            conda run -n edgelab_cpu mim install -e .
-            conda run -n edgelab_cpu pip3 install -r requirements/inference.txt -r requirements/export.txt -r requirements/tests.txt
-        
-      - name: conda test train deps (CPU)
-        run: |
-            conda run -n edgelab_cpu python3 tools/train.py --help
-
-      - name: conda install deps (CUDA)
-        run: |
-            conda env create -n edgelab_cuda -f environment_cuda.yml
-            conda run -n edgelab_cuda mim install -r requirements/mmlab.txt
-            conda run -n edgelab_cuda mim install -e .
-            conda run -n edgelab_cuda pip3 install -r requirements/inference.txt -r requirements/export.txt -r requirements/tests.txt
-
-      - name: conda test train deps (CUDA)
-        run: |
-            conda run -n edgelab_cuda python3 tools/train.py --help
-
   auto-installation:
     name: auto installation test for (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -122,3 +85,7 @@ jobs:
       - name: setup deps (shell)
         run: |
             bash scripts/setup_linux.sh
+
+      - name: test train (auto)
+        run: |
+            conda run -n sscma python3 tools/train.py --help

@@ -37,15 +37,31 @@ fi
 
 # create conda env and install deps
 echo -en "Creating conda env and installing base deps... "
-if [ "${CUDA_AVAILABLE}" ]; then
-    echo -en "${BLUE}Using CUDA${RST}\n"
-    conda env create -n sscma -f environment_cuda.yml
-else
-    echo -en "${BLUE}Using CPU${RST}\n"
-    conda env create -n sscma -f environment.yml
-fi
+conda env create -n sscma -f environment.yml
 if [ "$?" != 0 ]; then
     echo -en "Conda create env failed... ${RED}Exiting${RST}\n"
+    exit 1
+fi
+
+# install base deps
+echo -en "Installing base deps... \n"
+conda run -n sscma pip3 install -r requirements/base.txt
+if [ "$?" != 0 ]; then
+    echo -en "Base deps install failed... ${RED}Exiting${RST}\n"
+    exit 1
+fi
+
+# install pytorch deps
+echo -en "Installing pytorch deps... \n"
+if [ "${CUDA_AVAILABLE}" ]; then
+    echo -en "${BLUE}Using CUDA${RST}\n"
+    conda run -n sscma pip3 install -r requirements/pytorch_cuda.txt
+else
+    echo -en "${BLUE}Using CPU${RST}\n"
+    conda run -n sscma pip3 install -r requirements/pytorch_cpu.txt
+fi
+if [ "$?" != 0 ]; then
+    echo -en "Pytorch deps install failed... ${RED}Exiting${RST}\n"
     exit 1
 fi
 
