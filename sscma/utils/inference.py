@@ -441,7 +441,7 @@ class Infernce:
                 self.evaluator.process(data_samples=data['data_samples'], data_batch=data)
 
                 if self.cfg.input_type == 'sensor':
-                    self.visualizer.add_datasample(name=0, data=inputs, data_sample=data['data_samples'])
+                    self.visualizer.add_datasample(name=0, data=inputs, data_sample=data['data_samples'][first_key])
                 else:
                     if img.dtype == np.float32:
                         img = img * 255
