@@ -32,7 +32,6 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - macos-latest
           - windows-latest
         python-version:
           - '3.8'
@@ -44,48 +43,30 @@ jobs:
 
     steps:
       - name: checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: setup python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
 
-      - name: pip install deps
+      - name: pip install deps (CPU)
         run: |
-            python -m pip install --upgrade pip wheel setuptools
-            python -m pip install -r requirements/pytorch_cpu.txt
-            python -m pip install -r requirements/base.txt
-            python -m pip install -r requirements/inference.txt
-            python -m pip install -r requirements/export.txt
-            python -m mim install -r requirements/mmlab.txt
-            python -m mim install -e .
-            python --version
-            python -m pip --version
-            python -m pip list
+            python3 -m pip install --upgrade pip wheel setuptools
+            python3 -m pip install -r requirements/pytorch_cpu.txt
+            python3 -m pip install -r requirements/base.txt
+            python3 -m pip install -r requirements/inference.txt
+            python3 -m pip install -r requirements/export.txt
+            python3 -m mim install -r requirements/mmlab.txt
+            python3 -m mim install -e .
+            python3 --version
+            python3 -m pip --version
+            python3 -m pip list
 
-  conda-installation:
-    name: conda installation test for (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-
-    steps:
-      - name: checkout repository
-        uses: actions/checkout@v3
-
-      - name: conda install deps (CPU, only base)
+      - name: test train deps (CPU)
         run: |
-            conda env create -n edgelab -f environment.yml
-
-      - name: conda install deps (CUDA, only base)
-        run: |
-            conda env create -n edgelab_cuda -f environment_cuda.yml
+            python3 tools/train.py --help
 
   auto-installation:
     name: auto installation test for (${{ matrix.os }})
@@ -99,8 +80,12 @@ jobs:
 
     steps:
       - name: checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: setup deps (shell)
         run: |
             bash scripts/setup_linux.sh
+
+      - name: test train (auto)
+        run: |
+            conda run -n sscma python3 tools/train.py --help

@@ -151,8 +151,7 @@ class SensorClsVisualizer(Visualizer):
 
     Args:
         name (str): Name of the instance. Defaults to 'visualizer'.
-        image (np.ndarray, optional): the origin image to draw. The format
-            should be RGB. Defaults to None.
+        data (np.ndarray, optional): the origin data to draw. The format.
         vis_backends (list, optional): Visual backend config list.
             Defaults to None.
         save_dir (str, optional): Save file dir for all storage backends.
@@ -161,33 +160,6 @@ class SensorClsVisualizer(Visualizer):
             Defaults to empty dict.
         fig_show_cfg (dict): Keyword parameters of figure for showing.
             Defaults to empty dict.
-
-    Examples:
-        >>> import torch
-        >>> import mmcv
-        >>> from pathlib import Path
-        >>> from mmcls.visualization import ClsVisualizer
-        >>> from mmcls.structures import ClsDataSample
-        >>> # Example image
-        >>> img = mmcv.imread("./demo/bird.JPEG", channel_order='rgb')
-        >>> # Example annotation
-        >>> data_sample = ClsDataSample().set_gt_label(1).set_pred_label(1).\
-        ...     set_pred_score(torch.tensor([0.1, 0.8, 0.1]))
-        >>> # Setup the visualizer
-        >>> vis = ClsVisualizer(
-        ...     save_dir="./outputs",
-        ...     vis_backends=[dict(type='LocalVisBackend')])
-        >>> # Set classes names
-        >>> vis.dataset_meta = {'classes': ['cat', 'bird', 'dog']}
-        >>> # Show the example image with annotation in a figure.
-        >>> # And it will ignore all preset storage backends.
-        >>> vis.add_datasample('res', img, data_sample, show=True)
-        >>> # Save the visualization result by the specified storage backends.
-        >>> vis.add_datasample('res', img, data_sample)
-        >>> assert Path('./outputs/vis_data/vis_image/res_0.png').exists()
-        >>> # Save another visualization result with the same name.
-        >>> vis.add_datasample('res', img, data_sample, step=1)
-        >>> assert Path('./outputs/vis_data/vis_image/res_1.png').exists()
     """
 
     @master_only
@@ -240,11 +212,10 @@ class SensorClsVisualizer(Visualizer):
             classes = self.dataset_meta.get('classes', None)
 
         sensors = data_sample.sensors
-        uints = []
-        uints = [sensor['units'] for sensor in sensors if sensor['units'] not in uints]
+        uints = set([sensor['units'] for sensor in sensors])
 
         # slice the data into different sensors
-        inputs = [data[i :: len(sensors)] for i in range(len(sensors))]
+        inputs = [data[0][i :: len(sensors)] for i in range(len(sensors))]
 
         _, axs = plt.subplots(len(uints), 1)
 
@@ -284,7 +255,7 @@ class SensorClsVisualizer(Visualizer):
             prefix = 'Prediction: '
             texts.append(prefix + ('\n' + ' ' * len(prefix)).join(labels))
 
-        plt.set_title(texts)
+        plt.title(texts)
         plt.tight_layout()
         plt.legend()
         fig = plt.gcf()
@@ -295,8 +266,11 @@ class SensorClsVisualizer(Visualizer):
         self.set_image(image)
         drawn_img = self.get_image()
 
+        if text_cfg:
+            self.draw_texts(**text_cfg)
+
         if show:
-            self.show(drawn_img, win_name=name, wait_time=wait_time)
+            self.show(drawn_img, win_name=name, backend='cv2', wait_time=wait_time)
 
         if out_file is not None:
             # save the image to the target file instead of vis_backends

@@ -1,8 +1,7 @@
-# defaults to use registries in mmpretrain
-default_scope = 'sscma'
+_base_ = '../_base_/default_runtime_cls.py'
 
 # defaults input type image
-input_type = 'image'
+input_type = 'sensor'
 
 # ========================Suggested optional parameters========================
 # RUNNING
@@ -11,6 +10,8 @@ val_interval = 5
 # Model weight saving interval in epochs
 save_interval = val_interval
 
+# defaults to use registries in mmpretrain
+default_scope = 'sscma'
 # ================================END=================================
 # configure default hooks
 default_hooks = dict(
@@ -25,33 +26,5 @@ default_hooks = dict(
     # set sampler seed in distributed evrionment.
     sampler_seed=dict(type='DistSamplerSeedHook'),
     # validation results visualization, set True to enable it.
-    visualization=dict(type='mmcls.VisualizationHook', enable=False),
+    visualization=dict(type='sscma.SensorVisualizationHook', enable=False),
 )
-
-# configure environment
-env_cfg = dict(
-    # whether to enable cudnn benchmark
-    cudnn_benchmark=False,
-    # set multi process parameters
-    mp_cfg=dict(mp_start_method='fork', opencv_num_threads=0),
-    # set distributed parameters
-    dist_cfg=dict(backend='nccl'),
-)
-
-# set visualizer
-vis_backends = [dict(type='LocalVisBackend')]
-visualizer = dict(type='mmcls.ClsVisualizer', vis_backends=vis_backends)
-
-# set log level
-log_level = 'INFO'
-
-# load from which checkpoint
-load_from = None
-
-# whether to resume training from the loaded checkpoint
-resume = False
-
-# Defaults to use random seed and disable `deterministic`
-randomness = dict(seed=None, deterministic=False)
-
-train_cfg = dict(by_epoch=True, val_interval=val_interval)

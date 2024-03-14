@@ -2,7 +2,7 @@ _base_ = '../_base_/default_runtime_pose.py'
 
 # ========================Suggested optional parameters========================
 # MODEL
-num_classes = 4
+num_classes = 1
 deepen_factor = 0.33
 widen_factor = 0.15
 

@@ -4,8 +4,12 @@ from .logger import (
     TextLoggerHook,
     WandbLoggerHook,
 )
-from .visualization_hook import DetFomoVisualizationHook, Posevisualization
 from .semihook import SemiHook
+from .visualization_hook import (
+    DetFomoVisualizationHook,
+    Posevisualization,
+    SensorVisualizationHook,
+)
 
 __all__ = [
     'TextLoggerHook',
@@ -15,5 +19,6 @@ __all__ = [
     'ClearMLLoggerHook',
     'Posevisualization',
     'DetFomoVisualizationHook',
-    "SemiHook",
+    'SensorVisualizationHook',
+    'SemiHook',
 ]

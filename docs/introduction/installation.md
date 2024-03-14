@@ -24,12 +24,12 @@ First, you need to clone the [SSCMA Source Code](https://github.com/Seeed-Studio
 
 ```sh [HTTPS]
 git clone https://github.com/Seeed-Studio/ModelAssistant.git --depth 1 && \
-cd SSCMA
+cd ModelAssistant
 ```
 
 ```sh [SSH]
 git clone git@github.com:Seeed-Studio/ModelAssistant.git --depth 1 && \
-cd SSCMA
+cd ModelAssistant
 ```
 
 :::

@@ -24,12 +24,12 @@ Miniconda 是 conda 的免费最小安装程序，您可以从[Miniconda 官方�
 
 ```sh [HTTPS]
 git clone https://github.com/Seeed-Studio/ModelAssistant.git --depth 1 && \
-cd SSCMA
+cd ModelAssistant
 ```
 
 ```sh [SSH]
 git clone git@github.com:Seeed-Studio/ModelAssistant.git --depth 1 && \
-cd SSCMA
+cd ModelAssistant
 ```
 
 :::

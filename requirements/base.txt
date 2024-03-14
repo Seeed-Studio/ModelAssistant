@@ -1,5 +1,5 @@
 # common
-albumentations>=1.3.0
+albumentations<=1.3.1
 libusb1
 
 
@@ -7,8 +7,10 @@ libusb1
 cbor
 numpy>=1.23.5
 
+
 # vision
-opencv-python>=4.7.0.72
+opencv-python>=4.9.0.80
+
 
 # openmmlab package manager
 openmim>=0.3.7
@@ -19,12 +21,15 @@ pyyaml>=6.0
 scikit-image>=0.20.0
 scikit-learn>=1.2.2
 
+
 # sound
 soundfile>=0.12.1
+
 
 # visualize
 tensorboard>=2.12.3
 tqdm>=4.65.0
 
-# data 
+
+# data
 pyvww

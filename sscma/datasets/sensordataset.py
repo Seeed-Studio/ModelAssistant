@@ -49,6 +49,8 @@ class SensorDataset(CustomDataset):
 
         super().__init__(ann_file=ann_file, metainfo=metainfo, data_root=data_root, data_prefix=data_prefix, **kwargs)
 
+        self._metainfo = {'classes': self.get_classes()}
+
     def get_classes(self, classes=None):
         if classes is not None:
             return classes
@@ -89,8 +91,9 @@ class SensorDataset(CustomDataset):
         data_list = []
         for filename, gt_label in samples:
             ann_path = os.path.join(self.data_dir, filename)
+            sensors, data_set = self.read_split_data(ann_path)
             data_list.extend(
-                [{'data': np.asanyarray([data]), 'gt_label': int(gt_label)} for data in self.read_split_data(ann_path)]
+                [{'data': np.asanyarray([data]), 'gt_label': int(gt_label), 'sensors': sensors} for data in data_set]
             )
 
         return data_list
@@ -98,17 +101,18 @@ class SensorDataset(CustomDataset):
     def read_split_data(self, file_path: str) -> List:
         if file_path.lower().endswith('.cbor'):
             with open(file_path, 'rb') as f:
-                data = cbor.loads(f.read())
+                info_lables = cbor.loads(f.read())
         elif file_path.lower().endswith('.json'):
             with open(file_path, 'r') as f:
-                data = json.load(f)
+                info_lables = json.load(f)
 
-        values = np.asanyarray(data['payload']['values'])
+        values = np.asanyarray(info_lables['payload']['values'])
+        sensors = info_lables['payload']['sensors']
 
-        result = []
+        data_set = []
         values_len = len(values)
         if values_len <= self.window_size:
-            result.append(self.pad_data(values, self.window_size).transpose(0, 1).reshape(-1))
+            data_set.append(self.pad_data(values, self.window_size).transpose(0, 1).reshape(-1))
         else:
             indexes = range(0, values_len, self.stride)
             for i in indexes:
@@ -128,8 +132,9 @@ class SensorDataset(CustomDataset):
                         data = values[i:end]
                 if self.flatten:
                     data = data.transpose(0, 1).reshape(-1)
-                result.append(data)
-        return result
+                data_set.append(data)
+
+        return sensors, data_set
 
     def pad_data(self, data: np.asanyarray, total_len: int, mode='constant', pad_val=0) -> np.array:
         pad_len = total_len - len(data)

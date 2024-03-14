@@ -37,30 +37,39 @@ fi
 
 # create conda env and install deps
 echo -en "Creating conda env and installing base deps... "
-if [ "${CUDA_AVAILABLE}" ]; then
-    echo -en "${BLUE}Using CUDA${RST}\n"
-    conda env create -n sscma -f environment_cuda.yml
-else
-    echo -en "${BLUE}Using CPU${RST}\n"
-    conda env create -n sscma -f environment.yml
-fi
+conda env create -n sscma -f environment.yml
 if [ "$?" != 0 ]; then
     echo -en "Conda create env failed... ${RED}Exiting${RST}\n"
     exit 1
 fi
 
-eval "$(conda shell.bash hook)" && \
-conda activate sscma
+# install base deps
+echo -en "Installing base deps... \n"
+conda run -n sscma pip3 install -r requirements/base.txt
 if [ "$?" != 0 ]; then
-    echo -en "Conda active env failed... ${RED}Exiting${RST}\n"
+    echo -en "Base deps install failed... ${RED}Exiting${RST}\n"
+    exit 1
+fi
+
+# install pytorch deps
+echo -en "Installing pytorch deps... \n"
+if [ "${CUDA_AVAILABLE}" ]; then
+    echo -en "${BLUE}Using CUDA${RST}\n"
+    conda run -n sscma pip3 install -r requirements/pytorch_cuda.txt
+else
+    echo -en "${BLUE}Using CPU${RST}\n"
+    conda run -n sscma pip3 install -r requirements/pytorch_cpu.txt
+fi
+if [ "$?" != 0 ]; then
+    echo -en "Pytorch deps install failed... ${RED}Exiting${RST}\n"
     exit 1
 fi
 
 
 # openmim install deps
 echo -en "Installing OpenMIM deps... \n"
-mim install -r requirements/mmlab.txt && \
-mim install -e .
+conda run -n sscma mim install -r requirements/mmlab.txt && \
+conda run -n sscma mim install -e .
 if [ "$?" != 0 ]; then
     echo -en "OpenMIM install deps failed... ${RED}Exiting${RST}\n"
     exit 1
@@ -69,8 +78,8 @@ fi
 
 # install optional deps
 if [ "${INSTALL_OPTIONAL}" == true ]; then
-    pip3 install -r requirements/inference.txt -r requirements/export.txt -r requirements/tests.txt
-    pre-commit install
+    conda run -n sscma pip3 install -r requirements/inference.txt -r requirements/export.txt -r requirements/tests.txt
+    conda run -n sscma pre-commit install
 fi
 
 
@@ -81,6 +90,5 @@ fi
 
 
 echo -en "Finished setup... ${GREEN}OK${RST}\n"
-conda deactivate
 
 exit 0
