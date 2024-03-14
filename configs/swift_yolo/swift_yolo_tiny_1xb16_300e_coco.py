@@ -2,7 +2,7 @@ _base_ = ['./base_arch.py']
 
 # ========================Suggested optional parameters========================
 # MODEL
-num_classes = 71
+num_classes = 11
 deepen_factor = 0.33
 widen_factor = 0.15
 
@@ -19,8 +19,8 @@ height = 640
 width = 640
 batch = 16
 workers = 2
-val_batch=batch
-val_workers=workers
+val_batch = batch
+val_workers = workers
 imgsz = (width, height)
 
 # TRAIN
