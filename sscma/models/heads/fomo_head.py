@@ -223,13 +223,13 @@ class FomoHead(BaseModule):
         # Traversal compares predicted and ground truth boxes
         for ti in target_index:
             for po in self.posit_offset:
-                site = np.concatenate([ti, po], axis=0)
+                site = np.sum([ti, po], axis=0)
                 # Avoid index out of bounds
                 if np.any(site < 0) or np.any(site >= H):
                     continue
                 # The prediction is considered to be correct if it is near the ground truth box
                 if site in preds_index:
-                    sc, tc = np.split(site, 3), np.split(ti, 3)
+                    sc, tc = tuple(np.split(site, 3)), tuple(np.split(ti, 3))
                     if preds_max[sc] == target_max[tc]:
                         preds_max[sc] = target_max[tc]
                         target_max[sc] = target_max[tc]
