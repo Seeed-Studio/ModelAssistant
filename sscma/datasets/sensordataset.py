@@ -49,7 +49,7 @@ class SensorDataset(CustomDataset):
 
         super().__init__(ann_file=ann_file, metainfo=metainfo, data_root=data_root, data_prefix=data_prefix, **kwargs)
 
-        self._metainfo = {'classes': self.get_classes()}
+        self.metainfo = {'classes': self.get_classes()}
 
     def get_classes(self, classes=None):
         if classes is not None:
