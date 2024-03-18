@@ -1,8 +1,9 @@
 import argparse
 import os
-import tempfile
-import sys
 import os.path as osp
+import sys
+import tempfile
+
 import torch
 
 current_path = osp.dirname(osp.abspath(__file__))
@@ -125,8 +126,8 @@ def verify_args(args):
         '.tflite',
         '.param',
         '.bin',
-    }, "The chackpoint model should be ended with a '.pth', '.onnx' or '.tflite' extension"
-    assert os.path.exists(args.checkpoint), 'The chackpoint model does not exist'
+    }, "The checkpoint model should be ended with a '.pth', '.onnx' or '.tflite' extension"
+    assert os.path.exists(args.checkpoint), 'The checkpoint model does not exist'
     assert args.interval > 0, 'The interval of visualization per samples should be larger than 0'
     assert args.wait_time >= 0, 'The visualize duration should be larger than or equal to 0'
 
@@ -240,7 +241,8 @@ def build_config(args):
         if args.task == 'mmcls':
             cfg.default_hooks.visualization.enable = True
         else:
-            cfg.default_hooks.visualization.draw = True
+            pass
+            # cfg.default_hooks.visualization.draw = True # No argument 'draw'
         cfg.default_hooks.visualization.interval = args.interval
     if args.show:
         cfg.default_hooks.visualization.show = True
@@ -273,7 +275,7 @@ def build_config(args):
 
 
 def main():
-    args = parse_args()
+    args = parse_args()  # can't parse outdir
     args = verify_args(args)
     args, cfg = build_config(args)
 

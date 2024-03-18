@@ -286,7 +286,7 @@ class Infernce:
         # check source data
         assert not (source is None and dataloader is None), 'Both source and dataload cannot be None'
 
-        self.class_name = dataloader.dataset._metainfo['classes']
+        self.class_name = dataloader.dataset.metainfo['classes']
         # load model
         self.model = Inter(model)
         # make dataloader
@@ -330,13 +330,15 @@ class Infernce:
         P = []
         R = []
         F1 = []
+
         for data in tqdm(self.dataloader):
+            first_key = next(iter(data['data_samples']))
             if not self.source:
                 if hasattr(self, 'data_preprocess'):
                     data = self.data_preprocess(data, False)
                 inputs = data['inputs'][0]
                 if self.cfg.input_type == 'image':
-                    img_path = data['data_samples'][0].get('img_path', None)
+                    img_path = data['data_samples'][first_key]
                     img = data['inputs'][0].permute(1, 2, 0).cpu().numpy()
             else:
                 img = data
@@ -355,8 +357,12 @@ class Infernce:
                         img = img * 255
                     show_point(preds, img=img)
                 else:
-                    show_point(preds, img_file=data['data_samples']['image_file'][0])
+                    img_path = data['data_samples']['image_file'][0]
+                    show_point(preds, img_file=data['data_samples']['image_file'][0], save_path=self.save_dir)
+                data['data_samples']['results'] = preds[0]
+                self.evaluator.process(data_batch=data, data_samples=data['data_samples'])
             elif self.task == 'det':
+                img_path = data['data_samples'][0].get('img_path', None)
                 if len(preds[0].shape) > 3:
                     preds = preds[0]
                 elif len(preds[0].shape) > 2:
@@ -385,12 +391,12 @@ class Infernce:
                         points = (pred_index + 0.5) / np.asarray([H, W]) * np.asarray(self.input_shape[:-1])
                         show_point(points, img=img, labels=texts, show=self.show, img_file=img_path)
                     if not self.source:
-                        ori_shape = data['data_samples'][0].ori_shape
+                        ori_shape = data['data_samples'][first_key].ori_shape
                         # bboxes = data['data_samples'][0].gt_instances
                         # target = build_target(preds.shape[1:], (H*8, W*8), bboxes)
-                        target = torch.as_tensor(data['data_samples'][0].fomo_mask[0])
+                        target = torch.as_tensor(data['data_samples'][first_key].fomo_mask[0])
 
-                        data['data_samples'][0].pred_instances = InstanceData(
+                        data['data_samples'][first_key].pred_instances = InstanceData(
                             pred=tuple([torch.from_numpy(preds).permute(0, 3, 1, 2)]), labels=tuple([target])
                         )
 
@@ -418,7 +424,7 @@ class Infernce:
                     )
 
                 if not self.source and not self.fomo:
-                    ori_shape = data['data_samples'][0].ori_shape
+                    ori_shape = data['data_samples'][first_key].ori_shape
                     tmp = preds[:, :4]
                     tmp[:, 0::2] = tmp[:, 0::2] / self.input_shape[1] * ori_shape[1]
                     tmp[:, 1::2] = tmp[:, 1::2] / self.input_shape[0] * ori_shape[0]
@@ -434,12 +440,13 @@ class Infernce:
                     self.evaluator.process(data_batch=data, data_samples=data['data_samples'])
 
             elif self.task == 'cls':
+                img_path = data['data_samples'][0].get('img_path', None)
                 label = np.argmax(preds[0], axis=1)
-                data['data_samples'][0].set_pred_score(preds[0][0]).set_pred_label(label)
+                data['data_samples'][first_key].set_pred_score(preds[0][0]).set_pred_label(label)
                 self.evaluator.process(data_samples=data['data_samples'], data_batch=data)
 
                 if self.cfg.input_type == 'sensor':
-                    self.visualizer.add_datasample(name=0, data=inputs, data_sample=data['data_samples'][0])
+                    self.visualizer.add_datasample(name=0, data=inputs, data_sample=data['data_samples'])
                 else:
                     if img.dtype == np.float32:
                         img = img * 255
@@ -464,7 +471,7 @@ class Infernce:
                     self.visualizer.show(backend='cv2')
             else:
                 raise ValueError
-        if not self.source:
+        if not self.source and not self.task == 'pose':
             metrics = self.evaluator.evaluate(len(self.dataloader.dataset))
             if self.dump is not None and metrics is not None:
                 resultdump(metrics, self.dump)
@@ -492,13 +499,12 @@ def show_point(
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     else:
         img = load_image(img_file, shape=shape, mode='BGR').copy()
-
+    h, w, c = img.shape
     for idx, point in enumerate(keypoints):
-        img = cv2.circle(img, (int(point[0]), int(point[1])), 5, (255, 0, 0), -1)
+        cv_points = (int(point[0][0]), int(point[0][1]))
+        img = cv2.circle(img, cv_points, 5, (255, 0, 0), -1)
         if labels:
-            cv2.putText(
-                img, str(labels[idx]), (int(point[0]), int(point[1])), 1, color=(0, 0, 255), thickness=1, fontScale=1
-            )
+            cv2.putText(img, str(labels[idx]), cv_points, 1, color=(0, 0, 255), thickness=1, fontScale=1)
     if show:
         cv2.imshow(win_name, img)
         cv2.waitKey(500)

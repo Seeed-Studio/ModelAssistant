@@ -167,6 +167,10 @@ class MeterData(Dataset, metaclass=ABCMeta):
             self.metainfo['classes'] = [0]
         else:
             self.metainfo['classes'] = [0, 1, 2, 3]
+        if self.ann_ls[0]['point_num'] == 1:
+            self.metainfo['classes'] = [0]
+        else:
+            self.metainfo['classes'] = [0, 1, 2, 3]
 
     def parse_json(self, json_path: str) -> None:
         pass  # todo
