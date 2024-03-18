@@ -29,6 +29,7 @@ class Posevisualization(Hook):
         wait_time: float = 0.0,
         out_dir: Optional[str] = None,
         backend_args: Optional[dict] = None,
+        **kwargs,
     ):
         self._visualizer: Visualizer = Visualizer.get_current_instance()
         self.interval = interval
