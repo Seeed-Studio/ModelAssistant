@@ -51,7 +51,6 @@ class MeterData(Dataset, metaclass=ABCMeta):
     """
 
     CLASSES = 'meter'
-    
     METAINFO = dict()
 
     def __init__(
@@ -164,6 +163,10 @@ class MeterData(Dataset, metaclass=ABCMeta):
             points = np.asarray(line[1:], dtype=np.float32)
             point_num = len(points) // 2
             self.ann_ls.append({'image_file': img_file, 'keypoints': points, 'point_num': point_num})
+        if self.ann_ls[0]['point_num'] == 1:
+            self.metainfo['classes'] = [0]
+        else:
+            self.metainfo['classes'] = [0, 1, 2, 3]
 
     def parse_json(self, json_path: str) -> None:
         pass  # todo
