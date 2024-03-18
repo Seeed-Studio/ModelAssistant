@@ -357,8 +357,12 @@ class Infernce:
                         img = img * 255
                     show_point(preds, img=img)
                 else:
-                    show_point(preds, img_file=data['data_samples']['image_file'][0])
+                    img_path = data['data_samples']['image_file'][0]
+                    show_point(preds, img_file=data['data_samples']['image_file'][0], save_path=self.save_dir)
+                data['data_samples']['results'] = preds[0]
+                self.evaluator.process(data_batch=data, data_samples=data['data_samples'])
             elif self.task == 'det':
+                img_path = data['data_samples'][0].get('img_path', None)
                 if len(preds[0].shape) > 3:
                     preds = preds[0]
                 elif len(preds[0].shape) > 2:
@@ -436,6 +440,7 @@ class Infernce:
                     self.evaluator.process(data_batch=data, data_samples=data['data_samples'])
 
             elif self.task == 'cls':
+                img_path = data['data_samples'][0].get('img_path', None)
                 label = np.argmax(preds[0], axis=1)
                 data['data_samples'][first_key].set_pred_score(preds[0][0]).set_pred_label(label)
                 self.evaluator.process(data_samples=data['data_samples'], data_batch=data)
@@ -494,7 +499,7 @@ def show_point(
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     else:
         img = load_image(img_file, shape=shape, mode='BGR').copy()
-
+    h, w, c = img.shape
     for idx, point in enumerate(keypoints):
         cv_points = (int(point[0][0]), int(point[0][1]))
         img = cv2.circle(img, cv_points, 5, (255, 0, 0), -1)
