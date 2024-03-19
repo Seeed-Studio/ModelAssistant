@@ -1,6 +1,7 @@
 import os
 import os.path as osp
 import time
+import datetime
 from typing import AnyStr, List, Optional, Sequence, Tuple, Union
 
 import cv2
@@ -155,20 +156,20 @@ class Inter:
             result = extra.extract(output_name)[1]
             return [np.expand_dims(np.array(result), axis=0)]
         else:  # tf
-            input_, outputs = self.inter.get_input_details()[0], (
-                self.inter.get_output_details()[0] for i in range(result_num)
-            )
-            int8 = input_['dtype'] == np.int8 or input_['dtype'] == np.uint8
-            data = data.transpose(0, 2, 3, 1) if len(data.shape) == 4 else data
-            if int8:
+            input_, outputs = self.inter.get_input_details()[0], [
+                self.inter.get_output_details()[i] for i in range(result_num)
+            ]
+            input_int8 = input_['dtype'] == np.int8 or input_['dtype'] == np.uint8
+            output_int8 = outputs[0]['dtype'] == np.int8 or outputs[0]['dtype'] == np.uint8
+            img = img.transpose(0, 2, 3, 1) if len(img.shape) == 4 else img
+            if input_int8:
                 scale, zero_point = input_['quantization']
-                data = (data / scale + zero_point).astype(np.int8)
-
-            self.inter.set_tensor(input_['index'], data)
+                img = (img / scale + zero_point).astype(np.int8)
+            self.inter.set_tensor(input_['index'], img)
             self.inter.invoke()
             for output in outputs:
                 result = self.inter.get_tensor(output['index'])
-                if int8:
+                if output_int8:
                     scale, zero_point = output['quantization']
                     result = (result.astype(np.float32) - zero_point) * scale
                 results.append(result)
@@ -286,7 +287,11 @@ class Infernce:
         # check source data
         assert not (source is None and dataloader is None), 'Both source and dataload cannot be None'
 
-        self.class_name = dataloader.dataset._metainfo['classes']
+        self.class_name = (
+            dataloader.dataset._metainfo['classes']
+            if getattr(dataloader.dataset, '_metainfo', None) is not None
+            else None
+        )
         # load model
         self.model = Inter(model)
         # make dataloader
@@ -336,7 +341,12 @@ class Infernce:
                     data = self.data_preprocess(data, False)
                 inputs = data['inputs'][0]
                 if self.cfg.input_type == 'image':
-                    img_path = data['data_samples'][0].get('img_path', None)
+                    data_samples = data['data_samples']
+                    img_path = (
+                        data_samples.get('img_path', None)
+                        if isinstance(data_samples, dict)
+                        else data_samples[0].get('img_path', None)
+                    )
                     img = data['inputs'][0].permute(1, 2, 0).cpu().numpy()
             else:
                 img = data
@@ -353,9 +363,16 @@ class Infernce:
                 if self.source:
                     if img.dtype == np.float32:
                         img = img * 255
-                    show_point(preds, img=img)
+                    show_point(preds[0], img=img, show=self.show, save_path=self.save_dir)
                 else:
-                    show_point(preds, img_file=data['data_samples']['image_file'][0])
+                    show_point(
+                        preds[0],
+                        img_file=data['data_samples']['image_file'][0],
+                        show=self.show,
+                        save_path=self.save_dir,
+                    )
+                data['data_samples']['results'] = preds[0]
+                self.evaluator.process(data_batch=data, data_samples=[data['data_samples']])
             elif self.task == 'det':
                 if len(preds[0].shape) > 3:
                     preds = preds[0]
@@ -474,7 +491,7 @@ class Infernce:
             print('R:', sum(R) / len(R))
             print('F1:', sum(F1) / len(F1))
 
-        print(f'FPS: {len(self.dataloader)/self.time_cost:2f} fram/s')
+        print(f'FPS: {len(self.dataloader)/self.time_cost:4f} fram/s')
 
 
 def show_point(
@@ -493,8 +510,9 @@ def show_point(
     else:
         img = load_image(img_file, shape=shape, mode='BGR').copy()
 
+    H, W, _ = img.shape
     for idx, point in enumerate(keypoints):
-        img = cv2.circle(img, (int(point[0]), int(point[1])), 5, (255, 0, 0), -1)
+        img = cv2.circle(img, (int(point[0] * W), int(point[1] * H)), 5, (255, 0, 0), -1)
         if labels:
             cv2.putText(
                 img, str(labels[idx]), (int(point[0]), int(point[1])), 1, color=(0, 0, 255), thickness=1, fontScale=1
@@ -504,7 +522,10 @@ def show_point(
         cv2.waitKey(500)
 
     if save_path:
-        img_name = osp.basename(img_file)
+        if img_file is None:
+            img_name = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '.jpg'
+        else:
+            img_name = osp.basename(img_file)
         cv2.imwrite(osp.join(save_path, img_name), img)
 
 
@@ -542,10 +563,13 @@ def show_det(
         cv2.putText(img, str(round(i[4].item(), 2)), (x1, y1 - 15), 1, color=(0, 0, 255), thickness=1, fontScale=1)
     if show:
         cv2.imshow(win_name, img)
-        cv2.waitKey(0)
+        cv2.waitKey(500)
 
     if save_path:
-        img_name = osp.basename(img_file)
+        if img_file is None:
+            img_name = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '.jpg'
+        else:
+            img_name = osp.basename(img_file)
         cv2.imwrite(osp.join(save_path, img_name), img)
 
     return pred
