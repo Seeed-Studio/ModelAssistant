@@ -41,7 +41,7 @@ class FomoMetric(BaseMetric):
                 if torch.any(site < 0) or torch.any(site >= H):
                     continue
                 # The prediction is considered to be correct if it is near the ground truth box
-                if site in preds_index and preds_max[site.chunk(3)] == target_max[ti.chunk(3)]:
+                if site.tolist() in preds_index.tolist() and preds_max[site.chunk(3)] == target_max[ti.chunk(3)]:
                     preds_max[site.chunk(3)] = target_max[ti.chunk(3)]
                     target_max[site.chunk(3)] = target_max[ti.chunk(3)]
         # Calculate the confusion matrix
@@ -69,7 +69,7 @@ class FomoMetric(BaseMetric):
     def process(self, data_batch, data_samples) -> None:
         TP = FP = FN = []
         preds, target = data_samples[0]['pred_instances']['pred'], data_samples[0]['pred_instances']['labels']
-        preds = tuple([pred.permute(0, 2, 3, 1) for pred in preds])
+        # preds = tuple([pred.permute(0, 2, 3, 1) for pred in preds])
 
         tp, fp, fn = multi_apply(self.compute_ftp, preds, target)
 

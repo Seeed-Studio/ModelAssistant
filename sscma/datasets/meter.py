@@ -4,14 +4,13 @@ import math
 import os
 import os.path as osp
 from abc import ABCMeta
-from typing import Optional, Sequence, List, Any
+from typing import List, Optional, Sequence
 
 import cv2
 import numpy as np
-from torch.utils.data import Dataset
-from torchvision import transforms
 from mmengine.dataset import BaseDataset
-from mmengine.dataset import Compose
+from torchvision import transforms
+
 from sscma.registry import DATASETS
 
 from .pipelines.composition import AlbCompose
@@ -65,7 +64,6 @@ class MeterData(BaseDataset, metaclass=ABCMeta):
         format: str = 'xy',
         **kwargs,
     ):
-
         self.data_root = check_file(data_root)
         self.img_dir = img_dir  # todo
 
@@ -171,6 +169,8 @@ class MeterData(BaseDataset, metaclass=ABCMeta):
             points = np.asarray(line[1:], dtype=np.float32)
             point_num = len(points) // 2
             self.ann_ls.append({'image_file': img_file, 'keypoints': points, 'point_num': point_num})
+
+        self.metainfo['classes'] = [i for i in range(self.ann_ls[0]['point_num'])]
 
     def parse_json(self, json_path: str) -> None:
         pass  # todo
