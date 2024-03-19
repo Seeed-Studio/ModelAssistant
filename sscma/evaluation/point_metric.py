@@ -1,7 +1,6 @@
 from typing import Any, Optional, Sequence
 
 import numpy as np
-import torch
 from mmengine.evaluator import BaseMetric
 from mmengine.registry import METRICS
 
@@ -37,14 +36,9 @@ class PointMetric(BaseMetric):
     def process(self, data_batch: Any, data_samples: Sequence[dict]) -> None:
         target = data_batch['data_samples']['keypoints']
         size = data_batch['data_samples']['hw']  # .cpu().numpy()
-        result = np.array(
-            [i.cpu().numpy() if isinstance(i, torch.Tensor) else i for i in data_samples[0]['results']]
-        )  # train and inference have different data type
-        if len(result.shape) == 0:
-            result = result[None]
-        result = (
-            result if len(result.shape) == 2 else result[None, :]
-        )  # onnx shape(2,), tflite shape(1,2) #result is None will raise an error
+        result = np.array([i if isinstance(i, np.ndarray) else i.cpu().numpy() for i in data_samples[0]['results']])
+
+        result = result if len(result.shape) == 2 else result[None, :]  # onnx shape(2,), tflite shape(1,2)
         acc = pose_acc(result.copy(), target, size)
         self.results.append({'Acc': acc, 'pred': result, 'image_file': data_batch['data_samples']['image_file']})
 
