@@ -241,8 +241,7 @@ def build_config(args):
         if args.task == 'mmcls':
             cfg.default_hooks.visualization.enable = True
         else:
-            pass
-            # cfg.default_hooks.visualization.draw = True # No argument 'draw'
+            cfg.default_hooks.visualization.draw = True
         cfg.default_hooks.visualization.interval = args.interval
     if args.show:
         cfg.default_hooks.visualization.show = True
@@ -275,7 +274,7 @@ def build_config(args):
 
 
 def main():
-    args = parse_args()  # can't parse outdir
+    args = parse_args()
     args = verify_args(args)
     args, cfg = build_config(args)
 
