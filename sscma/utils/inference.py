@@ -375,7 +375,6 @@ class Infernce:
                 data['data_samples']['results'] = preds[0]
                 self.evaluator.process(data_batch=data, data_samples=[data['data_samples']])
             elif self.task == 'det':
-                img_path = data['data_samples'][0].get('img_path', None)
                 if len(preds[0].shape) > 3:
                     preds = preds[0]
                 elif len(preds[0].shape) > 2:
@@ -453,7 +452,6 @@ class Infernce:
                     self.evaluator.process(data_batch=data, data_samples=data['data_samples'])
 
             elif self.task == 'cls':
-                img_path = data['data_samples'][0].get('img_path', None)
                 label = np.argmax(preds[0], axis=1)
                 data['data_samples'][0].set_pred_score(preds[0][0]).set_pred_label(label)
                 self.evaluator.process(data_samples=data['data_samples'], data_batch=data)
