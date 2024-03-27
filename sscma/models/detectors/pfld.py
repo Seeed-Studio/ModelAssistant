@@ -2,8 +2,8 @@ from typing import Optional
 
 import numpy as np
 from mmengine.structures.instance_data import InstanceData
-from mmpose.models.pose_estimators.base import BasePoseEstimator
 
+from sscma.models.pose_estimators import BasePoseEstimator
 from sscma.registry import MODELS
 from sscma.structures import PoseDataSample
 
