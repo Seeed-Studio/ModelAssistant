@@ -95,3 +95,10 @@ class BasePoseEstimator(BaseModel, metaclass=ABCMeta):
 
         metainfo = parse_pose_metainfo(metainfo=metainfo)
         return metainfo
+
+    def extract_feat(self, inputs: Tensor) -> Tuple[Tensor]:
+        x = self.backbone(inputs)
+        if self.with_neck:
+            x = self.neck(x)
+
+        return x
