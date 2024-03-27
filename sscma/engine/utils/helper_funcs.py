@@ -232,22 +232,3 @@ def representative_dataset(dataset):
         yield [data]
         if i >= 100:
             break
-
-
-def check_type(type):
-    if type == 'mmdet':
-        from mmdet.datasets import build_dataloader, build_dataset
-        from mmdet.models import build_detector as build_model
-        from mmdet.utils import setup_multi_processes
-
-    elif type == 'mmcls':
-        from mmcls.datasets import build_dataloader, build_dataset
-        from mmcls.models import build_classifier as build_model
-        from mmcls.utils import setup_multi_processes
-
-    else:
-        from mmpose.datasets import build_dataloader, build_dataset
-        from mmpose.models import build_posenet as build_model
-        from mmpose.utils import setup_multi_processes
-
-    return setup_multi_processes, build_model, build_dataset, build_dataloader
