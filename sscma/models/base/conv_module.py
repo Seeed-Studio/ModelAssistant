@@ -1,4 +1,4 @@
-from sscma.models.base import ConvNormActivation
+from .general import ConvNormActivation
 
 
 class ConvModule:
