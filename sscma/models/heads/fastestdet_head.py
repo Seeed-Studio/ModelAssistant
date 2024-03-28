@@ -3,9 +3,9 @@ from typing import Optional
 import torch
 import torch.nn as nn
 import torchvision
-from mmcv.cnn import is_norm
 from mmengine.model import BaseModule, constant_init, normal_init
 
+from sscma.models.base import is_norm
 from sscma.registry import MODELS
 
 from ..base.general import CBR
