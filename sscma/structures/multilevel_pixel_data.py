@@ -1,8 +1,10 @@
+from typing import Optional
+
 from mmengine.structures import BaseDataElement
 
 
 class MultilevelPixelData(BaseDataElement):
-    def __init__(self, *, metainfo: dict = None, **kwargs) -> None:
+    def __init__(self, *, metainfo: Optional[dict] = None, **kwargs) -> None:
         super().__init__(metainfo=metainfo, **kwargs)
         object.__setattr__(self, '_nlevel', None)
 
