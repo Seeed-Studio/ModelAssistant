@@ -1,8 +1,10 @@
-from typing import List, Optional, Union
-from mmcls.datasets.base_dataset import BaseDataset
-import pyvww as pvw
-import numpy as np
 import copy
+from typing import List, Optional, Union
+
+import numpy as np
+import pyvww as pvw
+from mmcls.datasets.base_dataset import BaseDataset
+
 from sscma.registry import DATASETS
 
 
@@ -25,7 +27,7 @@ class VWW(BaseDataset):
             test_mode=test_mode,
             **kwargs,
         )
-        self._metainfo = {"classes": ["Nobody", "Somebody"]}
+        self.metainfo = {'classes': ['Nobody', 'Somebody']}
 
     def load_data_list(self) -> List[dict]:
         self.data_testt = pvw.pyvww.pytorch.VisualWakeWordsClassification(
@@ -36,4 +38,4 @@ class VWW(BaseDataset):
     def get_data_info(self, idx):
         img, label = self.data_testt[idx]
         img = np.asarray(img)
-        return {"img": img, "gt_label": label, "sample_idx": idx}
+        return {'img': img, 'gt_label': label, 'sample_idx': idx}

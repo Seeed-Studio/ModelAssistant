@@ -19,8 +19,8 @@ height = 640
 width = 640
 batch = 16
 workers = 2
-val_batch=batch
-val_workers=workers
+val_batch = batch
+val_workers = workers
 imgsz = (width, height)
 
 # TRAIN

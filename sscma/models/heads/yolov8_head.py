@@ -1,22 +1,20 @@
 import math
 from functools import partial
 from typing import List, Sequence, Tuple, Union
-from mmdet.structures import SampleList
 
 import torch
 import torch.nn as nn
-from mmcv.cnn import ConvModule
+from mmdet.models.dense_heads.base_dense_head import BaseDenseHead
 from mmdet.models.utils import multi_apply
+from mmdet.structures import SampleList
 from mmdet.utils import ConfigType, InstanceList, OptMultiConfig
-
 from mmengine.model import BaseModule
+from mmyolo.models.dense_heads import YOLOv8Head
+from mmyolo.models.utils import make_divisible
 from torch import Tensor
 
+from sscma.models.base import ConvModule
 from sscma.registry import MODELS
-from mmyolo.models.utils import make_divisible
-
-from mmyolo.models.dense_heads import YOLOv8Head
-from mmdet.models.dense_heads.base_dense_head import BaseDenseHead
 
 
 @MODELS.register_module(name='CusYOLOv8HeadModule')
@@ -84,7 +82,7 @@ class YOLOv8HeadModule(BaseModule):
             cls_pred[-1].bias.data[: self.num_classes] = math.log(5 / self.num_classes / (640 / stride) ** 2)
 
     def _init_layers(self):
-        """initialize conv layers in YOLOv8 head."""
+        """Initialize conv layers in YOLOv8 head."""
         # Init decouple head
         self.cls_preds = nn.ModuleList()
         self.reg_preds = nn.ModuleList()

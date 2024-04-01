@@ -1,7 +1,7 @@
+import datetime
 import os
 import os.path as osp
 import time
-import datetime
 from typing import AnyStr, List, Optional, Sequence, Tuple, Union
 
 import cv2
@@ -161,11 +161,11 @@ class Inter:
             ]
             input_int8 = input_['dtype'] == np.int8 or input_['dtype'] == np.uint8
             output_int8 = outputs[0]['dtype'] == np.int8 or outputs[0]['dtype'] == np.uint8
-            img = img.transpose(0, 2, 3, 1) if len(img.shape) == 4 else img
+            data = data.transpose(0, 2, 3, 1) if len(data.shape) == 4 else data
             if input_int8:
                 scale, zero_point = input_['quantization']
-                img = (img / scale + zero_point).astype(np.int8)
-            self.inter.set_tensor(input_['index'], img)
+                data = (data / scale + zero_point).astype(np.int8)
+            self.inter.set_tensor(input_['index'], data)
             self.inter.invoke()
             for output in outputs:
                 result = self.inter.get_tensor(output['index'])
@@ -335,6 +335,7 @@ class Infernce:
         P = []
         R = []
         F1 = []
+
         for data in tqdm(self.dataloader):
             if not self.source:
                 if hasattr(self, 'data_preprocess'):
@@ -515,7 +516,13 @@ def show_point(
         img = cv2.circle(img, (int(point[0] * W), int(point[1] * H)), 5, (255, 0, 0), -1)
         if labels:
             cv2.putText(
-                img, str(labels[idx]), (int(point[0]), int(point[1])), 1, color=(0, 0, 255), thickness=1, fontScale=1
+                img,
+                str(labels[idx]),
+                (int(point[0] * W), int(point[1] * H)),
+                1,
+                color=(0, 0, 255),
+                thickness=1,
+                fontScale=1,
             )
     if show:
         cv2.imshow(win_name, img)

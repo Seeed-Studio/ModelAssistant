@@ -3,7 +3,6 @@ from typing import Optional, Sequence, Tuple, Union
 import numpy as np
 import torch
 import torch.nn as nn
-from mmcv.cnn import is_norm
 from mmdet.models.utils import multi_apply, unpack_gt_instances
 from mmengine.model import BaseModule, constant_init, normal_init
 from mmengine.registry import MODELS
@@ -11,6 +10,7 @@ from mmengine.structures import InstanceData
 from sklearn.metrics import confusion_matrix
 from torch.nn import functional as F
 
+from sscma.models.base import is_norm
 from sscma.registry import LOSSES
 
 from ..base.general import CBR

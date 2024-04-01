@@ -13,9 +13,9 @@ from mmengine.hooks import Hook
 from mmengine.hooks.hook import DATA_BATCH
 from mmengine.runner import EpochBasedTrainLoop, Runner
 from mmengine.visualization import Visualizer
-from mmpose.structures import PoseDataSample, merge_data_samples
 
 from sscma.registry import HOOKS
+from sscma.structures import PoseDataSample, merge_data_samples
 
 
 @HOOKS.register_module()
