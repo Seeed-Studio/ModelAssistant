@@ -138,17 +138,27 @@ detector = dict(
         ),
         prior_generator=dict(type='mmdet.YOLOAnchorGenerator', base_sizes=anchors, strides=strides),
         # scaled based on number of detection layers
-        loss_cls=dict(type='mmdet.CrossEntropyLoss', use_sigmoid=True, reduction='mean', loss_weight=loss_cls_weight),
+        loss_cls=dict(
+            type='mmdet.CrossEntropyLoss',
+            use_sigmoid=True,
+            reduction='mean',
+            loss_weight=loss_cls_weight * (num_classes / 80 * 3 / num_det_layers),
+        ),
         loss_bbox=dict(
             type='IoULoss',
             iou_mode='ciou',
             bbox_format='xywh',
             eps=1e-7,
             reduction='mean',
-            loss_weight=loss_bbox_weight,
+            loss_weight=loss_bbox_weight * (3 / num_det_layers),
             return_iou=True,
         ),
-        loss_obj=dict(type='mmdet.CrossEntropyLoss', use_sigmoid=True, reduction='mean', loss_weight=loss_obj_weight),
+        loss_obj=dict(
+            type='mmdet.CrossEntropyLoss',
+            use_sigmoid=True,
+            reduction='mean',
+            loss_weight=loss_obj_weight * ((imgsz[0] / 640) ** 2 * 3 / num_det_layers),
+        ),
         prior_match_thr=prior_match_thr,
         obj_level_weights=obj_level_weights,
     ),
@@ -417,7 +427,7 @@ custom_hooks = [
     ),
     dict(type='mmdet.MeanTeacherHook'),
     dict(type="sscma.SemiHook", bure_epoch=200),
-    dict(type="sscma.LabelMatchHook",priority=100),
+    dict(type="sscma.LabelMatchHook", priority=100),
 ]
 
 
