@@ -17,13 +17,19 @@ val_data = 'valid/'
 train_ann = ''
 val_ann = ''
 
-height = 96
-width = 96
+height = 192
+width = 192
 imgsz = (width, height)
 # ================================END=================================
 
 model = dict(
     type='sscma.ImageClassifier',
+    data_preprocessor=dict(
+        type='mmdet.DetDataPreprocessor',
+        mean=[0.0] if gray else [0.0, 0.0, 0.0],
+        std=[255.0] if gray else [255.0, 255.0, 255.0],
+        bgr_to_rgb=False if gray else True,
+    ),
     backbone=dict(type='MobileNetv2', widen_factor=widen_factor, rep=True, gray_input=gray),
     neck=dict(type='mmcls.GlobalAveragePooling'),
     head=dict(
@@ -40,7 +46,7 @@ albu_train_transforms = [
     # dict(type="RandomFog"),
     # dict(type="RandomSunFlare"),
     # dict(type="RandomToneCurve"),
-    dict(type="RGBShift"),
+    dict(type='RGBShift'),
     # dict(type='Blur', p=0.3),
     dict(type='MedianBlur', blur_limit=3, p=0.5),
     dict(type='ToGray', p=0.3),
