@@ -2,8 +2,7 @@ import json
 import os.path as osp
 from typing import Optional, Sequence
 
-from mmyolo.datasets.yolov5_coco import YOLOv5CocoDataset
-
+from sscma.datasets.cocodataset import YOLOv5CocoDataset
 from sscma.registry import DATASETS
 
 
