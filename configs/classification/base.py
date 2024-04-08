@@ -18,8 +18,8 @@ train_ann = ''
 val_ann = ''
 
 
-height = 96
-width = 96
+height = 192
+width = 192
 imgsz = (width, height)
 
 # TRAIN
@@ -57,13 +57,13 @@ model = dict(
 albu_train_transforms = [
     dict(type='ColorJitter', brightness=0.3, contrast=0.3, saturation=0.3, p=0.5),
     dict(type='Affine', translate_percent=[0.05, 0.30], p=0.3),
-    dict(type="RandomToneCurve"),
+    dict(type='RandomToneCurve'),
     dict(type='MedianBlur', blur_limit=3, p=0.5),
     dict(type='ToGray', p=0.3),
     dict(type='CLAHE', p=0.3),
     dict(type='HorizontalFlip'),
     dict(type='VerticalFlip'),
-    dict(type="RGBShift"),
+    dict(type='RGBShift'),
 ]
 
 
