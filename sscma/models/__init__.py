@@ -1,4 +1,5 @@
 from .backbones import *  # noqa
+from .base import *  # noqa
 from .classifiers import *  # noqa
 from .detectors import *  # noqa
 from .heads import *  # noqa

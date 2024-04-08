@@ -1,12 +1,14 @@
 from .AxesNet import AxesNet
+from .basebackbone import BaseBackbone
+from .Darknet import YOLOv5CSPDarknet
 from .EfficientNet import EfficientNet
+from .MicroNet import MicroNet
 from .MobileNetv2 import MobileNetv2
 from .MobileNetv3 import MobileNetV3
 from .pfld_mobilenet_v2 import PfldMobileNetV2
-from .ShuffleNetV2 import ShuffleNetV2, CustomShuffleNetV2, FastShuffleNetV2
+from .ShuffleNetV2 import CustomShuffleNetV2, FastShuffleNetV2, ShuffleNetV2
 from .SoundNet import SoundNetRaw
 from .SqueezeNet import SqueezeNet
-from .MicroNet import MicroNet
 
 __all__ = [
     'PfldMobileNetV2',
@@ -19,5 +21,7 @@ __all__ = [
     'EfficientNet',
     'MobileNetv2',
     'MicroNet',
-    "FastShuffleNetV2",
+    'FastShuffleNetV2',
+    'BaseBackbone',
+    'YOLOv5CSPDarknet',
 ]
