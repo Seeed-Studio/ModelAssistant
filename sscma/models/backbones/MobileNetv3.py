@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 from functools import partial
 from typing import Callable, List
 
@@ -7,8 +8,8 @@ from mmengine.model import BaseModule
 from torch import Tensor
 from torchvision.ops.misc import SqueezeExcitation as SElayer
 
-from sscma.registry import BACKBONES
 from sscma.models.base.general import ConvNormActivation, get_norm
+from sscma.registry import BACKBONES
 
 
 class InvertedResidualConfig:

@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 from mmdet.models import build_detector
 from mmdet.models.detectors.base import BaseDetector
 from mmtrack.models.builder import MODELS

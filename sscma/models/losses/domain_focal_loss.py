@@ -1,4 +1,5 @@
-from typing import Optional, Union, Tuple
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
+from typing import Optional, Tuple, Union
 
 import torch
 import torch.nn as nn

@@ -42,7 +42,7 @@ repos:
     rev: v2.2.5
     hooks:
       - id: codespell
-        args: ["--check-filenames", "--skip=*.md,*.ipynb"]
+        args: ["--check-filenames", "--skip=*.md,*.ipynb,*.py"]
   - repo: https://github.com/myint/docformatter
     rev: v1.7.3
     hooks:

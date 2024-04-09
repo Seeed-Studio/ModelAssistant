@@ -1,8 +1,10 @@
-import re
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 import os
-from tqdm.std import tqdm
 import platform
+import re
 from typing import AnyStr, List, Optional
+
+from tqdm.std import tqdm
 
 
 def download_file(url, path) -> bool:
@@ -14,22 +16,22 @@ def download_file(url, path) -> bool:
         )
     try:
         response = requests.get(url, stream=True, timeout=10)
-        if os.path.exists(path) and int(response.headers.get("content-length")) == os.path.getsize(path):
-            print("File A already exists, skip download!!!")
+        if os.path.exists(path) and int(response.headers.get('content-length')) == os.path.getsize(path):
+            print('File A already exists, skip download!!!')
             return
         # write the zip file to the desired path
-        with open(path, "wb") as f:
-            total_length = int(response.headers.get("content-length"))
+        with open(path, 'wb') as f:
+            total_length = int(response.headers.get('content-length'))
             for chunk in tqdm(
                 response.iter_content(chunk_size=1024),
-                desc=f"Downloading file to {path}",
+                desc=f'Downloading file to {path}',
                 total=int(total_length / 1024) + 1,
             ):
                 if chunk:
                     f.write(chunk)
                     f.flush()
         return True
-      
+
     except Exception as e:
         print('Warning: Connection timed out, this may cause an error to occur!', e)
         return False
@@ -57,7 +59,7 @@ def _download(url: str, api_key: Optional[str] = None) -> str:
         raise ValueError(f'Checked "{url}" is not a link, please check the download link and try again.')
 
     if api_key is None:
-        api_key = os.getenv("API_KEY", None)
+        api_key = os.getenv('API_KEY', None)
 
     # check_roboflow_link() TODO
 
@@ -72,23 +74,23 @@ def _download(url: str, api_key: Optional[str] = None) -> str:
 
         flag = download_file(url, zippath)
         if os.path.exists(extrapath):
-            print("The compressed file has been extracted, skip the decompression!!!")
+            print('The compressed file has been extracted, skip the decompression!!!')
             return extrapath
         elif not flag:
             raise ConnectionError("'Connection timed out, please check network connection and retry!'")
         os.makedirs(extrapath, exist_ok=True)
-        with zipfile.ZipFile(zippath, "r") as zip_ref:
+        with zipfile.ZipFile(zippath, 'r') as zip_ref:
             for member in tqdm(
                 zip_ref.infolist(),
-                desc="Extracting Dataset",
+                desc='Extracting Dataset',
             ):
                 try:
                     zip_ref.extract(member, extrapath)
                 except zipfile.error:
-                    raise RuntimeError("Error unzipping download")
+                    raise RuntimeError('Error unzipping download')
         return extrapath
     else:
-        raise RuntimeError("An error occurred while executing the file download, please check if the link is correct.")
+        raise RuntimeError('An error occurred while executing the file download, please check if the link is correct.')
 
 
 def is_link(url: str) -> bool:

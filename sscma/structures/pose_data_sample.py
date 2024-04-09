@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 from typing import Union
 
 from mmengine.structures import BaseDataElement, InstanceData, PixelData

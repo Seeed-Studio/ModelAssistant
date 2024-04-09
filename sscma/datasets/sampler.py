@@ -1,18 +1,18 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
+import random
 from typing import Iterator, List, Optional, Union
 
-import torch
-import random
 import numpy as np
-from torch.utils.data import ConcatDataset
+import torch
 from mmengine.dataset import DefaultSampler
+from torch.utils.data import ConcatDataset
 
 from sscma.registry import DATA_SANPLERS
 
 
 @DATA_SANPLERS.register_module()
 class SemiSampler(DefaultSampler):
-    """
-    Sampler for scaled sampling of semi-supervised data
+    """Sampler for scaled sampling of semi-supervised data.
 
     Params:
         dataset (torch::ConcatDataset): Multiple merged datasets
@@ -37,7 +37,7 @@ class SemiSampler(DefaultSampler):
     ) -> None:
         assert len(sample_ratio) == len(
             dataset.cumulative_sizes
-        ), "Sampling rate length must be equal to the number of datasets."
+        ), 'Sampling rate length must be equal to the number of datasets.'
 
         super(SemiSampler, self).__init__(dataset, shuffle=shuffle, seed=seed, round_up=round_up)
         if seed is not None:
@@ -64,7 +64,7 @@ class SemiSampler(DefaultSampler):
         self.computer_epoch()
 
     def __iter__(self) -> Iterator[int]:
-        indexs = []
+        indexes = []
         num1 = 0
         num2 = 0
         data1_len = len(self.data1)
@@ -76,21 +76,21 @@ class SemiSampler(DefaultSampler):
         for _ in range(self.total_epoch):
             if self.all_data:
                 for _ in range(self.sample_size[0]):
-                    indexs.append(self.data1[num1 % data1_len])
+                    indexes.append(self.data1[num1 % data1_len])
                     num1 += 1
                 for _ in range(self.sample_size[1]):
-                    indexs.append(self.data2[num2 % data2_len])
+                    indexes.append(self.data2[num2 % data2_len])
                     num2 += 1
             elif self.only_label:
                 for _ in range(self.sample_size[0] + self.sample_size[1]):
-                    indexs.append(self.data1[num1 % data1_len])
+                    indexes.append(self.data1[num1 % data1_len])
                     num1 += 1
             else:
                 for _ in range(self.sample_size[0] + self.sample_size[1]):
-                    indexs.append(self.data2[num2 % data2_len])
+                    indexes.append(self.data2[num2 % data2_len])
                     num2 += 1
 
-        return iter(indexs)
+        return iter(indexes)
 
     def __len__(self) -> int:
         return self.total_epoch * self._batch_size

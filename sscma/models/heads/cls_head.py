@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 import torch.nn as nn
 
 from sscma.registry import MODELS

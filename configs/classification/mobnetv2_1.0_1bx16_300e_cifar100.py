@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 _base_ = './mobnetv2_1.0_1bx16_300e_cifar10.py'
 default_scope = 'sscma'
 custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
@@ -6,7 +7,7 @@ custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
 
 # MODEL
 num_classes = 100
-widen_factor=1.0
+widen_factor = 1.0
 # DATA
 dataset_type = 'mmcls.CIFAR100'
 data_root = 'datasets/'

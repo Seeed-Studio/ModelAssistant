@@ -1,11 +1,12 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 from typing import Dict, List, Sequence, Union
 
 import onnx
 import torch
 from mmengine.evaluator import Evaluator
+from mmengine.model import is_model_wrapper
 from mmengine.runner import Runner, ValLoop
 from mmengine.runner.loops import BaseLoop, EpochBasedTrainLoop
-from mmengine.model import is_model_wrapper
 from torch.utils.data import DataLoader
 
 from sscma.registry import LOOPS

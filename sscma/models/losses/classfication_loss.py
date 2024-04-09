@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 import torch
 import torch.nn.functional as F
 from torch.nn.modules.loss import _WeightedLoss

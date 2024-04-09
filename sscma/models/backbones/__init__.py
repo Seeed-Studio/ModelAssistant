@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 from .AxesNet import AxesNet
 from .basebackbone import BaseBackbone
 from .Darknet import YOLOv5CSPDarknet

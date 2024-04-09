@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 from collections.abc import Sequence
 
 import numpy as np

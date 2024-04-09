@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 from abc import ABCMeta, abstractmethod
 from typing import List, Sequence
 

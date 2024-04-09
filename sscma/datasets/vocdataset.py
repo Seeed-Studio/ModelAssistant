@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 import os
 from collections import OrderedDict
 
@@ -7,6 +8,7 @@ from mmdet.datasets.voc import VOCDataset
 from sklearn.metrics import confusion_matrix
 
 from sscma.registry import DATASETS
+
 from .utils.download import check_file
 
 

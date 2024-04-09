@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 default_scope = 'mmdet'
 
 # defaults input type image

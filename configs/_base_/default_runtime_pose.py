@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 default_scope = 'sscma'
 
 # defaults input type image
@@ -41,7 +42,7 @@ vis_backends = [
     # dict(type='TensorboardVisBackend'),
     # dict(type='WandbVisBackend'),
 ]
-visualizer = dict(type='mmpose.PoseLocalVisualizer', radius=1, vis_backends=vis_backends, name='visualizer')
+visualizer = dict(type='sscma.PoseVisualizer', radius=1, vis_backends=vis_backends, name='visualizer')
 
 # logger
 log_processor = dict(type='LogProcessor', window_size=50, by_epoch=True, num_digits=6)

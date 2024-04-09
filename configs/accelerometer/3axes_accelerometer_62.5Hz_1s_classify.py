@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 _base_ = './base.py'
 
 default_scope = 'sscma'

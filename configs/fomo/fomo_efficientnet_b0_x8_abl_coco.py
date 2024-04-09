@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 _base_ = './fomo_mobnetv2_0.35_x8_abl_coco.py'
 
 # ========================Suggested optional parameters========================

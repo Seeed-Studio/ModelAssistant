@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 import torch
 import torch.nn as nn
 from mmdet.utils import ConfigType, OptConfigType, OptMultiConfig

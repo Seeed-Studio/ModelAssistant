@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 _base_ = ['../_base_/default_runtime_det.py']
 default_scope = 'mmyolo'
 
@@ -113,7 +114,7 @@ env_cfg = dict(cudnn_benchmark=True)
 
 # model arch
 model = dict(
-    type='mmyolo.YOLODetector',
+    type='sscma.YOLODetector',
     data_preprocessor=dict(
         type='mmdet.DetDataPreprocessor', mean=[0.0, 0.0, 0.0], std=[255.0, 255.0, 255.0], bgr_to_rgb=True
     ),
