@@ -1,7 +1,10 @@
-from typing import List, Optional, Sequence, Union
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 import os
 import os.path as osp
+from typing import List, Optional, Sequence, Union
+
 from mmengine.dataset import BaseDataset
+
 from sscma.registry import DATASETS
 
 

@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 from typing import Dict, Optional, Union
 
 from mmengine.dist.utils import master_only

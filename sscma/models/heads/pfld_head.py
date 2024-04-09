@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 from typing import Sequence, Union
 
 import torch

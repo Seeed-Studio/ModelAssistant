@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 from torch.utils.data import Dataset
 
 from sscma.registry import DATASETS

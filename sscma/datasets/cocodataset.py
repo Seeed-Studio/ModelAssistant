@@ -1,6 +1,7 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 import json
 import os.path as osp
-from typing import Optional, Sequence, List
+from typing import List, Optional, Sequence
 
 from mmdet.datasets.coco import CocoDataset
 from mmengine.fileio import get_local_path
@@ -149,9 +150,9 @@ class CustomCocoDataset(CocoDataset):
         self.cat_ids = self.coco.get_cat_ids(
             cat_names=self.metainfo['classes']
             if len(self.metainfo['classes'])
-            else [cat['name'] for cat in self.coco.dataset['categories'] if (cat['supercategory'] != "none")],
+            else [cat['name'] for cat in self.coco.dataset['categories'] if (cat['supercategory'] != 'none')],
             sup_names=[
-                cat['supercategory'] for cat in self.coco.dataset['categories'] if (cat['supercategory'] != "none")
+                cat['supercategory'] for cat in self.coco.dataset['categories'] if (cat['supercategory'] != 'none')
             ],
         )
         self.cat2label = {cat_id: i for i, cat_id in enumerate(self.cat_ids)}

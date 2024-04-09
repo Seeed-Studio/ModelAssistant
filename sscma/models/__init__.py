@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 from .backbones import *  # noqa
 from .classifiers import *  # noqa
 from .detectors import *  # noqa

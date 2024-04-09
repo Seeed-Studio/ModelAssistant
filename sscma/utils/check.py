@@ -1,11 +1,10 @@
-from typing import Optional, Union, Iterable
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 import subprocess
+from typing import Iterable, Optional, Union
 
 
 def net_online() -> bool:
-    """
-    Check whether the current device is connected to the Internet.
-    """
+    """Check whether the current device is connected to the Internet."""
     import socket
 
     for host in '1.1.1.1', '8.8.8.8', '223.5.5.5':  # Cloudflare, Google, AliDNS:
@@ -33,19 +32,17 @@ def install_lib(name: Union[str, Iterable[str]], version: Optional[Union[str, It
     if version is not None:
         name = '=='.join(name)
     try:
-        assert net_online(), "Network Connection Failure!"
-        print(f"Third-party library {name} being installed")
+        assert net_online(), 'Network Connection Failure!'
+        print(f'Third-party library {name} being installed')
         subprocess.check_output(f'pip install --no-cache {name}', shell=True).decode()
         return True
     except Exception:
-        print(f"Warning ⚠️: Installation of {name} has failed, the installation process has been skipped")
+        print(f'Warning ⚠️: Installation of {name} has failed, the installation process has been skipped')
         return False
 
 
 def check_lib(name: str, version: Optional[str] = None, install: bool = True) -> bool:
-    """
-    Check if the third-party libraries have been installed.
-    """
+    """Check if the third-party libraries have been installed."""
     import pkg_resources as pkg
 
     flag = True

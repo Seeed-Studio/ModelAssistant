@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 _base_ = './mobnetv2_0.35_rep_1bx16_300e_cifar10.py'
 default_scope = 'sscma'
 custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
@@ -6,7 +7,7 @@ custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
 # ========================Suggested optional parameters========================
 # MODEL
 gray = True
-widen_factor=0.35
+widen_factor = 0.35
 
 # DATA
 dataset_type = 'mmcls.MNIST'
@@ -22,8 +23,8 @@ val_data = 'mnist/'
 # TRAIN
 batch = 128
 workers = 16
-val_batch=batch
-val_workers=workers
+val_batch = batch
+val_workers = workers
 persistent_workers = True
 # ================================END=================================
 data_preprocessor = dict(

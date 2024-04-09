@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Tech Ltd. All rights reserved.
 _base_ = '../_base_/default_runtime_pose.py'
 
 # ========================Suggested optional parameters========================
@@ -38,14 +39,14 @@ norm_cfg = dict(type='BN', momentum=0.03, eps=0.001)
 model = dict(
     type='PFLD',
     backbone=dict(
-        type='mmyolo.YOLOv5CSPDarknet',
+        type='sscma.YOLOv5CSPDarknet',
         deepen_factor=deepen_factor,
         widen_factor=widen_factor,
         norm_cfg=norm_cfg,
         act_cfg=dict(type='SiLU', inplace=True),
     ),
     neck=dict(
-        type='mmyolo.YOLOv5PAFPN',
+        type='sscma.YOLOv5PAFPN',
         deepen_factor=deepen_factor,
         widen_factor=widen_factor,
         in_channels=[256, 512, 1024],
