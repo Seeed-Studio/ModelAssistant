@@ -1,14 +1,15 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from typing import Union
 
-from torch.utils.data.dataset import ConcatDataset as _ConcatDataset
-from sscma.registry import DATASETS
 from mmdet.datasets import CocoDataset
+from torch.utils.data.dataset import ConcatDataset as _ConcatDataset
+
+from sscma.registry import DATASETS
 
 
 @DATASETS.register_module()
 class SemiDataset(_ConcatDataset):
-    """
-    For merging real labeled and pseudo-labeled datasets in semi-supervised.
+    """For merging real labeled and pseudo-labeled datasets in semi-supervised.
 
     Params:
         sup_dataset (dict): Real labeled dataset configuration

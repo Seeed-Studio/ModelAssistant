@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 _base_ = './pfld_mbv2n_112.py'
 # ========================Suggested optional parameters========================
 # MODEL

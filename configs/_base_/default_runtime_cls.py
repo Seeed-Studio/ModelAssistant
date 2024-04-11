@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 # defaults to use registries in mmpretrain
 default_scope = 'sscma'
 

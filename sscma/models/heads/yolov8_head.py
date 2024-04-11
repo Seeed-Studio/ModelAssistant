@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 import math
 from functools import partial
 from typing import List, Sequence, Tuple, Union

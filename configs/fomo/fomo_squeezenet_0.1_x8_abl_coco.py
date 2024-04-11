@@ -1,9 +1,10 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 _base_ = './fomo_mobnetv2_0.35_x8_abl_coco.py'
 
 # ========================Suggested optional parameters========================
 # MODEL
 num_classes = 2
-widen_factor=0.1
+widen_factor = 0.1
 # ================================END=================================
 model = dict(
     type='Fomo',

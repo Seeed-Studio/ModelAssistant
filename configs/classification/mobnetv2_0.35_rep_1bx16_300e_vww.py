@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 _base_ = './base.py'
 default_scope = 'sscma'
 custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
@@ -5,7 +6,7 @@ custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
 # MODEL
 num_classes = 2
 gray = False
-widen_factor=0.5
+widen_factor = 0.5
 # DATA
 dataset_type = 'VWW'
 data_root = 'datasets/vww/'

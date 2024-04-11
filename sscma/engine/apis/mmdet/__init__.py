@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from .test import (
     collect_results_cpu,
     collect_results_gpu,

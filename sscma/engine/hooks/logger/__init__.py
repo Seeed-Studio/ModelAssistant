@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from .clearml import ClearMLLoggerHook
 from .pavi import PaviLoggerHook
 from .tensorboard import TensorboardLoggerHook

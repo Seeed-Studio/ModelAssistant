@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 _base_ = ['../_base_/default_runtime_det.py']
 default_scope = 'mmyolo'
 
@@ -156,7 +157,7 @@ detector = dict(
     # _delete_=True
 )
 model = dict(
-    type="sscma.BaseSsod",
+    type='sscma.BaseSsod',
     detector=detector,
     pseudo_label_cfg=dict(
         type='sscma.LabelMatch',
@@ -177,7 +178,7 @@ model = dict(
     ),
     teacher_loss_weight=0,
     # da_loss_weight=0,
-    data_preprocessor=dict(type="mmdet.MultiBranchDataPreprocessor", data_preprocessor=detector['data_preprocessor']),
+    data_preprocessor=dict(type='mmdet.MultiBranchDataPreprocessor', data_preprocessor=detector['data_preprocessor']),
     # data_preprocessor=dict(
     # type='mmdet.DetDataPreprocessor', mean=[0.0, 0.0, 0.0], std=[255.0, 255.0, 255.0], bgr_to_rgb=True
     # ),
@@ -416,8 +417,8 @@ custom_hooks = [
         type='EMAHook', ema_type='ExpMomentumEMA', momentum=0.0001, update_buffers=True, strict_load=False, priority=49
     ),
     dict(type='mmdet.MeanTeacherHook'),
-    dict(type="sscma.SemiHook", bure_epoch=200),
-    dict(type="sscma.LabelMatchHook",priority=100),
+    dict(type='sscma.SemiHook', bure_epoch=200),
+    dict(type='sscma.LabelMatchHook', priority=100),
 ]
 
 

@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 import torch.nn as nn
 import torch.nn.functional as F
 

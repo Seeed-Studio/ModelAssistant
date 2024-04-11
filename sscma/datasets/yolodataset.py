@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 import json
 import os.path as osp
 from typing import Optional, Sequence

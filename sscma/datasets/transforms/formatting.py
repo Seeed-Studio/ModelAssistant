@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from collections.abc import Sequence
 
 import numpy as np

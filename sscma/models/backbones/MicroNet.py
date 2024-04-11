@@ -1,11 +1,13 @@
-from typing import Optional, Union, Tuple, Dict, Callable
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
+from typing import Callable, Dict, Optional, Tuple, Union
+
+import torch.nn as nn
 from mmcls.models.classifiers.base import BaseClassifier
 from mmengine.model.base_module import BaseModule
-import torch.nn as nn
 
-from sscma.registry import MODELS
 from sscma.models.base.general import ConvNormActivation
 from sscma.models.layers import RepConv1x1
+from sscma.registry import MODELS
 
 
 class MicroBlock(BaseModule):
@@ -52,15 +54,15 @@ class MicroNet(BaseClassifier):
 
     archs = {
         # c,k,s
-        "s": [[72, 3, 2], [164, 1, 1], [220, 1, 2], [276, 1, 2]],
-        "m": [
+        's': [[72, 3, 2], [164, 1, 1], [220, 1, 2], [276, 1, 2]],
+        'm': [
             [192, 3, 2],
             [276, 1, 1],
             [276, 1, 1],
             [276, 1, 2],
             [276, 1, 2],
         ],
-        "l": [
+        'l': [
             [276, 3, 2],
             [248, 1, 1],
             [276, 1, 1],
@@ -75,7 +77,7 @@ class MicroNet(BaseClassifier):
         gray: bool = False,
         rep: bool = False,
         out_indices: Union[int, Tuple[int]] = (-1,),
-        act_cfg: Union[Dict, str, Callable] = "ReLU6",
+        act_cfg: Union[Dict, str, Callable] = 'ReLU6',
         init_cfg: Optional[dict] = None,
         data_preprocessor: Optional[dict] = None,
     ) -> None:
@@ -86,8 +88,8 @@ class MicroNet(BaseClassifier):
         self.out_indices = (out_indices,) if isinstance(out_indices, int) else out_indices
         if min(self.out_indices) > len(arch):
             print(
-                f"Warning!!! The parameter set by the parameter {out_indices} is greater than the depth of the model,",
-                f" which has been set to {len(arch)} (the maximum depth of the model) by default, but it may cause unexpected errors.",
+                f'Warning!!! The parameter set by the parameter {out_indices} is greater than the depth of the model,',
+                f' which has been set to {len(arch)} (the maximum depth of the model) by default, but it may cause unexpected errors.',
             )
             self.out_indices = (len(arch),)
         elif min(self.out_indices) < 0:

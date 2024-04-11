@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 import copy
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -13,17 +14,17 @@ class Color2Gray(BaseTransform):
     def __init__(self, one_channel: bool = False, conver_order: Optional[str] = None) -> None:
         super().__init__()
         if one_channel and conver_order is not None:
-            raise ValueError("one_channel and conver_order can only set one of them, not all of them ")
+            raise ValueError('one_channel and conver_order can only set one of them, not all of them ')
 
         if conver_order is not None:
-            if not hasattr(cv2, "COLOR_" + conver_order):
+            if not hasattr(cv2, 'COLOR_' + conver_order):
                 opt = ','.join(
-                    (map(lambda x: x.replace("COLOR_", ""), filter(lambda x: x.startswith("COLOR_"), dir(cv2))))
+                    (map(lambda x: x.replace('COLOR_', ''), filter(lambda x: x.startswith('COLOR_'), dir(cv2))))
                 )
                 raise ValueError(
-                    f"The value of convert_order can only be one of the following[{opt}], but {conver_order} is obtained"
+                    f'The value of convert_order can only be one of the following[{opt}], but {conver_order} is obtained'
                 )
-            self.conver_opt = getattr(cv2, "COLOR_" + conver_order)
+            self.conver_opt = getattr(cv2, 'COLOR_' + conver_order)
         self.one_channel = one_channel
 
     def transform(self, results: Dict) -> Optional[Union[Dict, Tuple[List, List]]]:

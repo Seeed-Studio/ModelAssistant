@@ -1,13 +1,14 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from typing import Optional, Union
 
 import torch
 from mmengine.analysis.print_helper import (
-    FlopAnalyzer,
     ActivationAnalyzer,
-    parameter_count,
+    FlopAnalyzer,
+    _format_size,
     complexity_stats_str,
     complexity_stats_table,
-    _format_size,
+    parameter_count,
 )
 
 

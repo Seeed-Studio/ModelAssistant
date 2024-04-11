@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 _base_ = ['../_base_/default_runtime_det.py']
 default_scope = 'mmyolo'
 

@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 _base_ = ['./base_arch.py']
 
 # ========================Suggested optional parameters========================

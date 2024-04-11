@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from typing import List, Optional
 
 import torch
@@ -21,15 +22,14 @@ class ImageClassifier(MMImageClassifier):
         init_cfg: Optional[dict] = None,
     ):
         super(ImageClassifier, self).__init__(backbone, neck, head, pretrained, train_cfg, data_preprocessor, init_cfg)
-    
 
     def forward(self, inputs: torch.Tensor, data_samples: Optional[List[ClsDataSample]] = None, mode: str = 'tensor'):
         if mode == 'tensor':
             feats = self.extract_feat(inputs)
             head_out = self.head(feats) if self.with_head else feats
-            if head_out.shape[-1] > 2: # multi-class
+            if head_out.shape[-1] > 2:  # multi-class
                 head_out = F.softmax(head_out, dim=-1)
-            else: # binary
+            else:  # binary
                 head_out = torch.sigmoid(head_out)
             return head_out
         elif mode == 'loss':

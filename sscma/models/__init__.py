@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from .backbones import *  # noqa
 from .classifiers import *  # noqa
 from .detectors import *  # noqa

@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from abc import ABCMeta, abstractmethod
 from typing import List, Optional, Tuple, Union
 

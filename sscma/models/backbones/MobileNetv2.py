@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from typing import List, Optional, Tuple, Union
 
 import torch.nn as nn

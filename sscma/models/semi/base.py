@@ -1,8 +1,9 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from abc import abstractmethod
 
-from mmdet.utils import InstanceList
-from mmdet.structures import SampleList, OptSampleList
 import torch.nn as nn
+from mmdet.structures import OptSampleList, SampleList
+from mmdet.utils import InstanceList
 
 from sscma.registry import MODELS
 

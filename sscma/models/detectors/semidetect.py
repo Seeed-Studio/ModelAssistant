@@ -1,14 +1,15 @@
-from typing import Dict,  Union
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
+from typing import Dict, Union
 
-from mmdet.models.detectors import SemiBaseDetector, BaseDetector
+import torch
+from mmdet.models.detectors import BaseDetector, SemiBaseDetector
 from mmdet.structures import SampleList
 from mmdet.utils import ConfigType, OptConfigType, OptMultiConfig
 from mmengine.optim import OptimWrapper
-import torch
 from torch import Tensor
 
 from sscma.models.semi.labelmatch import LabelMatch
-from sscma.registry import MODELS, LOSSES
+from sscma.registry import LOSSES, MODELS
 
 
 @MODELS.register_module()

@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from typing import Dict, Optional, Union
 
 from mmengine.dist.utils import master_only
