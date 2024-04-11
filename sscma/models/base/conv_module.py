@@ -6,12 +6,29 @@ import torch.nn as nn
 
 from .general import ConvNormActivation
 
+# from mmengine.utils.dl_utils.parrots_wrapper import _BatchNorm, _InstanceNorm
 
-class ConvModule:
-    def __init__(self, in_channels, out_channels, kernel_size, stride, padding, conv_cfg, norm_cfg, act_cfg, groups=1):
-        assert conv_cfg is None or isinstance(conv_cfg, dict)
-        assert norm_cfg is None or isinstance(norm_cfg, dict)
-        assert act_cfg is None or isinstance(act_cfg, dict)
+
+class ConvModule(nn.Module):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: Union[int, Tuple[int, int]],
+        stride: Union[int, Tuple[int, int]] = 1,
+        padding: Union[int, Tuple[int, int]] = 0,
+        groups: int = 1,
+        conv_cfg: Optional[Dict] = None,
+        norm_cfg: Optional[Dict] = None,
+        act_cfg: Optional[Dict] = None,
+        order: tuple = ('conv', 'norm', 'act'),
+    ):
+        super().__init__()
+
+        self.order = order
+        self.with_norm = norm_cfg is not None
+        self.with_activation = act_cfg is not None
+
         self.conv = ConvNormActivation(
             in_channels=in_channels,
             out_channels=out_channels,
@@ -23,7 +40,10 @@ class ConvModule:
             groups=groups,
             activation_layer=act_cfg,
         )
-        return self.conv
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.conv(x)
+        return x
 
 
 class DepthwiseSeparableConvModule(nn.Module):

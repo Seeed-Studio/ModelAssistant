@@ -11,6 +11,7 @@ from .visualization_hook import (
     Posevisualization,
     SensorVisualizationHook,
 )
+from .yolov5_param_scheduler import YOLOv5ParamSchedulerHook
 
 __all__ = [
     'TextLoggerHook',
@@ -22,4 +23,5 @@ __all__ = [
     'DetFomoVisualizationHook',
     'SensorVisualizationHook',
     'SemiHook',
+    'YOLOv5ParamSchedulerHook',
 ]

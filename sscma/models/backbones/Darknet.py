@@ -1,5 +1,6 @@
-# Copyright (c) Seeed Tech Ltd. All rights reserved.
-from typing import Tuple
+# Copyright (c) Seeed Tech Ltd.
+# Copyright (c) OpenMMLab.
+from typing import List, Tuple, Union
 
 import torch
 from mmdet.utils import ConfigType, OptMultiConfig
@@ -33,6 +34,7 @@ class YOLOv5CSPDarknet(BaseBackbone):
     def __init__(
         self,
         arch: str = 'P5',
+        plugins: Union[dict, List[dict]] = None,
         deepen_factor: float = 1.0,
         widen_factor: float = 1.0,
         input_channels: int = 3,
@@ -43,23 +45,25 @@ class YOLOv5CSPDarknet(BaseBackbone):
         norm_eval: bool = False,
         init_cfg: OptMultiConfig = None,
     ):
+        self.arch = arch
         super().__init__(
             self.arch_settings[arch],
             deepen_factor,
             widen_factor,
-            input_channels,
-            out_indices,
-            frozen_stages,
-            norm_cfg,
-            act_cfg,
-            norm_eval,
-            init_cfg,
+            input_channels=input_channels,
+            out_indices=out_indices,
+            plugins=plugins,
+            frozen_stages=frozen_stages,
+            norm_cfg=norm_cfg,
+            act_cfg=act_cfg,
+            norm_eval=norm_eval,
+            init_cfg=init_cfg,
         )
 
     def build_stem_layer(self):
         return ConvModule(
             self.input_channels,
-            make_divisible(self.arch_settings[0][0], self.widen_factor),
+            make_divisible(self.arch_settings[self.arch][0][0], self.widen_factor),
             kernel_size=6,
             stride=2,
             padding=2,

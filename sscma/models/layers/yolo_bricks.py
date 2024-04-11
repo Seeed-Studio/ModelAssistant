@@ -34,11 +34,9 @@ class SPPFBottleneck(BaseModule):
             mid_channels = in_channels
             self.covn1 = None
 
-        self.kernal_sizes = kernel_sizes
+        self.kernel_sizes = kernel_sizes
         if isinstance(kernel_sizes, int):
-            self.poolings = nn.ModuleList(
-                [nn.MaxPool2d(kernel_size=ks, stride=1, padding=ks // 2) for ks in kernel_sizes]
-            )
+            self.poolings = nn.MaxPool2d(kernel_size=kernel_sizes, stride=1, padding=kernel_sizes // 2)
             conv2_in_channels = mid_channels * 4
         else:
             self.poolings = nn.ModuleList(

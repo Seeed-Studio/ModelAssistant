@@ -1,4 +1,5 @@
-# Copyright (c) Seeed Tech Ltd. All rights reserved.
+# Copyright (c) Seeed Tech Ltd.
+# Copyright (c) OpenMMLab.
 from typing import List, Tuple, Union
 
 import torch.nn as nn

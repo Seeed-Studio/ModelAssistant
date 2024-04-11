@@ -3,7 +3,7 @@ _base_ = [
     '../_base_/default_runtime_det.py',
 ]
 
-default_scope = 'mmyolo'
+default_scope = 'sscma'
 # ========================Suggested optional parameters========================
 # MODEL
 # The scaling factor that controls the depth of the network structure
