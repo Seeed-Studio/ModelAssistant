@@ -198,8 +198,6 @@ Grove - Vision AI 的部署流程主要分为两个步骤，这两个步骤需�
 
 ## 许可
 
-这些例子是在 [MIT 许可](../../community/licenses)下发布的。
-
 对于 Synopsys GUN Toolchain，它是在 [GPLv3 许可](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/blob/arc-releases/COPYING)下发布的。
 
 TensorFlow 库代码和第三方代码包含他们自己的许可证，在 [TFLite-Micro](https://github.com/tensorflow/tflite-micro) 中有说明。

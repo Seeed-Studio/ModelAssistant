@@ -14,7 +14,7 @@ export default defineConfig({
         },
 
         footer: {
-            message: 'Released under the MIT License',
+            message: 'Released under the Apache 2.0 License',
             copyright: 'Copyright © 2023-Present Seeed Studio & SSCMA Contributors',
         }
     }
@@ -105,7 +105,7 @@ function sidebar() {
                 { text: 'FAQs', link: '/community/faqs' },
                 { text: 'Reference', link: '/community/reference' },
                 { text: 'Contribution', link: '/community/contributing' },
-                { text: 'Copyrights and Licenses', link: '/community/licenses' }
+                { text: 'Copyrights and Licenses', link: '/community/license' }
             ]
         }
     ]

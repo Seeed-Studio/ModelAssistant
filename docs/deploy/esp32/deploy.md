@@ -148,8 +148,6 @@ For more models go to [SSCMA Model Zoo](https://github.com/Seeed-Studio/sscma-mo
 
 ## Licensing
 
-These examples are released under the [MIT License](../../community/licenses).
-
 These examples use ESP-IDF, which is released under the [Apache 2.0 License](https://github.com/espressif/esp-idf/blob/master/LICENSE).
 
 The TensorFlow library code and third-party code contain their own licenses, which are described in [TFLite-Micro](https://github.com/tensorflow/tflite-micro).
