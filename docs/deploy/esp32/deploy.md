@@ -148,7 +148,7 @@ For more models go to [SSCMA Model Zoo](https://github.com/Seeed-Studio/sscma-mo
 
 ## Licensing
 
-These examples are released under the [MIT License](../../community/licenses).
+These examples are released under the [Apache License Version 2.0](../../community/licenses).
 
 These examples use ESP-IDF, which is released under the [Apache 2.0 License](https://github.com/espressif/esp-idf/blob/master/LICENSE).
 

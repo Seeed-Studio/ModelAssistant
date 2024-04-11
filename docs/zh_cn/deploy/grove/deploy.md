@@ -198,7 +198,7 @@ Grove - Vision AI 的部署流程主要分为两个步骤，这两个步骤需�
 
 ## 许可
 
-这些例子是在 [MIT 许可](../../community/licenses)下发布的。
+这些例子是在 [Apache Version 2.0 许可](../../community/licenses)下发布的。
 
 对于 Synopsys GUN Toolchain，它是在 [GPLv3 许可](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/blob/arc-releases/COPYING)下发布的。
 

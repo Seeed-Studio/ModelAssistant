@@ -148,7 +148,7 @@ idf.py --port <TARGET_SERIAL_PORT> flash monitor
 
 ## 许可
 
-这些例子是在 [MIT 许可](../../community/licenses)下发布的。
+这些例子是在 [Apache Version 2.0 许可](../../community/licenses)下发布的。
 
 这些例子使用 ESP-IDF，它是在 [Apache 2.0 许可](https://github.com/espressif/esp-idf/blob/master/LICENSE)下发布的。
 

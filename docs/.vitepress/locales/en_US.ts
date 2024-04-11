@@ -14,7 +14,7 @@ export default defineConfig({
         },
 
         footer: {
-            message: 'Released under the MIT License',
+            message: 'Released under the Apache License Version 2.0',
             copyright: 'Copyright © 2023-Present Seeed Studio & SSCMA Contributors',
         }
     }
