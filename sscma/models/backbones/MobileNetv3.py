@@ -1,4 +1,4 @@
-# Copyright (c) Seeed Tech Ltd. All rights reserved.
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from functools import partial
 from typing import Callable, List
 

@@ -1,4 +1,4 @@
-# Copyright (c) Seeed Tech Ltd. All rights reserved.
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from .axes_head import AxesClsHead
 from .cls_head import Audio_head
 from .fastestdet_head import Fastest_Head

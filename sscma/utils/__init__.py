@@ -1,4 +1,4 @@
-# Copyright (c) Seeed Tech Ltd. All rights reserved.
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from .check import check_lib, install_lib, net_online
 from .config import load_config
 from .cv import NMS, load_image, xywh2xyxy, xyxy2cocoxywh

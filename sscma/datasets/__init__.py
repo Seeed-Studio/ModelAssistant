@@ -1,4 +1,4 @@
-# Copyright (c) Seeed Tech Ltd. All rights reserved.
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from .cocodataset import *  # noqa
 from .data_preprocessors import *  # noqa
 from .dataset_wrappers import *  # noqa

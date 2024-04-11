@@ -1,4 +1,4 @@
-# Copyright (c) Seeed Tech Ltd. All rights reserved.
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from .bce_withlogits_loss import BCEWithLogitsLoss
 from .classfication_loss import LabelSmoothCrossEntropyLoss
 from .domain_focal_loss import DomainFocalLoss, DomainLoss, TargetLoss

@@ -1,4 +1,4 @@
-# Copyright (c) Seeed Tech Ltd. All rights reserved.
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 import torch
 from mmcls.models.classifiers.base import BaseClassifier
 from mmengine.logging import MessageHub

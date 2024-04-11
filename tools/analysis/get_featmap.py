@@ -1,4 +1,4 @@
-# Copyright (c) Seeed Tech Ltd. All rights reserved.
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 # Copyright (c) OpenMMLab. All rights reserved.
 import argparse
 import os

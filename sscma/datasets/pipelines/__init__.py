@@ -1,4 +1,4 @@
-# Copyright (c) Seeed Tech Ltd. All rights reserved.
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from .albu import *  # noqa
 from .audio_augs import AudioAugs
 from .transforms import Bbox2FomoMask

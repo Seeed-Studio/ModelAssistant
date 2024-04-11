@@ -1,4 +1,4 @@
-# Copyright (c) Seeed Tech Ltd. All rights reserved.
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 _base_ = './fastestdet_shuffv2_spp_voc.py'
 
 # ========================Suggested optional parameters========================

@@ -1,4 +1,4 @@
-# Copyright (c) Seeed Tech Ltd. All rights reserved.
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from typing import Callable, Dict, Optional, Tuple, Union
 
 import torch.nn as nn

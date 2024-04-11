@@ -1,4 +1,4 @@
-# Copyright (c) Seeed Tech Ltd. All rights reserved.
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from mmdet.models import build_detector
 from mmdet.models.detectors.base import BaseDetector
 from mmtrack.models.builder import MODELS

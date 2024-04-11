@@ -1,4 +1,4 @@
-# Copyright (c) Seeed Tech Ltd. All rights reserved.
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from .base import BaseSsod
 from .fastestdet import FastestDet
 from .fomo import Fomo

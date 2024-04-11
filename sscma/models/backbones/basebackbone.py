@@ -1,4 +1,4 @@
-# Copyright (c) Seeed Tech Ltd.
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 # Copyright (c) OpenMMLab.
 from abc import ABCMeta, abstractmethod
 from typing import List, Sequence, Union

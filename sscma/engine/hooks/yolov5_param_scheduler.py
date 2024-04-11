@@ -1,4 +1,4 @@
-# Copyright (c) OpenMMLab. All rights reserved.
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 import math
 from typing import Optional
 

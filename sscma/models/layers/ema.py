@@ -1,4 +1,4 @@
-# Copyright (c) Seeed Tech Ltd.
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 # Copyright (c) OpenMMLab.
 import math
 from typing import Optional

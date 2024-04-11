@@ -1,4 +1,4 @@
-# Copyright (c) Seeed Tech Ltd. All rights reserved.
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 def pose_acc(pred, target, hw, th=10):
     h = hw[0] if isinstance(hw[0], int) else int(hw[0][0])
     w = hw[1] if isinstance(hw[1], int) else int(hw[1][0])

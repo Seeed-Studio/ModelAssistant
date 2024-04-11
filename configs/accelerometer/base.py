@@ -1,4 +1,4 @@
-# Copyright (c) Seeed Tech Ltd. All rights reserved.
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 _base_ = '../_base_/default_runtime_cls.py'
 
 # defaults input type image
