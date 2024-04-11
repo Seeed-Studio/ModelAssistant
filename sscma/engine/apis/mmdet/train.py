@@ -1,4 +1,4 @@
-# Copyright (c) OpenMMLab. All rights reserved.
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 import os
 import random
 

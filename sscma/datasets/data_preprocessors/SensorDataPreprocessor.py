@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from typing import Optional
 
 from mmcls.models.utils.batch_augments import RandomBatchAugment

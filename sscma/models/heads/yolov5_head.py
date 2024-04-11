@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 import math
 from typing import List, Sequence, Tuple, Union
 

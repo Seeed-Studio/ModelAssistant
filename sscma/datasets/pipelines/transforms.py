@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 import copy
 from typing import Dict, List, Optional, Tuple, Union
 

@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from abc import abstractmethod
 
 from mmdet.utils import InstanceList

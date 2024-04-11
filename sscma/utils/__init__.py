@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from .cv import NMS, load_image, xywh2xyxy, xyxy2cocoxywh
 from .config import load_config
 from .inference import Infernce

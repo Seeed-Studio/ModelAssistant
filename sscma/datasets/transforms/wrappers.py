@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from typing import Dict, List, Optional, Tuple, Union
 from mmcv.transforms import BaseTransform, Compose
 import copy

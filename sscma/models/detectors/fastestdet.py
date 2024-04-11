@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 import torch
 import torch.nn as nn
 from mmdet.models.detectors.single_stage import SingleStageDetector

@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from typing import Any, AnyStr, Callable, Dict, List, Optional, Union
 
 import torch

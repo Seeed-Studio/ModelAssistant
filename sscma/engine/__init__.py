@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from .hooks import (
     DetFomoVisualizationHook,
     Posevisualization,
