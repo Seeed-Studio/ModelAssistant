@@ -1,5 +1,4 @@
 # copyright Copyright (c) Seeed Technology Co.,Ltd.
-# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from .AxesNet import AxesNet
 from .basebackbone import BaseBackbone
 from .Darknet import YOLOv5CSPDarknet
