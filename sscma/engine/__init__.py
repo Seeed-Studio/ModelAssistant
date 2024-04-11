@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from .hooks import (
     DetFomoVisualizationHook,
     Posevisualization,

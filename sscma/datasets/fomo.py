@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from torch.utils.data import Dataset
 
 from sscma.registry import DATASETS

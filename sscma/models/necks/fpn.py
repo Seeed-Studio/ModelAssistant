@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from typing import List, Optional, Tuple, Union
 
 from mmdet.models.necks.fpn import FPN as _FPN

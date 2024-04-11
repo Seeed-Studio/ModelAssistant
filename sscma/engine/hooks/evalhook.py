@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 import warnings
 from typing import Callable, List, Optional
 

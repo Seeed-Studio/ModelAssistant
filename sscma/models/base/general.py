@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from typing import Any, AnyStr, Callable, Dict, List, Optional, Union
 
 import torch

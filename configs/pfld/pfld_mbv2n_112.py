@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 _base_ = '../_base_/default_runtime_pose.py'
 
 # ========================Suggested optional parameters========================

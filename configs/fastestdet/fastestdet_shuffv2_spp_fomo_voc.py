@@ -1,9 +1,10 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 _base_ = './fastestdet_shuffv2_spp_voc.py'
 
 # ========================Suggested optional parameters========================
 # MODEL
 num_classes = (20,)
-widen_factor=0.25,
+widen_factor = (0.25,)
 
 # ================================END=================================
 

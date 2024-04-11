@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from typing import Optional, Sequence, Tuple, Union
 
 import albumentations as A

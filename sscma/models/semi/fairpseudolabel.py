@@ -1,6 +1,8 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 import torch
 from mmdet.structures.det_data_sample import SampleList
 from mmengine.structures.instance_data import InstanceData
+
 from sscma.models.detectors.base import BasePseudoLabelCreator
 from sscma.registry import MODELS
 

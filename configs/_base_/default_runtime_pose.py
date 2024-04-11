@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 default_scope = 'sscma'
 
 # defaults input type image

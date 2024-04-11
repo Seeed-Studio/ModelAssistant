@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 import copy
 from functools import partial
 from typing import Callable, List, Optional

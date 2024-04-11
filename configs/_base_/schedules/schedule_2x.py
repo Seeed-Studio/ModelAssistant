@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 # training schedule for 2x
 train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=24, val_interval=1)
 val_cfg = dict(type='ValLoop')

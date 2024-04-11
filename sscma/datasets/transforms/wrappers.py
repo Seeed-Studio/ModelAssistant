@@ -1,6 +1,9 @@
-from typing import Dict, List, Optional, Tuple, Union
-from mmcv.transforms import BaseTransform, Compose
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 import copy
+from typing import Dict, List, Optional, Tuple, Union
+
+from mmcv.transforms import BaseTransform, Compose
+
 from sscma.registry import TRANSFORMS
 
 

@@ -1,5 +1,6 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 from .base import BasePseudoLabelCreator
-from .labelmatch import LabelMatch
 from .fairpseudolabel import FairPseudoLabel
+from .labelmatch import LabelMatch
 
-__all__ = ['BasePseudoLabelCreator','LabelMatch', 'FairPseudoLabel']
+__all__ = ['BasePseudoLabelCreator', 'LabelMatch', 'FairPseudoLabel']

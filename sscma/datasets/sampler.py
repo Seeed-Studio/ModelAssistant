@@ -1,18 +1,18 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
+import random
 from typing import Iterator, List, Optional, Union
 
-import torch
-import random
 import numpy as np
-from torch.utils.data import ConcatDataset
+import torch
 from mmengine.dataset import DefaultSampler
+from torch.utils.data import ConcatDataset
 
 from sscma.registry import DATA_SANPLERS
 
 
 @DATA_SANPLERS.register_module()
 class SemiSampler(DefaultSampler):
-    """
-    Sampler for scaled sampling of semi-supervised data
+    """Sampler for scaled sampling of semi-supervised data.
 
     Params:
         dataset (torch::ConcatDataset): Multiple merged datasets
@@ -37,7 +37,7 @@ class SemiSampler(DefaultSampler):
     ) -> None:
         assert len(sample_ratio) == len(
             dataset.cumulative_sizes
-        ), "Sampling rate length must be equal to the number of datasets."
+        ), 'Sampling rate length must be equal to the number of datasets.'
 
         super(SemiSampler, self).__init__(dataset, shuffle=shuffle, seed=seed, round_up=round_up)
         if seed is not None:

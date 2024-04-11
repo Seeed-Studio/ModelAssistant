@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 _base_ = '../_base_/default_runtime_cls.py'
 default_scope = 'sscma'
 custom_imports = dict(imports=['sscma'], allow_failed_imports=False)

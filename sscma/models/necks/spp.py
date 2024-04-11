@@ -1,7 +1,9 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 import torch
 import torch.nn as nn
 
 from sscma.registry import NECKS
+
 from ..base.general import CBR
 
 

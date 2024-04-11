@@ -1,9 +1,11 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 import os.path as osp
 import re
 from typing import Optional, Sequence, Union
 
 from mmengine.config import Config
-from sscma.datasets.utils.download import is_link, _download
+
+from sscma.datasets.utils.download import _download, is_link
 
 
 def dump_config_to_log_dir(self) -> None:
@@ -32,7 +34,7 @@ def replace(data: str, args: Optional[dict] = None) -> str:
             data = re.sub(f'^{key}\s?=\s?[^,{key}].*?$\n', f'{key}={value}\n', data, flags=re.MULTILINE)
         elif isinstance(value, (list, tuple)):
             data = re.sub(
-                f"^{key}\s?=\s?[\[\(]{{1}}.*?[\]\)]{{1}}.*?$\n", f'{key}={tuple(value)}\n', data, flags=re.MULTILINE
+                f'^{key}\s?=\s?[\[\(]{{1}}.*?[\]\)]{{1}}.*?$\n', f'{key}={tuple(value)}\n', data, flags=re.MULTILINE
             )
         elif isinstance(value, str):
             value = value.replace('\\', '/')
@@ -83,12 +85,12 @@ def load_config(filename: str, folder: str, cfg_options: Optional[dict] = None) 
         if cfg_options is None:
             cfg_options = {}
 
-        if cfg_options is not None and cfg_options.get("data_root", ''):
-            if is_link(cfg_options.get("data_root")):
-                data_root = _download(cfg_options.get("data_root"))
+        if cfg_options is not None and cfg_options.get('data_root', ''):
+            if is_link(cfg_options.get('data_root')):
+                data_root = _download(cfg_options.get('data_root'))
                 cfg_options['data_root'] = data_root
-        elif 'data_root' in tmp_dict and is_link(tmp_dict.get("data_root")):
-            data_root = _download(tmp_dict.get("data_root"))
+        elif 'data_root' in tmp_dict and is_link(tmp_dict.get('data_root')):
+            data_root = _download(tmp_dict.get('data_root'))
             cfg_options['data_root'] = data_root
 
         data = replace(data, cfg_options)

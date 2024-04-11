@@ -1,25 +1,27 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 import json
 from typing import Dict, Optional, Sequence, Union
+
+import numpy as np
 from mmengine.hooks import Hook
 from mmengine.runner import Runner
+from tqdm.std import tqdm
 
 from sscma.registry import HOOKS
-import numpy as np
-from tqdm.std import tqdm
 
 DATA_BATCH = Optional[Union[dict, tuple, list]]
 
 
 @HOOKS.register_module()
 class SemiHook(Hook):
-    """ """
+    """"""
 
     def __init__(self, bure_epoch: Union[float, int] = 1) -> None:
         super().__init__()
         if isinstance(bure_epoch, float):
             assert (
                 bure_epoch <= 1.0
-            ), "The number of supervised training rounds must be less than the maximum number of rounds"
+            ), 'The number of supervised training rounds must be less than the maximum number of rounds'
 
         self.bure_epoch = bure_epoch
 
@@ -110,9 +112,9 @@ class LabelMatchHook(Hook):
 
     def test_dataset_result(self, model, dataload):
         self.score_list = [[] for _ in range(len(self.CLASSES))]
-        for data in tqdm(dataload, desc="computer thr", ncols=80):
+        for data in tqdm(dataload, desc='computer thr', ncols=80):
             batch_results = model.val_step(
-                {"inputs": data['inputs']['unsup_teacher'], 'data_samples': data['data_samples']['unsup_teacher']}
+                {'inputs': data['inputs']['unsup_teacher'], 'data_samples': data['data_samples']['unsup_teacher']}
             )
         self.parse_val_result(batch_results)
 

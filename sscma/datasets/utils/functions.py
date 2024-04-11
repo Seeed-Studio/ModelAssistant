@@ -1,3 +1,4 @@
+# copyright Copyright (c) Seeed Technology Co.,Ltd.
 import torch
 from mmdet.structures import DetDataSample
 from mmengine.registry import FUNCTIONS
