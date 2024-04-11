@@ -51,7 +51,7 @@ class FomoHead(BaseModule):
         self.loss_cls = LOSSES.build(loss_cls)
 
         # Offset of the ground truth box
-        self.posit_offset = torch.tensor(
+        self.posit_offset = np.array(
             [
                 [0, -1, 0],
                 [0, -1, -1],
@@ -63,7 +63,7 @@ class FomoHead(BaseModule):
                 [0, -1, 1],
                 [0, 0, 0],
             ],
-            dtype=torch.long,
+            dtype=np.int64,
         )
         self._init_layers()
 
@@ -224,7 +224,7 @@ class FomoHead(BaseModule):
         # Traversal compares predicted and ground truth boxes
         for ti in target_index:
             for po in self.posit_offset:
-                site = np.sum([ti, po], axis=0)
+                site = np.add(ti, po)
                 # Avoid index out of bounds
                 if np.any(site < 0) or np.any(site >= H):
                     continue

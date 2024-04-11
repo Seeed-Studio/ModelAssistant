@@ -198,7 +198,7 @@ If your Grove Vision AI is not recognized by your computer, we recommend your to
 
 ## Licensing
 
-These examples are released under the [MIT License](../../community/licenses).
+These examples are released under the [Apache License Version 2.0](../../community/licenses).
 
 For Synopsys GUN Toolchain, it is released under the [GPLv3 License](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/blob/arc-releases/COPYING).
 

@@ -84,4 +84,4 @@ SenseCraft模型助手参考了以下项目：
 
 ## 许可证
 
-本项目在[MIT许可证](LICENSES)下发布。
+本项目在[Apache v2.0许可证](LICENSES)下发布。

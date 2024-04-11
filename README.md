@@ -68,4 +68,4 @@ SSCMA referenced the following projects:
 
 ## License
 
-This project is released under the [MIT license](LICENSES).
+This project is released under the [Apache License Version 2.0](LICENSES).
