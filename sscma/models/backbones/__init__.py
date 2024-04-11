@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from .AxesNet import AxesNet
 from .EfficientNet import EfficientNet
 from .MobileNetv2 import MobileNetv2

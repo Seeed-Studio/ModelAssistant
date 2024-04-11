@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from typing import List, Tuple, Union
 
 import torch.nn as nn

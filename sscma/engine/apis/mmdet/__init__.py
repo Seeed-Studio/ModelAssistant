@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from .test import (
     collect_results_cpu,
     collect_results_gpu,

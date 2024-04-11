@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 import os.path as osp
 from typing import Dict, Optional, Union
 

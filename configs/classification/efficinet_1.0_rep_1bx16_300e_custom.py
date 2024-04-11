@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 _base_ = './mobnetv2_1.0_1bx16_300e_custom.py'
 default_scope = 'sscma'
 custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
