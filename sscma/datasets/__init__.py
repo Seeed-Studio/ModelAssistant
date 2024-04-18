@@ -14,3 +14,4 @@ from .vww import *  # noqa
 from .sampler import *  # noqa
 from .unsupdataset import *  # noqa
 from .dataset_wrappers import * # noqa
+from .transforms import *  # noqa

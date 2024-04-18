@@ -83,12 +83,12 @@ albu_train_transforms = [
 
 pre_transform = [
     dict(type='LoadImageFromFile', file_client_args=dict(backend='disk')),
-    dict(type='LoadAnnotations', with_bbox=True),
+    dict(type='LoadAnnotations', with_bbox=True, _scope_='sscma'),
 ]
 
 train_pipeline = [
     *pre_transform,
-    dict(type='Mosaic', img_scale=imgsz, pad_val=114.0, pre_transform=pre_transform),
+    dict(type='Mosaic', img_scale=imgsz, pad_val=114.0, pre_transform=pre_transform, _scope_='sscma'),
     dict(
         type='YOLOv5RandomAffine',
         max_rotate_degree=0.0,
@@ -97,6 +97,7 @@ train_pipeline = [
         # imgsz is (width, height)
         border=(-imgsz[0] // 2, -imgsz[1] // 2),
         border_val=(114, 114, 114),
+        _scope_='sscma'
     ),
     dict(
         type='mmdet.Albu',
@@ -104,7 +105,7 @@ train_pipeline = [
         bbox_params=dict(type='BboxParams', format='pascal_voc', label_fields=['gt_bboxes_labels', 'gt_ignore_flags']),
         keymap={'img': 'image', 'gt_bboxes': 'bboxes'},
     ),
-    dict(type='YOLOv5HSVRandomAug'),
+    dict(type='YOLOv5HSVRandomAug', _scope_='sscma'),
     dict(type='mmdet.RandomFlip', prob=0.5),
     dict(
         type='mmdet.PackDetInputs', meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape', 'flip', 'flip_direction')
@@ -129,9 +130,9 @@ train_dataloader = dict(
 
 test_pipeline = [
     dict(type='LoadImageFromFile', file_client_args=dict(backend='disk')),
-    dict(type='YOLOv5KeepRatioResize', scale=imgsz),
-    dict(type='LetterResize', scale=imgsz, allow_scale_up=False, pad_val=dict(img=114)),
-    dict(type='LoadAnnotations', with_bbox=True, _scope_='mmdet'),
+    dict(type='YOLOv5KeepRatioResize', scale=imgsz, _scope_='sscma'),
+    dict(type='sscma.LetterResize', scale=imgsz, allow_scale_up=False, pad_val=dict(img=114), _scope_='sscma'),
+    dict(type='LoadAnnotations', with_bbox=True, _scope_='sscma'),
     dict(
         type='mmdet.PackDetInputs',
         meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape', 'scale_factor', 'pad_param'),
