@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 import tensorflow as tf
 import torch.nn as nn
 from tensorflow import keras

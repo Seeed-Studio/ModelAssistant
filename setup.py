@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 import os
 import platform
 import shutil
@@ -117,7 +118,7 @@ if __name__ == '__main__':
             'Intended Audience :: Developers',
             'Intended Audience :: Education',
             'Intended Audience :: Science/Research',
-            'License :: OSI Approved :: MIT License',
+            'License :: OSI Approved :: Apache Software License',
             'Operating System :: Unix',
             'Programming Language :: Python :: 3',
             'Programming Language :: Python :: 3 :: Only',
@@ -130,7 +131,7 @@ if __name__ == '__main__':
         install_requires=requirements,
         include_package_data=True,
         python_requires='>=3.8',
-        license='MIT',
+        license='Apache License 2.0',
         entry_points={
             'console_scripts': [
                 'sscma.train=sscma.tools.train:main',

@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 # dataset settings
 dataset_type = 'CocoDataset'
 data_root = 'data/coco/'

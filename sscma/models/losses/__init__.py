@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from .bce_withlogits_loss import BCEWithLogitsLoss
 from .classfication_loss import LabelSmoothCrossEntropyLoss
 from .nll_loss import NLLLoss

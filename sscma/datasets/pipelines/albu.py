@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from typing import Optional, Sequence, Tuple, Union
 
 import albumentations as A

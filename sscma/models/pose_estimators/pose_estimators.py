@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from abc import ABCMeta, abstractmethod
 from typing import List, Optional, Tuple, Union
 

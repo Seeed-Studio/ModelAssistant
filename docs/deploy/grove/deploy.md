@@ -198,8 +198,6 @@ If your Grove Vision AI is not recognized by your computer, we recommend your to
 
 ## Licensing
 
-These examples are released under the [MIT License](../../community/licenses).
-
 For Synopsys GUN Toolchain, it is released under the [GPLv3 License](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/blob/arc-releases/COPYING).
 
 The TensorFlow library code and third-party code contain their own licenses, which are described in [TFLite-Micro](https://github.com/tensorflow/tflite-micro).

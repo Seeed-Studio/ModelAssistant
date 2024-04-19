@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from .fastestdet import FastestDet
 from .fomo import Fomo
 from .pfld import PFLD
