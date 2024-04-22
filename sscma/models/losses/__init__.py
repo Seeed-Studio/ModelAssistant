@@ -4,6 +4,7 @@ from .classfication_loss import LabelSmoothCrossEntropyLoss
 from .nll_loss import NLLLoss
 from .pfld_loss import PFLDLoss
 from .domain_focal_loss import DomainFocalLoss, TargetLoss, DomainLoss
+from .IouLoss import *
 
 __all__ = [
     'LabelSmoothCrossEntropyLoss',
