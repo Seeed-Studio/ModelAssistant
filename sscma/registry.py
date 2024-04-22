@@ -15,6 +15,7 @@ from mmengine.registry import OPTIM_WRAPPERS as MMENGINE_OPTIM_WRAPPERS
 from mmengine.registry import OPTIMIZERS as MMENGINE_OPTIMIZERS
 from mmengine.registry import PARAM_SCHEDULERS as MMENGINE_PARAM_SCHEDULERS
 from mmengine.registry import TRANSFORMS as MMENGINE_TRANSFORMS
+from mmengine.registry import TASK_UTILS as MMENGINE_TASK_UTILS
 from mmengine.registry import VISBACKENDS as MMENGINE_VISBACKENDS
 from mmengine.registry import VISUALIZERS as MMENGINE_VISUALIZERS
 from mmengine.registry import Registry
@@ -56,3 +57,5 @@ METRICS = Registry('metrics', parent=MMENGINE_METRICS, locations=['sscma.dataset
 TRANSFORMS = Registry('transforms', parent=MMENGINE_TRANSFORMS, locations=['sscma.datasets'])
 
 FUNCTIONS = Registry('functions', parent=MMENGINE_FUNCTIONS, locations=['sscma.datasets'])
+
+TASK_UTILS = Registry('task util', parent=MMENGINE_TASK_UTILS, locations=['sscma.models'])
