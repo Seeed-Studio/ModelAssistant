@@ -10,7 +10,7 @@ num_classes = 2
 widen_factor = 0.35
 
 # DATA
-dataset_type = 'CustomCocoDataset'
+dataset_type = 'CustomFomoCocoDataset'
 # datasets link: https://public.roboflow.com/object-detection/mask-wearing
 data_root = 'https://public.roboflow.com/ds/o8GgfOIazi?key=hES8s8Gy7u'
 
