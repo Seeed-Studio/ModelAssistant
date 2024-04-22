@@ -41,7 +41,7 @@ anchors = [
 ]
 
 model = dict(
-    type='mmyolo.YOLODetector',
+    type='sscma.YOLODetector',
     backbone=dict(
         type='YOLOv5CSPDarknet',
         deepen_factor=deepen_factor,

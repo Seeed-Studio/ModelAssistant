@@ -41,7 +41,7 @@ anchors = [
 ]
 
 model = dict(
-    type='mmyolo.YOLODetector',
+    type='sscma.YOLODetector',
     backbone=dict(
         type='YOLOv5CSPDarknet',
         deepen_factor=deepen_factor,
@@ -86,7 +86,6 @@ pre_transform = [
     dict(type='LoadAnnotations', with_bbox=True),
 ]
 
-# from mmyolo.datasets.transforms import YOLOv5RandomAffine
 
 color_space = [
     [dict(type='mmdet.ColorTransform')],
