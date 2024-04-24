@@ -1,11 +1,11 @@
-# copyright Copyright (c) Seeed Technology Co.,Ltd.
-from abc import ABCMeta, abstractmethod
-from typing import Dict, List, Tuple, Union
+# Copyright (c) Seeed Technology Co.,Ltd.
+# Copyright (c) OpenMMLab.
+from typing import List, Tuple, Union
 
 import torch
 from .base import BaseDetector
-from mmdet.structures import DetDataSample, OptSampleList, SampleList
-from mmdet.utils import ConfigType, InstanceList, OptConfigType, OptMultiConfig
+from mmdet.structures import OptSampleList, SampleList
+from mmdet.utils import ConfigType, OptConfigType, OptMultiConfig
 from mmengine.dist import get_world_size
 
 from torch import Tensor

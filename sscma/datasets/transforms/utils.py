@@ -4,8 +4,6 @@ from typing import List, Sequence
 
 import numpy as np
 import torch
-from mmengine.dataset import COLLATE_FUNCTIONS
-
 from sscma.registry import TASK_UTILS
 
 

@@ -2,17 +2,13 @@
 # Copyright (c) OpenMMLab.
 import torch
 from torch import Tensor
-from typing import Optional, Sequence, Tuple, Union
+from typing import Sequence, Union
 
-import numpy as np
 import torch
 import torch.nn as nn
-from mmcv.cnn import (ConvModule, DepthwiseSeparableConvModule, MaxPool2d,
-                      build_norm_layer)
-from mmdet.models.layers.csp_layer import DarknetBottleneck as MMDET_DarknetBottleneck
-from mmdet.utils import ConfigType, OptConfigType, OptMultiConfig
+from ..base import ConvModule
+from mmdet.utils import ConfigType, OptMultiConfig
 from mmengine.model import BaseModule
-from mmengine.utils import digit_version
 from torch import Tensor
 
 
