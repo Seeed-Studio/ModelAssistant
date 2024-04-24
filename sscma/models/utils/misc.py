@@ -1,4 +1,5 @@
 # Copyright (c) Seeed Technology Co.,Ltd.
+# Copyright (c) OpenMMLab.
 import math
 import numpy as np
 import os

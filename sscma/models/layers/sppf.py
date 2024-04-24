@@ -1,3 +1,5 @@
+# Copyright (c) Seeed Technology Co.,Ltd.
+# Copyright (c) OpenMMLab.
 import torch
 from torch import Tensor
 from typing import Optional, Sequence, Tuple, Union

@@ -1,4 +1,5 @@
-# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
+# Copyright (c) Seeed Technology Co.,Ltd.
+# Copyright (c) OpenMMLab.
 import torch
 import torch.nn as nn
 from sscma.models.base import ConvModule, DepthwiseSeparableConvModule

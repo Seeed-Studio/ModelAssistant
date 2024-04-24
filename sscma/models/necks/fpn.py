@@ -1,4 +1,5 @@
 # Copyright (c) Seeed Technology Co.,Ltd.
+# Copyright (c) OpenMMLab.
 from abc import ABCMeta, abstractmethod
 from typing import List, Optional, Tuple, Union
 

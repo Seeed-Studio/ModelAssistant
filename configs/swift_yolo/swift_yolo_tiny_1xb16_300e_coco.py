@@ -3,7 +3,7 @@ _base_ = ['./base_arch.py']
 
 # ========================Suggested optional parameters========================
 # MODEL
-num_classes = 11
+num_classes = 71
 deepen_factor = 0.33
 widen_factor = 0.15
 

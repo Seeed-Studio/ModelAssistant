@@ -1,4 +1,5 @@
-# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
+# Copyright (c) Seeed Technology Co.,Ltd.
+# Copyright (c) OpenMMLab.
 import json
 import os.path as osp
 from typing import Optional, Sequence, Any

@@ -1,4 +1,5 @@
-# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
+# Copyright (c) Seeed Technology Co.,Ltd.
+# Copyright (c) OpenMMLab.
 from typing import Union, Tuple, Sequence
 import numpy as np
 from numpy import random
