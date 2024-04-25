@@ -14,7 +14,7 @@ from sscma.registry import MODELS
 
 
 @MODELS.register_module()
-class BaseBackbone(BaseModule, metaclass=ABCMeta):
+class YOLOBaseBackbone(BaseModule, metaclass=ABCMeta):
     """BaseBackbone backbone used in YOLO series.
 
     .. code:: text

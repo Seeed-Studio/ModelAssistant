@@ -9,7 +9,7 @@ from .SoundNet import SoundNetRaw
 from .SqueezeNet import SqueezeNet
 from .MicroNet import MicroNet
 from .csp_darknet import YOLOv5CSPDarknet
-from .base_backbone import BaseBackbone
+from .base_backbone import YOLOBaseBackbone
 
 __all__ = [
     'PfldMobileNetV2',
@@ -24,5 +24,5 @@ __all__ = [
     'MicroNet',
     "FastShuffleNetV2",
     'YOLOv5CSPDarknet',
-    'BaseBackbone',
+    'YOLOBaseBackbone',
 ]

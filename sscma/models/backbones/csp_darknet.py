@@ -10,11 +10,11 @@ from sscma.models.layers import CSPLayer, SPPFBottleneck
 from sscma.models.utils import make_divisible, make_round
 from sscma.registry import MODELS
 
-from .base_backbone import BaseBackbone
+from .base_backbone import YOLOBaseBackbone
 
 
 @MODELS.register_module()
-class YOLOv5CSPDarknet(BaseBackbone):
+class YOLOv5CSPDarknet(YOLOBaseBackbone):
     arch_settings = {
         'P5': [
             [64, 128, 3, True, False],
