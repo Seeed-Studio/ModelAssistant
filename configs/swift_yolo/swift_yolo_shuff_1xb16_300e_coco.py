@@ -41,7 +41,7 @@ anchors = [
 ]
 
 model = dict(
-    type='mmyolo.YOLODetector',
+    type='sscma.YOLODetector',
     backbone=dict(
         type='FastShuffleNetV2',
         stage_repeats=[4, 8, 4],

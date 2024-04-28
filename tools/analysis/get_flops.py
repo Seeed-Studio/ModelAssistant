@@ -10,9 +10,8 @@ from mmengine.config import Config, DictAction
 from mmengine.logging import MMLogger
 from mmengine.model import revert_sync_batchnorm
 from mmengine.registry import init_default_scope
-from mmyolo.utils import switch_to_deploy
 
-from tools.utils.config import load_config
+from sscma.utils import load_config
 
 
 def parse_args():
@@ -57,7 +56,7 @@ def inference(args, logger):
     if args.cfg_options is not None:
         cfg.merge_from_dict(args.cfg_options)
 
-    init_default_scope(cfg.get('default_scope', 'mmyolo'))
+    init_default_scope(cfg.get('default_scope', 'sscma'))
 
     if len(args.shape) == 1:
         h = w = args.shape[0]
@@ -75,7 +74,6 @@ def inference(args, logger):
         model.cuda()
     model = revert_sync_batchnorm(model)
     model.eval()
-    switch_to_deploy(model)
 
     # input tensor
     # automatically generate a input tensor with the given input_shape.

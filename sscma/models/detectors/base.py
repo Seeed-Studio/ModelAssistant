@@ -1,18 +1,24 @@
 # Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Union, Tuple, List
+from abc import ABCMeta, abstractmethod
 import copy
 
 from mmdet.models.detectors import BaseDetector, SemiBaseDetector
-from mmdet.utils import OptConfigType, OptMultiConfig, ConfigType
+from mmdet.structures import DetDataSample, OptSampleList, SampleList
+from mmdet.utils import OptConfigType, OptMultiConfig, ConfigType, InstanceList
 from mmdet.models.utils import rename_loss_dict, reweight_loss_dict
 from mmdet.structures import SampleList
+from mmengine.model import BaseModel
 import torch
 from torch import Tensor
 from mmengine.optim import OptimWrapper
+from ..utils import samplelist_boxtype2tensor
 
 from sscma.registry import MODELS
 from sscma.models.semi import BasePseudoLabelCreator
 
+
+ForwardResults = Union[Dict[str, torch.Tensor], List[DetDataSample], Tuple[torch.Tensor], torch.Tensor]
 
 @MODELS.register_module()
 class BaseSsod(SemiBaseDetector):
@@ -177,3 +183,74 @@ class BaseSsod(SemiBaseDetector):
         unsup_weight = self.semi_train_cfg.get('unsup_weight', 1.0) if pseudo_instances_num > 0 else 0.0
 
         return rename_loss_dict('unsup_', reweight_loss_dict(losses, unsup_weight))
+
+
+class BaseDetector(BaseModel, metaclass=ABCMeta):
+    def __init__(self, data_preprocessor: OptConfigType = None, init_cfg: OptMultiConfig = None):
+        super().__init__(data_preprocessor=data_preprocessor, init_cfg=init_cfg)
+
+    @property
+    def with_neck(self) -> bool:
+        """bool: whether the detector has a neck"""
+        return hasattr(self, 'neck') and self.neck is not None
+
+    @property
+    def with_shared_head(self) -> bool:
+        """bool: whether the detector has a shared head in the RoI Head"""
+        return hasattr(self, 'roi_head') and self.roi_head.with_shared_head
+
+    @property
+    def with_bbox(self) -> bool:
+        """bool: whether the detector has a bbox head"""
+        return (hasattr(self, 'roi_head') and self.roi_head.with_bbox) or (
+            hasattr(self, 'bbox_head') and self.bbox_head is not None
+        )
+
+    @property
+    def with_mask(self) -> bool:
+        """bool: whether the detector has a mask head"""
+        return (hasattr(self, 'roi_head') and self.roi_head.with_mask) or (
+            hasattr(self, 'mask_head') and self.mask_head is not None
+        )
+
+    def forward(self, inputs: torch.Tensor, data_samples: OptSampleList = None, mode: str = 'tensor') -> ForwardResults:
+        if mode == 'loss':
+            return self.loss(inputs, data_samples)
+        elif mode == 'predict':
+            return self.predict(inputs, data_samples)
+        elif mode == 'tensor':
+            return self._forward(inputs, data_samples)
+        else:
+            raise RuntimeError(f'Invalid mode "{mode}". ' 'Only supports loss, predict and tensor mode')
+
+    @abstractmethod
+    def loss(self, batch_inputs: Tensor, batch_data_samples: SampleList) -> Union[dict, Tuple]:
+        """Calculate losses from a batch of inputs and data samples."""
+        pass
+
+    @abstractmethod
+    def predict(self, batch_inputs: Tensor, batch_data_samples: SampleList) -> SampleList:
+        """Predict results from a batch of inputs and data samples with post-
+        processing."""
+        pass
+
+    @abstractmethod
+    def _forward(self, batch_inputs: Tensor, batch_data_samples: OptSampleList = None):
+        """Network forward process.
+
+        Usually includes backbone, neck and head forward without any post-
+        processing.
+        """
+        pass
+
+    @abstractmethod
+    def extract_feat(self, batch_inputs: Tensor):
+        """Extract features from images."""
+        pass
+
+    def add_pred_to_datasample(self, data_samples: SampleList, results_list: InstanceList) -> SampleList:
+        """Add predictions to `DetDataSample`."""
+        for data_sample, pred_instances in zip(data_samples, results_list):
+            data_sample.pred_instances = pred_instances
+        samplelist_boxtype2tensor(data_samples)
+        return data_samples

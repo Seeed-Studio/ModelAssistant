@@ -9,8 +9,8 @@ from mmdet.apis import inference_detector, init_detector
 from mmengine import Config, DictAction
 from mmengine.registry import init_default_scope
 from mmengine.utils import ProgressBar
-from mmyolo.registry import VISUALIZERS
-from mmyolo.utils.misc import auto_arrange_images, get_file_list
+from sscma.registry import VISUALIZERS
+from sscma.utils.misc import auto_arrange_images, get_file_list
 
 from tools.utils.config import load_config
 
