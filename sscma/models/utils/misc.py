@@ -1,19 +1,17 @@
 # Copyright (c) Seeed Technology Co.,Ltd.
 # Copyright (c) OpenMMLab.
 import math
-import numpy as np
 import os
 import urllib
-from typing import Union, List
+from typing import List, Union
+
 import numpy as np
 import torch
-from mmengine.utils import scandir
 from mmdet.structures import SampleList
 from mmdet.structures.bbox import BaseBoxes
+from mmengine.utils import scandir
 
-
-IMG_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm', '.tif',
-                  '.tiff', '.webp')
+IMG_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm', '.tif', '.tiff', '.webp')
 
 
 def samplelist_boxtype2tensor(batch_data_samples: SampleList) -> SampleList:
@@ -41,6 +39,7 @@ def make_round(x: float, deepen_factor: float = 1.0) -> int:
     """Make sure that x*deepen_factor becomes an integer not less than 1."""
     return max(round(x * deepen_factor), 1) if x > 1 else x
 
+
 def auto_arrange_images(image_list: list, image_column: int = 2) -> np.ndarray:
     """Auto arrange image to image_column x N row.
 
@@ -57,9 +56,7 @@ def auto_arrange_images(image_list: list, image_column: int = 2) -> np.ndarray:
     else:
         # arrange image according to image_column
         image_row = round(img_count / image_column)
-        fill_img_list = [np.ones(image_list[0].shape, dtype=np.uint8) * 255
-                         ] * (
-                             image_row * image_column - img_count)
+        fill_img_list = [np.ones(image_list[0].shape, dtype=np.uint8) * 255] * (image_row * image_column - img_count)
         image_list.extend(fill_img_list)
         merge_imgs_col = []
         for i in range(image_row):
@@ -95,8 +92,7 @@ def get_file_list(source_root: str) -> Union[List, dict]:
             source_file_path_list.append(os.path.join(source_root, file))
     elif is_url:
         # when input source is url
-        filename = os.path.basename(
-            urllib.parse.unquote(source_root).split('?')[0])
+        filename = os.path.basename(urllib.parse.unquote(source_root).split('?')[0])
         file_save_path = os.path.join(os.getcwd(), filename)
         print(f'Downloading source file to {file_save_path}')
         torch.hub.download_url_to_file(source_root, file_save_path)
