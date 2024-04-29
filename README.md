@@ -17,7 +17,7 @@
     <a href="https://sensecraftma.seeed.cc/introduction/installation"> Installation </a> |
     <a href="https://github.com/Seeed-Studio/ModelAssistant/tree/main/notebooks"> Colab </a> |
     <a href="https://github.com/Seeed-Studio/sscma-model-zoo"> Model Zoo </a> |
-    <a href="https://seeed-studio.github.io/SenseCraft-Web-Toolkit"> Deploy </a> -
+    <a href="https://seeed-studio.github.io/SenseCraft-Web-Toolkit"> Deploy</a> -
     <a href="README_zh-CN.md"> 简体中文 </a>
   </h3>
 
@@ -25,6 +25,15 @@
 
 ## Introduction
 
+**S**eeed **S**ense**C**raft **M**odel **A**ssistant is an open-source project focused on providing state-of-the-art AI algorithms for embedded devices. It is designed to help developers and makers to easily deploy various AI models on low-cost hardwares, such as microcontrollers and single-board computers (SBCs).
+
+<div align="center">
+
+<img width="98%" src="https://files.seeedstudio.com/sscma/docs/images/SSCMA-Deploy.gif"/>
+
+</div>
+
+**Real-world deploy examples on MCUs with less than 0.3 Watts power consumption.*
 **S**eeed **S**ense**C**raft **M**odel **A**ssistant is an open-source project focused on providing state-of-the-art AI algorithms for embedded devices. It is designed to help developers and makers to easily deploy various AI models on low-cost hardwares, such as microcontrollers and single-board computers (SBCs).
 
 <div align="center">
@@ -79,13 +88,13 @@ With [SSCMA-Micro](https://github.com/Seeed-Studio/SSCMA-Micro), now you can dep
 
 ### Swift YOLO
 
-We implemented a lightweight object detection algorithm called Swift YOLO, which is designed to run on low-cost hardware with limited computing power. The visualization tool, model training and export command-line interface has refactored now.
+We implemented a lightweight object detection algorithm called YOLO-Swift, which is optimized for embedded devices. It is based on the YOLOv5 architecture and is designed to run on low-cost hardware with limited computing power. The visualization tool, model training and export command-line interface has refactored now.
 
 <div align="center"><img width="98%" src="https://files.seeedstudio.com/sscma/docs/static/esp32/images/person_detection.png"/></div>
 
 ### Meter Recognition
 
-Meter is a common instrument in our daily life and industrial production, such as analog meters, digital meters, etc. SSCMA provides meter recognition algorithms that can be used to identify the readings of various meters.
+Meter is a common instrument in our daily life or industrial production, such as analog meters, digital meters, etc. SSCMA provides meter recognition algorithms that can be used to identify the readings of various meters.
 
 <div align="center"><img width="98%" src="https://files.seeedstudio.com/sscma/docs/static/grove/images/pfld_meter.gif"/></div>
 
@@ -93,9 +102,9 @@ Meter is a common instrument in our daily life and industrial production, such a
 
 SSCMA aims to provide the best performance and accuracy for embedded devices, here are some benchmarks for the latest algorithms:
 
-<div align="center"><img width="98%" src="https://files.seeedstudio.com/sscma/docs/images/SSCMA-Swift-YOLO.png"/></div>
 
-**Note: The bechmark mainly includes 2 architectures, each architecture has 3 models with different sizes (inputs `[192, 224, 320]`, parameters may various), represented by the size of the point in the graph. Quanitizied models are also included in the benchmark, all latency is measured on NVIDIA A100.*
+
+
 
 ## The SSCMA Toolchains
 
@@ -109,6 +118,7 @@ SSCMA provides a complete toolchain for users to easily deploy AI models on low-
 
 ## Acknowledgement
 
+SSCMA is a united effort of many developers and contributors, we would like to thank the following projects and organizations for their contributions which SSCMA referenced to implement: 
 SSCMA is a united effort of many developers and contributors, we would like to thank the following projects and organizations for their contributions which SSCMA referenced to implement: 
 
 - [OpenMMLab](https://openmmlab.com/)
