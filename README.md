@@ -1,33 +1,39 @@
-# SenseCraft Model Assistant by Seeed Studio
-
 <div align="center">
   <img width="20%" src="https://files.seeedstudio.com/sscma/docs/images/SSCMA-Hero.png"/>
-  <h3> <a href="https://sensecraftma.seeed.cc"> Documentation </a> | <a href="https://github.com/Seeed-Studio/sscma-model-zoo"> Model Zoo </a>  </h3>
-</div>
 
-English | [简体中文](README_zh-CN.md)
+  <h1>
+      SenseCraft Model Assistant by Seeed Studio
+  </h1>
+
+[![docs-build](https://github.com/Seeed-Studio/ModelAssistant/actions/workflows/docs-build.yml/badge.svg)](https://github.com/Seeed-Studio/ModelAssistant/actions/workflows/docs-build.yml)
+[![functional-test](https://github.com/Seeed-Studio/ModelAssistant/actions/workflows/functional-test.yml/badge.svg?branch=main)](https://github.com/Seeed-Studio/ModelAssistant/actions/workflows/functional-test.yml)
+![GitHub Release](https://img.shields.io/github/v/release/Seeed-Studio/ModelAssistant)
+[![license](https://img.shields.io/github/license/Seeed-Studio/ModelAssistant.svg)](https://github.com/Seeed-Studio/ModelAssistant/blob/main/LICENSE)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/Seeed-Studio/ModelAssistant.svg)](http://isitmaintained.com/project/Seeed-Studio/ModelAssistant "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/Seeed-Studio/ModelAssistant.svg)](http://isitmaintained.com/project/Seeed-Studio/ModelAssistant "Percentage of issues still open")
+
+  <h3>
+    <a href="https://sensecraftma.seeed.cc"> Documentation </a> |
+    <a href="https://sensecraftma.seeed.cc/introduction/installation"> Installation </a> |
+    <a href="https://github.com/Seeed-Studio/ModelAssistant/tree/main/notebooks"> Colab </a> |
+    <a href="https://github.com/Seeed-Studio/sscma-model-zoo"> Model Zoo </a> |
+    <a href="https://seeed-studio.github.io/SenseCraft-Web-Toolkit"> Deploy</a> -
+    <a href="README_zh-CN.md"> 简体中文 </a>
+  </h3>
+
+</div>
 
 ## Introduction
 
-Seeed SenseCraft Model Assistant (or simply SSCMA) is an open-source project focused on embedded AI. We have optimized excellent algorithms from [OpenMMLab](https://github.com/open-mmlab) for real-world scenarios and made implementation more user-friendly, achieving faster and more accurate inference on embedded devices.
+**S**eeed **S**ense**C**raft **M**odel **A**ssistant is an open-source project focused on providing state-of-the-art AI algorithms for embedded devices. It is designed to help developers and makers to easily deploy various AI models on low-cost hardwares, such as microcontrollers and single-board computers (SBCs).
 
-## What's included?
+<div align="center">
 
-Currently we support the following directions of algorithms:
+<img width="98%" src="https://files.seeedstudio.com/sscma/docs/images/SSCMA-Deploy.gif"/>
 
-### 🔍 Anomaly Detection
+</div>
 
-In the real world, anomalous data is often difficult to identify, and even if it can be identified, it requires a very high cost. The anomaly detection algorithm collects normal data in a low-cost way, and anything outside normal data is considered anomalous.
-
-### 👁️ Computer Vision
-
-Here we provide a number of computer vision algorithms such as object detection, image classification, image segmentation and pose estimation. However, these algorithms cannot run on low-cost hardware. SSCMA optimizes these computer vision algorithms to achieve good running speed and accuracy in low-end devices.
-
-### ⏱️ Scenario Specific
-
-SSCMA provides customized scenarios for specific production environments, such as identification of analog instruments, traditional digital meters, and audio classification. We will continue to add more algorithms for specified scenarios in the future.
-
-## Features
+**Real-world deploy examples on MCUs with less than 0.3 Watts power consumption.*
 
 ### 🤝 User-friendly
 
@@ -41,25 +47,69 @@ SSCMA focuses on end-side AI algorithm research, and the algorithm models can be
 
 [TensorFlow Lite](https://www.tensorflow.org/lite) is mainly used in microcontrollers, while [ONNX](https://onnx.ai) is mainly used in devices with Embedded Linux. There are some special formats such as [TensorRT](https://developer.nvidia.com/tensorrt), [OpenVINO](https://docs.openvino.ai) which are already well supported by OpenMMLab. SSCMA has added TFLite model export for microcontrollers, which can be directly converted to [TensorRT](https://developer.nvidia.com/tensorrt), [UF2](https://github.com/microsoft/uf2) format and drag-and-drop into the device for deployment.
 
-## Application Examples
+## Features
 
-### Object Detection
+We have optimized excellent algorithms from [OpenMMLab](https://github.com/open-mmlab) for real-world scenarios and made implementation more user-friendly, achieving faster and more accurate inference. Currently we support the following directions of algorithms:
 
-<div align="center"><img width="800" src="https://files.seeedstudio.com/sscma/docs/static/esp32/images/person_detection.png"/></div>
+### 🔍 Anomaly Detection
 
-### Pointer Meter Recognition
+In the real world, anomalous data is often difficult to identify, and even if it can be identified, it requires a very high cost. The anomaly detection algorithm collects normal data in a low-cost way, and anything outside normal data is considered anomalous.
 
-<div align="center"><img width="800" src="https://files.seeedstudio.com/sscma/docs/static/grove/images/pfld_meter.gif"/></div>
+### 👁️ Computer Vision
 
-### Digital Meter Recognition
+Here we provide a number of computer vision algorithms such as **object detection, image classification, image segmentation and pose estimation**. However, these algorithms cannot run on low-cost hardwares. SSCMA optimizes these computer vision algorithms to achieve good running speed and accuracy in low-end devices.
 
-<div align="center"><img width="800" src="https://files.seeedstudio.com/sscma/docs/static/grove/images/digital_meter.gif"/></div>
+### ⏱️ Scenario Specific
 
-More application examples can be found in [Model Zoo](https://github.com/Seeed-Studio/sscma-model-zoo)
+SSCMA provides customized scenarios for specific production environments, such as identification of analog instruments, traditional digital meters, and audio classification. We will continue to add more algorithms for specified scenarios in the future.
+
+## What's New
+
+SSCMA is always committed to providing the cutting-edge AI algorithms for best performance and accuracy, along with the community feedbacks, we keeps updating and optimizing the algorithms to meet the actual needs of users, here are some of the latest updates:
+
+### 🔥 YOLO-World, MobileNetV4 and lighter SSCMA (Comming Soon)
+
+We are working on the latest [YOLO-World](https://github.com/AILab-CVC/YOLO-World), [MobileNetV4](https://arxiv.org/abs/2404.10518) algorithms for embedded devices, we are also refactoring the SSCMA with less dependencies to make it more lightweight and easier to use, please stay tuned for the latest updates.
+
+### YOLOv8, YOLOv8 Pose, Nvidia Tao Models and ByteTrack
+
+With [SSCMA-Micro](https://github.com/Seeed-Studio/SSCMA-Micro), now you can deploy the latest [YOLOv8](https://github.com/ultralytics/ultralytics), YOLOv8 Pose, [Nvidia TAO Models](https://docs.nvidia.com/tao/tao-toolkit/text/model_zoo/cv_models/index.html) on microcontrollers. we also added the [ByteTrack](https://github.com/ifzhang/ByteTrack) algorithm to enable real-time object tracking on low-cost hardwares.
+
+<div align="center"><img width="98%" src="https://files.seeedstudio.com/sscma/docs/images/SSCMA-WebCam-Tracking.gif"/></div>
+
+### Swift YOLO
+
+We implemented a lightweight object detection algorithm called YOLO-Swift, which is optimized for embedded devices. It is based on the YOLOv5 architecture and is designed to run on low-cost hardware with limited computing power. The visualization tool, model training and export command-line interface has refactored now.
+
+<div align="center"><img width="98%" src="https://files.seeedstudio.com/sscma/docs/static/esp32/images/person_detection.png"/></div>
+
+### Meter Recognition
+
+Meter is a common instrument in our daily life or industrial production, such as analog meters, digital meters, etc. SSCMA provides meter recognition algorithms that can be used to identify the readings of various meters.
+
+<div align="center"><img width="98%" src="https://files.seeedstudio.com/sscma/docs/static/grove/images/pfld_meter.gif"/></div>
+
+## Benchmarks
+
+SSCMA aims to provide the best performance and accuracy for embedded devices, here are some benchmarks for the latest algorithms:
+
+
+
+
+
+## The SSCMA Toolchains
+
+SSCMA provides a complete toolchain for users to easily deploy AI models on low-cost hardwares, including:
+
+- [SSCMA-Model-Zoo](https://github.com/Seeed-Studio/sscma-model-zoo) SSCMA Model Zoo provide a series of pre-trained models for different application scenarios for you to use.
+- [SSCMA-Micro](https://github.com/Seeed-Studio/SSCMA-Micro) A cross-platform framework that deploys and applies SSCMA models to microcontrol devices.
+- [Seeed-Arduino-SSCMA](https://github.com/Seeed-Studio/Seeed_Arduino_SSCMA) Arduino library for devices supporting the SSCMA-Micro firmware.
+- [SSCMA-Web-Toolkit](https://seeed-studio.github.io/SenseCraft-Web-Toolkit) A web-based tool that updates the device's firmware, SSCMA model, and parameters.
+- [Python-SSCMA](https://github.com/Seeed-Studio/python-sscma) A Python library for interacting with microcontrollers using SSCMA-Micro, and for higher-level deep learning applications.
 
 ## Acknowledgement
 
-SSCMA referenced the following projects:
+SSCMA is a united effort of many developers and contributors, we would like to thank the following projects and organizations for their contributions which SSCMA referenced to implement: 
 
 - [OpenMMLab](https://openmmlab.com/)
 - [ONNX](https://github.com/onnx/onnx)
