@@ -79,13 +79,13 @@ With [SSCMA-Micro](https://github.com/Seeed-Studio/SSCMA-Micro), now you can dep
 
 ### Swift YOLO
 
-We implemented a lightweight object detection algorithm called YOLO-Swift, which is optimized for embedded devices. It is based on the YOLOv5 architecture and is designed to run on low-cost hardware with limited computing power. The visualization tool, model training and export command-line interface has refactored now.
+We implemented a lightweight object detection algorithm called Swift YOLO, which is designed to run on low-cost hardware with limited computing power. The visualization tool, model training and export command-line interface has refactored now.
 
 <div align="center"><img width="98%" src="https://files.seeedstudio.com/sscma/docs/static/esp32/images/person_detection.png"/></div>
 
 ### Meter Recognition
 
-Meter is a common instrument in our daily life or industrial production, such as analog meters, digital meters, etc. SSCMA provides meter recognition algorithms that can be used to identify the readings of various meters.
+Meter is a common instrument in our daily life and industrial production, such as analog meters, digital meters, etc. SSCMA provides meter recognition algorithms that can be used to identify the readings of various meters.
 
 <div align="center"><img width="98%" src="https://files.seeedstudio.com/sscma/docs/static/grove/images/pfld_meter.gif"/></div>
 
