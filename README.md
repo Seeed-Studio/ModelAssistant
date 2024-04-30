@@ -17,7 +17,7 @@
     <a href="https://sensecraftma.seeed.cc/introduction/installation"> Installation </a> |
     <a href="https://github.com/Seeed-Studio/ModelAssistant/tree/main/notebooks"> Colab </a> |
     <a href="https://github.com/Seeed-Studio/sscma-model-zoo"> Model Zoo </a> |
-    <a href="https://seeed-studio.github.io/SenseCraft-Web-Toolkit"> Deploy</a> -
+    <a href="https://seeed-studio.github.io/SenseCraft-Web-Toolkit"> Deploy </a> -
     <a href="README_zh-CN.md"> 简体中文 </a>
   </h3>
 
@@ -93,9 +93,7 @@ Meter is a common instrument in our daily life and industrial production, such a
 
 SSCMA aims to provide the best performance and accuracy for embedded devices, here are some benchmarks for the latest algorithms:
 
-
-
-
+(Comming Soon)
 
 ## The SSCMA Toolchains
 
