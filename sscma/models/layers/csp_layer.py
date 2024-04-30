@@ -8,21 +8,7 @@ from torch import Tensor
 
 from sscma.models.base import ConvNormActivation
 
-
-class ChannelAttention(BaseModule):
-    def __init__(self, channels: int, init_cfg: OptMultiConfig = None) -> None:
-        super().__init__(init_cfg=init_cfg)
-        self.global_avgpool = nn.AdaptiveAvgPool2d(1)
-        self.fc = nn.Conv2d(channels, channels, 1, 1, 0, bias=True)
-        self.act = nn.Hardsigmoid(inplace=True)
-
-    def forward(self, x: Tensor) -> Tensor:
-        """Forward function for ChannelAttention."""
-        with torch.cuda.amp.autocast(enabled=False):
-            out = self.global_avgpool(x)
-        out = self.fc(out)
-        out = self.act(out)
-        return x * out
+from .attention import ChannelAttention
 
 
 class CSPLayer(BaseModule):
