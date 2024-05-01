@@ -1,5 +1,5 @@
 libusb1>=3.0.0
-pnnx==0.0.4
+pnnx==20240410
 ncnn>=1.0.20230517
 onnx>=1.14.0
 onnxmltools>=1.11.2
