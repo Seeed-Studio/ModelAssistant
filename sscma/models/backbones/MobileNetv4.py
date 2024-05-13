@@ -5,7 +5,7 @@ import torch.nn as nn
 from torch import Tensor
 
 from sscma.models.base.general import ConvNormActivation
-from sscma.registry import BACKBONES
+from sscma.registry import MODELS
 from sscma.models.layers.nn_blocks import (
     UniversalInvertedBottleneckBlock,
     InvertedBottleneckBlock,
@@ -129,7 +129,7 @@ def mhsa_large_12px():
     )
 
 
-@BACKBONES.register_module()
+@MODELS.register_module()
 class MobileNetv4(nn.Module):
     '''
     Architecture: https://arxiv.org/abs/2404.10518
@@ -144,7 +144,7 @@ class MobileNetv4(nn.Module):
         'small': [
             ('convbn', 'ReLU', 3, None, None, False, 2, 32, None, False),  # 1/2
             ('fused_ib', 'ReLU', 3, None, None, False, 2, 32, 1, False),  # 1/4
-            ('fused_ib', 'ReLU', 3, None, None, False, 2, 64, 3, False),  # 1/8
+            ('fused_ib', 'ReLU', 3, None, None, False, 2, 64, 3, True),  # 1/8
             ('uib', 'ReLU', None, 5, 5, True, 2, 96, 3.0, False),  # 1/16
             ('uib', 'ReLU', None, 0, 3, True, 1, 96, 2.0, False),  # IB
             ('uib', 'ReLU', None, 0, 3, True, 1, 96, 2.0, False),  # IB
@@ -326,23 +326,28 @@ class MobileNetv4(nn.Module):
 
         self._output_stride: int = (1,)
 
-        self.blocks_setting = []
+        self.block_settings = []
         for setting in arch_setting:
             if isinstance(setting, tuple):
-                self.blocks_setting.append(BlockConfig(*setting, input_channels=input_channels))
+                self.block_settings.append(BlockConfig(*setting, input_channels=input_channels))
             else:
-                self.blocks_setting.append(BlockConfig(**setting, input_channels=input_channels))
-            if self.blocks_setting[-1].output_channels is not None:
-                input_channels = self.blocks_setting[-1].output_channels
+                self.block_settings.append(BlockConfig(**setting, input_channels=input_channels))
+            if self.block_settings[-1].output_channels is not None:
+                input_channels = self.block_settings[-1].output_channels
 
-        self._forward_blocks = self.build_layers()
+        last_output_block = 0
+        for i, block in enumerate(self.block_settings):
+            if block.isoutputblock:
+                last_output_block = i
+
+        self._forward_blocks = self.build_layers()[: last_output_block + 1]
 
     def build_layers(self):
         layers = []
         block: BlockConfig
         current_stride = 1
         rate = 1
-        for block in self.blocks_setting:
+        for block in self.block_settings:
 
             if not block.stride:
                 block.stride = 1
@@ -355,6 +360,7 @@ class MobileNetv4(nn.Module):
                 layer_stride = block.stride
                 layer_rate = 1
                 current_stride *= block.stride
+
             if block.block_name == 'convbn':
                 layer = ConvNormActivation(
                     block.input_channels,
@@ -422,9 +428,16 @@ class MobileNetv4(nn.Module):
                 )
             else:
                 raise ValueError(f'block name "{block.block_name}" is not supported')
+
             layers.append(layer)
+
         return nn.Sequential(*layers)
 
     def forward(self, x):
-        x = self._forward_blocks(x)
-        return x
+        outs = []
+        for cfg, blk in zip(self.block_settings, self._forward_blocks):
+            x = blk(x)
+            if cfg.isoutputblock:
+                outs.append(x)
+
+        return tuple(outs)
