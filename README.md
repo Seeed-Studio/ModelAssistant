@@ -93,7 +93,9 @@ Meter is a common instrument in our daily life and industrial production, such a
 
 SSCMA aims to provide the best performance and accuracy for embedded devices, here are some benchmarks for the latest algorithms:
 
-(Comming Soon)
+<div align="center"><img width="98%" src="https://files.seeedstudio.com/sscma/docs/images/SSCMA-Swift-YOLO.png"/></div>
+
+**Note: The bechmark mainly includes 2 architectures, each architecture has 3 models with different sizes, represented by the size of the point in the graph. Quanitizied models are also included in the benchmark, all latency is measured on NVIDIA A100.*
 
 ## The SSCMA Toolchains
 

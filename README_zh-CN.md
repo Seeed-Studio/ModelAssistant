@@ -93,7 +93,9 @@ SSCMA 一直致力于为用户提供最先进的人工智能算法，以获得�
 
 SSCMA 旨在为嵌入式设备提供最佳性能和准确性，以下是最新算法的一些基准测试结果:
 
-(即将推出)
+<div align="center"><img width="98%" src="https://files.seeedstudio.com/sscma/docs/images/SSCMA-Swift-YOLO.png"/></div>
+
+**注意: 基准测试主要包括 2 种架构，每种架构有 3 种不同大小的模型，用图中点的大小表示。基准测试还包括量化模型，所有延迟都是在 NVIDIA A100上测量的。*
 
 ## SSCMA 工具链
 
