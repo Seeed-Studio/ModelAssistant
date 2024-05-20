@@ -26,12 +26,12 @@ val_data = 'trainval/'
 model = dict(
     type='sscma.ImageClassifier',
     backbone=dict(type='MobileNetv2', widen_factor=widen_factor, rep=True, gray_input=gray, _delete_=True),
-    neck=dict(type='mmcls.GlobalAveragePooling'),
+    neck=dict(type='sscma.GlobalAveragePooling'),
     head=dict(
-        type='mmcls.LinearClsHead',
+        type='sscma.LinearClsHead',
         in_channels=64,
         num_classes=num_classes,
-        loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
+        loss=dict(type='sscma.CrossEntropyLoss', loss_weight=1.0),
         topk=(1, 5),
     ),
 )

@@ -15,3 +15,6 @@ from .sampler import *  # noqa
 from .unsupdataset import *  # noqa
 from .dataset_wrappers import * # noqa
 from .transforms import *  # noqa
+
+from .base_dataset import BaseDataset
+from .custom import CustomDataset

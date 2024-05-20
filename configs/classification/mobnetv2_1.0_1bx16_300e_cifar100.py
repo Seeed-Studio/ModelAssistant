@@ -20,9 +20,9 @@ val_data = 'cifar100/'
 model = dict(
     type='sscma.ImageClassifier',
     backbone=dict(type='mmcls.MobileNetV2', widen_factor=widen_factor),
-    neck=dict(type='mmcls.GlobalAveragePooling'),
+    neck=dict(type='sscma.GlobalAveragePooling'),
     head=dict(
-        type='mmcls.LinearClsHead',
+        type='sscma.LinearClsHead',
         in_channels=1280,
         num_classes=num_classes,
     ),

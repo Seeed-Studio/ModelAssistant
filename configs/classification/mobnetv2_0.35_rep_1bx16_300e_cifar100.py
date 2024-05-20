@@ -12,10 +12,10 @@ widen_factor = 0.35
 model = dict(
     type='sscma.ImageClassifier',
     backbone=dict(type='MobileNetv2', widen_factor=widen_factor, out_indices=(2,), rep=True),
-    neck=dict(type='mmcls.GlobalAveragePooling'),
+    neck=dict(type='sscma.GlobalAveragePooling'),
     head=dict(
-        type='mmcls.LinearClsHead',
+        type='sscma.LinearClsHead',
         in_channels=16,
-        loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
+        loss=dict(type='sscma.CrossEntropyLoss', loss_weight=1.0),
     ),
 )
