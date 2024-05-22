@@ -5,7 +5,7 @@ from mmengine.fileio import (BaseStorageBackend, get_file_backend,
                              list_from_file)
 from mmengine.logging import MMLogger
 
-from mmcls.registry import DATASETS
+from sscma.registry import DATASETS
 
 from .base_dataset import BaseDataset
 

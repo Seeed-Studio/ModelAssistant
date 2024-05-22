@@ -59,3 +59,5 @@ TRANSFORMS = Registry('transforms', parent=MMENGINE_TRANSFORMS, locations=['sscm
 FUNCTIONS = Registry('functions', parent=MMENGINE_FUNCTIONS, locations=['sscma.datasets'])
 
 TASK_UTILS = Registry('task util', parent=MMENGINE_TASK_UTILS, locations=['sscma.models'])
+
+BATCH_AUGMENTS = Registry('batch augment', locations=['sscma.models'],)

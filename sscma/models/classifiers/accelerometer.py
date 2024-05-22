@@ -4,8 +4,8 @@ from typing import List, Optional
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from mmcls.models.classifiers.base import BaseClassifier
-from mmcls.structures import ClsDataSample
+from sscma.models.classifiers.base import BaseClassifier
+from sscma.structures import ClsDataSample
 
 from sscma.registry import MODELS
 
@@ -15,12 +15,11 @@ class AccelerometerClassifier(BaseClassifier):
     """Accelerometer classifiers for supervised classification task.
 
     Args:
-        backbone (dict): The backbone module. See
-            :mod:`mmcls.models.backbones`.
+        backbone (dict): The backbone module.
         neck (dict, optional): The neck module to process features from
-            backbone. See :mod:`mmcls.models.necks`. Defaults to None.
+            backbone. Defaults to None.
         head (dict, optional): The head module to do prediction and calculate
-            loss from processed features. See :mod:`mmcls.models.heads`.
+            loss from processed features.
             Notice that if the head is not set, almost all methods cannot be
             used except :meth:`extract_feat`. Defaults to None.
         pretrained (str, optional): The pretrained checkpoint path, support
@@ -29,7 +28,6 @@ class AccelerometerClassifier(BaseClassifier):
             fields are:
 
             - augments (List[dict]): The batch augmentation methods to use.
-              More details can be found in :mod:`mmcls.model.utils.augment`.
 
             Defaults to None.
         data_preprocessor (dict, optional): The config for preprocessing input

@@ -6,7 +6,7 @@ from typing import List, Optional, Union
 
 import cbor
 import numpy as np
-from mmcls.datasets import CustomDataset
+from sscma.datasets import CustomDataset
 
 from sscma.registry import DATASETS
 

@@ -24,7 +24,7 @@ imgsz = (width, height)
 
 model = dict(
     type='sscma.ImageClassifier',
-    backbone=dict(type='mmcls.MobileNetV2', widen_factor=widen_factor),
+    backbone=dict(type='sscma.MobileNetV2', widen_factor=widen_factor),
     neck=dict(type='sscma.GlobalAveragePooling'),
     head=dict(
         type='sscma.LinearClsHead',
@@ -38,8 +38,8 @@ model = dict(
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='mmengine.Resize', scale=imgsz),
-    dict(type='mmcls.ColorJitter', brightness=0.3, contrast=0.2),
-    dict(type='mmcls.Rotate', angle=30.0, prob=0.6),
+    dict(type='sscma.ColorJitter', brightness=0.3, contrast=0.2),
+    dict(type='sscma.RandomRotate', angle=30.0, prob=0.6),
     dict(type='mmcls.RandomFlip', prob=0.5, direction='horizontal'),
     dict(type='sscma.PackClsInputs'),
 ]

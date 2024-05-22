@@ -75,7 +75,7 @@ train_pipeline = [
         keymap={'img': 'image'},
     ),
     dict(type='mmengine.Resize', scale=imgsz),
-    dict(type='mmcls.Rotate', angle=30.0, prob=0.5),
+    dict(type='sscma.RandomRotate', angle=30.0, prob=0.5),
     dict(type='sscma.PackClsInputs'),
 ]
 
@@ -121,7 +121,7 @@ val_dataloader = dict(
 test_dataloader = val_dataloader
 
 # evaluator
-val_evaluator = dict(type='mmcls.Accuracy', topk=(1, 5) if num_classes > 5 else 1)
+val_evaluator = dict(type='sscma.Accuracy', topk=(1, 5) if num_classes > 5 else 1)
 test_evaluator = val_evaluator
 
 

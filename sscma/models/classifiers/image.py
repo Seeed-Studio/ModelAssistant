@@ -4,7 +4,7 @@ from typing import List, Optional
 import torch
 import torch.nn.functional as F
 from mmcls.models.classifiers import ImageClassifier as MMImageClassifier
-from mmcls.structures import ClsDataSample
+from sscma.structures import ClsDataSample
 
 from sscma.registry import MODELS
 

@@ -6,7 +6,7 @@ num_classes = 10
 widen_factor = 1.0
 
 # DATA
-dataset_type = 'mmcls.CIFAR10'
+dataset_type = 'sscma.CIFAR10'
 data_root = 'datasets/'
 train_ann = ''
 train_data = 'cifar10/'
@@ -16,7 +16,7 @@ val_data = 'cifar10/'
 
 model = dict(
     type='sscma.ImageClassifier',
-    backbone=dict(type='mmcls.MobileNetV2', widen_factor=widen_factor),
+    backbone=dict(type='sscma.MobileNetV2', widen_factor=widen_factor),
     neck=dict(type='sscma.GlobalAveragePooling'),
     head=dict(
         type='sscma.LinearClsHead',

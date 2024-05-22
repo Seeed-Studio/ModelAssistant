@@ -8,7 +8,7 @@ from typing import Optional, Sequence
 import mmcv
 import mmengine
 import mmengine.fileio as fileio
-from mmcls.structures import ClsDataSample
+from sscma.structures import ClsDataSample
 from mmdet.engine.hooks import DetVisualizationHook
 from mmengine.hooks import Hook
 from mmengine.hooks.hook import DATA_BATCH
@@ -163,8 +163,7 @@ class SensorVisualizationHook(Hook):
         out_dir (str, optional): directory where painted images will be saved
             in the testing process. If None, handle with the backends of the
             visualizer. Defaults to None.
-        **kwargs: other keyword arguments of
-            :meth:`mmcls.visualization.ClsVisualizer.add_data_setample`.
+        **kwargs: other keyword arguments
     """
 
     def __init__(self, enable=False, interval: int = 5000, show: bool = False, out_dir: Optional[str] = None, **kwargs):

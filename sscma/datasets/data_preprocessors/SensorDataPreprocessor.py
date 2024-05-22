@@ -2,7 +2,7 @@
 from typing import Optional
 
 from mmcls.models.utils.batch_augments import RandomBatchAugment
-from mmcls.structures import (
+from sscma.structures import (
     ClsDataSample,
     MultiTaskDataSample,
     batch_label_to_onehot,

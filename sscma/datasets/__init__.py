@@ -13,8 +13,10 @@ from .yolodataset import *  # noqa
 from .vww import *  # noqa
 from .sampler import *  # noqa
 from .unsupdataset import *  # noqa
-from .dataset_wrappers import * # noqa
+from .dataset_wrappers import *  # noqa
 from .transforms import *  # noqa
+from .mnist import MNIST
+from .cifar import CIFAR10, CIFAR100
 
 from .base_dataset import BaseDataset
 from .custom import CustomDataset

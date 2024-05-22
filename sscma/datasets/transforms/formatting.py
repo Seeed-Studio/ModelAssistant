@@ -3,7 +3,7 @@ from collections.abc import Sequence
 
 import numpy as np
 import torch
-from mmcls.structures import ClsDataSample
+from sscma.structures import ClsDataSample
 from mmcv.transforms import BaseTransform
 from mmengine.utils import is_str
 
@@ -78,7 +78,7 @@ class PackClsInputs(BaseTransform):
     **Added Keys:**
 
     - inputs (:obj:`torch.Tensor`): The forward data of models.
-    - data_samples (:obj:`~mmcls.structures.ClsDataSample`): The annotation
+    - data_samples (:obj:`~sscma.structures.ClsDataSample`): The annotation
       info of the sample.
 
     Args:

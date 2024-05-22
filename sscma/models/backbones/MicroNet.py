@@ -1,6 +1,6 @@
 # Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from typing import Optional, Union, Tuple, Dict, Callable
-from mmcls.models.classifiers.base import BaseClassifier
+from sscma.models.classifiers.base import BaseClassifier
 from mmengine.model.base_module import BaseModule
 import torch.nn as nn
 

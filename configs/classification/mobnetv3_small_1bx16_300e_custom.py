@@ -5,10 +5,10 @@ custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
 
 model = dict(
     type='sscma.ImageClassifier',
-    backbone=dict(type='mmcls.MobileNetV3', arch='small', _delete_=True),
+    backbone=dict(type='sscma.MobileNetV3', arch='small', _delete_=True),
     neck=dict(type='sscma.GlobalAveragePooling'),
     head=dict(
-        type='mmcls.StackedLinearClsHead',
+        type='sscma.StackedLinearClsHead',
         in_channels=576,
         mid_channels=[1280],
         dropout_rate=0.2,

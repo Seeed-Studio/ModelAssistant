@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Sequence, Tuple, Union
 import matplotlib.pyplot as plt
 import mmcv
 import numpy as np
-from mmcls.structures import ClsDataSample
+from sscma.structures import ClsDataSample
 from mmdet.structures import DetDataSample
 from mmdet.visualization import DetLocalVisualizer
 from mmengine.dist import master_only

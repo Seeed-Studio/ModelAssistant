@@ -64,8 +64,8 @@ train_pipeline = [
         keymap={'img': 'image'},
     ),
     dict(type='mmengine.Resize', scale=imgsz),
-    # dict(type='mmcls.ColorJitter', brightness=0.3, contrast=0.3),
-    dict(type='mmcls.Rotate', angle=30.0, prob=0.5),
+    # dict(type='sscma.ColorJitter', brightness=0.3, contrast=0.3),
+    dict(type='sscma.RandomRotate', angle=30.0, prob=0.5),
     # dict(type='mmcls.RandomFlip', prob=0.5, direction='horizontal'),
     dict(type='sscma.PackClsInputs'),
 ]

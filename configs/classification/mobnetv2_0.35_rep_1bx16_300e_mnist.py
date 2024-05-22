@@ -10,7 +10,7 @@ gray = True
 widen_factor=0.35
 
 # DATA
-dataset_type = 'mmcls.MNIST'
+dataset_type = 'sscma.MNIST'
 height = 32
 width = 32
 imgsz = (width, height)
@@ -28,7 +28,7 @@ val_workers=workers
 persistent_workers = True
 # ================================END=================================
 data_preprocessor = dict(
-    type='mmcls.ClsDataPreprocessor',
+    type='sscma.ClsDataPreprocessor',
     mean=[0, 0, 0],
     std=[255.0, 255.0, 255.0],
     to_rgb=True,
@@ -51,7 +51,7 @@ model = dict(
 
 train_pipeline = [
     dict(type='mmengine.Resize', scale=imgsz),
-    dict(type='mmcls.Rotate', angle=10.0, prob=0.5),
+    dict(type='sscma.RandomRotate', angle=10.0, prob=0.5),
     dict(type='sscma.PackClsInputs'),
 ]
 
