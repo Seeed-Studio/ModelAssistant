@@ -6,6 +6,7 @@ from torch import Tensor
 
 from sscma.models.base.general import ConvNormActivation
 from sscma.registry import MODELS
+
 from sscma.models.layers.nn_blocks import (
     UniversalInvertedBottleneckBlock,
     InvertedBottleneckBlock,
@@ -127,6 +128,7 @@ def mhsa_large_12px():
         use_multi_query=True,
         isoutputblock=False,
     )
+
 
 
 @MODELS.register_module()
@@ -347,6 +349,7 @@ class MobileNetv4(nn.Module):
         block: BlockConfig
         current_stride = 1
         rate = 1
+
         for block in self.block_settings:
 
             if not block.stride:
