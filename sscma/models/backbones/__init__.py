@@ -3,6 +3,7 @@ from .AxesNet import AxesNet
 from .EfficientNet import EfficientNet
 from .MobileNetv2 import MobileNetv2
 from .MobileNetv3 import MobileNetV3
+from .MobileNetv4 import MobileNetv4
 from .pfld_mobilenet_v2 import PfldMobileNetV2
 from .ShuffleNetV2 import ShuffleNetV2, CustomShuffleNetV2, FastShuffleNetV2
 from .SoundNet import SoundNetRaw
@@ -17,6 +18,7 @@ __all__ = [
     'CustomShuffleNetV2',
     'AxesNet',
     'MobileNetV3',
+    'MobileNetv4',
     'ShuffleNetV2',
     'SqueezeNet',
     'EfficientNet',
