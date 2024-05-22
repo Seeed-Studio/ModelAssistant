@@ -193,7 +193,7 @@ class MobileNetv4(nn.Module):
         ],
         'large': [
             ('convbn', 'ReLU', 3, None, None, False, 2, 24, None, False),
-            ('fused_ib', 'ReLU', 3, None, None, False, 2, 48, 4.0, True),
+            ('fused_ib', 'ReLU', 3, None, None, False, 2, 48, 4.0, False),
             ('uib', 'ReLU', None, 3, 5, True, 2, 96, 4.0, False),
             ('uib', 'ReLU', None, 3, 3, True, 1, 96, 4.0, True),
             ('uib', 'ReLU', None, 3, 5, True, 2, 192, 4.0, False),
@@ -227,9 +227,9 @@ class MobileNetv4(nn.Module):
         ],
         'hybridmedium': [
             ('convbn', 'ReLU', 3, None, None, False, 2, 32, None, False),  # 1/2
-            ('fused_ib', 'ReLU', 3, None, None, False, 2, 48, 4, True),  # 1/4
+            ('fused_ib', 'ReLU', 3, None, None, False, 2, 48, 4, False),  # 1/4
             ('uib', 'ReLU', None, 3, 5, True, 2, 80, 4.0, False),  # IB
-            ('uib', 'ReLU', None, 3, 3, True, 1, 80, 2.0, False),  # IB
+            ('uib', 'ReLU', None, 3, 3, True, 1, 80, 2.0, True),  # IB
             ('uib', 'ReLU', None, 3, 5, True, 2, 160, 6.0, False),  # IB
             ('uib', 'ReLU', None, 0, 0, True, 1, 160, 2.0, False),  # IB
             ('uib', 'ReLU', None, 3, 3, True, 1, 160, 4.0, False),  # IB
@@ -242,7 +242,7 @@ class MobileNetv4(nn.Module):
             ('uib', 'ReLU', None, 3, 3, True, 1, 160, 4.0, False),
             mhsa_medium_24px(),
             ('uib', 'ReLU', None, 3, 0, True, 1, 160, 4.0, True),
-            ('uib', 'ReLU', None, 5, 5, True, 2, 256, 6.0, True),
+            ('uib', 'ReLU', None, 5, 5, True, 2, 256, 6.0, False),
             ('uib', 'ReLU', None, 5, 5, True, 1, 256, 4.0, False),
             ('uib', 'ReLU', None, 3, 5, True, 1, 256, 4.0, False),
             ('uib', 'ReLU', None, 3, 5, True, 1, 256, 4.0, False),
@@ -265,7 +265,7 @@ class MobileNetv4(nn.Module):
         ],
         'hybridlarge': [
             ('convbn', 'GELU', 3, None, None, False, 2, 24, None, False),  # 1/2
-            ('fused_ib', 'GELU', 3, None, None, False, 2, 48, 4, True),  # 1/4
+            ('fused_ib', 'GELU', 3, None, None, False, 2, 48, 4, False),  # 1/4
             ('uib', 'GELU', None, 3, 5, True, 2, 96, 4.0, False),  # IB
             ('uib', 'GELU', None, 3, 3, True, 1, 96, 4.0, True),  # IB
             ('uib', 'GELU', None, 3, 5, True, 2, 192, 4.0, False),  # IB
@@ -283,7 +283,7 @@ class MobileNetv4(nn.Module):
             ('uib', 'GELU', None, 5, 3, True, 1, 192, 4.0, False),
             mhsa_large_24px(),
             ('uib', 'GELU', None, 3, 0, True, 1, 192, 4.0, True),  # output
-            ('uib', 'GELU', None, 5, 5, True, 2, 512, 4.0, True),
+            ('uib', 'GELU', None, 5, 5, True, 2, 512, 4.0, False),
             ('uib', 'GELU', None, 5, 5, True, 1, 512, 4.0, False),
             ('uib', 'GELU', None, 5, 5, True, 1, 512, 4.0, False),
             ('uib', 'GELU', None, 5, 5, True, 1, 512, 4.0, False),
