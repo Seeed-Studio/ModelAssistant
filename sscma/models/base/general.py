@@ -78,6 +78,7 @@ class ConvNormActivation(nn.Sequential):
         conv_layer: Optional[Callable[..., nn.Module]] or Dict or AnyStr = None,
         dilation: int = 1,
         inplace: bool = True,
+        use_depthwise: bool = False,
     ) -> None:
         super().__init__()
         if padding is None:
@@ -86,17 +87,41 @@ class ConvNormActivation(nn.Sequential):
             conv_layer = nn.Conv2d
         else:
             conv_layer = get_conv(conv_layer)
-        conv = conv_layer(
-            in_channels,
-            out_channels,
-            kernel_size,
-            stride,
-            padding,
-            dilation=dilation,
-            groups=groups,
-            bias=norm_layer is None if bias is None else bias,
-        )
-        self.add_module('conv', conv)
+        if use_depthwise:
+            dw_conv = conv_layer(
+                in_channels,
+                in_channels,
+                kernel_size,
+                stride,
+                padding,
+                dilation=dilation,
+                groups=in_channels,
+                bias=norm_layer is None if bias is None else bias,
+            )
+            pw_conv = conv_layer(
+                in_channels,
+                out_channels,
+                1,
+                stride,
+                padding,
+                dilation=dilation,
+                groups=1,
+                bias=norm_layer is None if bias is None else bias,
+            )
+            self.add_module('dw_conv', dw_conv)
+            self.add_module('pw_conv', pw_conv)
+        else:
+            conv = conv_layer(
+                in_channels,
+                out_channels,
+                kernel_size,
+                stride,
+                padding,
+                dilation=dilation,
+                groups=groups,
+                bias=norm_layer is None if bias is None else bias,
+            )
+            self.add_module('conv', conv)
         if norm_layer is not None:
             norm_layer = get_norm(norm_layer)
             self.add_module('norm', norm_layer(out_channels))

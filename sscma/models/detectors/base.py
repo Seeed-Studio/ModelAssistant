@@ -1,24 +1,24 @@
 # Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
-from typing import Dict, Optional, Union, Tuple, List
-from abc import ABCMeta, abstractmethod
 import copy
+from abc import ABCMeta, abstractmethod
+from typing import Dict, List, Optional, Tuple, Union
 
-from mmdet.models.detectors import BaseDetector, SemiBaseDetector
-from mmdet.structures import DetDataSample, OptSampleList, SampleList
-from mmdet.utils import OptConfigType, OptMultiConfig, ConfigType, InstanceList
-from mmdet.models.utils import rename_loss_dict, reweight_loss_dict
-from mmdet.structures import SampleList
-from mmengine.model import BaseModel
 import torch
-from torch import Tensor
+from mmdet.models.detectors import BaseDetector, SemiBaseDetector
+from mmdet.models.utils import rename_loss_dict, reweight_loss_dict
+from mmdet.structures import DetDataSample, OptSampleList, SampleList
+from mmdet.utils import ConfigType, InstanceList, OptConfigType, OptMultiConfig
+from mmengine.model import BaseModel
 from mmengine.optim import OptimWrapper
+from torch import Tensor
+
+from sscma.models.semi import BasePseudoLabelCreator
+from sscma.registry import MODELS
+
 from ..utils import samplelist_boxtype2tensor
 
-from sscma.registry import MODELS
-from sscma.models.semi import BasePseudoLabelCreator
-
-
 ForwardResults = Union[Dict[str, torch.Tensor], List[DetDataSample], Tuple[torch.Tensor], torch.Tensor]
+
 
 @MODELS.register_module()
 class BaseSsod(SemiBaseDetector):
