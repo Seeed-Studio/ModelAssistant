@@ -25,7 +25,7 @@ val_data = 'trainval/'
 
 model = dict(
     type='sscma.ImageClassifier',
-    backbone=dict(type='MobileNetv2', widen_factor=widen_factor, rep=True, gray_input=gray, _delete_=True),
+    backbone=dict(type='MobileNetV2', widen_factor=widen_factor, rep=True, gray_input=gray, _delete_=True),
     neck=dict(type='sscma.GlobalAveragePooling'),
     head=dict(
         type='sscma.LinearClsHead',

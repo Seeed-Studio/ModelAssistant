@@ -49,7 +49,7 @@ data_preprocessor = dict(
 model = dict(
     type='Fomo',
     data_preprocessor=data_preprocessor,
-    backbone=dict(type='MobileNetv2', widen_factor=widen_factor, out_indices=(2,), rep=True),
+    backbone=dict(type='MobileNetV2', widen_factor=widen_factor, out_indices=(2,), rep=True),
     head=dict(
         type='FomoHead',
         input_channels=[32],

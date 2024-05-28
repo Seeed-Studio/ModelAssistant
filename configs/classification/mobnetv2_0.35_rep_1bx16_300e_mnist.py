@@ -40,7 +40,7 @@ model = dict(
         mean=[0.0] if gray else [0.0, 0.0, 0.0],
         std=[255.0] if gray else [255.0, 255.0, 255.0],
     ),
-    backbone=dict(type='MobileNetv2', gray_input=gray, widen_factor=widen_factor, out_indices=(2,), rep=True),
+    backbone=dict(type='MobileNetV2', gray_input=gray, widen_factor=widen_factor, out_indices=(2,), rep=True),
     neck=dict(type='sscma.GlobalAveragePooling'),
     head=dict(
         type='sscma.LinearClsHead',

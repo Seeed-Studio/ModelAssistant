@@ -10,7 +10,7 @@ widen_factor = 0.35
 # ================================END=================================
 model = dict(
     type='sscma.ImageClassifier',
-    backbone=dict(type='MobileNetv2', widen_factor=widen_factor, out_indices=(2,), rep=True),
+    backbone=dict(type='MobileNetV2', widen_factor=widen_factor, out_indices=(2,), rep=True),
     neck=dict(type='sscma.GlobalAveragePooling', dim=2),
     head=dict(
         type='sscma.LinearClsHead',

@@ -26,7 +26,7 @@ default_hooks = dict(
     # set sampler seed in distributed evrionment.
     sampler_seed=dict(type='DistSamplerSeedHook'),
     # validation results visualization, set True to enable it.
-    visualization=dict(type='sscma.VisualizationHook', enable=False),
+    visualization=dict(type='sscma.ClsVisualizationHook', enable=False),
 )
 
 # configure environment

@@ -10,7 +10,7 @@ widen_factor = 0.5
 
 gray = False
 # DATA
-dataset_type = 'sscma.CustomDataset'
+dataset_type = 'sscma.CustomClsDataset'
 # datasets link: https://public.roboflow.com/classification/rock-paper-scissors
 data_root = 'https://public.roboflow.com/ds/dTMAyuzrmY?key=VbTbUwLEYG'
 train_data = 'train/'
@@ -44,7 +44,7 @@ model = dict(
         mean=[0.0] if gray else [0.0, 0.0, 0.0],
         std=[255.0] if gray else [255.0, 255.0, 255.0],
     ),
-    backbone=dict(type='MobileNetv2', widen_factor=widen_factor),
+    backbone=dict(type='MobileNetV2', widen_factor=widen_factor),
     neck=dict(type='sscma.GlobalAveragePooling'),
     head=dict(
         type='sscma.LinearClsHead',
