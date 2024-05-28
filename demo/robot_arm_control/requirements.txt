@@ -1,0 +1,8 @@
+certifi==2023.7.22
+charset-normalizer==3.2.0
+customtkinter==5.2.0
+darkdetect==0.8.0
+idna==3.4
+pyserial==3.5
+requests==2.31.0
+urllib3==2.0.4
