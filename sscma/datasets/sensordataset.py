@@ -6,13 +6,14 @@ from typing import List, Optional, Union
 
 import cbor
 import numpy as np
-from mmcls.datasets import CustomDataset
 
 from sscma.registry import DATASETS
 
+from .clsdataset import CustomClsDataset
+
 
 @DATASETS.register_module()
-class SensorDataset(CustomDataset):
+class SensorDataset(CustomClsDataset):
     CLASSES = []
 
     def __init__(

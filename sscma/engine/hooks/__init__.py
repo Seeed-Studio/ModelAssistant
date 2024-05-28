@@ -7,6 +7,7 @@ from .logger import (
 )
 from .semihook import SemiHook
 from .visualization_hook import (
+    ClsVisualizationHook,
     DetFomoVisualizationHook,
     Posevisualization,
     SensorVisualizationHook,
@@ -24,4 +25,5 @@ __all__ = [
     'SensorVisualizationHook',
     'SemiHook',
     'YOLOv5ParamSchedulerHook',
+    'ClsVisualizationHook',
 ]

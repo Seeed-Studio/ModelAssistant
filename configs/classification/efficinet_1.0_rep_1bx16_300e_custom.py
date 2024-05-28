@@ -14,10 +14,10 @@ model = dict(
     backbone=dict(
         type='EfficientNet', arch='b0', input_channels=1 if gray else 3, out_indices=(6,), rep=True, _delete_=True
     ),
-    neck=dict(type='mmcls.GlobalAveragePooling'),
+    neck=dict(type='sscma.GlobalAveragePooling'),
     head=dict(
-        type='mmcls.LinearClsHead',
+        type='sscma.LinearClsHead',
         in_channels=320,
-        loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
+        loss=dict(type='sscma.CrossEntropyLoss', loss_weight=1.0),
     ),
 )

@@ -39,7 +39,7 @@ model = dict(
     ),
     head=dict(
         type='sscma.AxesClsHead',
-        loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
+        loss=dict(type='sscma.CrossEntropyLoss', loss_weight=1.0),
         topk=(1, 5) if num_classes > 5 else 1,
     ),
 )
@@ -88,7 +88,7 @@ val_dataloader = dict(
     sampler=dict(type='DefaultSampler', shuffle=True),
 )
 
-val_evaluator = dict(type='mmcls.Accuracy', topk=(1, 5) if num_classes > 5 else 1)
+val_evaluator = dict(type='sscma.Accuracy', topk=(1, 5) if num_classes > 5 else 1)
 
 
 # If you want standard test, please manually configure the test dataset

@@ -4,8 +4,8 @@ from typing import List, Optional, Union
 
 import numpy as np
 import pyvww as pvw
-from mmcls.datasets.base_dataset import BaseDataset
 
+from sscma.datasets.base_dataset import BaseDataset
 from sscma.registry import DATASETS
 
 

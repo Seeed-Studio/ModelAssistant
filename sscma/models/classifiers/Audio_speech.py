@@ -1,8 +1,8 @@
 # Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 import torch
-from mmcls.models.classifiers.base import BaseClassifier
 from mmengine.logging import MessageHub
 
+from sscma.models.classifiers.base import BaseClassifier
 from sscma.registry import LOSSES, MODELS
 
 

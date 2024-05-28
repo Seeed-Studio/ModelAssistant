@@ -2,9 +2,10 @@
 from typing import Optional, Tuple, Union
 
 import torch
-from mmcls.models.heads import ClsHead
 
 from sscma.registry import MODELS
+
+from .cls_head import ClsHead
 
 
 @MODELS.register_module()
