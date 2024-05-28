@@ -20,149 +20,7 @@ except ImportError:
 
 
 @TRANSFORMS.register_module()
-class RandomCrop(BaseTransform):
-    """Crop the given Image at a random location.
-
-    **Required Keys:**
-
-    - img
-
-    **Modified Keys:**
-
-    - img
-    - img_shape
-
-    Args:
-        crop_size (int | Sequence): Desired output size of the crop. If
-            crop_size is an int instead of sequence like (h, w), a square crop
-            (crop_size, crop_size) is made.
-        padding (int | Sequence, optional): Optional padding on each border
-            of the image. If a sequence of length 4 is provided, it is used to
-            pad left, top, right, bottom borders respectively.  If a sequence
-            of length 2 is provided, it is used to pad left/right, top/bottom
-            borders, respectively. Default: None, which means no padding.
-        pad_if_needed (bool): It will pad the image if smaller than the
-            desired size to avoid raising an exception. Since cropping is done
-            after padding, the padding seems to be done at a random offset.
-            Default: False.
-        pad_val (Number | Sequence[Number]): Pixel pad_val value for constant
-            fill. If a tuple of length 3, it is used to pad_val R, G, B
-            channels respectively. Default: 0.
-        padding_mode (str): Type of padding. Defaults to "constant". Should
-            be one of the following:
-
-            - ``constant``: Pads with a constant value, this value is specified
-              with pad_val.
-            - ``edge``: pads with the last value at the edge of the image.
-            - ``reflect``: Pads with reflection of image without repeating the
-              last value on the edge. For example, padding [1, 2, 3, 4]
-              with 2 elements on both sides in reflect mode will result
-              in [3, 2, 1, 2, 3, 4, 3, 2].
-            - ``symmetric``: Pads with reflection of image repeating the last
-              value on the edge. For example, padding [1, 2, 3, 4] with
-              2 elements on both sides in symmetric mode will result in
-              [2, 1, 1, 2, 3, 4, 4, 3].
-    """
-
-    def __init__(self,
-                 crop_size: Union[Sequence, int],
-                 padding: Optional[Union[Sequence, int]] = None,
-                 pad_if_needed: bool = False,
-                 pad_val: Union[Number, Sequence[Number]] = 0,
-                 padding_mode: str = 'constant'):
-        if isinstance(crop_size, Sequence):
-            assert len(crop_size) == 2
-            assert crop_size[0] > 0 and crop_size[1] > 0
-            self.crop_size = crop_size
-        else:
-            assert crop_size > 0
-            self.crop_size = (crop_size, crop_size)
-        # check padding mode
-        assert padding_mode in ['constant', 'edge', 'reflect', 'symmetric']
-        self.padding = padding
-        self.pad_if_needed = pad_if_needed
-        self.pad_val = pad_val
-        self.padding_mode = padding_mode
-
-    @cache_randomness
-    def rand_crop_params(self, img: np.ndarray):
-        """Get parameters for ``crop`` for a random crop.
-
-        Args:
-            img (ndarray): Image to be cropped.
-
-        Returns:
-            tuple: Params (offset_h, offset_w, target_h, target_w) to be
-                passed to ``crop`` for random crop.
-        """
-        h, w = img.shape[:2]
-        target_h, target_w = self.crop_size
-        if w == target_w and h == target_h:
-            return 0, 0, h, w
-        elif w < target_w or h < target_h:
-            target_w = min(w, target_w)
-            target_h = min(w, target_h)
-
-        offset_h = np.random.randint(0, h - target_h + 1)
-        offset_w = np.random.randint(0, w - target_w + 1)
-
-        return offset_h, offset_w, target_h, target_w
-
-    def transform(self, results: dict) -> dict:
-        """Transform function to randomly crop images.
-
-        Args:
-            results (dict): Result dict from loading pipeline.
-
-        Returns:
-            dict: Randomly cropped results, 'img_shape'
-                key in result dict is updated according to crop size.
-        """
-        img = results['img']
-        if self.padding is not None:
-            img = mmcv.impad(img, padding=self.padding, pad_val=self.pad_val)
-
-        # pad img if needed
-        if self.pad_if_needed:
-            h_pad = math.ceil(max(0, self.crop_size[0] - img.shape[0]) / 2)
-            w_pad = math.ceil(max(0, self.crop_size[1] - img.shape[1]) / 2)
-
-            img = mmcv.impad(
-                img,
-                padding=(w_pad, h_pad, w_pad, h_pad),
-                pad_val=self.pad_val,
-                padding_mode=self.padding_mode)
-
-        offset_h, offset_w, target_h, target_w = self.rand_crop_params(img)
-        img = mmcv.imcrop(
-            img,
-            np.array([
-                offset_w,
-                offset_h,
-                offset_w + target_w - 1,
-                offset_h + target_h - 1,
-            ]))
-        results['img'] = img
-        results['img_shape'] = img.shape
-
-        return results
-
-    def __repr__(self):
-        """Print the basic information of the transform.
-
-        Returns:
-            str: Formatted string.
-        """
-        repr_str = self.__class__.__name__ + f'(crop_size={self.crop_size}'
-        repr_str += f', padding={self.padding}'
-        repr_str += f', pad_if_needed={self.pad_if_needed}'
-        repr_str += f', pad_val={self.pad_val}'
-        repr_str += f', padding_mode={self.padding_mode})'
-        return repr_str
-
-
-@TRANSFORMS.register_module()
-class RandomResizedCrop(BaseTransform):
+class RandomResizedCropCls(BaseTransform):
     """Crop the given image to random scale and aspect ratio.
 
     A crop of random size (default: of 0.08 to 1.0) of the original size and a
@@ -316,7 +174,7 @@ class RandomResizedCrop(BaseTransform):
 
 
 @TRANSFORMS.register_module()
-class EfficientNetRandomCrop(RandomResizedCrop):
+class EfficientNetRandomCrop(RandomResizedCropCls):
     """EfficientNet style RandomResizedCrop.
 
     **Required Keys:**
@@ -435,7 +293,7 @@ class EfficientNetRandomCrop(RandomResizedCrop):
 
 
 @TRANSFORMS.register_module()
-class RandomErasing(BaseTransform):
+class RandomErasingCls(BaseTransform):
     """Randomly selects a rectangle region in an image and erase pixels.
 
     **Required Keys:**
@@ -802,7 +660,7 @@ class ResizeEdge(BaseTransform):
 
 
 @TRANSFORMS.register_module()
-class ColorJitter(BaseTransform):
+class ColorJitterCls(BaseTransform):
     """Randomly change the brightness, contrast and saturation of an image.
 
     Modified from
@@ -1010,8 +868,8 @@ class Lighting(BaseTransform):
 
 # 'Albu' is used in previous versions of mmcls, here is for compatibility
 # users can use both 'Albumentations' and 'Albu'.
-@TRANSFORMS.register_module(['Albumentations', 'Albu'])
-class Albumentations(BaseTransform):
+@TRANSFORMS.register_module(['AlbumentationsCls', 'AlbuCls'])
+class AlbumentationsCls(BaseTransform):
     """Wrapper to use augmentation from albumentations library.
 
     **Required Keys:**

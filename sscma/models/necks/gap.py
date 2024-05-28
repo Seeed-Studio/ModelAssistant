@@ -41,5 +41,5 @@ class GlobalAveragePooling(nn.Module):
             outs = self.gap(inputs)
             outs = outs.view(inputs.size(0), -1)
         else:
-            raise TypeError('neck inputs should be tuple or torch.tensor')
+            raise TypeError(f'Neck inputs should be tuple or torch.tensor but got {type(inputs)}')
         return outs

@@ -3,14 +3,14 @@ from typing import List, Optional
 
 import torch
 import torch.nn.functional as F
-from mmcls.models.classifiers import ImageClassifier as MMImageClassifier
+from .base import BaseClassifier
 from sscma.structures import ClsDataSample
 
 from sscma.registry import MODELS
 
 
 @MODELS.register_module()
-class ImageClassifier(MMImageClassifier):
+class ImageClassifier(BaseClassifier):
     def __init__(
         self,
         backbone: dict,
@@ -39,3 +39,4 @@ class ImageClassifier(MMImageClassifier):
             return self.predict(inputs, data_samples)
         else:
             raise RuntimeError(f'Invalid mode "{mode}".')
+        

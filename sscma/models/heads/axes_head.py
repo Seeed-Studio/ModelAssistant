@@ -2,7 +2,7 @@
 from typing import Optional, Tuple, Union
 
 import torch
-from sscma.models.heads import ClsHead
+from .cls_head import ClsHead
 
 from sscma.registry import MODELS
 

@@ -11,8 +11,7 @@ from mmengine.fileio import LocalBackend, exists, get_file_backend, join_path
 from sscma.registry import DATASETS
 from .base_dataset import BaseDataset
 from .categories import FASHIONMNIST_CATEGORITES, MNIST_CATEGORITES
-from .utils import (download_and_extract_archive, open_maybe_compressed_file,
-                    rm_suffix)
+from .utils import download_and_extract_archive, open_maybe_compressed_file, rm_suffix
 
 
 @DATASETS.register_module()

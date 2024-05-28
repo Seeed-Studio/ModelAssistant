@@ -8,7 +8,7 @@ from mmengine.model import BaseModule
 from torch import Tensor
 from torchvision.ops.misc import SqueezeExcitation as SElayer
 
-from sscma.registry import BACKBONES
+from sscma.registry import BACKBONES, MODELS
 from sscma.models.base.general import ConvNormActivation, get_norm
 
 
@@ -106,7 +106,7 @@ class InvertedResidual(nn.Module):
         return result
 
 
-@BACKBONES.register_module()
+@MODELS.register_module()
 class MobileNetV3(BaseModule):
     def __init__(
         self,
@@ -130,6 +130,10 @@ class MobileNetV3(BaseModule):
         reduce_divider = 2 if reduced_tail else 1
         dilation = 2 if dilated else 1
         ir_conf = partial(InvertedResidualConfig, widen_factor=widen_factor)
+        if widen_factor > 1.0:
+            out_channel = int(576 * widen_factor)
+        else:
+            out_channel = 576
 
         if arch == 'large':
             inverted_residual_setting = [
@@ -195,10 +199,23 @@ class MobileNetV3(BaseModule):
         self.layers = []
 
         for i, conf in enumerate(inverted_residual_setting):
+            in_channels, out_channels = conf.input_channels, conf.out_channels
             layer = InvertedResidual(conf, norm_layer=norm_layer)
             layer_name = f'layer{i+1}'
             self.add_module(layer_name, layer)
             self.layers.append(layer_name)
+        in_channels = out_channels
+        conv2 = ConvNormActivation(
+            in_channels=in_channels,
+            out_channels=out_channel,
+            kernel_size=1,
+            stride=1,
+            padding=0,
+            norm_layer=norm_layer,
+            activation_layer='ReLU6'
+        )
+        self.add_module('conv2', conv2)
+        self.layers.append('conv2')
 
     def forward(self, x):
         res = []
@@ -210,7 +227,7 @@ class MobileNetV3(BaseModule):
                 if i == max(self.out_indices):
                     break
 
-        return res
+        return tuple(res)
 
     def _freeze_stages(self):
         if self.frozen_stages >= 0:

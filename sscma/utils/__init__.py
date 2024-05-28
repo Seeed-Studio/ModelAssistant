@@ -4,6 +4,7 @@ from .config import load_config
 from .inference import Infernce
 from .iot_camera import IoTCamera
 from .check import net_online, install_lib, check_lib
+from .data_preprocessor import RandomBatchAugment, ClsDataPreprocessor
 
 __all__ = [
     'NMS',
@@ -16,4 +17,6 @@ __all__ = [
     'net_online',
     'install_lib',
     'check_lib',
+    'RandomBatchAugment',
+    'ClsDataPreprocessor'
 ]

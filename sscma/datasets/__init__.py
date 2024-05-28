@@ -15,8 +15,7 @@ from .sampler import *  # noqa
 from .unsupdataset import *  # noqa
 from .dataset_wrappers import *  # noqa
 from .transforms import *  # noqa
-from .mnist import MNIST
-from .cifar import CIFAR10, CIFAR100
-
-from .base_dataset import BaseDataset
-from .custom import CustomDataset
+from .mnist import *  # noqa
+from .cifar import *  # noqa
+from .base_dataset import *  # noqa
+from .clsdataset import *  # noqa

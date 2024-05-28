@@ -18,6 +18,6 @@ __all__ = [
     'AxesClsHead',
     'YOLOV5Head',
     'LinearClsHead',
-    'StackedLinearClsHead'
+    'StackedLinearClsHead',
     'ClsHead'
 ]

@@ -6,12 +6,10 @@ from typing import List, Optional, Sequence, Tuple, Union
 
 import mmcv
 import numpy as np
-from mmcv.transforms import BaseTransform, Compose, RandomChoice
 from mmcv.transforms.utils import cache_randomness
-from mmengine.utils import is_list_of, is_seq_of
 
 from sscma.registry import TRANSFORMS
-from sscma.transforms.base import BaseTransform
+from .base import BaseTransform
 
 
 class BaseAugTransform(BaseTransform):

@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from sscma.metrics import Accuracy
+from sscma.evaluation import Accuracy
 from sscma.registry import MODELS
 from sscma.structures import ClsDataSample
 from .base_head import BaseHead

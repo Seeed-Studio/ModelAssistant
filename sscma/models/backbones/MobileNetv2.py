@@ -10,8 +10,8 @@ from sscma.models.layers.rep import RepBlock, RepConv1x1
 from sscma.registry import BACKBONES, MODELS
 
 
-@BACKBONES.register_module()
-class MobileNetv2(BaseModule):
+@MODELS.register_module()
+class MobileNetV2(BaseModule):
     def __init__(
         self,
         widen_factor: float = 1.0,
@@ -65,6 +65,10 @@ class MobileNetv2(BaseModule):
             norm_layer=norm_layer,
             activation_layer='ReLU6',
         )
+        if widen_factor > 1.0:
+            out_channel = int(1280 * widen_factor)
+        else:
+            out_channel = 1280
 
         self.layers = []
         for idx, (t, c, n, s) in enumerate(inverted_residual_setting):
@@ -85,6 +89,18 @@ class MobileNetv2(BaseModule):
             layer_name = f'layer{idx+1}'
             self.add_module(layer_name, nn.Sequential(*tmp_layers))
             self.layers.append(layer_name)
+
+        conv2 = ConvNormActivation(
+            in_channels=in_channels,
+            out_channels=out_channel,
+            kernel_size=1,
+            stride=1,
+            padding=0,
+            norm_layer=norm_layer,
+            activation_layer='ReLU6'
+        )
+        self.add_module('conv2', conv2)
+        self.layers.append('conv2')
 
     def forward(self, x):
         res = []

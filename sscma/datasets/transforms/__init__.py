@@ -13,14 +13,13 @@ from .transforms import (
 from .utils import BatchShapePolicy, yolov5_collate
 from .auto_augment import RandomRotate
 from .processing import (
-    Albumentations,
-    ColorJitter,
+    AlbumentationsCls,
+    ColorJitterCls,
     EfficientNetCenterCrop,
     EfficientNetRandomCrop,
     Lighting,
-    RandomCrop,
-    RandomErasing,
-    RandomResizedCrop,
+    RandomErasingCls,
+    RandomResizedCropCls,
     ResizeEdge,
 )
 
@@ -38,13 +37,12 @@ __all__ = [
     'Mosaic',
     'BatchShapePolicy',
     'yolov5_collate',
-    'Albumentations',
-    'ColorJitter',
+    'AlbumentationsCls',
+    'ColorJitterCls',
     'EfficientNetCenterCrop',
     'EfficientNetRandomCrop',
     'Lighting',
-    'RandomCrop',
-    'RandomErasing',
-    'RandomResizedCrop',
+    'RandomErasingCls',
+    'RandomResizedCropCls',
     'ResizeEdge',
 ]
