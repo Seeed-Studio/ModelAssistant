@@ -114,7 +114,7 @@ model = dict(
         type='mmdet.DetDataPreprocessor', mean=[0.0, 0.0, 0.0], std=[255.0, 255.0, 255.0], bgr_to_rgb=True
     ),
     backbone=dict(
-        type='MobileNetv2',
+        type='MobileNetV2',
         widen_factor=widen_factor,
         out_indices=(
             2,

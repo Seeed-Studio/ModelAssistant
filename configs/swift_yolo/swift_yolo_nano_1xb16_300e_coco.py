@@ -16,8 +16,8 @@ val_data = 'valid/'  # Prefix of val image path
 
 # dataset link: https://universe.roboflow.com/team-roboflow/coco-128
 data_root = 'https://universe.roboflow.com/ds/z5UOcgxZzD?key=bwx9LQUT0t'
-height = 640
-width = 640
+height = 192
+width = 192
 batch = 16
 workers = 2
 val_batch = batch

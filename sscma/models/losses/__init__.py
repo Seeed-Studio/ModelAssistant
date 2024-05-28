@@ -1,6 +1,7 @@
 # Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from .bce_withlogits_loss import BCEWithLogitsLoss
 from .classfication_loss import LabelSmoothCrossEntropyLoss
+from .cross_entropy_loss import CrossEntropyLoss
 from .domain_focal_loss import DomainFocalLoss, DomainLoss, TargetLoss
 from .IouLoss import IoULoss
 from .nll_loss import NLLLoss
@@ -15,4 +16,5 @@ __all__ = [
     'TargetLoss',
     'DomainLoss',
     'IoULoss',
+    'CrossEntropyLoss',
 ]

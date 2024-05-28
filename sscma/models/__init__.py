@@ -1,4 +1,5 @@
 # Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
+from .act import *  # noqa
 from .backbones import *  # noqa
 from .classifiers import *  # noqa
 from .detectors import *  # noqa

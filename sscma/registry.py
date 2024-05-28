@@ -14,8 +14,8 @@ from mmengine.registry import (
 from mmengine.registry import OPTIM_WRAPPERS as MMENGINE_OPTIM_WRAPPERS
 from mmengine.registry import OPTIMIZERS as MMENGINE_OPTIMIZERS
 from mmengine.registry import PARAM_SCHEDULERS as MMENGINE_PARAM_SCHEDULERS
-from mmengine.registry import TRANSFORMS as MMENGINE_TRANSFORMS
 from mmengine.registry import TASK_UTILS as MMENGINE_TASK_UTILS
+from mmengine.registry import TRANSFORMS as MMENGINE_TRANSFORMS
 from mmengine.registry import VISBACKENDS as MMENGINE_VISBACKENDS
 from mmengine.registry import VISUALIZERS as MMENGINE_VISUALIZERS
 from mmengine.registry import Registry
@@ -59,3 +59,8 @@ TRANSFORMS = Registry('transforms', parent=MMENGINE_TRANSFORMS, locations=['sscm
 FUNCTIONS = Registry('functions', parent=MMENGINE_FUNCTIONS, locations=['sscma.datasets'])
 
 TASK_UTILS = Registry('task util', parent=MMENGINE_TASK_UTILS, locations=['sscma.models'])
+
+BATCH_AUGMENTS = Registry(
+    'batch augment',
+    locations=['sscma.models'],
+)

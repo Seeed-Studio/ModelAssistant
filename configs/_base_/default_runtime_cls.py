@@ -26,7 +26,7 @@ default_hooks = dict(
     # set sampler seed in distributed evrionment.
     sampler_seed=dict(type='DistSamplerSeedHook'),
     # validation results visualization, set True to enable it.
-    visualization=dict(type='mmcls.VisualizationHook', enable=False),
+    visualization=dict(type='sscma.ClsVisualizationHook', enable=False),
 )
 
 # configure environment
@@ -41,7 +41,7 @@ env_cfg = dict(
 
 # set visualizer
 vis_backends = [dict(type='LocalVisBackend')]
-visualizer = dict(type='mmcls.ClsVisualizer', vis_backends=vis_backends)
+visualizer = dict(type='sscma.ClsVisualizer', vis_backends=vis_backends)
 
 # set log level
 log_level = 'INFO'

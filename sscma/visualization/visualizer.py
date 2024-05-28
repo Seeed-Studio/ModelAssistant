@@ -4,7 +4,6 @@ from typing import Dict, List, Optional, Sequence, Tuple, Union
 import matplotlib.pyplot as plt
 import mmcv
 import numpy as np
-from mmcls.structures import ClsDataSample
 from mmdet.structures import DetDataSample
 from mmdet.visualization import DetLocalVisualizer
 from mmengine.dist import master_only
@@ -12,7 +11,7 @@ from mmengine.structures import InstanceData
 from mmengine.visualization import Visualizer
 
 from sscma.registry import VISUALIZERS
-from sscma.structures import PoseDataSample
+from sscma.structures import ClsDataSample, PoseDataSample
 
 
 @VISUALIZERS.register_module()
