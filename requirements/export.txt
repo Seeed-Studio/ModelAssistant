@@ -1,8 +1,0 @@
-# tflite export dep
-TinyNeuralNetwork @ https://files.seeedstudio.com/sscma/library/TinyNeuralNetwork-0.1.1-py3-none-any.whl
-
-# ncnn
-pnnx
-
-# vela
-ethos-u-vela

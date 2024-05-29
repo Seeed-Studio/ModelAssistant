@@ -1,8 +1,0 @@
-name: sscma
-
-channels:
-  - defaults
-
-dependencies:
-  - python>=3.8, <= 3.10
-  - pip>=23.0.1

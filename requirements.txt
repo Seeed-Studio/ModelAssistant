@@ -1,9 +1,4 @@
-# pip
--r requirements/pytorch_cpu.txt
--r requirements/base.txt
--r requirements/inference.txt
--r requirements/export.txt
--r requirements/tests.txt
-
-# mim
--r requirements/mmlab.txt
+tensorboard>=2.12.3
+tqdm>=4.65.0
+pytorch-lightning>=2.0.0
+pyserial>=3.5
