@@ -35,7 +35,7 @@ num_classes = 71
 # Base learning rate for optim_wrapper. Corresponding to 8xb16=128 bs
 lr = 0.01
 # Total number of rounds of model training
-epochs = 3
+epochs = 300
 # Number of input data per iteration in the model training phase
 batch = 16
 # Number of threads used to load data during training, this value should be adjusted accordingly to the training batch
@@ -53,7 +53,7 @@ lr_factor = 0.01
 # persistent_workers must be False if num_workers is 0
 persistent_workers = True
 # Disable mosaic augmentation for final 10 epochs (stage 2)
-close_mosaic_epochs = 1
+close_mosaic_epochs = 15
 
 # VAL
 # Batch size of a single GPU during validation
