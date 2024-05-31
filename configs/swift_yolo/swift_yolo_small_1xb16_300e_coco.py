@@ -18,7 +18,9 @@ data_root = 'https://universe.roboflow.com/ds/z5UOcgxZzD?key=bwx9LQUT0t'
 height = 640
 width = 640
 batch = 16
-workers = 2
+workers = 16
+use_cached = True
+max_cached_images = 4096
 val_batch = batch
 val_workers = workers
 imgsz = (width, height)
@@ -82,14 +84,34 @@ albu_train_transforms = [
 
 pre_transform = [
     dict(type='LoadImageFromFile', file_client_args=dict(backend='disk')),
-    dict(type='LoadAnnotations', with_bbox=True),
+    dict(type='sscma.YOLOLoadAnnotations', with_bbox=True),
+]
+
+last_transform = [
+    dict(
+        type='mmdet.Albu',
+        transforms=albu_train_transforms,
+        bbox_params=dict(type='BboxParams', format='pascal_voc', label_fields=['gt_bboxes_labels', 'gt_ignore_flags']),
+        keymap={'img': 'image', 'gt_bboxes': 'bboxes'},
+    ),
+    dict(type='sscma.YOLOv5HSVRandomAug'),
+    dict(type='mmdet.RandomFlip', prob=0.5),
+    dict(
+        type='mmdet.PackDetInputs', meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape', 'flip', 'flip_direction')
+    ),
 ]
 
 train_pipeline = [
     *pre_transform,
-    dict(type='Mosaic', img_scale=imgsz, pad_val=114.0, pre_transform=pre_transform),
     dict(
-        type='YOLOv5RandomAffine',
+        type='sscma.Mosaic',
+        img_scale=imgsz,
+        pad_val=114.0,
+        use_cached=use_cached,
+        max_cached_images=max_cached_images,
+    ),
+    dict(
+        type='sscma.YOLOv5RandomAffine',
         max_rotate_degree=0.0,
         max_shear_degree=0.0,
         scaling_ratio_range=(1 - affine_scale, 1 + affine_scale),
@@ -97,17 +119,23 @@ train_pipeline = [
         border=(-imgsz[0] // 2, -imgsz[1] // 2),
         border_val=(114, 114, 114),
     ),
+    *last_transform,
+]
+
+train_pipeline_stage2 = [
+    *pre_transform,
+    dict(type='sscma.YOLOv5KeepRatioResize', scale=imgsz),
+    dict(type='sscma.LetterResize', scale=imgsz, allow_scale_up=True, pad_val=dict(img=114.0)),
     dict(
-        type='mmdet.Albu',
-        transforms=albu_train_transforms,
-        bbox_params=dict(type='BboxParams', format='pascal_voc', label_fields=['gt_bboxes_labels', 'gt_ignore_flags']),
-        keymap={'img': 'image', 'gt_bboxes': 'bboxes'},
+        type='sscma.YOLOv5RandomAffine',
+        max_rotate_degree=0.0,
+        max_shear_degree=0.0,
+        scaling_ratio_range=(1 - affine_scale, 1 + affine_scale),
+        # imgsz is (width, height)
+        border=(-imgsz[0] // 2, -imgsz[1] // 2),
+        border_val=(114, 114, 114),
     ),
-    dict(type='YOLOv5HSVRandomAug'),
-    dict(type='mmdet.RandomFlip', prob=0.5),
-    dict(
-        type='mmdet.PackDetInputs', meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape', 'flip', 'flip_direction')
-    ),
+    *last_transform,
 ]
 
 train_dataloader = dict(
@@ -127,10 +155,10 @@ train_dataloader = dict(
 )
 
 test_pipeline = [
-    dict(type='LoadImageFromFile', file_client_args=dict(backend='disk')),
-    dict(type='YOLOv5KeepRatioResize', scale=imgsz),
-    dict(type='LetterResize', scale=imgsz, allow_scale_up=False, pad_val=dict(img=114)),
-    dict(type='LoadAnnotations', with_bbox=True, _scope_='mmdet'),
+    dict(type='sscma.LoadImageFromFile', file_client_args=dict(backend='disk')),
+    dict(type='sscma.YOLOv5KeepRatioResize', scale=imgsz),
+    dict(type='sscma.LetterResize', scale=imgsz, allow_scale_up=False, pad_val=dict(img=114)),
+    dict(type='sscma.LoadAnnotations', with_bbox=True, _scope_='mmdet'),
     dict(
         type='mmdet.PackDetInputs',
         meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape', 'scale_factor', 'pad_param'),
