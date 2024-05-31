@@ -36,7 +36,7 @@ class DetDataPreprocessor(MMDetDataPreprocessor):
         }
 
         if not self._non_blocking:
-            torch.cuda.synchronize()
+            torch.cuda.synchronize(self.device)
 
         return data_dict
 
