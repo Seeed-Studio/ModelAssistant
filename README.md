@@ -35,11 +35,11 @@ python ./dataset_tool/serial_port_read.py
 # 该程序会在主文件夹下生成一个datasets文件夹，相关.npy文件将会存放在路径./datasets/Train/ 下
 python ./dataset_tool/Signal_data_processing.py
 ```
-目前该方式仅支持三轴振动信号数据
+目前该方式仅支持三轴振动信号数据，且无需手动划分验证集，在main.py中将自动划分训练与验证集
 
 ### Train
-运行```main.py```即可
+运行```main.py```即可，训练完毕后将会在主文件夹下生成一个checkpoint文件夹，该文件夹下保存了最好的一版模型，供evaluate.py使用
 
 ### Evaluate
 
-在```./evaluate.py```中指定串口后，运行即可，输出为异常分数。
+在```./evaluate.py```中指定串口与需要评估的模型后，运行即可，输出为异常分数。

@@ -10,9 +10,10 @@ import cv2
 import numpy as np
 from torch.multiprocessing import Process, Pipe
 from dataset_tool.tools import Signal_dataset
-from model import Conv_Lstm
+from model import models
 from matplotlib import pyplot as plt
-from dataset_tool.tools import generate_gaf, min_max_scale, paa
+import dataset_tool.tools as dt
+from scipy.signal import firwin, lfilter
 
 
 def diff_block(data):
@@ -26,25 +27,6 @@ def diff_block(data):
 def psnr(loss):
     psnr = 20 * np.log10(1 / np.sqrt(loss))
     return psnr
-
-
-def Signal_diff_process(data):
-    data = np.reshape(np.array(data).astype('float32'), (-1, 3)) / 1500
-    data = diff_block(data)
-    return data
-
-
-def Signal_process(data):
-    data = np.reshape(np.array(data).astype('float32'), (-1, 3))
-    temp = []
-    for i in range(3):
-        # gasf = generate_gaf(X, gaf_type='summation')
-        data_temp = paa(data[:, i], 64)
-        gadf_i = generate_gaf(data_temp, gaf_type='difference')
-        # gadf_i = cv2.resize(gadf_i, (64,64), interpolation=cv2.INTER_LINEAR)
-        temp.append(gadf_i)
-    gadf = np.array(temp)
-    return gadf
 
 
 def Sound_process(data, mel_transform, db_transform):
@@ -80,39 +62,52 @@ def write_Sound_to_tensor(produce, consume):
             produce.send(data)  # 将写入的信息放入管道
 
 
-def write_Signal_to_tensor(produce, consume):
-
+def write_Signal_to_tensor(pipe):
+    produce, consume = pipe
     consume.close()
-    ser = serial.Serial('COM3', 115200)
+    ser = serial.Serial('COM8', 115200)
     if ser.isOpen():  # 判断串口是否成功打开
         print("打开串口成功。")
         print(ser.name)  # 输出串口号
     else:
         print("打开串口失败。")
     while True:
-        ser.reset_input_buffer()
-        ser.reset_output_buffer()
+        data = []
         for index, i in enumerate(ser):
-            if index == 0:
+            if (index + 1) % dt.sample_rate != 0:
+                temp = i.decode().strip('\r\n').split(' ')
+                data = data + temp
                 continue
-            data = i.decode().strip('\r\n').split(' ')[:-1]
-            data = Signal_process(data)
+            temp = i.decode().strip('\r\n').split(' ')
+            data = data + temp
             produce.send(data)  # 将写入的信息放入管道
+            data = []
 
 
 def read_from_tensor(pipe, model, loss):
     produce, consume = pipe
     produce.close()
-    score_list = []
+    # data_res = np.zeros((3, 64, 64))
+    # score_list = []
     while True:
         try:
             data = consume.recv()  # 从管道中获取写入的信息
+            # print(data[0:3])
+            # data, data_res, label, c = Signal_diff_process(data, data_res)
+            data, c, label = dt.sample_c_process(data)
+            label = torch.tensor(label).unsqueeze(0)
+            # data_tensor_res = torch.tensor(data_res).unsqueeze(0)
             data_tensor = torch.tensor(data).unsqueeze(0)
-            data_recon = model(data_tensor)
-            score = loss(data_tensor, data_recon).item()
-            score = psnr(score)
-            score_list.append(score)
-            print(score)
+            c = torch.tensor(c).unsqueeze(0)
+            x_recon, c_recon, mu, mu_c, logvar, logvar_c, a, cluster_loss = model(data_tensor, c)
+            loss1, loss2, loss3 = model.loss_function(x_recon, c_recon, data_tensor, c, mu, mu_c, logvar, logvar_c)
+            # loss = loss1 / 20 + loss2 + loss3 + cluster_loss
+            # loss1 = loss(data_recon[:, 0:3, :, :], label[:, 0:3, :, :]).item()
+            # loss2 = loss(data_recon[:, 0:6, :, :], label[:, 0:6, :, :]).item()
+            # data_recon, cluster, ker_loss = model(data_tensor, data_tensor_res, c)
+            # score = loss(data_recon, label).item() + ker_loss.item()
+            # a = a * 100
+            # score = loss1 * a + loss2 * (1 - a)
             # plt.clf()
             # plt.plot(score_list, 'r', label='Anomally Score')
             # plt.title('Anomally Score')
@@ -120,25 +115,29 @@ def read_from_tensor(pipe, model, loss):
             # # plt.show()
             # plt.pause(0.01)  # 暂停一段时间，不然画的太快会卡住显示不出来
             # plt.ioff()  # 关闭画图窗口
-        #     if score.item()<=36:
-        #         # print(score.item())
-        #         print("出现异常，尽快处理")
-        #     else:
-        #         # print(score.item())
-        #         print("正常")
+            score1 = psnr(loss1.item())
+            score2 = psnr(loss2.item())
+            print(score1)
+            print(score2)
+            if score1 < 10 or score2 < 21.5:
+                print(score1)
+                print(score2)
+                print("出现异常，尽快处理")
+            else:
+                # print(score.item())
+                print("正常")
         except EOFError:
             time.sleep(1)
 
 
 def Dynamic_evaluate_model(model_path):
-    model = Conv_Lstm.SimpleModel.load_from_checkpoint(model_path, in_channel=3, out_channel=32, tag="Conv_block2D")
+    model = models.Vae_Model.load_from_checkpoint(model_path, in_channel=3, out_channel=8, tag="Conv_block2D")
     model.share_memory()
     model.eval()
     loss = nn.MSELoss().share_memory()
     pipe = Pipe()
 
-    # producer_process = Process(target=write_Signal_to_tensor, args=(pipe))
-    producer_process = Process(target=write_Signal_to_tensor, args=(pipe))
+    producer_process = Process(target=write_Signal_to_tensor, args=(pipe, ))
     consumer_process = Process(target=read_from_tensor, args=(pipe, model, loss))
 
     producer_process.start()
@@ -149,5 +148,5 @@ def Dynamic_evaluate_model(model_path):
 
 
 if __name__ == '__main__':
-    model_path = "checkpoints/best-checkpoint-v27.ckpt"  # 这里写训练好的模型入口
+    model_path = "checkpoints/best-checkpoint-v97.ckpt"
     Dynamic_evaluate_model(model_path)
