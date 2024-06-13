@@ -1,11 +1,12 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 import math
 from typing import List, Optional, Union
 
 import torch
-from mmcls.structures import ClsDataSample
 from mmengine.model import BaseModel
 
 from sscma.registry import MODELS
+from sscma.structures import ClsDataSample
 
 
 @MODELS.register_module()

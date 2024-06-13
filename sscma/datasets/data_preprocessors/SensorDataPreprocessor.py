@@ -1,7 +1,10 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from typing import Optional
 
-from mmcls.models.utils.batch_augments import RandomBatchAugment
-from mmcls.structures import (
+from mmengine.model.base_model.data_preprocessor import BaseDataPreprocessor
+
+from sscma.registry import MODELS
+from sscma.structures import (
     ClsDataSample,
     MultiTaskDataSample,
     batch_label_to_onehot,
@@ -9,9 +12,7 @@ from mmcls.structures import (
     stack_batch_scores,
     tensor_split,
 )
-from mmengine.model.base_model.data_preprocessor import BaseDataPreprocessor
-
-from sscma.registry import MODELS
+from sscma.utils import RandomBatchAugment
 
 
 @MODELS.register_module()

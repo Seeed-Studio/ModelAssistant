@@ -1,8 +1,9 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 _base_ = [
     '../_base_/default_runtime_det.py',
 ]
 
-default_scope = 'mmyolo'
+default_scope = 'sscma'
 # ========================Suggested optional parameters========================
 # MODEL
 # The scaling factor that controls the depth of the network structure
@@ -110,12 +111,12 @@ env_cfg = dict(cudnn_benchmark=True)
 
 # model arch
 model = dict(
-    type='mmyolo.YOLODetector',
+    type='sscma.YOLODetector',
     data_preprocessor=dict(
         type='mmdet.DetDataPreprocessor', mean=[0.0, 0.0, 0.0], std=[255.0, 255.0, 255.0], bgr_to_rgb=True
     ),
     backbone=dict(
-        type='MobileNetv2',
+        type='MobileNetV2',
         widen_factor=widen_factor,
         out_indices=(
             2,
@@ -146,17 +147,27 @@ model = dict(
         ),
         prior_generator=dict(type='mmdet.YOLOAnchorGenerator', base_sizes=anchors, strides=strides),
         # scaled based on number of detection layers
-        loss_cls=dict(type='mmdet.CrossEntropyLoss', use_sigmoid=True, reduction='mean', loss_weight=loss_cls_weight),
+        loss_cls=dict(
+            type='mmdet.CrossEntropyLoss',
+            use_sigmoid=True,
+            reduction='mean',
+            loss_weight=loss_cls_weight * (num_classes / 80 * 3 / num_det_layers),
+        ),
         loss_bbox=dict(
             type='IoULoss',
             iou_mode='ciou',
             bbox_format='xywh',
             eps=1e-7,
             reduction='mean',
-            loss_weight=loss_bbox_weight,
+            loss_weight=loss_bbox_weight * (3 / num_det_layers),
             return_iou=True,
         ),
-        loss_obj=dict(type='mmdet.CrossEntropyLoss', use_sigmoid=True, reduction='mean', loss_weight=loss_obj_weight),
+        loss_obj=dict(
+            type='mmdet.CrossEntropyLoss',
+            use_sigmoid=True,
+            reduction='mean',
+            loss_weight=loss_obj_weight * ((imgsz[0] / 640) ** 2 * 3 / num_det_layers),
+        ),
         prior_match_thr=prior_match_thr,
         obj_level_weights=obj_level_weights,
     ),

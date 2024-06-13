@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 import json
 import os
 import os.path as osp
@@ -5,13 +6,14 @@ from typing import List, Optional, Union
 
 import cbor
 import numpy as np
-from mmcls.datasets import CustomDataset
 
 from sscma.registry import DATASETS
 
+from .clsdataset import CustomClsDataset
+
 
 @DATASETS.register_module()
-class SensorDataset(CustomDataset):
+class SensorDataset(CustomClsDataset):
     CLASSES = []
 
     def __init__(
@@ -49,7 +51,7 @@ class SensorDataset(CustomDataset):
 
         super().__init__(ann_file=ann_file, metainfo=metainfo, data_root=data_root, data_prefix=data_prefix, **kwargs)
 
-        self._metainfo = {'classes': self.get_classes()}
+        self.metainfo = {'classes': self.get_classes()}
 
     def get_classes(self, classes=None):
         if classes is not None:

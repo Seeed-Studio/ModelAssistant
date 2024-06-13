@@ -1,15 +1,17 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from typing import List, Optional
 
 import torch
 import torch.nn.functional as F
-from mmcls.models.classifiers import ImageClassifier as MMImageClassifier
-from mmcls.structures import ClsDataSample
 
 from sscma.registry import MODELS
+from sscma.structures import ClsDataSample
+
+from .base import BaseClassifier
 
 
 @MODELS.register_module()
-class ImageClassifier(MMImageClassifier):
+class ImageClassifier(BaseClassifier):
     def __init__(
         self,
         backbone: dict,
@@ -21,15 +23,14 @@ class ImageClassifier(MMImageClassifier):
         init_cfg: Optional[dict] = None,
     ):
         super(ImageClassifier, self).__init__(backbone, neck, head, pretrained, train_cfg, data_preprocessor, init_cfg)
-    
 
     def forward(self, inputs: torch.Tensor, data_samples: Optional[List[ClsDataSample]] = None, mode: str = 'tensor'):
         if mode == 'tensor':
             feats = self.extract_feat(inputs)
             head_out = self.head(feats) if self.with_head else feats
-            if head_out.shape[-1] > 2: # multi-class
+            if head_out.shape[-1] > 2:  # multi-class
                 head_out = F.softmax(head_out, dim=-1)
-            else: # binary
+            else:  # binary
                 head_out = torch.sigmoid(head_out)
             return head_out
         elif mode == 'loss':

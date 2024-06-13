@@ -1,8 +1,10 @@
+# Copyright (c) Seeed Technology Co.,Ltd.
+# Copyright (c) OpenMMLab.
 import json
 import os.path as osp
 from typing import Optional, Sequence, List
 
-from mmdet.datasets.coco import CocoDataset
+from mmdet.datasets import CocoDataset
 from mmengine.fileio import get_local_path
 
 from sscma.registry import DATASETS
@@ -11,7 +13,7 @@ from .utils.download import check_file
 
 
 @DATASETS.register_module()
-class CustomCocoDataset(CocoDataset):
+class CustomFomoCocoDataset(CocoDataset):
     METAINFO = {
         'classes': (),
         # palette is a list of color tuples, which is used for visualization.

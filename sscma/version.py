@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 __version__ = '2.0.0rc3'
 short_version = __version__
 

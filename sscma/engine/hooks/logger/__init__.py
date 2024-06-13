@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from .clearml import ClearMLLoggerHook
 from .pavi import PaviLoggerHook
 from .tensorboard import TensorboardLoggerHook

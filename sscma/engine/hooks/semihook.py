@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 import json
 from typing import Dict, Optional, Sequence, Union
 from mmengine.hooks import Hook

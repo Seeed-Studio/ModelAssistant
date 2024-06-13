@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 _base_ = ['./base_arch.py']
 
 # ========================Suggested optional parameters========================
@@ -15,8 +16,8 @@ val_data = 'valid/'  # Prefix of val image path
 
 # dataset link: https://universe.roboflow.com/team-roboflow/coco-128
 data_root = 'https://universe.roboflow.com/ds/z5UOcgxZzD?key=bwx9LQUT0t'
-height = 640
-width = 640
+height = 192
+width = 192
 batch = 16
 workers = 16
 use_cached = True
@@ -42,7 +43,7 @@ anchors = [
 ]
 
 model = dict(
-    type='mmyolo.YOLODetector',
+    type='sscma.YOLODetector',
     backbone=dict(
         type='YOLOv5CSPDarknet',
         deepen_factor=deepen_factor,

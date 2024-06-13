@@ -1,14 +1,14 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 import copy
 from typing import Optional, Tuple
 
 import torch
 import torch.nn as nn
-from torch import Tensor
 from mmdet.models.utils.make_divisible import make_divisible
 from mmengine.model import BaseModule
-from mmcv.cnn import ConvModule
-from mmpose.models.backbones.shufflenet_v2 import ShuffleNetV2 as ShuffleNetV2_Pose
+from torch import Tensor
 
+from sscma.models.base import ConvModule
 from sscma.models.base.general import ConvNormActivation
 from sscma.registry import BACKBONES
 
@@ -169,6 +169,29 @@ class ShuffleNetV2(BaseModule):
             for param in layer.parameters():
                 param.requires_grad = False
 
+    def _make_layer(self, out_channels, num_blocks):
+        """Stack blocks to make a layer.
+
+        Args:
+            out_channels (int): out_channels of the block.
+            num_blocks (int): number of blocks.
+        """
+        layers = []
+        for i in range(num_blocks):
+            stride = 2 if i == 0 else 1
+            layers.append(
+                InvertedResidual(
+                    in_channels=self.in_channels,
+                    out_channels=out_channels,
+                    stride=stride,
+                    conv_cfg=self.conv_cfg,
+                    norm_cfg=self.norm_cfg,
+                    act_cfg=self.act_cfg,
+                    with_cp=self.with_cp,
+                )
+            )
+            self.in_channels = out_channels
+
     def train(self, mode=True):
         """Convert the model into training mode while keep normalization layer
         frozen."""
@@ -268,7 +291,7 @@ class FastShuffleNetV2(BaseModule):
 
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
-        stage_names = ["stage2", "stage3", "stage4"]
+        stage_names = ['stage2', 'stage3', 'stage4']
         for idxstage in range(len(self.stage_repeats)):
             numrepeat = self.stage_repeats[idxstage]
             output_channel = self.stage_out_channels[idxstage + 2]
@@ -300,7 +323,7 @@ class FastShuffleNetV2(BaseModule):
 
 
 @BACKBONES.register_module()
-class CustomShuffleNetV2(ShuffleNetV2_Pose):
+class CustomShuffleNetV2(ShuffleNetV2):
     def __init__(
         self,
         widen_factor=1.0,

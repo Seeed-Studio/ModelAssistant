@@ -19,7 +19,7 @@ export default defineConfig({
         },
 
         footer: {
-            message: '在 MIT License 授权下发布',
+            message: '在 Apache 2.0 授权下发布',
             copyright: '版权所有 © 2023-目前 Seeed Studio 与 SSCMA 贡献者'
         }
     }
@@ -109,7 +109,7 @@ function sidebar() {
                 { text: 'FAQs', link: '/zh_cn/community/faqs' },
                 { text: '参考文档', link: '/zh_cn/community/reference' },
                 { text: '贡献指南', link: '/zh_cn/community/contributing' },
-                { text: '开源许可', link: '/zh_cn/community/licenses' }
+                { text: '开源许可', link: '/zh_cn/community/license' }
             ]
         }
     ]

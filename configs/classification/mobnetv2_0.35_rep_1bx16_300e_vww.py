@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 _base_ = './base.py'
 default_scope = 'sscma'
 custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
@@ -5,7 +6,7 @@ custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
 # MODEL
 num_classes = 2
 gray = False
-widen_factor=0.5
+widen_factor = 0.5
 # DATA
 dataset_type = 'VWW'
 data_root = 'datasets/vww/'
@@ -24,13 +25,13 @@ val_data = 'trainval/'
 
 model = dict(
     type='sscma.ImageClassifier',
-    backbone=dict(type='MobileNetv2', widen_factor=widen_factor, rep=True, gray_input=gray, _delete_=True),
-    neck=dict(type='mmcls.GlobalAveragePooling'),
+    backbone=dict(type='MobileNetV2', widen_factor=widen_factor, rep=True, gray_input=gray, _delete_=True),
+    neck=dict(type='sscma.GlobalAveragePooling'),
     head=dict(
-        type='mmcls.LinearClsHead',
+        type='sscma.LinearClsHead',
         in_channels=64,
         num_classes=num_classes,
-        loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
+        loss=dict(type='sscma.CrossEntropyLoss', loss_weight=1.0),
         topk=(1, 5),
     ),
 )

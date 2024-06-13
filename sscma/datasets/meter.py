@@ -1,14 +1,15 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 import copy
 import json
 import math
 import os
 import os.path as osp
 from abc import ABCMeta
-from typing import Optional, Sequence
+from typing import List, Optional, Sequence
 
 import cv2
 import numpy as np
-from torch.utils.data import Dataset
+from mmengine.dataset import BaseDataset
 from torchvision import transforms
 
 from sscma.registry import DATASETS
@@ -33,7 +34,7 @@ def calc_angle(x1, y1, x2, y2):
 
 
 @DATASETS.register_module()
-class MeterData(Dataset, metaclass=ABCMeta):
+class MeterData(BaseDataset, metaclass=ABCMeta):
     """The meter data set class, this class is mainly for the data set of the
     pointer table, the data set is marked in a format similar to the key point
     detection.
@@ -51,20 +52,19 @@ class MeterData(Dataset, metaclass=ABCMeta):
     """
 
     CLASSES = 'meter'
-    
-    METAINFO = dict()
+
+    METAINFO = dict(classes=None)
 
     def __init__(
         self,
+        *args,
         data_root: str,
         index_file: str,
         img_dir: Optional[str] = None,
         pipeline: Optional[Sequence[dict]] = None,
         format: str = 'xy',
+        **kwargs,
     ):
-        super(MeterData, self).__init__()
-        self.metainfo = dict()
-
         self.data_root = check_file(data_root)
         self.img_dir = img_dir  # todo
 
@@ -74,28 +74,34 @@ class MeterData(Dataset, metaclass=ABCMeta):
         if not osp.isabs(index_file) and self.data_root:
             index_file = osp.join(self.data_root, index_file)
 
+        self.index_file = index_file
         if img_dir is None:
             self.img_dir = osp.join(self.data_root, 'images')
         elif osp.isabs(img_dir):
             self.img_dir = img_dir
 
-        if osp.isdir(index_file):
-            file_ls = os.listdir(index_file)
-            file_ls = [osp.join(index_file, i) for i in file_ls]
+        self.transforms = AlbCompose(pipeline, keypoint_params=format)
+        self.totensor = transforms.Compose([transforms.ToTensor()])
+
+        super(MeterData, self).__init__(*args, serialize_data=False, **kwargs)
+
+    def load_data_list(self) -> List[dict]:
+        # return super().load_data_list()
+        if osp.isdir(self.index_file):
+            file_ls = os.listdir(self.index_file)
+            file_ls = [osp.join(self.index_file, i) for i in file_ls]
             self.parse_jsons(file_ls)
-        elif index_file.endswith('txt'):
-            self.parse_txt(index_file)
-        elif index_file.endswith('json'):
-            self.parse_json(index_file)
+        elif self.index_file.endswith('txt'):
+            self.parse_txt(self.index_file)
+        elif self.index_file.endswith('json'):
+            self.parse_json(self.index_file)
         else:
             raise ValueError(
                 'The parameter index_file must be a folder path',
                 ' or a file in txt or json format, but the received ',
-                f'value is {index_file}',
+                f'value is {self.index_file}',
             )
-
-        self.transforms = AlbCompose(pipeline, keypoint_params=format)
-        self.totensor = transforms.Compose([transforms.ToTensor()])
+        return self.ann_ls
 
     def __getitem__(self, item: int) -> dict:
         ann = copy.deepcopy(self.ann_ls[item])
@@ -125,7 +131,7 @@ class MeterData(Dataset, metaclass=ABCMeta):
         return {'inputs': img, 'data_samples': ann}
 
     def __len__(self) -> int:
-        return len(self.ann_ls)
+        return len(self.data_list)
 
     def parse_jsons(self, index_dir: str) -> None:
         """When the annotation file is in json format, parse the corresponding
@@ -164,6 +170,8 @@ class MeterData(Dataset, metaclass=ABCMeta):
             points = np.asarray(line[1:], dtype=np.float32)
             point_num = len(points) // 2
             self.ann_ls.append({'image_file': img_file, 'keypoints': points, 'point_num': point_num})
+
+        self.metainfo['classes'] = [i for i in range(self.ann_ls[0]['point_num'])]
 
     def parse_json(self, json_path: str) -> None:
         pass  # todo

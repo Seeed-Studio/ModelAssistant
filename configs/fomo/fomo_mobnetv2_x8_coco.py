@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 _base_ = '../_base_/default_runtime_det.py'
 default_scope = 'sscma'
 custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
@@ -8,7 +9,7 @@ num_classes = 2
 widen_factor = 1
 
 # DATA
-dataset_type = 'CustomCocoDataset'
+dataset_type = 'CustomFomoCocoDataset'
 # datasets link: https://public.roboflow.com/object-detection/mask-wearing
 data_root = 'https://public.roboflow.com/ds/o8GgfOIazi?key=hES8s8Gy7u'
 
@@ -48,7 +49,7 @@ data_preprocessor = dict(
 model = dict(
     type='Fomo',
     data_preprocessor=data_preprocessor,
-    backbone=dict(type='MobileNetv2', widen_factor=widen_factor, out_indices=(2,), rep=True),
+    backbone=dict(type='MobileNetV2', widen_factor=widen_factor, out_indices=(2,), rep=True),
     head=dict(
         type='FomoHead',
         input_channels=[64],

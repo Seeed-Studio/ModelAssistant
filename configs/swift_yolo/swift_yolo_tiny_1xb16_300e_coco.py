@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 _base_ = ['./base_arch.py']
 
 # ========================Suggested optional parameters========================
@@ -42,7 +43,7 @@ anchors = [
 ]
 
 model = dict(
-    type='mmyolo.YOLODetector',
+    type='sscma.YOLODetector',
     backbone=dict(
         type='YOLOv5CSPDarknet',
         deepen_factor=deepen_factor,

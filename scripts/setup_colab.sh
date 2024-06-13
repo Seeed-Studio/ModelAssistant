@@ -22,7 +22,7 @@ else
 fi
 
 # limit torch version
-pip install torch<=2.0.1 torchvision<=0.15.2 torchaudio<=2.0.2
+pip install torch==2.0.0 torchvision==0.15.1 torchaudio==2.0.1
 
 # install base deps
 echo -en "Installing base deps... "

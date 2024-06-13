@@ -36,7 +36,7 @@ widen_factor = 0.15
 strides = [8, 16, 32]
 
 model = dict(
-    type='mmyolo.YOLODetector',
+    type='sscma.YOLODetector',
     backbone=dict(
         type='YOLOv5CSPDarknet',
         deepen_factor=deepen_factor,

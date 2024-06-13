@@ -1,8 +1,10 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 import argparse
 import os
-import tempfile
-import sys
 import os.path as osp
+import sys
+import tempfile
+
 import torch
 
 current_path = osp.dirname(osp.abspath(__file__))
@@ -125,8 +127,8 @@ def verify_args(args):
         '.tflite',
         '.param',
         '.bin',
-    }, "The chackpoint model should be ended with a '.pth', '.onnx' or '.tflite' extension"
-    assert os.path.exists(args.checkpoint), 'The chackpoint model does not exist'
+    }, "The checkpoint model should be ended with a '.pth', '.onnx' or '.tflite' extension"
+    assert os.path.exists(args.checkpoint), 'The checkpoint model does not exist'
     assert args.interval > 0, 'The interval of visualization per samples should be larger than 0'
     assert args.wait_time >= 0, 'The visualize duration should be larger than or equal to 0'
 

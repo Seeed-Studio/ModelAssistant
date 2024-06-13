@@ -49,4 +49,4 @@ test: test cases changes
 
 ## Permissions Section
 
-After a contribution is submitted, you agree to the project's [License](./licenses).
+After a contribution is submitted, you agree to the project's [License](./license).

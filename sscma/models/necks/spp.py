@@ -1,3 +1,5 @@
+# Copyright (c) Seeed Technology Co.,Ltd.
+# Copyright (c) OpenMMLab.
 import torch
 import torch.nn as nn
 

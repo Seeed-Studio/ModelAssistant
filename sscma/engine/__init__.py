@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from .hooks import (
     DetFomoVisualizationHook,
     Posevisualization,
@@ -6,6 +7,7 @@ from .hooks import (
     WandbLoggerHook,
 )
 from .runner import GetEpochBasedTrainLoop
+from .optimizers import YOLOv5OptimizerConstructor
 
 __all__ = [
     'TextLoggerHook',
@@ -16,4 +18,5 @@ __all__ = [
     'GetEpochBasedTrainLoop',
     'Posevisualization',
     'DetFomoVisualizationHook',
+    'YOLOv5OptimizerConstructor',
 ]

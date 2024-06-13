@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 import torch.nn as nn
 
 from sscma.registry import BACKBONES

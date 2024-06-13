@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 import torch.nn as nn
 import torch.nn.functional as F
 from mmdet.models.losses.utils import weighted_loss

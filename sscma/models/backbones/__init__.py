@@ -1,12 +1,16 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from .AxesNet import AxesNet
+from .base_backbone import YOLOBaseBackbone
+from .csp_darknet import YOLOv5CSPDarknet
 from .EfficientNet import EfficientNet
-from .MobileNetv2 import MobileNetv2
+from .MicroNet import MicroNet
+from .MobileNetv2 import MobileNetV2
 from .MobileNetv3 import MobileNetV3
+from .MobileNetv4 import MobileNetv4
 from .pfld_mobilenet_v2 import PfldMobileNetV2
-from .ShuffleNetV2 import ShuffleNetV2, CustomShuffleNetV2, FastShuffleNetV2
+from .ShuffleNetV2 import CustomShuffleNetV2, FastShuffleNetV2, ShuffleNetV2
 from .SoundNet import SoundNetRaw
 from .SqueezeNet import SqueezeNet
-from .MicroNet import MicroNet
 
 __all__ = [
     'PfldMobileNetV2',
@@ -14,10 +18,13 @@ __all__ = [
     'CustomShuffleNetV2',
     'AxesNet',
     'MobileNetV3',
+    'MobileNetv4',
     'ShuffleNetV2',
     'SqueezeNet',
     'EfficientNet',
-    'MobileNetv2',
+    'MobileNetV2',
     'MicroNet',
-    "FastShuffleNetV2",
+    'FastShuffleNetV2',
+    'YOLOv5CSPDarknet',
+    'YOLOBaseBackbone',
 ]

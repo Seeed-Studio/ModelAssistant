@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from typing import List, Optional, Sequence, Union
 import os
 import os.path as osp

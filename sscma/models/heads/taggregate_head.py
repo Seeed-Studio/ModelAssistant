@@ -1,6 +1,8 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 import torch
 import torch.nn as nn
-from mmcls.models.builder import HEADS
+
+from sscma.registry import HEADS
 
 
 @HEADS.register_module()

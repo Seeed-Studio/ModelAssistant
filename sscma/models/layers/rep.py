@@ -1,13 +1,16 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from typing import List, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
+import torchvision
 from mmengine.model import BaseModule
 
 from sscma.models.base.general import ConvNormActivation, get_act
 from sscma.registry import FUNCTIONS, MODELS
-import torchvision
+
 torchvision.datasets.WIDERFace
+
 
 def padding_weights(
     weights: Optional[torch.Tensor] = None,

@@ -1,11 +1,12 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 from typing import Optional
 
 import numpy as np
 from mmengine.structures.instance_data import InstanceData
-from mmpose.models.pose_estimators.base import BasePoseEstimator
-from mmpose.structures import PoseDataSample
 
+from sscma.models.pose_estimators import BasePoseEstimator
 from sscma.registry import MODELS
+from sscma.structures import PoseDataSample
 
 
 @MODELS.register_module()

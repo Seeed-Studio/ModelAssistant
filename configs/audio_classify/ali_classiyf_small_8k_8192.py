@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 _base_ = ['../_base_/default_runtime_cls.py']
 
 words = [
@@ -161,7 +162,7 @@ optim_wrapper = dict(
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 
 # evaluator
-val_evaluator = dict(type='mmcls.Accuracy', topk=(1, 5) if num_classes > 5 else 1)
+val_evaluator = dict(type='sscma.Accuracy', topk=(1, 5) if num_classes > 5 else 1)
 test_evaluator = val_evaluator
 
 train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=1000)

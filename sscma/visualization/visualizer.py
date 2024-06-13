@@ -1,9 +1,9 @@
-from typing import List, Optional, Sequence, Tuple
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import matplotlib.pyplot as plt
 import mmcv
 import numpy as np
-from mmcls.structures import ClsDataSample
 from mmdet.structures import DetDataSample
 from mmdet.visualization import DetLocalVisualizer
 from mmengine.dist import master_only
@@ -11,6 +11,7 @@ from mmengine.structures import InstanceData
 from mmengine.visualization import Visualizer
 
 from sscma.registry import VISUALIZERS
+from sscma.structures import ClsDataSample, PoseDataSample
 
 
 @VISUALIZERS.register_module()
@@ -277,3 +278,167 @@ class SensorClsVisualizer(Visualizer):
             mmcv.imwrite(drawn_img[..., ::-1], out_file)
         else:
             self.add_image(name, drawn_img, step=step)
+
+
+@VISUALIZERS.register_module()
+class PoseVisualizer(Visualizer):
+    def __init__(
+        self,
+        name='visualizer',
+        image: Optional[np.ndarray] = None,
+        vis_backends: Optional[Dict] = None,
+        backend: str = 'opencv',
+        save_dir: Optional[str] = None,
+        radius: Union[int, float] = 3,
+        kpt_color: Optional[Union[str, Tuple[Tuple[int]]]] = 'red',
+        skeleton: Optional[Union[List, Tuple]] = None,
+        **kwargs,
+    ):
+        super().__init__(name=name, image=image, vis_backends=vis_backends, save_dir=save_dir)
+        assert backend in ('opencv', 'matplotlib'), (
+            f'the argument ' f'\'backend\' must be either \'opencv\' or \'matplotlib\', ' f'but got \'{backend}\'.'
+        )
+        self.backend = backend
+        self.radius = radius
+        self.kpt_color = kpt_color
+        self.skeleton = skeleton
+        for key, value in kwargs.items():
+            self.__setattr__(key, value)
+
+    def draw_kpts(
+        self,
+        image: np.ndarray,
+        instances: InstanceData,
+        kpt_thr: float = 0.3,
+        show_kpt_idx: bool = False,
+        skeleton_style: str = 'mmpose',
+    ):
+        if skeleton_style == 'openpose':
+            return self._draw_instances_kpts_openpose(image, instances, kpt_thr)
+        self.set_image(image)
+        img_h, img_w, _ = image.shape
+        if 'keypoints' in instances:
+            keypoints = instances.get('transformed_keypoints', instances.keypoints)
+
+            if 'keypoints_visible' in instances:
+                keypoints_visible = instances.keypoints_visible
+            else:
+                keypoints_visible = np.ones(keypoints.shape[:-1])
+
+            for kpts, visible in zip(keypoints, keypoints_visible):
+                kpts = np.array(kpts, copy=False)
+
+                if self.kpt_color is None or isinstance(self.kpt_color, str):
+                    kpt_color = [self.kpt_color] * len(kpts)
+
+                elif len(self.kpt_color) == len(kpts):
+                    kpt_color = self.kpt_color
+                else:
+                    raise ValueError(
+                        f'the length of kpt_color '
+                        f'({len(self.kpt_color)}) does not matches '
+                        f'that of keypoints ({len(kpts)})'
+                    )
+            for kid, kpt in enumerate(kpts):
+                if visible[kid] < kpt_thr or kpt_color[kid] is None:
+                    # skip the point that should not be drawn
+                    continue
+
+                color = kpt_color[kid]
+                if not isinstance(color, str):
+                    color = tuple(int(c) for c in color)
+                transparency = self.alpha
+                if self.show_keypoint_weight:
+                    transparency *= max(0, min(1, visible[kid]))
+                self.draw_circles(
+                    kpt,
+                    radius=np.array([self.radius]),
+                    face_colors=color,
+                    edge_colors=color,
+                    alpha=transparency,
+                    line_widths=self.radius,
+                )
+
+        return self.get_image()
+
+    @master_only
+    def get_image(self) -> np.ndarray:
+        """Get the drawn image. The format is RGB.
+
+        Returns:
+            np.ndarray: the drawn image which channel is RGB.
+        """
+        assert self._image is not None, 'Please set image using `set_image`'
+        if self.backend == 'matplotlib':
+            return super().get_image()
+        else:
+            return self._image
+
+    @master_only
+    def add_datasample(
+        self,
+        name: str,
+        image: np.ndarray,
+        data_sample: PoseDataSample,
+        draw_gt: bool = True,
+        draw_pred: bool = True,
+        show_kpt_idx: bool = False,
+        skeleton_style: str = 'mmpose',
+        show: bool = False,
+        wait_time: float = 0,
+        out_file: Optional[str] = None,
+        kpt_thr: float = 0.3,
+        step: int = 0,
+    ) -> None:
+        gt_img_data = None
+        pred_img_data = None
+
+        if draw_gt:
+            gt_img_data = image.copy()
+            gt_img_heatmap = None
+
+            # draw keypoints
+            if 'gt_instances' in data_sample:
+                gt_img_data = self.draw_kpts(
+                    gt_img_data, data_sample.gt_instances, kpt_thr, show_kpt_idx, skeleton_style
+                )
+
+        if draw_pred:
+            pred_img_data = image.copy()
+            pred_img_heatmap = None
+
+            # draw keypoints
+            if 'pred_instances' in data_sample:
+                pred_img_data = self.draw_kpts(
+                    pred_img_data, data_sample.pred_instances, kpt_thr, show_kpt_idx, skeleton_style
+                )
+
+        # merge visualization results
+        if gt_img_data is not None and pred_img_data is not None:
+            if gt_img_heatmap is None and pred_img_heatmap is not None:
+                gt_img_data = np.concatenate((gt_img_data, image), axis=0)
+            elif gt_img_heatmap is not None and pred_img_heatmap is None:
+                pred_img_data = np.concatenate((pred_img_data, image), axis=0)
+
+            drawn_img = np.concatenate((gt_img_data, pred_img_data), axis=1)
+
+        elif gt_img_data is not None:
+            drawn_img = gt_img_data
+        else:
+            drawn_img = pred_img_data
+
+        # It is convenient for users to obtain the drawn image.
+        # For example, the user wants to obtain the drawn image and
+        # save it as a video during video inference.
+        self.set_image(drawn_img)
+
+        if show:
+            self.show(drawn_img, win_name=name, wait_time=wait_time)
+
+        if out_file is not None:
+            mmcv.imwrite(drawn_img[..., ::-1], out_file)
+        else:
+            # save drawn_img to backends
+            self.add_image(name, drawn_img, step)
+
+        return self.get_image()

@@ -1,3 +1,4 @@
+# Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 _base_ = './base.py'
 default_scope = 'sscma'
 custom_imports = dict(imports=['sscma'], allow_failed_imports=False)
@@ -8,7 +9,7 @@ num_classes = 3
 widen_factor = 1.0
 
 # DATA
-dataset_type = 'mmcls.CustomDataset'
+dataset_type = 'sscma.CustomClsDataset'
 # datasets link: https://public.roboflow.com/classification/rock-paper-scissors
 data_root = 'https://public.roboflow.com/ds/dTMAyuzrmY?key=VbTbUwLEYG'
 train_data = 'train/'
@@ -23,13 +24,13 @@ imgsz = (width, height)
 
 model = dict(
     type='sscma.ImageClassifier',
-    backbone=dict(type='mmcls.MobileNetV2', widen_factor=widen_factor),
-    neck=dict(type='mmcls.GlobalAveragePooling'),
+    backbone=dict(type='sscma.MobileNetV2', widen_factor=widen_factor, out_indices=(7,)),
+    neck=dict(type='sscma.GlobalAveragePooling'),
     head=dict(
-        type='mmcls.LinearClsHead',
+        type='sscma.LinearClsHead',
         in_channels=1280,
         num_classes=num_classes,
-        loss=dict(type='mmcls.CrossEntropyLoss', loss_weight=1.0),
+        loss=dict(type='sscma.CrossEntropyLoss', loss_weight=1.0),
         topk=(1, 5) if num_classes > 5 else 1,
     ),
 )
@@ -37,16 +38,16 @@ model = dict(
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='mmengine.Resize', scale=imgsz),
-    dict(type='mmcls.ColorJitter', brightness=0.3, contrast=0.2),
-    dict(type='mmcls.Rotate', angle=30.0, prob=0.6),
-    dict(type='mmcls.RandomFlip', prob=0.5, direction='horizontal'),
-    dict(type='mmcls.PackClsInputs'),
+    dict(type='ColorJitterCls', brightness=0.3, contrast=0.2),
+    dict(type='RandomRotate', angle=30.0, prob=0.6),
+    dict(type='RandomFlip', prob=0.5, direction='horizontal'),
+    dict(type='PackClsInputs'),
 ]
 
 test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='mmengine.Resize', scale=imgsz),
-    dict(type='mmcls.PackClsInputs'),
+    dict(type='PackClsInputs'),
 ]
 
 train_dataloader = dict(
