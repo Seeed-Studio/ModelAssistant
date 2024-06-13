@@ -166,6 +166,7 @@ class Inter:
             if input_int8:
                 scale, zero_point = input_['quantization']
                 data = (data / scale + zero_point).astype(np.int8)
+                
             self.inter.set_tensor(input_['index'], data)
             self.inter.invoke()
             for output in outputs:
@@ -343,12 +344,7 @@ class Infernce:
                     data = self.data_preprocess(data, False)
                 inputs = data['inputs'][0]
                 if self.cfg.input_type == 'image':
-                    data_samples = data['data_samples']
-                    img_path = (
-                        data_samples.get('img_path', None)
-                        if isinstance(data_samples, dict)
-                        else data_samples[0].get('img_path', None)
-                    )
+                    img_path = data['data_samples'][0].get('img_path', None)
                     img = data['inputs'][0].permute(1, 2, 0).cpu().numpy()
             else:
                 img = data

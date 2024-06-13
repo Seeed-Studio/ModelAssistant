@@ -40,7 +40,11 @@ epochs = 300
 # Number of input data per iteration in the model training phase
 batch = 16
 # Number of threads used to load data during training, this value should be adjusted accordingly to the training batch
-workers = 4
+workers = 16
+# Whether to use cached data when performing data augmentation
+use_cached = True
+# The maximum number of cached images
+max_cached_images = 4096
 # Optimizer weight decay value
 weight_decay = 0.0005
 # SGD momentum/Adam beta1
@@ -49,6 +53,8 @@ momentum = 0.937
 lr_factor = 0.01
 # persistent_workers must be False if num_workers is 0
 persistent_workers = True
+# Disable mosaic augmentation for final 10 epochs (stage 2)
+close_mosaic_epochs = 15
 
 # VAL
 # Batch size of a single GPU during validation
@@ -116,7 +122,7 @@ env_cfg = dict(cudnn_benchmark=True)
 model = dict(
     type='sscma.YOLODetector',
     data_preprocessor=dict(
-        type='mmdet.DetDataPreprocessor', mean=[0.0, 0.0, 0.0], std=[255.0, 255.0, 255.0], bgr_to_rgb=True
+        type='sscma.DetDataPreprocessor', mean=[0.0, 0.0, 0.0], std=[255.0, 255.0, 255.0], bgr_to_rgb=True
     ),
     backbone=dict(
         type='YOLOv5CSPDarknet',
@@ -183,14 +189,34 @@ albu_train_transforms = [
 
 pre_transform = [
     dict(type='LoadImageFromFile', file_client_args=dict(backend='disk')),
-    dict(type='LoadAnnotations', with_bbox=True),
+    dict(type='sscma.YOLOLoadAnnotations', with_bbox=True),
+]
+
+last_transform = [
+    dict(
+        type='mmdet.Albu',
+        transforms=albu_train_transforms,
+        bbox_params=dict(type='BboxParams', format='pascal_voc', label_fields=['gt_bboxes_labels', 'gt_ignore_flags']),
+        keymap={'img': 'image', 'gt_bboxes': 'bboxes'},
+    ),
+    dict(type='sscma.YOLOv5HSVRandomAug'),
+    dict(type='mmdet.RandomFlip', prob=0.5),
+    dict(
+        type='mmdet.PackDetInputs', meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape', 'flip', 'flip_direction')
+    ),
 ]
 
 train_pipeline = [
     *pre_transform,
-    dict(type='Mosaic', img_scale=imgsz, pad_val=114.0, pre_transform=pre_transform),
     dict(
-        type='YOLOv5RandomAffine',
+        type='sscma.Mosaic',
+        img_scale=imgsz,
+        pad_val=114.0,
+        use_cached=use_cached,
+        max_cached_images=max_cached_images,
+    ),
+    dict(
+        type='sscma.YOLOv5RandomAffine',
         max_rotate_degree=0.0,
         max_shear_degree=0.0,
         scaling_ratio_range=(1 - affine_scale, 1 + affine_scale),
@@ -198,17 +224,23 @@ train_pipeline = [
         border=(-imgsz[0] // 2, -imgsz[1] // 2),
         border_val=(114, 114, 114),
     ),
+    *last_transform,
+]
+
+train_pipeline_stage2 = [
+    *pre_transform,
+    dict(type='sscma.YOLOv5KeepRatioResize', scale=imgsz),
+    dict(type='sscma.LetterResize', scale=imgsz, allow_scale_up=True, pad_val=dict(img=114.0)),
     dict(
-        type='mmdet.Albu',
-        transforms=albu_train_transforms,
-        bbox_params=dict(type='BboxParams', format='pascal_voc', label_fields=['gt_bboxes_labels', 'gt_ignore_flags']),
-        keymap={'img': 'image', 'gt_bboxes': 'bboxes'},
+        type='sscma.YOLOv5RandomAffine',
+        max_rotate_degree=0.0,
+        max_shear_degree=0.0,
+        scaling_ratio_range=(1 - affine_scale, 1 + affine_scale),
+        # imgsz is (width, height)
+        border=(-imgsz[0] // 2, -imgsz[1] // 2),
+        border_val=(114, 114, 114),
     ),
-    dict(type='YOLOv5HSVRandomAug'),
-    dict(type='mmdet.RandomFlip', prob=0.5),
-    dict(
-        type='mmdet.PackDetInputs', meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape', 'flip', 'flip_direction')
-    ),
+    *last_transform,
 ]
 
 train_dataloader = dict(
@@ -227,11 +259,12 @@ train_dataloader = dict(
     ),
 )
 
+
 test_pipeline = [
-    dict(type='LoadImageFromFile', file_client_args=dict(backend='disk')),
-    dict(type='YOLOv5KeepRatioResize', scale=imgsz),
-    dict(type='LetterResize', scale=imgsz, allow_scale_up=False, pad_val=dict(img=114)),
-    dict(type='LoadAnnotations', with_bbox=True, _scope_='mmdet'),
+    dict(type='sscma.LoadImageFromFile', file_client_args=dict(backend='disk')),
+    dict(type='sscma.YOLOv5KeepRatioResize', scale=imgsz),
+    dict(type='sscma.LetterResize', scale=imgsz, allow_scale_up=False, pad_val=dict(img=114)),
+    dict(type='sscma.LoadAnnotations', with_bbox=True, _scope_='mmdet'),
     dict(
         type='mmdet.PackDetInputs',
         meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape', 'scale_factor', 'pad_param'),
@@ -277,7 +310,12 @@ default_hooks = dict(
 custom_hooks = [
     dict(
         type='EMAHook', ema_type='ExpMomentumEMA', momentum=0.0001, update_buffers=True, strict_load=False, priority=49
-    )
+    ),
+    dict(
+        type='mmdet.PipelineSwitchHook',
+        switch_epoch=epochs - close_mosaic_epochs,
+        switch_pipeline=train_pipeline_stage2,
+    ),
 ]
 
 val_evaluator = dict(type='mmdet.CocoMetric', proposal_nums=(100, 1, 10), ann_file=data_root + val_ann, metric='bbox')

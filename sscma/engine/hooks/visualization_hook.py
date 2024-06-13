@@ -1,4 +1,5 @@
 # Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
+
 import math
 import os
 import os.path as osp
@@ -8,6 +9,7 @@ from typing import Optional, Sequence
 import mmcv
 import mmengine
 import mmengine.fileio as fileio
+from mmcls.structures import ClsDataSample
 from mmdet.engine.hooks import DetVisualizationHook
 from mmengine.fileio import join_path
 from mmengine.hooks import Hook
@@ -163,7 +165,8 @@ class SensorVisualizationHook(Hook):
         out_dir (str, optional): directory where painted images will be saved
             in the testing process. If None, handle with the backends of the
             visualizer. Defaults to None.
-        **kwargs: other keyword arguments
+        **kwargs: other keyword arguments of
+            :meth:`mmcls.visualization.ClsVisualizer.add_data_setample`.
     """
 
     def __init__(self, enable=False, interval: int = 5000, show: bool = False, out_dir: Optional[str] = None, **kwargs):
