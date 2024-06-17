@@ -11,6 +11,60 @@ import torch.nn.init as init
 from einops import rearrange
 
 
+class CustomLayerNorm(nn.Module):
+
+    def __init__(self, normalized_shape, eps=1e-5, elementwise_affine=True):
+        super().__init__()
+        self.normalized_shape = normalized_shape
+        self.eps = eps
+        self.elementwise_affine = elementwise_affine
+        if self.elementwise_affine:
+            self.weight = nn.Parameter(torch.ones(normalized_shape))
+            self.bias = nn.Parameter(torch.zeros(normalized_shape))
+        else:
+            self.register_parameter('weight', None)
+            self.register_parameter('bias', None)
+
+    def forward(self, x):
+        mean = x.mean(dim=-1, keepdim=True)
+        std = x.std(dim=-1, keepdim=True, unbiased=False)
+        x_normalized = (x - mean) / (std + self.eps)
+        if self.elementwise_affine:
+            x_normalized = x_normalized * self.weight + self.bias
+        return x_normalized
+
+
+def cdist(x1, x2):
+    """
+    计算两个输入张量之间的成对欧氏距离。
+
+    参数:
+    x1: Tensor of shape (m, d)
+    x2: Tensor of shape (n, d)
+
+    返回:
+    dists: Tensor of shape (m, n)
+    """
+    # 检查输入张量的形状
+    assert x1.shape[1] == x2.shape[1], "The number of dimensions must be the same for both inputs"
+
+    # 计算平方和
+    x1_square_sum = (x1 * x1).sum(dim=1, keepdim=True)
+    x2_square_sum = (x2 * x2).sum(dim=1, keepdim=True)
+
+    # 计算成对欧氏距离
+    dists = torch.sqrt(x1_square_sum + x2_square_sum.permute(1, 0) - 2 * x1 @ x2.permute(1, 0))
+
+    return dists
+
+
+def torch_min_by_index(x, index):
+    index = index.view(-1)
+    x_min = [x[i, index[i]] for i in range(len(x))]
+    x_min = torch.tensor(x_min).unsqueeze(0).unsqueeze(-1)
+    return x_min
+
+
 def cluster_alpha(max_n=40):
     constant_value = 1  # specs.embedding_size # Used to modify the range of the alpha scheme
     # max_n = 40  # Number of alpha values to consider
@@ -50,9 +104,11 @@ class NegSoftAssign(nn.Module):
         if alpha is not None:
             self.alpha = alpha
 
-        x_min, _ = torch.min(x, self.dims, keepdim=True)
+        x_min_index = torch.argmin(x, self.dims, keepdim=True)
+        x_min = torch_min_by_index(x, x_min_index)
         exp_x = torch.exp((-self.alpha) * (x - x_min))  # 这是一个类似于紧缩的方法
         soft_x = exp_x / (exp_x.sum(self.dims, keepdim=True))
+
         return soft_x
 
 
@@ -60,11 +116,11 @@ class EuclidDistance_Assign_Module(nn.Module):
 
     def __init__(self, feature_dim, cluster_num=256, maxpool=1, soft_assign_alpha=32.0, is_grad=True):
         super(EuclidDistance_Assign_Module, self).__init__()
-        self.euclid_dis = torch.cdist
+        # self.euclid_dis = torch.cdist
         self.act = nn.Sigmoid()
         self.feature_dim = feature_dim
         self.cluster_num = cluster_num
-        self.norm = nn.LayerNorm(feature_dim)
+        self.norm = CustomLayerNorm(feature_dim)
 
         self.assign_func = NegSoftAssign(-1, soft_assign_alpha)
         self.register_param(is_grad)
@@ -84,7 +140,7 @@ class EuclidDistance_Assign_Module(nn.Module):
         #   传入x尺寸为B*D*H*W*C
         x_temp = x.clone()
         x = self.norm(x_temp)
-        soft_assign = self.euclid_dis(x, self.cluster_center.unsqueeze(0))  # 这里返回的是向量间的距离
+        soft_assign = cdist(x, self.cluster_center)
         x_distance = soft_assign
         x_distance_assign = self.assign_func(x_distance, alpha)
         kk = self.cluster_center.clone()

@@ -6,6 +6,7 @@ from einops import rearrange
 from model.Block.Encoder import Encode, Vae_Encode
 from model.Block.Decoder import Decode, Vae_Decode
 import torch.nn.functional as F
+from misc import tools
 
 
 # Define the LightningModule
@@ -105,23 +106,41 @@ class Vae_Model(pl.LightningModule):
     def __init__(self, in_channel, out_channel, tag):
         super().__init__()
         self.a = nn.Parameter(torch.tensor(0.5))
+        self.loss = nn.MSELoss()
         self.encode = Vae_Encode(x_size=32, in_channel=in_channel, out_channel=out_channel, tag=tag)
         self.decode = Vae_Decode(x_size=32, out_channel=out_channel, in_channel=in_channel, tag=tag)
 
+    def psnr_loss(self, recon_x, recon_c, x, c):
+        loss1 = tools.psnr(recon_x, x)
+        loss2 = tools.psnr(recon_c, c)
+        return loss1, loss2
+
     def loss_function(self, recon_x, recon_c, x, c, mu, mu_c, logvar, logvar_c):
-        BCE1 = F.mse_loss(recon_x, x, reduction='mean')
-        BCE2 = F.mse_loss(recon_c, c, reduction='mean')
-        KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-        KLD2 = -0.5 * torch.sum(1 + logvar_c - mu_c.pow(2) - logvar_c.exp())
+        BCE1 = self.loss(recon_x, x)
+        BCE2 = self.loss(recon_c, c)
+        KLD = -0.5 * torch.sum(1 + logvar - mu * mu - logvar.exp())
+        KLD2 = -0.5 * torch.sum(1 + logvar_c - mu_c * mu_c - logvar_c.exp())
         return BCE1, BCE2, KLD + KLD2
 
-    def forward(self, x, c):
-        # x = torch.cat((x, c), dim=1)
+    def _forward(self, x, c):
         mu, mu_c, logvar, logvar_c, cluster_loss = self.encode(x, c)
         z = self.reparameterize(mu, logvar)
         c = self.reparameterize(mu_c, logvar_c)
         x, c = self.decode(z, c)
         return x, c, mu, mu_c, logvar, logvar_c, self.a, cluster_loss
+
+    def forward(self, batch):
+        # x = torch.cat((x, c), dim=1)
+        x = batch[0:1, :]
+        c = batch[1:, :]
+        x_target = x
+        c_target = c
+        mu, mu_c, logvar, logvar_c, cluster_loss = self.encode(x, c)
+        z = self.reparameterize(mu, logvar)
+        c = self.reparameterize(mu_c, logvar_c)
+        x, c = self.decode(z, c)
+        loss1, loss2 = self.psnr_loss(x_target, c_target, x, c)
+        return loss1, loss2
 
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
@@ -133,7 +152,7 @@ class Vae_Model(pl.LightningModule):
         x = batch[0]
         c = batch[1]
         # label = batch[2]
-        x_recon, c_recon, mu, mu_c, logvar, logvar_c, a, cluster_loss = self(x, c)
+        x_recon, c_recon, mu, mu_c, logvar, logvar_c, a, cluster_loss = self._forward(x, c)
         loss1, loss2, loss3 = self.loss_function(x_recon, c_recon, x, c, mu, mu_c, logvar, logvar_c)
         loss = abs(a) * loss1 + abs(1 - a) * loss2 + loss3 + cluster_loss
         self.log('loss1', loss1, on_step=True, on_epoch=True, prog_bar=True)
@@ -145,7 +164,7 @@ class Vae_Model(pl.LightningModule):
         x = batch[0]
         c = batch[1]
         # label = batch[2]
-        x_recon, c_recon, mu, mu_c, logvar, logvar_c, a, cluster_loss = self(x, c)
+        x_recon, c_recon, mu, mu_c, logvar, logvar_c, a, cluster_loss = self._forward(x, c)
         loss1, loss2, loss3 = self.loss_function(x_recon, c_recon, x, c, mu, mu_c, logvar, logvar_c)
         loss = abs(a) * loss1 + abs(1 - a) * loss2 + loss3 + cluster_loss
         self.log('val_loss', loss, on_step=True, on_epoch=True, prog_bar=True)

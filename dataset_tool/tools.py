@@ -338,6 +338,7 @@ class Signal_dataset(Dataset):
         else:
             npy_path = self.sample[index]
             data = np.load(npy_path)
+            data = (data[0], data[1], data[2])
 
         return data
 

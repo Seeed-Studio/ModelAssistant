@@ -99,8 +99,9 @@ def read_from_tensor(pipe, model, loss):
             # data_tensor_res = torch.tensor(data_res).unsqueeze(0)
             data_tensor = torch.tensor(data).unsqueeze(0)
             c = torch.tensor(c).unsqueeze(0)
-            x_recon, c_recon, mu, mu_c, logvar, logvar_c, a, cluster_loss = model(data_tensor, c)
-            loss1, loss2, loss3 = model.loss_function(x_recon, c_recon, data_tensor, c, mu, mu_c, logvar, logvar_c)
+            loss1, loss2 = model(data_tensor, c)
+            # x_recon, c_recon, mu, mu_c, logvar, logvar_c, a, cluster_loss = model(data_tensor, c)
+            # loss1, loss2, loss3 = model.loss_function(x_recon, c_recon, data_tensor, c, mu, mu_c, logvar, logvar_c)
             # loss = loss1 / 20 + loss2 + loss3 + cluster_loss
             # loss1 = loss(data_recon[:, 0:3, :, :], label[:, 0:3, :, :]).item()
             # loss2 = loss(data_recon[:, 0:6, :, :], label[:, 0:6, :, :]).item()
@@ -117,9 +118,9 @@ def read_from_tensor(pipe, model, loss):
             # plt.ioff()  # 关闭画图窗口
             score1 = psnr(loss1.item())
             score2 = psnr(loss2.item())
-            print(score1)
-            print(score2)
-            if score1 < 10 or score2 < 21.5:
+            # print(score1)
+            # print(score2)
+            if score1 < 10 or score2 < 22.0:  # 这里设置异常阈值，这里做一个参考
                 print(score1)
                 print(score2)
                 print("出现异常，尽快处理")

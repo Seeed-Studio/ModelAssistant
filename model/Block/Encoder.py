@@ -173,9 +173,9 @@ class Vae_Encode(nn.Module):
 
         mu = self.relu(self.fc2_mu(x))
         logvar = self.relu(self.fc2_logvar(x))
-        mu_distance, mu_assign, x = self.cluster(mu)
+        mu_distance, mu_assign, mu = self.cluster(mu)
         cluster_loss = torch.norm(mu_distance * mu_assign, p=2) / 1000
-        log_distance, log_assign, x = self.cluster(logvar)
+        log_distance, log_assign, logvar = self.cluster2(logvar)
         cluster_loss2 = torch.norm(log_distance * log_assign, p=2) / 1000
 
         mu_c = self.relu(self.fc2_mu(c))
