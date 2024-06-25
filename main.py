@@ -9,6 +9,8 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from dataset_tool.tools import Signal_dataset, Microphone_dataset
 from model import models
+import misc
+import numpy as np
 
 
 # Define a simple dataset (example using MNIST)
@@ -29,9 +31,9 @@ def main():
     in_channel = 3
     out_channel = 8
     dataset_tag = "Dynamic_Train"
-    dataset_tag = "Train"
+    # dataset_tag = "Train"
 
-    data_len = 60  # 指定动态读取数据时的总长度
+    data_len = 100  # 指定动态读取数据时的总长度
     model_tag = "Conv_block2D"
     epochs = 300
     train_batch_size = 12
@@ -44,11 +46,14 @@ def main():
     train_size = int(0.8 * len(dataset))
     val_size = len(dataset) - train_size
     train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
-    train_loader = DataLoader(train_dataset, batch_size=train_batch_size, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=train_batch_size, shuffle=False)
     val_loader = DataLoader(val_dataset, batch_size=val_batch_size)
     # Model, callbacks, and trainer
     # model = Conv_Lstm.SimpleModel(in_channel=in_channel, out_channel=out_channel, tag=model_tag)
-    model = models.Vae_Model(in_channel=in_channel, out_channel=out_channel, tag=model_tag)
+
+    rand_freeze = torch.tensor(np.load("seed.npy"))
+    # rand_freeze = None
+    model = models.Vae_Model(in_channel=in_channel, out_channel=out_channel, tag=model_tag, freeze_randn=rand_freeze)
     checkpoint_callback = ModelCheckpoint(
         monitor='val_loss',  # 根据训练损失保存模型s
         dirpath='checkpoints/',

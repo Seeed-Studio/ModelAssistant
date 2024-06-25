@@ -45,10 +45,7 @@ def cdist(x1, x2):
     返回:
     dists: Tensor of shape (m, n)
     """
-    # 检查输入张量的形状
-    assert x1.shape[1] == x2.shape[1], "The number of dimensions must be the same for both inputs"
-
-    # 计算平方和
+    # 计算平方和s
     x1_square_sum = (x1 * x1).sum(dim=1, keepdim=True)
     x2_square_sum = (x2 * x2).sum(dim=1, keepdim=True)
 
@@ -58,11 +55,31 @@ def cdist(x1, x2):
     return dists
 
 
-def torch_min_by_index(x, index):
-    index = index.view(-1)
-    x_min = [x[i, index[i]] for i in range(len(x))]
-    x_min = torch.tensor(x_min).unsqueeze(0).unsqueeze(-1)
-    return x_min
+# def torch_min_by_index(x, index):
+#     # index_l=[]
+#     # for i in range(len(index)):
+#     #     index_l.append(index[i, 0])
+#     # x_temp = []
+#     # for i in range(len(x)):
+#     #     x_temp.append(x[i, index_l[i]])
+#     # x_min = torch.stack(x_temp).clone()
+
+#     return x_min
+
+
+def custom_min(input_tensor, index, keepdim=False):
+
+    # 初始化最小值和最小值索引
+    min_values = []
+
+    # 逐元素查找最小值和索引
+    for i in range(input_tensor.shape[0]):
+        # kk = input_tensor[i, index[i, 0]]
+        min_values.append(input_tensor[i, index[i, 0].item()])
+
+    min_values = torch.stack(min_values)
+
+    return min_values, index
 
 
 def cluster_alpha(max_n=40):
@@ -104,11 +121,15 @@ class NegSoftAssign(nn.Module):
         if alpha is not None:
             self.alpha = alpha
 
-        x_min_index = torch.argmin(x, self.dims, keepdim=True)
-        x_min = torch_min_by_index(x, x_min_index)
-        exp_x = torch.exp((-self.alpha) * (x - x_min))  # 这是一个类似于紧缩的方法
-        soft_x = exp_x / (exp_x.sum(self.dims, keepdim=True))
+        x_mean = x.mean(dim=self.dims, keepdim=True)
+        x_norm = x / x_mean
+        # x_min_index = torch.argmin(x, self.dims, keepdim=True)
+        # # x_min = torch_min_by_index(x, x_min_index)
 
+        # x_min, _ = custom_min(x, x_min_index, keepdim=True)
+        # x_std = x - x_min
+        exp_x = torch.exp(-self.alpha * x_norm)  # 这是一个类似于紧缩的方法
+        soft_x = exp_x / (exp_x.sum(self.dims, keepdim=True))
         return soft_x
 
 
@@ -140,7 +161,7 @@ class EuclidDistance_Assign_Module(nn.Module):
         #   传入x尺寸为B*D*H*W*C
         x_temp = x.clone()
         x = self.norm(x_temp)
-        soft_assign = cdist(x, self.cluster_center)
+        soft_assign = cdist(x.contiguous(), self.cluster_center)
         x_distance = soft_assign
         x_distance_assign = self.assign_func(x_distance, alpha)
         kk = self.cluster_center.clone()

@@ -103,9 +103,13 @@ class Double_stream_Model(pl.LightningModule):
 
 class Vae_Model(pl.LightningModule):
 
-    def __init__(self, in_channel, out_channel, tag):
+    def __init__(self, in_channel, out_channel, tag, freeze_randn=None):
         super().__init__()
         self.a = nn.Parameter(torch.tensor(0.5))
+        self.freeze_randn = freeze_randn
+        if freeze_randn is not None:
+            self.freeze_randn = nn.Parameter(self.freeze_randn, requires_grad=False)
+            self.register_parameter('freeze_randn', self.freeze_randn)
         self.loss = nn.MSELoss()
         self.encode = Vae_Encode(x_size=32, in_channel=in_channel, out_channel=out_channel, tag=tag)
         self.decode = Vae_Decode(x_size=32, out_channel=out_channel, in_channel=in_channel, tag=tag)
@@ -123,7 +127,10 @@ class Vae_Model(pl.LightningModule):
         return BCE1, BCE2, KLD + KLD2
 
     def _forward(self, x, c):
-        mu, mu_c, logvar, logvar_c, cluster_loss = self.encode(x, c)
+        mu, mu_c, logvar, logvar_c, cluster_mu, cluster_log = self.encode(x, c)
+        cluster_loss1 = torch.norm(cluster_mu, p=2) / 1000
+        cluster_loss2 = torch.norm(cluster_log, p=2) / 1000
+        cluster_loss = cluster_loss1 + cluster_loss2
         z = self.reparameterize(mu, logvar)
         c = self.reparameterize(mu_c, logvar_c)
         x, c = self.decode(z, c)
@@ -131,20 +138,23 @@ class Vae_Model(pl.LightningModule):
 
     def forward(self, batch):
         # x = torch.cat((x, c), dim=1)
-        x = batch[0:1, :]
-        c = batch[1:, :]
-        x_target = x
-        c_target = c
-        mu, mu_c, logvar, logvar_c, cluster_loss = self.encode(x, c)
+        x = batch[0:1, :].clone()
+        c = batch[1:, :].clone()
+        # x_target = x
+        # c_target = c
+        mu, mu_c, logvar, logvar_c, _, _ = self.encode(x, c)
         z = self.reparameterize(mu, logvar)
         c = self.reparameterize(mu_c, logvar_c)
         x, c = self.decode(z, c)
-        loss1, loss2 = self.psnr_loss(x_target, c_target, x, c)
-        return loss1, loss2
+        # loss1, loss2 = self.psnr_loss(x_target, c_target, x, c)
+        return x, c
 
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
-        eps = torch.randn_like(std)
+        if self.freeze_randn is None:
+            eps = torch.randn_like(std)
+        else:
+            eps = self.freeze_randn
         return mu + eps * std
 
     def training_step(self, batch, batch_idx):
@@ -168,6 +178,7 @@ class Vae_Model(pl.LightningModule):
         loss1, loss2, loss3 = self.loss_function(x_recon, c_recon, x, c, mu, mu_c, logvar, logvar_c)
         loss = abs(a) * loss1 + abs(1 - a) * loss2 + loss3 + cluster_loss
         self.log('val_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
+        self.log('3_loss', loss3, on_step=True, on_epoch=True, prog_bar=True)
         return loss
 
     def predict_step(self, batch, batch_idx):

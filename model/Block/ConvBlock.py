@@ -127,8 +127,8 @@ class Conv_block2D(nn.Module):
             pad = dilation
             layer = nn.Sequential(
                 nn.Conv2d(in_channels=channel_list[i], out_channels=out_channel, kernel_size=3, stride=1, padding=pad, dilation=dilation),
-                nn.ReLU(),
                 nn.BatchNorm2d(out_channel),
+                nn.ReLU(),
             )
             self.conv_block.append(layer)
         if is_attn:
