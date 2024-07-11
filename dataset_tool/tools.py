@@ -1,4 +1,7 @@
+import math
 from typing import Any
+import pywt
+import scipy
 from torch.utils.data import Dataset
 # from einops import rearrange
 import numpy as np
@@ -13,30 +16,43 @@ import random
 import time
 from scipy.signal import stft
 from scipy.signal import firwin, lfilter
+import cv2
+from matplotlib import pyplot as plt
 
-sample_rate = 8192
+sample_rate = 4096
 
 
-def sample_entropy(U, m, r):
-    """
-    计算样本熵 (SampEn)
-    
-    参数：
-    U: 输入时间序列
-    m: 嵌入维数
-    r: 公差（tolerance），通常取时间序列标准差的0.2倍
-    
-    返回：
-    SampEn值
-    """
-    N = len(U)
+def haar_wavelet_transform(signal):
+    n = len(signal)
+    output = np.zeros_like(signal)
+    while n > 1:
+        n //= 2
+        output[:n] = (signal[::2] + signal[1::2]) / np.sqrt(2)
+        output[n:2 * n] = (signal[::2] - signal[1::2]) / np.sqrt(2)
+        signal = output[:2 * n]
+    return output
 
-    def _phi(m):
-        X = np.array([U[i:i + m] for i in range(N - m + 1)])
-        C = np.sum(np.max(np.abs(X[:, None] - X[None, :]), axis=2) <= r, axis=0) / (N - m + 1)
-        return np.sum(C - 1) / (N - m)
 
-    return -np.log(_phi(m + 1) / _phi(m))
+def inverse_haar_wavelet_transform(coeffs):
+    n = 1
+    output = np.zeros_like(coeffs)
+    output[:n] = coeffs[:n]
+    while n * 2 <= len(coeffs):
+        n *= 2
+        temp = output[:n].copy()
+        output[0:n:2] = (temp[:n // 2] + coeffs[n // 2:n]) / np.sqrt(2)
+        output[1:n:2] = (temp[:n // 2] - coeffs[n // 2:n]) / np.sqrt(2)
+    return output
+
+
+def generate_spectrogram(signal, scales, wavelet_transform):
+    n = len(signal)
+    spectrogram = np.zeros((len(scales), n))
+    for i, scale in enumerate(scales):
+        scaled_signal = signal[::scale]
+        transformed_signal = wavelet_transform(scaled_signal)
+        spectrogram[i, :len(transformed_signal)] = np.abs(transformed_signal)
+    return spectrogram
 
 
 def calculate_rms(signal):
@@ -61,15 +77,24 @@ def preprocess(data):
     return data
 
 
+def CWT(signal, scales=np.arange(1, 32), wavelet='cgau8'):
+    coefficients, frequencies = pywt.cwt(signal, scales, wavelet)
+    # Zxx = np.abs(coefficients)
+    # min_val = np.min(Zxx)
+    # max_val = np.max(Zxx)
+    # Zxx = (Zxx - min_val) / (max_val - min_val)
+    return coefficients
+
+
 def long_time_fourier_transform(signal, fs, nperseg=32, noverlap=None, nfft=128):
 
     # nperseg = 256  # 每段的长度
     # nfft = 2048
     f, t, Zxx = stft(signal, fs, nperseg=nperseg, noverlap=noverlap, nfft=nfft)
     Zxx = np.real(Zxx)
-    min_val = np.min(Zxx)
-    max_val = np.max(Zxx)
-    Zxx = (Zxx - min_val) / (max_val - min_val)
+    # min_val = np.min(Zxx)
+    # max_val = np.max(Zxx)
+    # Zxx = (Zxx - min_val) / (max_val - min_val)
     # Zxx = min_max_scale(Zxx[:-1, :-1]).astype('float32')
     return Zxx[:-1, :-1]
 
@@ -145,6 +170,11 @@ def min_max_scale(X, max_val=1, min_val=0):
     return X_scaled
 
 
+def mean_std_scale(x, mean, std):
+    x = ((x - mean) / (std + 1e-5)) / 100
+    return x
+
+
 def generate_gaf(X, gaf_type='summation'):
     X_scaled = min_max_scale(X)  # 将时间序列数据缩放到 [0, 1]
     phi = np.arccos(X_scaled)  # 计算角度
@@ -182,36 +212,54 @@ def frequency_masking(mel_spectrogram, freq_mask_param=10):
     return augmented_mel_spectrogram
 
 
-def sample_c_process(raw_sample):
+def sample_c_process(
+    raw_sample,
+    mean=None,
+    std=None,
+):
     data = raw_sample
     data = np.reshape(np.array(data).astype('float32'), (-1, 3))
     data = preprocess(data)
-    gadf = []
+    x = []
     c = []
     for i in range(3):
         data_temp = data[:, i]
         nyquist_rate = 6667 / 2.0
-        cutoff_freq = 2.0  # 截止频率
+        cutoff_freq = 160.0  # 截止频率
         numtaps = 200  # 滤波器系数数量，越大则滤波器越陡峭
         fir_coeff = firwin(numtaps, cutoff_freq / nyquist_rate)
         data_temp = lfilter(fir_coeff, 1.0, data_temp)
-        data_c = paa(data_temp, 1024)
-        data_temp = paa(data_temp, 32)
-        gadf_i = markov_transition_field(data_temp)
-        c_i = long_time_fourier_transform(data_c, fs=6667, nperseg=64, nfft=64)
-        gadf.append(gadf_i)
+        # data_c = paa(data_temp, 1024)
+        data_temp_m = paa(data_temp, 32)
+        c_i = markov_transition_field(data_temp_m)
+        # x_i = long_time_fourier_transform(data_c, fs=6667, nperseg=64, nfft=64)
+        x_i = CWT(data_temp, np.arange(9, 41), wavelet='morl')
+        x_i = cv2.resize(x_i, (32, 32), interpolation=cv2.INTER_LINEAR)
+        x.append(x_i)
         c.append(c_i)
 
     c = np.array(c)
-    gadf = np.array(gadf)
-    label = gadf
+    x = np.array(x)
+    if mean is not None:
+        x = mean_std_scale(x, mean, std)
+    label = x
 
-    return gadf.astype('float32'), c.astype('float32'), label.astype('float32')
+    return x.astype('float32'), c.astype('float32'), label.astype('float32')
+
+
+def sample_mico_process(x, mel_transform, db_transform):
+    x = np.reshape(np.array(x).astype('float32'), (-1, ))
+    x = torch.tensor(x) / 1024
+    mel_spectrogram = mel_transform(x)
+    mel_spectrogram_db = db_transform(mel_spectrogram) / 100
+    mel_spectrogram_db = mel_spectrogram_db[:, :-1]
+    x = mel_spectrogram_db.unsqueeze(0)
+    return x, x, x
 
 
 class Signal_dataset(Dataset):
 
-    def __init__(self, data_root, tag, data_len=200, transform=None):
+    def __init__(self, data_root, tag, data_len=100, transform=None):
         self.data_root = data_root
         self.tag = tag
         if tag == "Dynamic_Train":
@@ -224,81 +272,29 @@ class Signal_dataset(Dataset):
                 print("打开串口失败。")
 
         self.raw_sample = self.get_all_sample()
-        # self.sample = self.sample_process()
-        # self.sample = self.sample_diff_process()
         self.sample = self.sample_c_process()
-
-    def sample_process(self):
-        if self.tag == "Dynamic_Train":
-            sample = []
-            for index, data in enumerate(self.raw_sample):
-                data = self.raw_sample[index]
-                data = np.reshape(np.array(data).astype('float32'), (-1, 3))
-                data = preprocess(data)
-                temp = []
-                for i in range(3):
-                    data_temp = data[:, i]
-                    nyquist_rate = 6667 / 2.0
-                    cutoff_freq = 1.0  # 截止频率
-                    numtaps = 100  # 滤波器系数数量，越大则滤波器越陡峭
-                    fir_coeff = firwin(numtaps, cutoff_freq / nyquist_rate)
-                    data_temp = lfilter(fir_coeff, 1.0, data_temp)
-                    data_temp = paa(data_temp, 1024)
-                    # gadf_i = generate_gaf(data_temp, gaf_type='summation')
-                    # gadf_i = markov_transition_field(data_temp)
-                    gadf_i = long_time_fourier_transform(data_temp, fs=6667)
-                    # temp.append(gadf_i)
-                    temp.append(gadf_i)
-                gadf = np.array(temp).astype('float32')
-                sample.append(gadf)
-            return sample
-        else:
-            return self.raw_sample
-
-    def sample_diff_process(self):
-        if self.tag == "Dynamic_Train":
-            sample = []
-            data_res = np.zeros((3, 64, 64))
-            for index, data in enumerate(self.raw_sample):
-                data = self.raw_sample[index]
-                data = np.reshape(np.array(data).astype('float32'), (-1, 3))
-                data = preprocess(data)
-                temp = []
-                Signal_Description = []
-                for i in range(3):
-                    data_temp = data[:, i]
-                    nyquist_rate = 6667 / 2.0
-                    cutoff_freq = 1.0  # 截止频率
-                    numtaps = 200  # 滤波器系数数量，越大则滤波器越陡峭
-                    fir_coeff = firwin(numtaps, cutoff_freq / nyquist_rate)
-                    data_temp = lfilter(fir_coeff, 1.0, data_temp)
-                    data_temp = paa(data_temp, 64)
-                    Signal_Description.append(calculate_rms(data_temp) / 1024)
-                    # gadf_i = generate_gaf(data_temp, gaf_type='difference')
-                    gadf_i = markov_transition_field(data_temp)
-                    # gadf_i = long_time_fourier_transform(data_temp, fs=6667)
-                    # temp.append(gadf_i)
-                    temp.append(gadf_i)
-                gadf = np.array(temp)
-                label = np.array(temp)
-                Signal_Description = np.array(Signal_Description)
-                gadf = gadf + np.random.randn(3, 64, 64) * 0
-                # gadf[:, 0:15, :] = 0
-                # gadf = gadf[:, 32:96, 32:96]
-                # gadf_diff = (gadf - data_res) / 2
-                # data_res_return = data_res.copy()
-                sample.append((data_res.astype('float32'), gadf.astype('float32'), label.astype('float32'), Signal_Description.astype('float32')))
-                data_res = gadf
-            return sample
-        else:
-            return self.raw_sample
 
     def sample_c_process(self):
         if self.tag == "Dynamic_Train":
             sample = []
+            std_record = []
+            mean_record = []
             for index, data in enumerate(self.raw_sample):
                 gadf, c, label = sample_c_process(data)
-                sample.append((gadf, c, label))
+                mean_record.append([np.mean(gadf[0]), np.mean(gadf[1]), np.mean(gadf[2])])
+                std_record.append([np.std(gadf[0]), np.std(gadf[1]), np.std(gadf[2])])
+                sample.append([gadf, c, label])
+
+            mean_record = np.array(mean_record)
+            std_record = np.array(std_record)
+            data_mean = np.sum(mean_record, axis=0, keepdims=True) / self.data_len
+            data_mean = np.transpose(np.expand_dims(data_mean, axis=0), (2, 1, 0))
+            data_std = np.sum(std_record, axis=0, keepdims=True) / self.data_len
+            data_std = np.transpose(np.expand_dims(data_std, axis=0), (2, 1, 0))
+            for index, data in enumerate(sample):
+                sample[index][0] = ((data[0] - data_mean) / (data_std + 1e-5)) / 100
+            np.save('x_data_mean', data_mean)
+            np.save('x_data_std', data_std)
             return sample
         else:
             return self.raw_sample
@@ -348,11 +344,12 @@ class Signal_dataset(Dataset):
 
 class Microphone_dataset(Dataset):
 
-    def __init__(self, data_root, tag, sample_rate=16000, n_mels=32, data_len=10, transform=None):
+    def __init__(self, data_root, tag, sample_rate=96000, n_mels=16, data_len=10, transform=None):
         self.data_root = data_root
         self.tag = tag
         self.sample_rate = sample_rate
-        self.mel_transform = MelSpectrogram(sample_rate, n_fft=256, n_mels=n_mels)
+        self.mel_transform = MelSpectrogram(sample_rate, n_fft=32, n_mels=n_mels)
+
         self.db_transform = AmplitudeToDB()
         if tag == "Dynamic_Train":
             self.data_len = data_len
@@ -363,6 +360,7 @@ class Microphone_dataset(Dataset):
             else:
                 print("打开串口失败。")
         self.sample = self.get_all_sample()
+        self.sample = self.sample_process()
 
     def get_all_sample(self):
         if self.tag == "Dynamic_Train":
@@ -385,19 +383,21 @@ class Microphone_dataset(Dataset):
             sample = glob.glob(os.path.join(self.data_root, self.tag, "*.npy"), recursive=True)
         return sample
 
+    def sample_process(self):
+        sample = []
+        for data in self.sample:
+            data = data.astype(np.float32) / 1024
+            data = torch.tensor(data)
+            data = self.augment_waveform(data)
+            data, c, label = sample_mico_process(data, self.mel_transform, self.db_transform)
+            sample.append([data, c, label])
+
+        return sample
+
     def __getitem__(self, index: Any) -> Any:
         # 适用于音频数据的代码还未写，具体实现方法参考信号
         if self.tag == "Dynamic_Train":
             data = self.sample[index]
-            data = data
-            data = data.astype(np.float32)
-            data = torch.tensor(data)
-            data = data
-            data = self.augment_waveform(data)
-            mel_spectrogram = self.mel_transform(data)
-            mel_spectrogram_db = self.db_transform(mel_spectrogram) / 100
-            mel_spectrogram_db = mel_spectrogram_db[:, :-1]
-            data = mel_spectrogram_db.unsqueeze(0)
         else:
             npy_path = self.sample[index]
             data = np.load(npy_path)
@@ -406,9 +406,6 @@ class Microphone_dataset(Dataset):
 
     def augment_waveform(self, waveform):
         waveform = add_noise(waveform)
-        # waveform = time_shift(waveform)
-        # waveform = time_stretch(waveform, self.sample_rate)
-        # waveform = pitch_shift(waveform, self.sample_rate, n_steps=2)
         return waveform
 
     def __len__(self):

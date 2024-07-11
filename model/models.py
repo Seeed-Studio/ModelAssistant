@@ -3,102 +3,11 @@ import torch
 from torch import nn
 import torch.optim as optim
 from einops import rearrange
-from model.Block.Encoder import Encode, Vae_Encode
-from model.Block.Decoder import Decode, Vae_Decode
+from model.Block.Encoder import Vae_Encode
+from model.Block.Decoder import Vae_Decode
+from torch.optim.lr_scheduler import CosineAnnealingLR
 import torch.nn.functional as F
 from misc import tools
-
-
-# Define the LightningModule
-class SimpleModel(pl.LightningModule):
-
-    def __init__(self, in_channel, out_channel, tag):
-        super(SimpleModel, self).__init__()
-        self.encode = Encode(in_channel=in_channel, out_channel=out_channel, tag=tag)
-        self.decode = Decode(out_channel=out_channel, in_channel=in_channel, tag=tag)
-        self.loss_function = nn.MSELoss()
-
-    def forward(self, x):
-        x = self.encode(x)
-        x = self.decode(x)
-        return x
-
-    def training_step(self, batch, batch_idx):
-        # x = batch[:, :, :, :-1]
-        x = batch
-        x_recon = self(x)
-        # loss = F.l1_loss(x[:, :, :3], x_recon)
-        loss = self.loss_function(x, x_recon)
-        self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
-        return loss
-
-    def validation_step(self, batch, batch_idx):
-        # x = batch[:, :, :, :-1]
-        x = batch
-        x_recon = self(x)
-        val_loss = self.loss_function(x, x_recon)
-        self.log('val_loss', val_loss, on_step=True, on_epoch=True, prog_bar=True)
-
-    def predict_step(self, batch, batch_idx):
-        x = batch
-        x_recon = self(x)
-        loss = self.loss_function(x, x_recon)
-        return loss
-
-    def configure_optimizers(self):
-        optimizer = optim.Adam(self.parameters(), lr=1e-3)
-        return optimizer
-
-
-class Double_stream_Model(pl.LightningModule):
-
-    def __init__(self, in_channel, out_channel, tag):
-        super().__init__()
-        self.encode = Encode(in_channel=in_channel, out_channel=out_channel, tag=tag)
-        self.decode = Decode(out_channel=out_channel, in_channel=in_channel, tag=tag)
-        self.loss_function = nn.MSELoss()
-
-    def forward(self, x_diff, x, signal_description):
-        x, cluster_loss, ker_loss = self.encode(x_diff, x, signal_description)
-        x = self.decode(x)
-        return x, cluster_loss, ker_loss
-
-    def training_step(self, batch, batch_idx):
-        # x = batch[:, :, :, :-1]
-        x_diff = batch[0]
-        x = batch[1]
-        label = batch[2]
-        signal_description = batch[3]
-        x_recon, cluster_loss, sim_loss = self(x_diff, x, signal_description)
-        # loss = F.l1_loss(x[:, :, :3], x_recon)
-        main_loss = self.loss_function(label, x_recon)
-        loss = main_loss + cluster_loss + sim_loss
-        self.log('t_loss', main_loss, on_step=True, on_epoch=True, prog_bar=True)
-        self.log('tc_loss', sim_loss, on_step=True, on_epoch=True, prog_bar=True)
-
-        return loss
-
-    def validation_step(self, batch, batch_idx):
-        # x = batch[:, :, :, :-1]
-        x_diff = batch[0]
-        x = batch[1]
-        label = batch[2]
-        signal_description = batch[3]
-        x_recon, cluster_loss, sim_loss = self(x_diff, x, signal_description)
-        main_loss = self.loss_function(label, x_recon) + sim_loss
-        # val_loss = main_loss + cluster_loss
-        self.log('val_loss', main_loss, on_step=True, on_epoch=True, prog_bar=True)
-        # self.log('vc_loss', cluster_loss, on_step=True, on_epoch=True, prog_bar=True)
-
-    def predict_step(self, batch, batch_idx):
-        x = batch
-        x_recon = self(x)
-        loss = self.loss_function(x, x_recon)
-        return loss
-
-    def configure_optimizers(self):
-        optimizer = optim.Adam(self.parameters(), lr=1e-3, weight_decay=1e-5)
-        return optimizer
 
 
 class Vae_Model(pl.LightningModule):
@@ -140,13 +49,10 @@ class Vae_Model(pl.LightningModule):
         # x = torch.cat((x, c), dim=1)
         x = batch[0:1, :].clone()
         c = batch[1:, :].clone()
-        # x_target = x
-        # c_target = c
         mu, mu_c, logvar, logvar_c, _, _ = self.encode(x, c)
         z = self.reparameterize(mu, logvar)
         c = self.reparameterize(mu_c, logvar_c)
         x, c = self.decode(z, c)
-        # loss1, loss2 = self.psnr_loss(x_target, c_target, x, c)
         return x, c
 
     def reparameterize(self, mu, logvar):
@@ -189,4 +95,5 @@ class Vae_Model(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = optim.Adam(self.parameters(), lr=1e-3, weight_decay=1e-5)
-        return optimizer
+        scheduler = CosineAnnealingLR(optimizer, T_max=100, eta_min=1e-6)
+        return [optimizer], [scheduler]

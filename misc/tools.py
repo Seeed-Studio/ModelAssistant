@@ -24,7 +24,7 @@ class CustomMSELoss(nn.Module):
 
 def psnr(x, label):
     # 接受x为张量输入
-    loss = CustomMSELoss(reduction='mean')
+    loss = CustomMSELoss(reduction='sum')
     psnr = 20 * torch.log10(1 / torch.sqrt(loss(x, label)))
     # psnr = loss(x, label)
     return psnr

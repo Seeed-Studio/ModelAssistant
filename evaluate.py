@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 from torch.multiprocessing import Process, Pipe
 from dataset_tool.tools import Signal_dataset
+from misc import tools
 from model import models
 from matplotlib import pyplot as plt
 import dataset_tool.tools as dt
@@ -37,9 +38,8 @@ def Sound_process(data, mel_transform, db_transform):
     return mel_spectrogram_db.unsqueeze(0).numpy()
 
 
-def write_Sound_to_tensor(produce, consume):
-    mel_transform = MelSpectrogram(16000, n_fft=256, n_mels=32)
-    db_transform = AmplitudeToDB()
+def write_Sound_to_tensor(pipe):
+    produce, consume = pipe
     consume.close()
     ser = serial.Serial('COM5', 115200)
     if ser.isOpen():  # 判断串口是否成功打开
@@ -48,18 +48,15 @@ def write_Sound_to_tensor(produce, consume):
     else:
         print("打开串口失败。")
     while True:
-        ser.reset_input_buffer()
-        ser.reset_output_buffer()
+        ser.flushInput()
         for index, i in enumerate(ser):
             if index == 0:
                 continue
             data = i.decode().strip('\r\n').split(' ')[:-1]
-            if len(data) != 4096:
+            if len(data) != 1024:
                 continue
-
-            data = Sound_process(data, mel_transform, db_transform)
-
             produce.send(data)  # 将写入的信息放入管道
+            ser.flushInput()
 
 
 def write_Signal_to_tensor(pipe):
@@ -73,71 +70,88 @@ def write_Signal_to_tensor(pipe):
         print("打开串口失败。")
     while True:
         data = []
+        # a = time.time()
         for index, i in enumerate(ser):
+            # b = time.time()
+            # print(b - a)
             if (index + 1) % dt.sample_rate != 0:
                 temp = i.decode().strip('\r\n').split(' ')
                 data = data + temp
                 continue
             temp = i.decode().strip('\r\n').split(' ')
             data = data + temp
+            # b = time.time()
+            # print(b - a)
+            # a = time.time()
+
             produce.send(data)  # 将写入的信息放入管道
             data = []
+            ser.flushInput()
+            # count = ser.inWaiting()
+            # print(count)
+            # b = time.time()
+            # print(b - a)
+            # a = time.time()
 
 
 def read_from_tensor(pipe, model, loss):
+    # mel_transform = MelSpectrogram(96000, n_fft=32, n_mels=16)
+    # db_transform = AmplitudeToDB()
     produce, consume = pipe
     produce.close()
+    data_mean = np.load('x_data_mean.npy')
+    data_std = np.load('x_data_std.npy')
     # data_res = np.zeros((3, 64, 64))
-    # score_list = []
+    score_list = []
     while True:
-        try:
+        if consume.poll():
             data = consume.recv()  # 从管道中获取写入的信息
-            # print(data[0:3])
-            # data, data_res, label, c = Signal_diff_process(data, data_res)
-            data, c, label = dt.sample_c_process(data)
+            data, c, label = dt.sample_c_process(data, data_mean, data_std)
+            # data, c, label = dt.sample_mico_process(data, mel_transform, db_transform)
             label = torch.tensor(label).unsqueeze(0)
             # data_tensor_res = torch.tensor(data_res).unsqueeze(0)
             data_tensor = torch.tensor(data).unsqueeze(0)
             c = torch.tensor(c).unsqueeze(0)
-            loss1, loss2 = model(data_tensor, c)
-            # x_recon, c_recon, mu, mu_c, logvar, logvar_c, a, cluster_loss = model(data_tensor, c)
-            # loss1, loss2, loss3 = model.loss_function(x_recon, c_recon, data_tensor, c, mu, mu_c, logvar, logvar_c)
-            # loss = loss1 / 20 + loss2 + loss3 + cluster_loss
-            # loss1 = loss(data_recon[:, 0:3, :, :], label[:, 0:3, :, :]).item()
-            # loss2 = loss(data_recon[:, 0:6, :, :], label[:, 0:6, :, :]).item()
-            # data_recon, cluster, ker_loss = model(data_tensor, data_tensor_res, c)
-            # score = loss(data_recon, label).item() + ker_loss.item()
-            # a = a * 100
-            # score = loss1 * a + loss2 * (1 - a)
-            # plt.clf()
-            # plt.plot(score_list, 'r', label='Anomally Score')
-            # plt.title('Anomally Score')
-            # plt.legend()
-            # # plt.show()
-            # plt.pause(0.01)  # 暂停一段时间，不然画的太快会卡住显示不出来
-            # plt.ioff()  # 关闭画图窗口
-            score1 = psnr(loss1.item())
-            score2 = psnr(loss2.item())
-            # print(score1)
-            # print(score2)
-            if score1 < 10 or score2 < 22.0:  # 这里设置异常阈值，这里做一个参考
-                print(score1)
-                print(score2)
-                print("出现异常，尽快处理")
-            else:
-                # print(score.item())
-                print("正常")
-        except EOFError:
-            time.sleep(1)
+            c_label = c
+            input = torch.vstack((data_tensor, c))
+            x, c = model(input)
+            loss1, loss2 = tools.col_psnr(x, data_tensor, c, c_label)
+            score_list.append(loss1.item())
+            plt.clf()
+            plt.plot(score_list, 'r', label='Anomally Score')
+            plt.title('Anomally Score')
+            plt.legend()
+            # plt.show()
+            plt.pause(0.001)  # 暂停一段时间，不然画的太快会卡住显示不出来
+            plt.ioff()  # 关闭画图窗口
+            # score1 = psnr(loss1.item())
+            # score2 = psnr(loss2.item())
+            # print(loss1.item())
+            # print(loss2.item())
+            # if loss1 < 35:  # 这里设置异常阈值，这里做一个参考
+            #     print(loss1)
+            #     print("出现异常，尽快处理")
+            # else:
+            #     # print(score.item())
+            #     print("正常")
+            # if loss1 < 42 or loss2 < 10:  # 这里设置异常阈值，这里做一个参考
+            #     print(loss1.item())
+            #     print(loss2.item())
+            #     print("出现异常，尽快处理")
+            # else:
+            #     # print(score.item())
+            #     print("正常")
 
 
 def Dynamic_evaluate_model(model_path):
-    model = models.Vae_Model.load_from_checkpoint(model_path, in_channel=3, out_channel=8, tag="Conv_block2D")
+    rand_freeze = torch.tensor(np.load("seed.npy"))
+    model = models.Vae_Model.load_from_checkpoint(model_path, in_channel=3, out_channel=8, tag="Conv_block2D", freeze_randn=rand_freeze)
     model.share_memory()
     model.eval()
     loss = nn.MSELoss().share_memory()
     pipe = Pipe()
 
+    # producer_process = Process(target=write_Sound_to_tensor, args=(pipe, ))
     producer_process = Process(target=write_Signal_to_tensor, args=(pipe, ))
     consumer_process = Process(target=read_from_tensor, args=(pipe, model, loss))
 
@@ -149,5 +163,5 @@ def Dynamic_evaluate_model(model_path):
 
 
 if __name__ == '__main__':
-    model_path = "checkpoints/best-checkpoint-v97.ckpt"
+    model_path = "checkpoints/best-checkpoint-v2.ckpt"
     Dynamic_evaluate_model(model_path)

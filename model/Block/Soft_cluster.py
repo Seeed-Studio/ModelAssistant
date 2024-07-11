@@ -16,7 +16,7 @@ class CustomLayerNorm(nn.Module):
     def __init__(self, normalized_shape, eps=1e-5, elementwise_affine=True):
         super().__init__()
         self.normalized_shape = normalized_shape
-        self.eps = eps
+        self.eps = torch.tensor(eps)
         self.elementwise_affine = elementwise_affine
         if self.elementwise_affine:
             self.weight = nn.Parameter(torch.ones(normalized_shape))
