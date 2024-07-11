@@ -7,7 +7,7 @@ The default implementation only does the register process. Users need to rename
 the ``CustomMetric`` to the real name of the metric and implement it.
 """  # noqa: E501
 
-from mmeval import BaseMetric
+from .base_metric import BaseMetric
 
 from sscma.registry import METRICS
 
