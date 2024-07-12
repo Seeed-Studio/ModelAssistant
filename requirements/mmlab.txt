@@ -1,4 +1,4 @@
 # use openmim to install
-mmcv-full<=2.1.0
-mmdet>=3.0.0, <3.1.0 # mmyolo currently does not support mmdet 3.1.0
+mmcv<=2.1.0
+mmdet>=3.0.0, <=3.3.0 # mmyolo currently does not support mmdet 3.1.0
 mmengine>=0.8.2

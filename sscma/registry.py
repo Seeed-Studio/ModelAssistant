@@ -7,6 +7,7 @@ from mmengine.registry import HOOKS as MMENGINE_HOOKS
 from mmengine.registry import LOG_PROCESSORS as MMENGINE_LOG_PROCESSORS
 from mmengine.registry import LOOPS as MMENGINE_LOOPS
 from mmengine.registry import METRICS as MMENGINE_METRICS
+from mmengine.registry import MODEL_WRAPPERS as MMENGINE_MODEL_WRAPPERS
 from mmengine.registry import MODELS as MMENGINE_MODELS
 from mmengine.registry import (
     OPTIM_WRAPPER_CONSTRUCTORS as MMENGINE_OPTIM_WRAPPER_CONSTRUCTORS,
@@ -14,6 +15,7 @@ from mmengine.registry import (
 from mmengine.registry import OPTIM_WRAPPERS as MMENGINE_OPTIM_WRAPPERS
 from mmengine.registry import OPTIMIZERS as MMENGINE_OPTIMIZERS
 from mmengine.registry import PARAM_SCHEDULERS as MMENGINE_PARAM_SCHEDULERS
+from mmengine.registry import RUNNERS as MMENGINE_RUNNERS
 from mmengine.registry import TASK_UTILS as MMENGINE_TASK_UTILS
 from mmengine.registry import TRANSFORMS as MMENGINE_TRANSFORMS
 from mmengine.registry import VISBACKENDS as MMENGINE_VISBACKENDS
@@ -42,6 +44,8 @@ PARAM_SCHEDULERS = Registry('param schedulers', parent=MMENGINE_PARAM_SCHEDULERS
 
 LOOPS = Registry('loop', parent=MMENGINE_LOOPS, locations=['sscma.engine.runner'])
 
+RUNNERS = Registry('runner', parent=MMENGINE_RUNNERS, locations=['sscma.engine.runner'])
+
 MODELS = Registry('model', parent=MMENGINE_MODELS, locations=['sscma.models'])
 
 DATASETS = Registry('dataset', parent=MMENGINE_DATASETS, locations=['sscma.datasets'])
@@ -50,7 +54,7 @@ EVALUATOR = Registry('evaluator', parent=MMENGINE_EVALUATOR, locations=['sscma.e
 
 HOOKS = Registry('hook', parent=MMENGINE_HOOKS, locations=['sscma.engine'])
 
-DATA_SANPLERS = Registry('data_samplers', parent=MMENGINE_DATA_SAMPLERS, locations=['sscma.datasets.pipelines'])
+DATA_SAMPLERS = Registry('data_samplers', parent=MMENGINE_DATA_SAMPLERS, locations=['sscma.engine'])
 
 METRICS = Registry('metrics', parent=MMENGINE_METRICS, locations=['sscma.datasets'])
 
@@ -59,6 +63,8 @@ TRANSFORMS = Registry('transforms', parent=MMENGINE_TRANSFORMS, locations=['sscm
 FUNCTIONS = Registry('functions', parent=MMENGINE_FUNCTIONS, locations=['sscma.datasets'])
 
 TASK_UTILS = Registry('task util', parent=MMENGINE_TASK_UTILS, locations=['sscma.models'])
+
+MODEL_WRAPPERS = Registry('model_wrappers', parent=MMENGINE_MODEL_WRAPPERS, locations=['sscma.engine'])
 
 BATCH_AUGMENTS = Registry(
     'batch augment',

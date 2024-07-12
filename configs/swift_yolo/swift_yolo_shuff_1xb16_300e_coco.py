@@ -163,10 +163,11 @@ train_dataloader = dict(
         filter_cfg=dict(filter_empty_gt=False, min_size=32),
         pipeline=train_pipeline,
     ),
+    async_load=True,
 )
 
 test_pipeline = [
-    dict(type='sscma.LoadImageFromFile', file_client_args=dict(backend='disk')),
+    dict(type='mmengine.LoadImageFromFile', file_client_args=dict(backend='disk')),
     dict(type='sscma.YOLOv5KeepRatioResize', scale=imgsz),
     dict(type='sscma.LetterResize', scale=imgsz, allow_scale_up=False, pad_val=dict(img=114)),
     dict(type='sscma.LoadAnnotations', with_bbox=True, _scope_='mmdet'),
@@ -192,6 +193,7 @@ val_dataloader = dict(
         pipeline=test_pipeline,
         batch_shapes_cfg=batch_shapes_cfg,
     ),
+    async_load=True,
 )
 
 test_dataloader = val_dataloader
