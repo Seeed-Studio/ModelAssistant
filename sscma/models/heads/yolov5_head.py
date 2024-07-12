@@ -520,7 +520,7 @@ class YOLOV5Head(BaseDenseHead):
 
             # no gt bbox matches anchor
             if batch_targets_scaled.shape[0] == 0:
-                loss_box += bbox_preds[i].sum() * 0
+                loss_box += bbox_preds[i].sum() * 0  # why not + 0 directly
                 loss_cls += cls_scores[i].sum() * 0
                 loss_obj += self.loss_obj(objectnesses[i], target_obj) * self.obj_level_weights[i]
                 continue
