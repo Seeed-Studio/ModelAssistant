@@ -29,7 +29,7 @@ model = dict(
     neck=dict(type='sscma.GlobalAveragePooling'),
     head=dict(
         type='sscma.LinearClsHead',
-        in_channels=64,
+        in_channels=32,
         num_classes=num_classes,
         loss=dict(type='sscma.CrossEntropyLoss', loss_weight=1.0),
         topk=(1, 5),

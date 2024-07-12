@@ -9,7 +9,6 @@ from typing import Optional, Sequence
 import mmcv
 import mmengine
 import mmengine.fileio as fileio
-from mmcls.structures import ClsDataSample
 from mmdet.engine.hooks import DetVisualizationHook
 from mmengine.fileio import join_path
 from mmengine.hooks import Hook
