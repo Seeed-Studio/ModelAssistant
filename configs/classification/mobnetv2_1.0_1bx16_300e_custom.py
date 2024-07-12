@@ -58,6 +58,7 @@ train_dataloader = dict(
         data_prefix=train_data,
         pipeline=train_pipeline,
     ),
+    async_load=True,
 )
 
 val_dataloader = dict(
@@ -68,6 +69,7 @@ val_dataloader = dict(
         data_prefix=val_data,
         pipeline=test_pipeline,
     ),
+    async_load=True,
 )
 
 test_dataloader = val_dataloader
