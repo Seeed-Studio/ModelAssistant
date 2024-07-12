@@ -5,7 +5,7 @@ from typing import List, Tuple, Union
 import torch
 from mmdet.utils import ConfigType, OptMultiConfig
 
-from sscma.models.base import ConvModule
+from sscma.models.base import ConvNormActivation
 from sscma.models.layers import CSPLayer, SPPFBottleneck
 from sscma.models.utils import make_divisible, make_round
 from sscma.registry import MODELS
@@ -61,14 +61,14 @@ class YOLOv5CSPDarknet(YOLOBaseBackbone):
         )
 
     def build_stem_layer(self):
-        return ConvModule(
+        return ConvNormActivation(
             self.input_channels,
             make_divisible(self.arch_settings[self.arch][0][0], self.widen_factor),
             kernel_size=6,
             stride=2,
             padding=2,
-            norm_cfg=self.norm_cfg,
-            act_cfg=self.act_cfg,
+            norm_layer=self.norm_cfg,
+            activation_layer=self.act_cfg,
         )
 
     def build_stage_layer(self, stage_idx: int, setting: list) -> list:
@@ -78,8 +78,14 @@ class YOLOv5CSPDarknet(YOLOBaseBackbone):
         out_channels = make_divisible(out_channels, self.widen_factor)
         num_blocks = make_round(num_blocks)
         stage = []
-        conv_layer = ConvModule(
-            in_channels, out_channels, kernel_size=3, stride=2, padding=1, norm_cfg=self.norm_cfg, act_cfg=self.act_cfg
+        conv_layer = ConvNormActivation(
+            in_channels,
+            out_channels,
+            kernel_size=3,
+            stride=2,
+            padding=1,
+            norm_layer=self.norm_cfg,
+            activation_layer=self.act_cfg,
         )
         stage.append(conv_layer)
 

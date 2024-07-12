@@ -15,7 +15,7 @@ from torch.nn.modules.batchnorm import _BatchNorm
 
 from sscma.registry import NECKS
 
-from ..base import ConvModule
+from ..base import ConvNormActivation
 from ..layers import CSPLayer
 from ..utils import make_divisible, make_round
 
@@ -416,12 +416,12 @@ class YOLOv5PAFPN(BaseYOLONeck):
             nn.Module: The reduce layer.
         """
         if idx == len(self.in_channels) - 1:
-            layer = ConvModule(
+            layer = ConvNormActivation(
                 make_divisible(self.in_channels[idx], self.widen_factor),
                 make_divisible(self.in_channels[idx - 1], self.widen_factor),
                 1,
-                norm_cfg=self.norm_cfg,
-                act_cfg=self.act_cfg,
+                norm_layer=self.norm_cfg,
+                activation_layer=self.act_cfg,
             )
         else:
             layer = nn.Identity()
@@ -461,12 +461,12 @@ class YOLOv5PAFPN(BaseYOLONeck):
                     norm_cfg=self.norm_cfg,
                     act_cfg=self.act_cfg,
                 ),
-                ConvModule(
+                ConvNormActivation(
                     make_divisible(self.in_channels[idx - 1], self.widen_factor),
                     make_divisible(self.in_channels[idx - 2], self.widen_factor),
                     kernel_size=1,
-                    norm_cfg=self.norm_cfg,
-                    act_cfg=self.act_cfg,
+                    norm_layer=self.norm_cfg,
+                    activation_layer=self.act_cfg,
                 ),
             )
 
@@ -479,14 +479,14 @@ class YOLOv5PAFPN(BaseYOLONeck):
         Returns:
             nn.Module: The downsample layer.
         """
-        return ConvModule(
+        return ConvNormActivation(
             make_divisible(self.in_channels[idx], self.widen_factor),
             make_divisible(self.in_channels[idx], self.widen_factor),
             kernel_size=3,
             stride=2,
             padding=1,
-            norm_cfg=self.norm_cfg,
-            act_cfg=self.act_cfg,
+            norm_layer=self.norm_cfg,
+            activation_layer=self.act_cfg,
         )
 
     def build_bottom_up_layer(self, idx: int) -> nn.Module:

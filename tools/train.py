@@ -193,12 +193,12 @@ def main():
     args, cfg = build_config(args)
 
     if 'runner_type' not in cfg:
-        from mmengine.runner import Runner
+        from sscma.engine import Runner
 
         runner = Runner.from_cfg(cfg)
         runner.val_evaluator.dataset_meta = runner.val_dataloader.dataset.METAINFO
     else:
-        from mmengine.registry import RUNNERS
+        from sscma.registry import RUNNERS
 
         runner = RUNNERS.build(cfg)
         runner.val_evaluator.dataset_meta = runner.val_dataloader.dataset.METAINFO

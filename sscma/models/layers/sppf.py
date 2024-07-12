@@ -8,7 +8,7 @@ from mmdet.utils import ConfigType, OptMultiConfig
 from mmengine.model import BaseModule
 from torch import Tensor
 
-from ..base import ConvModule
+from ..base import ConvNormActivation
 
 
 class SPPFBottleneck(BaseModule):
@@ -28,8 +28,14 @@ class SPPFBottleneck(BaseModule):
 
         if use_conv_first:
             mid_channels = int(in_channels * mid_channels_scale)
-            self.conv1 = ConvModule(
-                in_channels, mid_channels, 1, stride=1, conv_cfg=conv_cfg, norm_cfg=norm_cfg, act_cfg=act_cfg
+            self.conv1 = ConvNormActivation(
+                in_channels,
+                mid_channels,
+                1,
+                stride=1,
+                conv_layer=conv_cfg,
+                norm_layer=norm_cfg,
+                activation_layer=act_cfg,
             )
         else:
             mid_channels = in_channels
@@ -44,8 +50,8 @@ class SPPFBottleneck(BaseModule):
             )
             conv2_in_channels = mid_channels * (len(kernel_sizes) + 1)
 
-        self.conv2 = ConvModule(
-            conv2_in_channels, out_channels, 1, conv_cfg=conv_cfg, norm_cfg=norm_cfg, act_cfg=act_cfg
+        self.conv2 = ConvNormActivation(
+            conv2_in_channels, out_channels, 1, conv_layer=conv_cfg, norm_layer=norm_cfg, activation_layer=act_cfg
         )
 
     def forward(self, x: Tensor) -> Tensor:
