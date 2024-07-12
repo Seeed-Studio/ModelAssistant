@@ -16,10 +16,10 @@ val_data = 'valid/'  # Prefix of val image path
 
 # dataset link: https://universe.roboflow.com/team-roboflow/coco-128
 data_root = 'https://universe.roboflow.com/ds/z5UOcgxZzD?key=bwx9LQUT0t'
-height = 192
-width = 192
+height = 640
+width = 640
 batch = 16
-workers = 16
+workers = 8
 use_cached = True
 max_cached_images = 4096
 val_batch = batch
@@ -106,9 +106,11 @@ train_pipeline = [
     *pre_transform,
     dict(
         type='sscma.Mosaic',
+        prob=1,
         img_scale=imgsz,
         pad_val=114.0,
         use_cached=use_cached,
+        pre_transform=pre_transform,
         max_cached_images=max_cached_images,
     ),
     dict(
@@ -153,6 +155,7 @@ train_dataloader = dict(
         filter_cfg=dict(filter_empty_gt=False, min_size=32),
         pipeline=train_pipeline,
     ),
+    async_load=True,
 )
 
 test_pipeline = [
@@ -182,6 +185,7 @@ val_dataloader = dict(
         pipeline=test_pipeline,
         batch_shapes_cfg=batch_shapes_cfg,
     ),
+    async_load=False,
 )
 
 test_dataloader = val_dataloader

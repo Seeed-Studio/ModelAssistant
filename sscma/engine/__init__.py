@@ -6,8 +6,8 @@ from .hooks import (
     TextLoggerHook,
     WandbLoggerHook,
 )
-from .runner import GetEpochBasedTrainLoop
 from .optimizers import YOLOv5OptimizerConstructor
+from .runner import GetEpochBasedTrainLoop, Runner
 
 __all__ = [
     'TextLoggerHook',
@@ -19,4 +19,5 @@ __all__ = [
     'Posevisualization',
     'DetFomoVisualizationHook',
     'YOLOv5OptimizerConstructor',
+    'Runner',
 ]

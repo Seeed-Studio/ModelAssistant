@@ -1,35 +1,34 @@
 # Copyright (c) Seeed Technology Co.,Ltd.
 # Copyright (c) OpenMMLab.
-from typing import Union, Tuple, Sequence
-import numpy as np
-from numpy import random
-import cv2
-import warnings
-import torch
-import mmcv
 import math
+import warnings
+from typing import Sequence, Tuple, Union
+
+import cv2
+import mmcv
+import numpy as np
+import torch
 from mmcv.transforms.utils import cache_randomness
-from .basic_transform import BaseTransform, BaseMixImageTransform
 from mmdet.datasets.transforms import LoadAnnotations as MMDET_LoadAnnotations
 from mmdet.datasets.transforms import Resize
-from mmdet.structures.mask import PolygonMasks
 from mmdet.structures.bbox import HorizontalBoxes, autocast_box_type, get_box_type
+from mmdet.structures.mask import PolygonMasks
 from mmengine.dataset import BaseDataset
+from numpy import random
 
 from sscma.registry import TRANSFORMS
 
+from .basic_transform import BaseMixImageTransform, BaseTransform
+
+
 @TRANSFORMS.register_module()
 class YOLOv5KeepRatioResize(Resize):
-    def __init__(self,
-                 scale: Union[int, Tuple[int, int]],
-                 keep_ratio: bool=True,
-                 **kwargs):
+    def __init__(self, scale: Union[int, Tuple[int, int]], keep_ratio: bool = True, **kwargs):
         assert keep_ratio is True
         super().__init__(scale=scale, keep_ratio=True, **kwargs)
-        
+
     @staticmethod
-    def _get_ratio(old_size: Tuple[int, int],
-                   scale: Union[float, Tuple[int, int]]) -> float:
+    def _get_ratio(old_size: Tuple[int, int], scale: Union[float, Tuple[int, int]]) -> float:
         w, h = old_size
         if isinstance(scale, (float, int)):
             ratio = scale
@@ -46,10 +45,9 @@ class YOLOv5KeepRatioResize(Resize):
             original_h, original_w = img.shape[:2]
             ratio = self._get_ratio((original_h, original_w), self.scale)
             if ratio != 1:
-                img = mmcv.imrescale(img=img,
-                                     scale=ratio,
-                                     interpolation='area' if ratio < 1 else 'bilinear',
-                                     backend=self.backend)
+                img = mmcv.imrescale(
+                    img=img, scale=ratio, interpolation='area' if ratio < 1 else 'bilinear', backend=self.backend
+                )
             resized_h, resized_W = img.shape[:2]
             scale_ratio = resized_h / original_h
             scale_factor = (scale_ratio, scale_ratio)
@@ -61,18 +59,21 @@ class YOLOv5KeepRatioResize(Resize):
 
 @TRANSFORMS.register_module()
 class LetterResize(Resize):
-    def __init__(self,
-                 scale: Union[int, Tuple[int, int]],
-                 pad_val: dict = dict(img=0, mask=0, seg=255),
-                 use_mini_pad: bool = False,
-                 stretch_only: bool = False,
-                 allow_scale_up: bool = True,
-                 **kwargs):
+    def __init__(
+        self,
+        scale: Union[int, Tuple[int, int]],
+        pad_val: dict = dict(img=0, mask=0, seg=255),
+        use_mini_pad: bool = False,
+        stretch_only: bool = False,
+        allow_scale_up: bool = True,
+        **kwargs,
+    ):
         super().__init__(scale=scale, keep_ratio=True, **kwargs)
 
-        self.pad_val = pad_val
         if isinstance(pad_val, (int, float)):
             pad_val = dict(img=pad_val, seg=255)
+        assert isinstance(pad_val, dict), f'pad_val must be dict, but got {type(pad_val)}'
+        self.pad_val = pad_val
 
         self.use_mini_pad = use_mini_pad
         self.stretch_only = stretch_only
@@ -81,7 +82,7 @@ class LetterResize(Resize):
     def _resize_img(self, result: dict):
         img = result.get('img', None)
         if img is None:
-            warnings.warn("Get no image in resize process", UserWarning)
+            warnings.warn('Get no image in resize process', UserWarning)
             return
 
         if 'batch_shape' in result:
@@ -97,25 +98,25 @@ class LetterResize(Resize):
 
         ratio = [ratio, ratio]
 
-        prev_pad_shape = (int(round(img.shape[0] * ratio[0])),
-                          int(round(img_shape[1] * ratio[1])))
-        
-        pad_h, pad_w = [scale[0] - prev_pad_shape[0], scale[1]-prev_pad_shape[1]]
-        
+        prev_pad_shape = (int(round(img.shape[0] * ratio[0])), int(round(img_shape[1] * ratio[1])))
+
+        pad_h, pad_w = [scale[0] - prev_pad_shape[0], scale[1] - prev_pad_shape[1]]
+
         if self.use_mini_pad:
             pad_h, pad_w = np.mod(pad_h, 32), np.mod(pad_w, 32)
         elif self.stretch_only:
             pad_h, pad_w = 0.0, 0.0
             prev_pad_shape = (scale[0], scale[1])
-            ratio = [scale[0]/img.shape[0], scale[1]/img.shape[1]]
+            ratio = [scale[0] / img.shape[0], scale[1] / img.shape[1]]
 
-        # mmcv.resize recive size (w, h)
+        # mmcv.resize receive size (w, h)
         if img.shape != prev_pad_shape:
-            img = mmcv.imresize(img, (prev_pad_shape[1], prev_pad_shape[0]),
-                                interpolation=self.interpolation, backend=self.backend)
-        
+            img = mmcv.imresize(
+                img, (prev_pad_shape[1], prev_pad_shape[0]), interpolation=self.interpolation, backend=self.backend
+            )
+
         scale_factor = (ratio[1], ratio[0])  # (w, h)
-        if 'scale_factor' in result: 
+        if 'scale_factor' in result:
             result['scale_factor_origin'] = result['scale_factor']
         result['scale_factor'] = scale_factor
 
@@ -125,33 +126,30 @@ class LetterResize(Resize):
 
         padding_list = [top_padding, bottom_padding, left_padding, right_padding]
 
-        if top_padding != 0 or bottom_padding != 0 or \
-                left_padding != 0 or right_padding != 0:
-
+        if top_padding != 0 or bottom_padding != 0 or left_padding != 0 or right_padding != 0:
             pad_val = self.pad_val.get('img', 0)
             if isinstance(pad_val, int) and img.ndim == 3:
                 pad_val = tuple(pad_val for _ in range(img.shape[2]))
 
             img = mmcv.impad(
                 img=img,
-                padding=(padding_list[2], padding_list[0], padding_list[3],
-                         padding_list[1]),
+                padding=(padding_list[2], padding_list[0], padding_list[3], padding_list[1]),
                 pad_val=pad_val,
-                padding_mode='constant')
+                padding_mode='constant',
+            )
         result['img'] = img
         result['img_shape'] = img.shape
         if 'pad_param' in result:
-            result['pad_param_origin'] = result['pad_param'] * \
-                                          np.repeat(ratio, 2)
+            result['pad_param_origin'] = result['pad_param'] * np.repeat(ratio, 2)
         result['pad_param'] = np.array(padding_list, dtype=np.float32)
 
     def _resize_masks(self, result: dict):
         if result.get('gt_masks', None) is None:
             return
-        
+
         gt_masks = result['gt_masks']
         assert isinstance(gt_masks, PolygonMasks), f'Only supports PolygonMasks, but got {type(gt_masks)}'
-        
+
         gt_mask_h = result['gt_masks'].height * result['scale_factor'][1]
         gt_mask_w = result['gt_masks'].weight * result['scale_factor'][0]
         gt_masks = result['gt_masks'].resize((int(round(gt_mask_h)), int(round(gt_mask_w))))
@@ -159,16 +157,14 @@ class LetterResize(Resize):
         top_padding, _, left_padding, _ = result['pad_param']
         if int(left_padding) != 0:
             gt_masks = gt_masks.translate(
-                out_shape=result['img_shape'][:2],
-                offset=int(left_padding),
-                direction='horizontal')
+                out_shape=result['img_shape'][:2], offset=int(left_padding), direction='horizontal'
+            )
         if int(top_padding) != 0:
             gt_masks = gt_masks.translate(
-                out_shape=result['img_shape'][:2],
-                offset=int(top_padding),
-                direction='vertical')
+                out_shape=result['img_shape'][:2], offset=int(top_padding), direction='vertical'
+            )
         result['gt_masks'] = gt_masks
-    
+
     def _resize_bboxes(self, result: dict) -> None:
         if result.get('gt_bboxes', None) is None:
             return
@@ -179,20 +175,20 @@ class LetterResize(Resize):
         result['gt_bboxes'].translate_((result['pad_param'][2], result['pad_param'][0]))
         if self.clip_object_border:
             result['gt_bboxes'].clip_(result['img_shape'])
-    
+
     def transform(self, result: dict) -> dict:
         result = super().transform(result)
         if 'scale_factor_origin' in result:
             scale_factor_origin = result.pop('scale_factor_origin')
-            result['scale_factor'] = (result['scale_factor'][0] *
-                                       scale_factor_origin[0],
-                                       result['scale_factor'][1] *
-                                       scale_factor_origin[1])
+            result['scale_factor'] = (
+                result['scale_factor'][0] * scale_factor_origin[0],
+                result['scale_factor'][1] * scale_factor_origin[1],
+            )
         if 'pad_param_origin' in result:
             pad_param_origin = result.pop('pad_param_origin')
             result['pad_param'] += pad_param_origin
         return result
-    
+
 
 @TRANSFORMS.register_module()
 class YOLOv5HSVRandomAug(BaseTransform):
@@ -212,10 +208,12 @@ class YOLOv5HSVRandomAug(BaseTransform):
         value_delta ([int, float]): delta of value. Defaults to 0.4.
     """
 
-    def __init__(self,
-                 hue_delta: Union[int, float] = 0.015,
-                 saturation_delta: Union[int, float] = 0.7,
-                 value_delta: Union[int, float] = 0.4):
+    def __init__(
+        self,
+        hue_delta: Union[int, float] = 0.015,
+        saturation_delta: Union[int, float] = 0.7,
+        value_delta: Union[int, float] = 0.4,
+    ):
         self.hue_delta = hue_delta
         self.saturation_delta = saturation_delta
         self.value_delta = value_delta
@@ -229,20 +227,15 @@ class YOLOv5HSVRandomAug(BaseTransform):
         Returns:
             dict: The result dict.
         """
-        hsv_gains = \
-            random.uniform(-1, 1, 3) * \
-            [self.hue_delta, self.saturation_delta, self.value_delta] + 1
-        hue, sat, val = cv2.split(
-            cv2.cvtColor(results['img'], cv2.COLOR_BGR2HSV))
+        hsv_gains = random.uniform(-1, 1, 3) * [self.hue_delta, self.saturation_delta, self.value_delta] + 1
+        hue, sat, val = cv2.split(cv2.cvtColor(results['img'], cv2.COLOR_BGR2HSV))
 
         table_list = np.arange(0, 256, dtype=hsv_gains.dtype)
         lut_hue = ((table_list * hsv_gains[0]) % 180).astype(np.uint8)
         lut_sat = np.clip(table_list * hsv_gains[1], 0, 255).astype(np.uint8)
         lut_val = np.clip(table_list * hsv_gains[2], 0, 255).astype(np.uint8)
 
-        im_hsv = cv2.merge(
-            (cv2.LUT(hue, lut_hue), cv2.LUT(sat,
-                                            lut_sat), cv2.LUT(val, lut_val)))
+        im_hsv = cv2.merge((cv2.LUT(hue, lut_hue), cv2.LUT(sat, lut_sat), cv2.LUT(val, lut_val)))
         results['img'] = cv2.cvtColor(im_hsv, cv2.COLOR_HSV2BGR)
         return results
 
@@ -260,17 +253,12 @@ class LoadAnnotations(MMDET_LoadAnnotations):
     time being, in order to speed up the pipeline, it can be excluded in
     advance."""
 
-    def __init__(self,
-                 mask2bbox: bool = False,
-                 poly2mask: bool = False,
-                 **kwargs) -> None:
+    def __init__(self, mask2bbox: bool = False, poly2mask: bool = False, **kwargs) -> None:
         self.mask2bbox = mask2bbox
-        assert not poly2mask, 'Does not support BitmapMasks considering ' \
-                              'that bitmap consumes more memory.'
+        assert not poly2mask, 'Does not support BitmapMasks considering ' 'that bitmap consumes more memory.'
         super().__init__(poly2mask=poly2mask, **kwargs)
         if self.mask2bbox:
-            assert self.with_mask, 'Using mask2bbox requires ' \
-                                   'with_mask is True.'
+            assert self.with_mask, 'Using mask2bbox requires ' 'with_mask is True.'
         self._mask_ignore_flag = None
 
     def transform(self, results: dict) -> dict:
@@ -299,15 +287,11 @@ class LoadAnnotations(MMDET_LoadAnnotations):
         if 'gt_masks' not in results:
             return
 
-        if 'gt_bboxes_labels' in results and len(
-                results['gt_bboxes_labels']) != len(results['gt_masks']):
-            assert len(results['gt_bboxes_labels']) == len(
-                self._mask_ignore_flag)
-            results['gt_bboxes_labels'] = results['gt_bboxes_labels'][
-                self._mask_ignore_flag]
+        if 'gt_bboxes_labels' in results and len(results['gt_bboxes_labels']) != len(results['gt_masks']):
+            assert len(results['gt_bboxes_labels']) == len(self._mask_ignore_flag)
+            results['gt_bboxes_labels'] = results['gt_bboxes_labels'][self._mask_ignore_flag]
 
-        if 'gt_bboxes' in results and len(results['gt_bboxes']) != len(
-                results['gt_masks']):
+        if 'gt_bboxes' in results and len(results['gt_bboxes']) != len(results['gt_masks']):
             assert len(results['gt_bboxes']) == len(self._mask_ignore_flag)
             results['gt_bboxes'] = results['gt_bboxes'][self._mask_ignore_flag]
 
@@ -329,8 +313,7 @@ class LoadAnnotations(MMDET_LoadAnnotations):
         results['gt_ignore_flags'] = np.array(gt_ignore_flags, dtype=bool)
 
         if self.box_type is None:
-            results['gt_bboxes'] = np.array(
-                gt_bboxes, dtype=np.float32).reshape((-1, 4))
+            results['gt_bboxes'] = np.array(gt_bboxes, dtype=np.float32).reshape((-1, 4))
         else:
             _, box_type_cls = get_box_type(self.box_type)
             results['gt_bboxes'] = box_type_cls(gt_bboxes, dtype=torch.float32)
@@ -348,8 +331,7 @@ class LoadAnnotations(MMDET_LoadAnnotations):
         for instance in results.get('instances', []):
             if instance['ignore_flag'] == 0:
                 gt_bboxes_labels.append(instance['bbox_label'])
-        results['gt_bboxes_labels'] = np.array(
-            gt_bboxes_labels, dtype=np.int64)
+        results['gt_bboxes_labels'] = np.array(gt_bboxes_labels, dtype=np.int64)
 
     def _load_masks(self, results: dict) -> None:
         """Private function to load mask annotations.
@@ -366,8 +348,7 @@ class LoadAnnotations(MMDET_LoadAnnotations):
                     gt_mask = instance['mask']
                     if isinstance(gt_mask, list):
                         gt_mask = [
-                            np.array(polygon) for polygon in gt_mask
-                            if len(polygon) % 2 == 0 and len(polygon) >= 6
+                            np.array(polygon) for polygon in gt_mask if len(polygon) % 2 == 0 and len(polygon) >= 6
                         ]
                         if len(gt_mask) == 0:
                             # ignore
@@ -377,9 +358,7 @@ class LoadAnnotations(MMDET_LoadAnnotations):
                             gt_ignore_flags.append(instance['ignore_flag'])
                             self._mask_ignore_flag.append(1)
                     else:
-                        raise NotImplementedError(
-                            'Only supports mask annotations in polygon '
-                            'format currently')
+                        raise NotImplementedError('Only supports mask annotations in polygon ' 'format currently')
                 else:
                     # TODO: Actually, gt with bbox and without mask needs
                     #  to be retained
@@ -466,19 +445,21 @@ class YOLOv5RandomAffine(BaseTransform):
         resample_num (int): Number of poly to resample to.
     """
 
-    def __init__(self,
-                 max_rotate_degree: float = 10.0,
-                 max_translate_ratio: float = 0.1,
-                 scaling_ratio_range: Tuple[float, float] = (0.5, 1.5),
-                 max_shear_degree: float = 2.0,
-                 border: Tuple[int, int] = (0, 0),
-                 border_val: Tuple[int, int, int] = (114, 114, 114),
-                 bbox_clip_border: bool = True,
-                 min_bbox_size: int = 2,
-                 min_area_ratio: float = 0.1,
-                 use_mask_refine: bool = False,
-                 max_aspect_ratio: float = 20.,
-                 resample_num: int = 1000):
+    def __init__(
+        self,
+        max_rotate_degree: float = 10.0,
+        max_translate_ratio: float = 0.1,
+        scaling_ratio_range: Tuple[float, float] = (0.5, 1.5),
+        max_shear_degree: float = 2.0,
+        border: Tuple[int, int] = (0, 0),
+        border_val: Tuple[int, int, int] = (114, 114, 114),
+        bbox_clip_border: bool = True,
+        min_bbox_size: int = 2,
+        min_area_ratio: float = 0.1,
+        use_mask_refine: bool = False,
+        max_aspect_ratio: float = 20.0,
+        resample_num: int = 1000,
+    ):
         assert 0 <= max_translate_ratio <= 1
         assert scaling_ratio_range[0] <= scaling_ratio_range[1]
         assert scaling_ratio_range[0] > 0
@@ -515,15 +496,10 @@ class YOLOv5RandomAffine(BaseTransform):
         center_matrix[0, 2] = -img.shape[1] / 2
         center_matrix[1, 2] = -img.shape[0] / 2
 
-        warp_matrix, scaling_ratio = self._get_random_homography_matrix(
-            height, width)
+        warp_matrix, scaling_ratio = self._get_random_homography_matrix(height, width)
         warp_matrix = warp_matrix @ center_matrix
 
-        img = cv2.warpPerspective(
-            img,
-            warp_matrix,
-            dsize=(width, height),
-            borderValue=self.border_val)
+        img = cv2.warpPerspective(img, warp_matrix, dsize=(width, height), borderValue=self.border_val)
         results['img'] = img
         results['img_shape'] = img.shape
         img_h, img_w = img.shape[:2]
@@ -538,14 +514,12 @@ class YOLOv5RandomAffine(BaseTransform):
                 gt_masks = results['gt_masks']
 
                 gt_masks_resample = self.resample_masks(gt_masks)
-                gt_masks = self.warp_mask(gt_masks_resample, warp_matrix,
-                                          img_h, img_w)
+                gt_masks = self.warp_mask(gt_masks_resample, warp_matrix, img_h, img_w)
 
                 # refine bboxes by masks
                 bboxes = gt_masks.get_bboxes(dst_type='hbox')
                 # filter bboxes outside image
-                valid_index = self.filter_gt_bboxes(orig_bboxes,
-                                                    bboxes).numpy()
+                valid_index = self.filter_gt_bboxes(orig_bboxes, bboxes).numpy()
                 results['gt_masks'] = gt_masks[valid_index]
             else:
                 bboxes.project_(warp_matrix)
@@ -557,23 +531,18 @@ class YOLOv5RandomAffine(BaseTransform):
 
                 # Be careful: valid_index must convert to numpy,
                 # otherwise it will raise out of bounds when len(valid_index)=1
-                valid_index = self.filter_gt_bboxes(orig_bboxes,
-                                                    bboxes).numpy()
+                valid_index = self.filter_gt_bboxes(orig_bboxes, bboxes).numpy()
                 if 'gt_masks' in results:
-                    results['gt_masks'] = PolygonMasks(
-                        results['gt_masks'].masks, img_h, img_w)
+                    results['gt_masks'] = PolygonMasks(results['gt_masks'].masks, img_h, img_w)
 
             results['gt_bboxes'] = bboxes[valid_index]
-            results['gt_bboxes_labels'] = results['gt_bboxes_labels'][
-                valid_index]
-            results['gt_ignore_flags'] = results['gt_ignore_flags'][
-                valid_index]
+            results['gt_bboxes_labels'] = results['gt_bboxes_labels'][valid_index]
+            results['gt_ignore_flags'] = results['gt_ignore_flags'][valid_index]
 
         return results
 
     @staticmethod
-    def warp_poly(poly: np.ndarray, warp_matrix: np.ndarray, img_w: int,
-                  img_h: int) -> np.ndarray:
+    def warp_poly(poly: np.ndarray, warp_matrix: np.ndarray, img_w: int, img_h: int) -> np.ndarray:
         """Function to warp one mask and filter points outside image.
 
         Args:
@@ -588,9 +557,7 @@ class YOLOv5RandomAffine(BaseTransform):
         #  semantic segmentation training, which is same as official
         #  implementation.
         poly = poly.reshape((-1, 2))
-        poly = np.concatenate((poly, np.ones(
-            (len(poly), 1), dtype=poly.dtype)),
-                              axis=-1)
+        poly = np.concatenate((poly, np.ones((len(poly), 1), dtype=poly.dtype)), axis=-1)
         # transform poly
         poly = poly @ warp_matrix.T
         poly = poly[:, :2] / poly[:, 2:3]
@@ -600,8 +567,7 @@ class YOLOv5RandomAffine(BaseTransform):
         valid_ind_point = (x >= 0) & (y >= 0) & (x <= img_w) & (y <= img_h)
         return poly[valid_ind_point].reshape(-1)
 
-    def warp_mask(self, gt_masks: PolygonMasks, warp_matrix: np.ndarray,
-                  img_w: int, img_h: int) -> PolygonMasks:
+    def warp_mask(self, gt_masks: PolygonMasks, warp_matrix: np.ndarray, img_w: int, img_h: int) -> PolygonMasks:
         """Warp masks by warp_matrix and retain masks inside image after
         warping.
 
@@ -629,9 +595,7 @@ class YOLOv5RandomAffine(BaseTransform):
             # add [0, 0, 0, 0, 0, 0,] here.
             if not warpped_poly_per_obj:
                 # This will be filtered in function `filter_gt_bboxes`.
-                warpped_poly_per_obj = [
-                    np.zeros(6, dtype=poly_per_obj[0].dtype)
-                ]
+                warpped_poly_per_obj = [np.zeros(6, dtype=poly_per_obj[0].dtype)]
             new_masks.append(warpped_poly_per_obj)
 
         gt_masks = PolygonMasks(new_masks, img_h, img_w)
@@ -653,15 +617,12 @@ class YOLOv5RandomAffine(BaseTransform):
                 poly = np.concatenate((poly, poly[0:1, :]), axis=0)
                 x = np.linspace(0, len(poly) - 1, self.resample_num)
                 xp = np.arange(len(poly))
-                poly = np.concatenate([
-                    np.interp(x, xp, poly[:, i]) for i in range(2)
-                ]).reshape(2, -1).T.reshape(-1)
+                poly = np.concatenate([np.interp(x, xp, poly[:, i]) for i in range(2)]).reshape(2, -1).T.reshape(-1)
                 resample_poly_per_obj.append(poly)
             new_masks.append(resample_poly_per_obj)
         return PolygonMasks(new_masks, gt_masks.height, gt_masks.width)
 
-    def filter_gt_bboxes(self, origin_bboxes: HorizontalBoxes,
-                         wrapped_bboxes: HorizontalBoxes) -> torch.Tensor:
+    def filter_gt_bboxes(self, origin_bboxes: HorizontalBoxes, wrapped_bboxes: HorizontalBoxes) -> torch.Tensor:
         """Filter gt bboxes.
 
         Args:
@@ -675,19 +636,15 @@ class YOLOv5RandomAffine(BaseTransform):
         origin_h = origin_bboxes.heights
         wrapped_w = wrapped_bboxes.widths
         wrapped_h = wrapped_bboxes.heights
-        aspect_ratio = np.maximum(wrapped_w / (wrapped_h + 1e-16),
-                                  wrapped_h / (wrapped_w + 1e-16))
+        aspect_ratio = np.maximum(wrapped_w / (wrapped_h + 1e-16), wrapped_h / (wrapped_w + 1e-16))
 
-        wh_valid_idx = (wrapped_w > self.min_bbox_size) & \
-                       (wrapped_h > self.min_bbox_size)
-        area_valid_idx = wrapped_w * wrapped_h / (origin_w * origin_h +
-                                                  1e-16) > self.min_area_ratio
+        wh_valid_idx = (wrapped_w > self.min_bbox_size) & (wrapped_h > self.min_bbox_size)
+        area_valid_idx = wrapped_w * wrapped_h / (origin_w * origin_h + 1e-16) > self.min_area_ratio
         aspect_ratio_valid_idx = aspect_ratio < self.max_aspect_ratio
         return wh_valid_idx & area_valid_idx & aspect_ratio_valid_idx
 
     @cache_randomness
-    def _get_random_homography_matrix(self, height: int,
-                                      width: int) -> Tuple[np.ndarray, float]:
+    def _get_random_homography_matrix(self, height: int, width: int) -> Tuple[np.ndarray, float]:
         """Get random homography matrix.
 
         Args:
@@ -699,30 +656,23 @@ class YOLOv5RandomAffine(BaseTransform):
             scaling_ratio.
         """
         # Rotation
-        rotation_degree = random.uniform(-self.max_rotate_degree,
-                                         self.max_rotate_degree)
+        rotation_degree = random.uniform(-self.max_rotate_degree, self.max_rotate_degree)
         rotation_matrix = self._get_rotation_matrix(rotation_degree)
 
         # Scaling
-        scaling_ratio = random.uniform(self.scaling_ratio_range[0],
-                                       self.scaling_ratio_range[1])
+        scaling_ratio = random.uniform(self.scaling_ratio_range[0], self.scaling_ratio_range[1])
         scaling_matrix = self._get_scaling_matrix(scaling_ratio)
 
         # Shear
-        x_degree = random.uniform(-self.max_shear_degree,
-                                  self.max_shear_degree)
-        y_degree = random.uniform(-self.max_shear_degree,
-                                  self.max_shear_degree)
+        x_degree = random.uniform(-self.max_shear_degree, self.max_shear_degree)
+        y_degree = random.uniform(-self.max_shear_degree, self.max_shear_degree)
         shear_matrix = self._get_shear_matrix(x_degree, y_degree)
 
         # Translation
-        trans_x = random.uniform(0.5 - self.max_translate_ratio,
-                                 0.5 + self.max_translate_ratio) * width
-        trans_y = random.uniform(0.5 - self.max_translate_ratio,
-                                 0.5 + self.max_translate_ratio) * height
+        trans_x = random.uniform(0.5 - self.max_translate_ratio, 0.5 + self.max_translate_ratio) * width
+        trans_y = random.uniform(0.5 - self.max_translate_ratio, 0.5 + self.max_translate_ratio) * height
         translate_matrix = self._get_translation_matrix(trans_x, trans_y)
-        warp_matrix = (
-            translate_matrix @ shear_matrix @ rotation_matrix @ scaling_matrix)
+        warp_matrix = translate_matrix @ shear_matrix @ rotation_matrix @ scaling_matrix
         return warp_matrix, scaling_ratio
 
     @staticmethod
@@ -737,9 +687,9 @@ class YOLOv5RandomAffine(BaseTransform):
         """
         radian = math.radians(rotate_degrees)
         rotation_matrix = np.array(
-            [[np.cos(radian), -np.sin(radian), 0.],
-             [np.sin(radian), np.cos(radian), 0.], [0., 0., 1.]],
-            dtype=np.float32)
+            [[np.cos(radian), -np.sin(radian), 0.0], [np.sin(radian), np.cos(radian), 0.0], [0.0, 0.0, 1.0]],
+            dtype=np.float32,
+        )
         return rotation_matrix
 
     @staticmethod
@@ -752,14 +702,11 @@ class YOLOv5RandomAffine(BaseTransform):
         Returns:
             np.ndarray: The scaling matrix.
         """
-        scaling_matrix = np.array(
-            [[scale_ratio, 0., 0.], [0., scale_ratio, 0.], [0., 0., 1.]],
-            dtype=np.float32)
+        scaling_matrix = np.array([[scale_ratio, 0.0, 0.0], [0.0, scale_ratio, 0.0], [0.0, 0.0, 1.0]], dtype=np.float32)
         return scaling_matrix
 
     @staticmethod
-    def _get_shear_matrix(x_shear_degrees: float,
-                          y_shear_degrees: float) -> np.ndarray:
+    def _get_shear_matrix(x_shear_degrees: float, y_shear_degrees: float) -> np.ndarray:
         """Get shear matrix.
 
         Args:
@@ -771,9 +718,9 @@ class YOLOv5RandomAffine(BaseTransform):
         """
         x_radian = math.radians(x_shear_degrees)
         y_radian = math.radians(y_shear_degrees)
-        shear_matrix = np.array([[1, np.tan(x_radian), 0.],
-                                 [np.tan(y_radian), 1, 0.], [0., 0., 1.]],
-                                dtype=np.float32)
+        shear_matrix = np.array(
+            [[1, np.tan(x_radian), 0.0], [np.tan(y_radian), 1, 0.0], [0.0, 0.0, 1.0]], dtype=np.float32
+        )
         return shear_matrix
 
     @staticmethod
@@ -787,8 +734,7 @@ class YOLOv5RandomAffine(BaseTransform):
         Returns:
             np.ndarray: The translation matrix.
         """
-        translation_matrix = np.array([[1, 0., x], [0., 1, y], [0., 0., 1.]],
-                                      dtype=np.float32)
+        translation_matrix = np.array([[1, 0.0, x], [0.0, 1, y], [0.0, 0.0, 1.0]], dtype=np.float32)
         return translation_matrix
 
     def __repr__(self) -> str:
@@ -882,23 +828,23 @@ class Mosaic(BaseMixImageTransform):
             iteration is terminated and raise the error. Defaults to 15.
     """
 
-    def __init__(self,
-                 img_scale: Tuple[int, int] = (640, 640),
-                 center_ratio_range: Tuple[float, float] = (0.5, 1.5),
-                 bbox_clip_border: bool = True,
-                 pad_val: float = 114.0,
-                 pre_transform: Sequence[dict] = None,
-                 prob: float = 1.0,
-                 use_cached: bool = False,
-                 max_cached_images: int = 40,
-                 random_pop: bool = True,
-                 max_refetch: int = 15):
+    def __init__(
+        self,
+        img_scale: Tuple[int, int] = (640, 640),
+        center_ratio_range: Tuple[float, float] = (0.5, 1.5),
+        bbox_clip_border: bool = True,
+        pad_val: float = 114.0,
+        pre_transform: Sequence[dict] = None,
+        prob: float = 1.0,
+        use_cached: bool = False,
+        max_cached_images: int = 40,
+        random_pop: bool = True,
+        max_refetch: int = 15,
+    ):
         assert isinstance(img_scale, tuple)
-        assert 0 <= prob <= 1.0, 'The probability should be in range [0,1]. ' \
-                                 f'got {prob}.'
+        assert 0 <= prob <= 1.0, 'The probability should be in range [0,1]. ' f'got {prob}.'
         if use_cached:
-            assert max_cached_images >= 4, 'The length of cache must >= 4, ' \
-                                           f'but got {max_cached_images}.'
+            assert max_cached_images >= 4, 'The length of cache must >= 4, ' f'but got {max_cached_images}.'
 
         super().__init__(
             pre_transform=pre_transform,
@@ -906,7 +852,8 @@ class Mosaic(BaseMixImageTransform):
             use_cached=use_cached,
             max_cached_images=max_cached_images,
             random_pop=random_pop,
-            max_refetch=max_refetch)
+            max_refetch=max_refetch,
+        )
 
         self.img_scale = img_scale
         self.center_ratio_range = center_ratio_range
@@ -945,13 +892,10 @@ class Mosaic(BaseMixImageTransform):
 
         if len(results['img'].shape) == 3:
             mosaic_img = np.full(
-                (int(img_scale_h * 2), int(img_scale_w * 2), 3),
-                self.pad_val,
-                dtype=results['img'].dtype)
+                (int(img_scale_h * 2), int(img_scale_w * 2), 3), self.pad_val, dtype=results['img'].dtype
+            )
         else:
-            mosaic_img = np.full((int(img_scale_h * 2), int(img_scale_w * 2)),
-                                 self.pad_val,
-                                 dtype=results['img'].dtype)
+            mosaic_img = np.full((int(img_scale_h * 2), int(img_scale_w * 2)), self.pad_val, dtype=results['img'].dtype)
 
         # mosaic center x, y
         center_x = int(random.uniform(*self.center_ratio_range) * img_scale_w)
@@ -969,12 +913,10 @@ class Mosaic(BaseMixImageTransform):
             h_i, w_i = img_i.shape[:2]
             # keep_ratio resize
             scale_ratio_i = min(img_scale_h / h_i, img_scale_w / w_i)
-            img_i = mmcv.imresize(
-                img_i, (int(w_i * scale_ratio_i), int(h_i * scale_ratio_i)))
+            img_i = mmcv.imresize(img_i, (int(w_i * scale_ratio_i), int(h_i * scale_ratio_i)))
 
             # compute the combine parameters
-            paste_coord, crop_coord = self._mosaic_combine(
-                loc, center_position, img_i.shape[:2][::-1])
+            paste_coord, crop_coord = self._mosaic_combine(loc, center_position, img_i.shape[:2][::-1])
             x1_p, y1_p, x2_p, y2_p = paste_coord
             x1_c, y1_c, x2_c, y2_c = crop_coord
 
@@ -997,15 +939,15 @@ class Mosaic(BaseMixImageTransform):
                 gt_masks_i = results_patch['gt_masks']
                 gt_masks_i = gt_masks_i.rescale(float(scale_ratio_i))
                 gt_masks_i = gt_masks_i.translate(
-                    out_shape=(int(self.img_scale[0] * 2),
-                               int(self.img_scale[1] * 2)),
+                    out_shape=(int(self.img_scale[0] * 2), int(self.img_scale[1] * 2)),
                     offset=padw,
-                    direction='horizontal')
+                    direction='horizontal',
+                )
                 gt_masks_i = gt_masks_i.translate(
-                    out_shape=(int(self.img_scale[0] * 2),
-                               int(self.img_scale[1] * 2)),
+                    out_shape=(int(self.img_scale[0] * 2), int(self.img_scale[1] * 2)),
                     offset=padh,
-                    direction='vertical')
+                    direction='vertical',
+                )
                 mosaic_masks.append(gt_masks_i)
 
         mosaic_bboxes = mosaic_bboxes[0].cat(mosaic_bboxes, 0)
@@ -1019,8 +961,7 @@ class Mosaic(BaseMixImageTransform):
                 results['gt_masks'] = mosaic_masks
         else:
             # remove outside bboxes
-            inside_inds = mosaic_bboxes.is_inside(
-                [2 * img_scale_h, 2 * img_scale_w]).numpy()
+            inside_inds = mosaic_bboxes.is_inside([2 * img_scale_h, 2 * img_scale_w]).numpy()
             mosaic_bboxes = mosaic_bboxes[inside_inds]
             mosaic_bboxes_labels = mosaic_bboxes_labels[inside_inds]
             mosaic_ignore_flags = mosaic_ignore_flags[inside_inds]
@@ -1037,8 +978,8 @@ class Mosaic(BaseMixImageTransform):
         return results
 
     def _mosaic_combine(
-            self, loc: str, center_position_xy: Sequence[float],
-            img_shape_wh: Sequence[int]) -> Tuple[Tuple[int], Tuple[int]]:
+        self, loc: str, center_position_xy: Sequence[float], img_shape_wh: Sequence[int]
+    ) -> Tuple[Tuple[int], Tuple[int]]:
         """Calculate global coordinate of mosaic image and local coordinate of
         cropped sub-image.
 
@@ -1058,43 +999,43 @@ class Mosaic(BaseMixImageTransform):
         assert loc in ('top_left', 'top_right', 'bottom_left', 'bottom_right')
         if loc == 'top_left':
             # index0 to top left part of image
-            x1, y1, x2, y2 = max(center_position_xy[0] - img_shape_wh[0], 0), \
-                             max(center_position_xy[1] - img_shape_wh[1], 0), \
-                             center_position_xy[0], \
-                             center_position_xy[1]
-            crop_coord = img_shape_wh[0] - (x2 - x1), img_shape_wh[1] - (
-                y2 - y1), img_shape_wh[0], img_shape_wh[1]
+            x1, y1, x2, y2 = (
+                max(center_position_xy[0] - img_shape_wh[0], 0),
+                max(center_position_xy[1] - img_shape_wh[1], 0),
+                center_position_xy[0],
+                center_position_xy[1],
+            )
+            crop_coord = img_shape_wh[0] - (x2 - x1), img_shape_wh[1] - (y2 - y1), img_shape_wh[0], img_shape_wh[1]
 
         elif loc == 'top_right':
             # index1 to top right part of image
-            x1, y1, x2, y2 = center_position_xy[0], \
-                             max(center_position_xy[1] - img_shape_wh[1], 0), \
-                             min(center_position_xy[0] + img_shape_wh[0],
-                                 self.img_scale[0] * 2), \
-                             center_position_xy[1]
-            crop_coord = 0, img_shape_wh[1] - (y2 - y1), min(
-                img_shape_wh[0], x2 - x1), img_shape_wh[1]
+            x1, y1, x2, y2 = (
+                center_position_xy[0],
+                max(center_position_xy[1] - img_shape_wh[1], 0),
+                min(center_position_xy[0] + img_shape_wh[0], self.img_scale[0] * 2),
+                center_position_xy[1],
+            )
+            crop_coord = 0, img_shape_wh[1] - (y2 - y1), min(img_shape_wh[0], x2 - x1), img_shape_wh[1]
 
         elif loc == 'bottom_left':
             # index2 to bottom left part of image
-            x1, y1, x2, y2 = max(center_position_xy[0] - img_shape_wh[0], 0), \
-                             center_position_xy[1], \
-                             center_position_xy[0], \
-                             min(self.img_scale[1] * 2, center_position_xy[1] +
-                                 img_shape_wh[1])
-            crop_coord = img_shape_wh[0] - (x2 - x1), 0, img_shape_wh[0], min(
-                y2 - y1, img_shape_wh[1])
+            x1, y1, x2, y2 = (
+                max(center_position_xy[0] - img_shape_wh[0], 0),
+                center_position_xy[1],
+                center_position_xy[0],
+                min(self.img_scale[1] * 2, center_position_xy[1] + img_shape_wh[1]),
+            )
+            crop_coord = img_shape_wh[0] - (x2 - x1), 0, img_shape_wh[0], min(y2 - y1, img_shape_wh[1])
 
         else:
             # index3 to bottom right part of image
-            x1, y1, x2, y2 = center_position_xy[0], \
-                             center_position_xy[1], \
-                             min(center_position_xy[0] + img_shape_wh[0],
-                                 self.img_scale[0] * 2), \
-                             min(self.img_scale[1] * 2, center_position_xy[1] +
-                                 img_shape_wh[1])
-            crop_coord = 0, 0, min(img_shape_wh[0],
-                                   x2 - x1), min(y2 - y1, img_shape_wh[1])
+            x1, y1, x2, y2 = (
+                center_position_xy[0],
+                center_position_xy[1],
+                min(center_position_xy[0] + img_shape_wh[0], self.img_scale[0] * 2),
+                min(self.img_scale[1] * 2, center_position_xy[1] + img_shape_wh[1]),
+            )
+            crop_coord = 0, 0, min(img_shape_wh[0], x2 - x1), min(y2 - y1, img_shape_wh[1])
 
         paste_coord = x1, y1, x2, y2
         return paste_coord, crop_coord
