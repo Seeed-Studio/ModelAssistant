@@ -22,11 +22,7 @@ from mmengine.registry import \
     WEIGHT_INITIALIZERS as MMENGINE_WEIGHT_INITIALIZERS
 from mmengine.registry import Registry
 
-# If MMCV is installed, cnn block and transforms will be registered.
-try:
-    import mmcv  # noqa: F401
-except:  # noqa: E722
-    ...
+
 
 # manage all kinds of runners like `EpochBasedRunner` and `IterBasedRunner`
 RUNNERS = Registry('runner', parent=MMENGINE_RUNNERS)
@@ -35,11 +31,11 @@ RUNNER_CONSTRUCTORS = Registry(
     'runner constructor', parent=MMENGINE_RUNNER_CONSTRUCTORS)
 # manage all kinds of loops like `EpochBasedTrainLoop`
 LOOPS = Registry('loop', parent=MMENGINE_LOOPS)
-# manage all kinds of hooks like `CheckpointHook`
-HOOKS = Registry(
-    'hook',
-    parent=MMENGINE_HOOKS,
-    locations=['sscma.engine.hooks'])
+# # manage all kinds of hooks like `CheckpointHook`
+# HOOKS = Registry(
+#     'hook',
+#     parent=MMENGINE_HOOKS,
+#     locations=['sscma.engine.hooks'])
 
 # manage data-related modules
 DATASETS = Registry(
@@ -67,28 +63,29 @@ WEIGHT_INITIALIZERS = Registry(
     parent=MMENGINE_WEIGHT_INITIALIZERS,
     locations=['sscma.models'])
 
-# manage all kinds of optimizers like `SGD` and `Adam`
-OPTIMIZERS = Registry(
-    'optimizer',
-    parent=MMENGINE_OPTIMIZERS,
-    locations=['sscma.engine.optimizer'])
+# # manage all kinds of optimizers like `SGD` and `Adam`
+# OPTIMIZERS = Registry(
+#     'optimizer',
+#     parent=MMENGINE_OPTIMIZERS,
+#     locations=['sscma.engine.optimizer'])
 
-# manage optimizer wrapper
-OPTIM_WRAPPERS = Registry(
-    'optim_wrapper',
-    parent=MMENGINE_OPTIM_WRAPPERS,
-    locations=['sscma.engine.optim_wrapper'])
+# # manage optimizer wrapper
+# OPTIM_WRAPPERS = Registry(
+#     'optim_wrapper',
+#     parent=MMENGINE_OPTIM_WRAPPERS,
+#     locations=['sscma.engine.optim_wrapper'])
 
-# manage constructors that customize the optimization hyperparameters.
-OPTIM_WRAPPER_CONSTRUCTORS = Registry(
-    'optimizer constructor',
-    parent=MMENGINE_OPTIM_WRAPPER_CONSTRUCTORS,
-    locations=['sscma.engine.optim_wrapper_constructor'])
-# manage all kinds of parameter schedulers like `MultiStepLR`
-PARAM_SCHEDULERS = Registry(
-    'parameter scheduler',
-    parent=MMENGINE_PARAM_SCHEDULERS,
-    locations=['sscma.engine.scheduler'])
+# # manage constructors that customize the optimization hyperparameters.
+# # OPTIM_WRAPPER_CONSTRUCTORS = Registry(
+# #     'optimizer constructor',
+# #     parent=MMENGINE_OPTIM_WRAPPER_CONSTRUCTORS,
+# #     locations=['sscma.engine.optim_wrapper_constructor'])
+
+# # manage all kinds of parameter schedulers like `MultiStepLR`
+# PARAM_SCHEDULERS = Registry(
+#     'parameter scheduler',
+#     parent=MMENGINE_PARAM_SCHEDULERS,
+#     locations=['sscma.engine.scheduler'])
 # manage all kinds of metrics
 METRICS = Registry(
     'metric',

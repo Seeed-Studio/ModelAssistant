@@ -24,7 +24,7 @@ class TimmClassifier(BaseModel):
     can be directly load by timm.
 
     Please confirm that you have installed ``timm`` if you want to use it.
-
+mo
     Args:
         *args: All positional arguments of the function
             `timm.models.create_model`.

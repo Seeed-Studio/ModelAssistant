@@ -1,5 +1,10 @@
-from .model import CustomModel
 from .weight_init import WEIGHT_INITIALIZERS
 from .wrappers import CustomWrapper
+from .model import ImageClassifier
+from .backbones import *  # noqa: F401,F403
+from .heads import *  # noqa: F401,F403
+from .losses import *  # noqa: F401,F403
+from .necks import *  # noqa: F401,F403
 
-__all__ = ['CustomModel', 'WEIGHT_INITIALIZERS', 'CustomWrapper']
+
+__all__ = ['ImageClassifier','WEIGHT_INITIALIZERS', 'CustomWrapper']
