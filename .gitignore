@@ -54,3 +54,5 @@ docs/.vitepress/dist
 
 # sscma examples
 examples/
+work_dir/
+data/

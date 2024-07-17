@@ -9,6 +9,13 @@ from mmengine.structures import BaseDataElement
 from .utils import LABEL_TYPE, SCORE_TYPE, format_label, format_score
 
 
+class MultiTaskDataSample(BaseDataElement):
+
+    @property
+    def tasks(self):
+        return self._data_fields
+
+
 class DataSample(BaseDataElement):
     """A general data structure interface.
 

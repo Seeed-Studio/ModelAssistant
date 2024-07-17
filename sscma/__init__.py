@@ -5,6 +5,7 @@ from mmengine.utils import digit_version
 from .evaluation import Evaluator
 from .version import __version__, version_info
 
+
 runner.Evaluator = Evaluator
 
 mmengine_minimum_version = '0.3.0'

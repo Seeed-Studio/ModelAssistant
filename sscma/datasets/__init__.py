@@ -1,2 +1,4 @@
 from .imagenet import ImageNet
-__all__ = ['ImageNet']
+from .data_preprocessor import ClsDataPreprocessor
+
+__all__ = ['ImageNet','ClsDataPreprocessor']

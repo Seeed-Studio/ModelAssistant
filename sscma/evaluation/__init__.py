@@ -1,5 +1,4 @@
 from .evaluator import Evaluator
-from .metrics import CustomMetric
-from .base_metric import BaseMetric
+from .metrics import Accuracy
 
-__all__ = ['CustomMetric', 'Evaluator', 'BaseMetric']
+__all__ = ['Accuracy', 'Evaluator']
