@@ -66,13 +66,20 @@ mo
                  data_preprocessor: Optional[dict] = None,
                  init_cfg: Optional[dict] = None,
                  **kwargs):
-        #todo: add data_preprocessor
-        # if data_preprocessor is None:
-        #     data_preprocessor = {}
+        if data_preprocessor is None:
+            data_preprocessor = {}
 
-        # if train_cfg is not None and 'augments' in train_cfg:
-        #     # Set batch augmentations by `train_cfg`
-        #     data_preprocessor['batch_augments'] = train_cfg
+        if isinstance(data_preprocessor, dict):
+            data_preprocessor.setdefault('type', 'ClsDataPreprocessor')
+
+        elif not isinstance(data_preprocessor, nn.Module):
+            raise TypeError('data_preprocessor should be a `dict` or '
+                            f'`nn.Module` instance, but got '
+                            f'{type(data_preprocessor)}')
+        
+        if train_cfg is not None and 'augments' in train_cfg:
+            # Set batch augmentations by `train_cfg`
+            data_preprocessor['batch_augments'] = train_cfg
 
         super().__init__(
             init_cfg=init_cfg, data_preprocessor=data_preprocessor)
@@ -198,12 +205,17 @@ mo
         return data_samples
 
     @staticmethod
-    def _remove_state_dict_prefix(self, state_dict, prefix, local_metadata):
-        new_state_dict = OrderedDict()
-        for k, v in state_dict.items():
+    def _remove_state_dict_prefix(module, state_dict, prefix, local_metadata):
+        for k in list(state_dict.keys()):
             new_key = re.sub(f'^{prefix}model.', prefix, k)
-            new_state_dict[new_key] = v
-        return new_state_dict
+            # Only delete the key that different from its new_key.
+            if new_key != k:
+                # Modify the `state_dict` directly to avoid invalid changes
+                # when recursively calling the `state_dict` function in
+                # `torch.nn.module`.
+                state_dict[new_key] = state_dict[k]
+                del state_dict[k]
+        return state_dict
 
     @staticmethod
     def _add_state_dict_prefix(state_dict, prefix, local_metadata, strict,
@@ -211,5 +223,7 @@ mo
         new_prefix = prefix + 'model.'
         for k in list(state_dict.keys()):
             new_key = re.sub(f'^{prefix}', new_prefix, k)
-            state_dict[new_key] = state_dict[k]
-            del state_dict[k]
+            # Only delete the key that different from its new_key.
+            if new_key != k:
+                state_dict[new_key] = state_dict[k]
+                del state_dict[k]
