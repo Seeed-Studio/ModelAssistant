@@ -46,7 +46,7 @@ DATASETS = Registry(
 TRANSFORMS = Registry(
     'transform',
     parent=MMENGINE_TRANSFORMS,
-    locations=['sscma.datasets.transform'])
+    locations=['sscma.datasets.transforms'])
 
 # manage all kinds of modules inheriting `nn.Module`
 MODELS = Registry(
@@ -110,3 +110,4 @@ VISBACKENDS = Registry('vis_backend', parent=MMENGINE_VISBACKENDS)
 
 # manage logprocessor
 LOG_PROCESSORS = Registry('log_processor', parent=MMENGINE_LOG_PROCESSORS)
+

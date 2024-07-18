@@ -239,7 +239,7 @@ def imresize(
     h, w = img.shape[:2]
     if backend is None:
         backend = 'cv2'
-    if backend is not 'cv2'
+    if backend is not 'cv2':
         raise ValueError(f'backend: {backend} is not supported for resize.'
                          f"Supported backends are 'cv2'")
 
