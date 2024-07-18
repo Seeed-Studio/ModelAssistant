@@ -11,7 +11,7 @@ from mmengine.utils import is_str
 from PIL import Image
 
 from mmengine.registry import TRANSFORMS
-from mmengine.structures import DataSample, MultiTaskDataSample
+from sscma.structures import DataSample, MultiTaskDataSample
 
 
 def to_tensor(data):
