@@ -1,6 +1,6 @@
 # Deploying SSCMA on Grove - Vision AI
 
-This example is a tutorial for deploying the models from [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) to Grove - Vision AI module, based on the [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain) and [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) implementations.
+This example is a tutorial for deploying the models from [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) to Grove - Vision AI module, based on the [Synopsys GNU Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain) and [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) implementations.
 
 ## Prerequisites
 
@@ -12,21 +12,21 @@ This example is a tutorial for deploying the models from [SSCMA](https://github.
 
 - A USB cable
 
-### Installing Synopsys GUN Toolchain
+### Installing Synopsys GNU Toolchain
 
-Grove - Vision AI uses the [Himax HX6537](https://www.himax.com.tw/zh/products/intelligent-sensing/always-on-smart-sensing/) chip, where we need to install the [ Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain) in order to cross-compile the firmware afterwards, the installation is divided into the following steps.
+Grove - Vision AI uses the [Himax HX6537](https://www.himax.com.tw/zh/products/intelligent-sensing/always-on-smart-sensing/) chip, where we need to install the [Synopsys GNU Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain) in order to cross-compile the firmware afterwards, the installation is divided into the following steps.
 
-1. First, download the pre-compiled toolchain from [Synopsys GUN Toolchain - GitHub Releases](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/).
+1. First, download the pre-compiled toolchain from [Synopsys GNU Toolchain - GitHub Releases](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/).
 
    ```sh
    wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2020.09-release/arc_gnu_2020.09_prebuilt_elf32_le_linux_install.tar.gz -P ~/ && \
    tar -zxvf ~/arc_gnu_2020.09_prebuilt_elf32_le_linux_install.tar.gz --directory ~/
    ```
 
-2. Then, specify the directory of the Synopsys GUN Toolchain executable in the PATH and add it to `~/.bashrc` to facilitate automatic import when shell starts.
+2. Then, specify the directory of the Synopsys GNU Toolchain executable in the PATH and add it to `~/.bashrc` to facilitate automatic import when shell starts.
 
    ```sh
-   echo 'export PATH="$HOME/arc_gnu_2020.09_prebuilt_elf32_le_linux_install/bin:$PATH" # Synopsys GUN Toolchain' >> ~/.bashrc
+   echo 'export PATH="$HOME/arc_gnu_2020.09_prebuilt_elf32_le_linux_install/bin:$PATH" # Synopsys GNU Toolchain' >> ~/.bashrc
    ```
 
    :::tip
@@ -190,7 +190,7 @@ If your Grove Vision AI is not recognized by your computer, we recommend your to
 
 - If you find any issues in these examples, or wish to submit an enhancement request, please use [GitHub Issue](https://github.com/Seeed-Studio/ModelAssistant).
 
-- For Synopsys GUN Toolchain related issues please refer to [Synopsys GUN Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain).
+- For Synopsys GNU Toolchain related issues please refer to [Synopsys GNU Toolchain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain).
 
 - For information about TensorFlow Lite Micro, please refer to [TFLite-Micro](https://github.com/tensorflow/tflite-micro).
 
@@ -198,6 +198,6 @@ If your Grove Vision AI is not recognized by your computer, we recommend your to
 
 ## Licensing
 
-For Synopsys GUN Toolchain, it is released under the [GPLv3 License](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/blob/arc-releases/COPYING).
+For Synopsys GNU Toolchain, it is released under the [GPLv3 License](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/blob/arc-releases/COPYING).
 
 The TensorFlow library code and third-party code contain their own licenses, which are described in [TFLite-Micro](https://github.com/tensorflow/tflite-micro).
