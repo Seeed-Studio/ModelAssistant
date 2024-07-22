@@ -67,7 +67,7 @@ def imfrombytes(content: bytes,
     img = cv2.imdecode(img_np, flag)
     if flag == IMREAD_COLOR and channel_order == 'rgb':
         cv2.cvtColor(img, cv2.COLOR_BGR2RGB, img)
-            
+    return img
 
 
 @TRANSFORMS.register_module()
@@ -158,7 +158,7 @@ class LoadImageFromFile(BaseTransform):
             else:
                 img_bytes = fileio.get(
                     filename, backend_args=self.backend_args)
-            img = mmcv.imfrombytes(
+            img = imfrombytes(
                 img_bytes, flag=self.color_type, backend=self.imdecode_backend)
         except Exception as e:
             if self.ignore_empty:
