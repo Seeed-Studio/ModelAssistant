@@ -2,28 +2,20 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from typing import Union,Sequence,Tuple,List,Optional,Dict,Iterable
 
-from mmengine.registry import TRANSFORMS
+from sscma.registry import TRANSFORMS
 import numpy as np
 from mmengine.utils import is_list_of
 
 from .basetransform import BaseTransform
+
+from sscma.utils import simplecv_imresize, simplecv_imflip,simplecv_imcrop
 
 import copy
 import functools
 import inspect
 import weakref
 import math
-import cv2
 import warnings
-
-cv2_interp_codes = {
-    'nearest': cv2.INTER_NEAREST,
-    'bilinear': cv2.INTER_LINEAR,
-    'bicubic': cv2.INTER_CUBIC,
-    'area': cv2.INTER_AREA,
-    'lanczos': cv2.INTER_LANCZOS4
-}
-
 
 class cache_randomness:
     """Decorator that marks the method with random return value(s) in a
@@ -98,179 +90,6 @@ class cache_randomness:
         # one `cache_randomness` instance, which may cause data races
         # in multithreading cases.
         return copy.copy(self)
-    
-
-def bbox_clip(bboxes: np.ndarray, img_shape: Tuple[int, int]) -> np.ndarray:
-    """Clip bboxes to fit the image shape.
-
-    Args:
-        bboxes (ndarray): Shape (..., 4*k)
-        img_shape (tuple[int]): (height, width) of the image.
-
-    Returns:
-        ndarray: Clipped bboxes.
-    """
-    assert bboxes.shape[-1] % 4 == 0
-    cmin = np.empty(bboxes.shape[-1], dtype=bboxes.dtype)
-    cmin[0::2] = img_shape[1] - 1
-    cmin[1::2] = img_shape[0] - 1
-    clipped_bboxes = np.maximum(np.minimum(bboxes, cmin), 0)
-    return clipped_bboxes
-
-
-def bbox_scaling(bboxes: np.ndarray,
-                 scale: float,
-                 clip_shape: Optional[Tuple[int, int]] = None) -> np.ndarray:
-    """Scaling bboxes w.r.t the box center.
-
-    Args:
-        bboxes (ndarray): Shape(..., 4).
-        scale (float): Scaling factor.
-        clip_shape (tuple[int], optional): If specified, bboxes that exceed the
-            boundary will be clipped according to the given shape (h, w).
-
-    Returns:
-        ndarray: Scaled bboxes.
-    """
-    if float(scale) == 1.0:
-        scaled_bboxes = bboxes.copy()
-    else:
-        w = bboxes[..., 2] - bboxes[..., 0] + 1
-        h = bboxes[..., 3] - bboxes[..., 1] + 1
-        dw = (w * (scale - 1)) * 0.5
-        dh = (h * (scale - 1)) * 0.5
-        scaled_bboxes = bboxes + np.stack((-dw, -dh, dw, dh), axis=-1)
-    if clip_shape is not None:
-        return bbox_clip(scaled_bboxes, clip_shape)
-    else:
-        return scaled_bboxes
-    
-
-
-def imcrop(
-    img: np.ndarray,
-    bboxes: np.ndarray,
-    scale: float = 1.0,
-    pad_fill: Union[float, list, None] = None
-) -> Union[np.ndarray, List[np.ndarray]]:
-    """Crop image patches.
-
-    3 steps: scale the bboxes -> clip bboxes -> crop and pad.
-
-    Args:
-        img (ndarray): Image to be cropped.
-        bboxes (ndarray): Shape (k, 4) or (4, ), location of cropped bboxes.
-        scale (float, optional): Scale ratio of bboxes, the default value
-            1.0 means no scaling.
-        pad_fill (Number | list[Number]): Value to be filled for padding.
-            Default: None, which means no padding.
-
-    Returns:
-        list[ndarray] | ndarray: The cropped image patches.
-    """
-    chn = 1 if img.ndim == 2 else img.shape[2]
-    if pad_fill is not None:
-        if isinstance(pad_fill, (int, float)):
-            pad_fill = [pad_fill for _ in range(chn)]
-        assert len(pad_fill) == chn
-
-    _bboxes = bboxes[None, ...] if bboxes.ndim == 1 else bboxes
-    scaled_bboxes = bbox_scaling(_bboxes, scale).astype(np.int32)
-    clipped_bbox = bbox_clip(scaled_bboxes, img.shape)
-
-    patches = []
-    for i in range(clipped_bbox.shape[0]):
-        x1, y1, x2, y2 = tuple(clipped_bbox[i, :])
-        if pad_fill is None:
-            patch = img[y1:y2 + 1, x1:x2 + 1, ...]
-        else:
-            _x1, _y1, _x2, _y2 = tuple(scaled_bboxes[i, :])
-            patch_h = _y2 - _y1 + 1
-            patch_w = _x2 - _x1 + 1
-            if chn == 1:
-                patch_shape = (patch_h, patch_w)
-            else:
-                patch_shape = (patch_h, patch_w, chn)  # type: ignore
-            patch = np.array(
-                pad_fill, dtype=img.dtype) * np.ones(
-                    patch_shape, dtype=img.dtype)
-            x_start = 0 if _x1 >= 0 else -_x1
-            y_start = 0 if _y1 >= 0 else -_y1
-            w = x2 - x1 + 1
-            h = y2 - y1 + 1
-            patch[y_start:y_start + h, x_start:x_start + w,
-                  ...] = img[y1:y1 + h, x1:x1 + w, ...]
-        patches.append(patch)
-
-    if bboxes.ndim == 1:
-        return patches[0]
-    else:
-        return patches
-
-
-
-
-def imresize(
-    img: np.ndarray,
-    size: Tuple[int, int],
-    return_scale: bool = False,
-    interpolation: str = 'bilinear',
-    out: Optional[np.ndarray] = None,
-    backend: Optional[str] = None
-) -> Union[Tuple[np.ndarray, float, float], np.ndarray]:
-    """Resize image to a given size.
-
-    Args:
-        img (ndarray): The input image.
-        size (tuple[int]): Target size (w, h).
-        return_scale (bool): Whether to return `w_scale` and `h_scale`.
-        interpolation (str): Interpolation method, accepted values are
-            "nearest", "bilinear", "bicubic", "area", "lanczos" for 'cv2'
-            backend, "nearest", "bilinear" for 'pillow' backend.
-        out (ndarray): The output destination.
-        backend (str | None): The image resize backend type. Options are `cv2`,
-            `pillow`, `None`. If backend is None, the global imread_backend
-            specified by ``mmcv.use_backend()`` will be used. Default: None.
-
-    Returns:
-        tuple | ndarray: (`resized_img`, `w_scale`, `h_scale`) or
-        `resized_img`.
-    """
-    h, w = img.shape[:2]
-    if backend is None:
-        backend = 'cv2'
-    if backend is not 'cv2':
-        raise ValueError(f'backend: {backend} is not supported for resize.'
-                         f"Supported backends are 'cv2'")
-
-
-    resized_img = cv2.resize(
-        img, size, dst=out, interpolation=cv2_interp_codes[interpolation])
-    if not return_scale:
-        return resized_img
-    else:
-        w_scale = size[0] / w
-        h_scale = size[1] / h
-        return resized_img, w_scale, h_scale
-
-def imflip(img: np.ndarray, direction: str = 'horizontal') -> np.ndarray:
-    """Flip an image horizontally or vertically.
-
-    Args:
-        img (ndarray): Image to be flipped.
-        direction (str): The flip direction, either "horizontal" or
-            "vertical" or "diagonal".
-
-    Returns:
-        ndarray: The flipped image.
-    """
-    assert direction in ['horizontal', 'vertical', 'diagonal']
-    if direction == 'horizontal':
-        return np.flip(img, axis=1)
-    elif direction == 'vertical':
-        return np.flip(img, axis=0)
-    else:
-        return np.flip(img, axis=(0, 1))
     
 
 
@@ -395,13 +214,13 @@ class RandomResizedCrop(BaseTransform):
         """
         img = results['img']
         offset_h, offset_w, target_h, target_w = self.rand_crop_params(img)
-        img = imcrop(
+        img = simplecv_imcrop(
             img,
             bboxes=np.array([
                 offset_w, offset_h, offset_w + target_w - 1,
                 offset_h + target_h - 1
             ]))
-        img = imresize(
+        img = simplecv_imresize(
             img,
             tuple(self.scale[::-1]),
             interpolation=self.interpolation,
@@ -474,7 +293,7 @@ class ResizeEdge(BaseTransform):
     def _resize_img(self, results: dict) -> None:
         """Resize images with ``results['scale']``."""
 
-        img, w_scale, h_scale = imresize(
+        img, w_scale, h_scale = simplecv_imresize(
             results['img'],
             results['scale'],
             interpolation=self.interpolation,
@@ -696,7 +515,7 @@ class RandomFlip(BaseTransform):
         Returns:
             numpy.ndarray: Flipped segmentation map.
         """
-        seg_map = imflip(seg_map, direction=direction)
+        seg_map = simplecv_imflip(seg_map, direction=direction)
         if self.swap_seg_labels is not None:
             # to handle datasets with left/right annotations
             # like 'Left-arm' and 'Right-arm' in LIP dataset
@@ -740,7 +559,7 @@ class RandomFlip(BaseTransform):
         """Flip images, bounding boxes, semantic segmentation map and
         keypoints."""
         # flip image
-        results['img'] = imflip(
+        results['img'] = simplecv_imflip(
             results['img'], direction=results['flip_direction'])
 
         img_shape = results['img'].shape[:2]
@@ -873,7 +692,7 @@ class CenterCrop(BaseTransform):
             bboxes (np.ndarray): Shape (4, ), location of cropped bboxes.
         """
         if results.get('img', None) is not None:
-            img = imcrop(results['img'], bboxes=bboxes)
+            img = simplecv_imcrop(results['img'], bboxes=bboxes)
             img_shape = img.shape[:2]  # type: ignore
             results['img'] = img
             results['img_shape'] = img_shape
@@ -887,7 +706,7 @@ class CenterCrop(BaseTransform):
             bboxes (np.ndarray): Shape (4, ), location of cropped bboxes.
         """
         if results.get('gt_seg_map', None) is not None:
-            img = imcrop(results['gt_seg_map'], bboxes=bboxes)
+            img = simplecv_imcrop(results['gt_seg_map'], bboxes=bboxes)
             results['gt_seg_map'] = img
 
     def _crop_bboxes(self, results: dict, bboxes: np.ndarray) -> None:
