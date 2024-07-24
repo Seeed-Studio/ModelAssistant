@@ -2,7 +2,7 @@
 import torch
 import torch.nn as nn
 
-from mmengine.registry import MODELS
+from sscma.registry import MODELS
 
 
 @MODELS.register_module()

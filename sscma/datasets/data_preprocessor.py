@@ -9,8 +9,8 @@ import torch
 import torch.nn.functional as F
 from mmengine.model import (BaseDataPreprocessor,
                             stack_batch)
-from mmengine.registry import MODELS
-from mmengine.registry import TRANSFORMS
+from sscma.registry import MODELS
+from sscma.registry import TRANSFORMS
 
 from sscma.structures import (DataSample, MultiTaskDataSample,
                                    batch_label_to_onehot, cat_batch_labels,

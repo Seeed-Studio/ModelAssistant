@@ -10,7 +10,7 @@ from .basetransform import BaseTransform
 from mmengine.utils import is_str
 from PIL import Image
 
-from mmengine.registry import TRANSFORMS
+from sscma.registry import TRANSFORMS
 from sscma.structures import DataSample, MultiTaskDataSample
 
 

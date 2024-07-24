@@ -4,7 +4,7 @@ from typing import Optional, Tuple, Union, List
 import torch
 import torch.nn as nn
 
-from mmengine.registry import MODELS
+from sscma.registry import MODELS
 from mmengine.model import BaseModule
 from sscma.structures import DataSample
 from sscma.evaluation.metrics import Accuracy

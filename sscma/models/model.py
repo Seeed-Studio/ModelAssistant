@@ -2,7 +2,7 @@
 import torch
 import torch.nn as nn
 from typing import List, Optional
-from mmengine.registry import MODELS
+from sscma.registry import MODELS
 from mmengine.model import BaseModel
 from sscma.datasets import ClsDataPreprocessor
 from sscma.structures import DataSample

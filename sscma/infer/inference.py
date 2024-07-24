@@ -14,7 +14,7 @@ import torch
 from mmcv import imread
 from mmengine.device import get_device
 from mmengine.infer import BaseInferencer
-from mmengine.registry import INFERENCERS
+from sscma.registry import INFERENCERS
 from mmengine.visualization import Visualizer
 
 
