@@ -89,7 +89,7 @@ class ImageNet(CustomDataset):
     """  # noqa: E501
 
     IMG_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm', '.tif')
-    METAINFO = {'classes': IMAGENET_CATEGORIES}
+    METAINFO = {'classes': IMAGENET100_CATEGORIES}
 
     def __init__(self,
                  data_root: str = '',

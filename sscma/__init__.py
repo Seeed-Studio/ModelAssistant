@@ -3,6 +3,7 @@ from mmengine.utils import digit_version
 
 from .version import __version__, version_info
 
+from .visualization import *  # noqa: F401,F403
 
 
 mmengine_minimum_version = '0.3.0'

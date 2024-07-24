@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from mmengine.registry import MODELS
+from sscma.registry import MODELS
 from sscma.structures import DataSample
 from mmengine.model import BaseModel
 

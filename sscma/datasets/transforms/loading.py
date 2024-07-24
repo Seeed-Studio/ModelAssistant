@@ -3,7 +3,7 @@ import warnings
 from typing import Optional
 
 import mmengine.fileio as fileio
-from mmengine.registry import TRANSFORMS
+from sscma.registry import TRANSFORMS
 import numpy as np
 from mmengine.utils import is_str
 

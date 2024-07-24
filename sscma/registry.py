@@ -18,6 +18,9 @@ from mmengine.registry import TASK_UTILS as MMENGINE_TASK_UTILS
 from mmengine.registry import TRANSFORMS as MMENGINE_TRANSFORMS
 from mmengine.registry import VISBACKENDS as MMENGINE_VISBACKENDS
 from mmengine.registry import VISUALIZERS as MMENGINE_VISUALIZERS
+from mmengine.registry import INFERENCERS as MMENGIN_INFERENCERS
+from mmengine.registry import DATA_SAMPLERS as MMENGIN_DATA_SAMPLERS
+
 from mmengine.registry import \
     WEIGHT_INITIALIZERS as MMENGINE_WEIGHT_INITIALIZERS
 from mmengine.registry import Registry
@@ -43,6 +46,9 @@ DATASETS = Registry(
     parent=MMENGINE_DATASETS,
     locations=['sscma.datasets'])
 
+DATA_SAMPLERS = Registry('dataset',parent=MMENGIN_DATA_SAMPLERS)
+
+
 TRANSFORMS = Registry(
     'transform',
     parent=MMENGINE_TRANSFORMS,
@@ -64,38 +70,20 @@ WEIGHT_INITIALIZERS = Registry(
     locations=['sscma.models'])
 
 # # manage all kinds of optimizers like `SGD` and `Adam`
-# OPTIMIZERS = Registry(
-#     'optimizer',
-#     parent=MMENGINE_OPTIMIZERS,
-#     locations=['sscma.engine.optimizer'])
+OPTIMIZERS = Registry('optimizer',parent=MMENGINE_OPTIMIZERS)
 
-# # manage optimizer wrapper
-# OPTIM_WRAPPERS = Registry(
-#     'optim_wrapper',
-#     parent=MMENGINE_OPTIM_WRAPPERS,
-#     locations=['sscma.engine.optim_wrapper'])
+# manage optimizer wrapper
+OPTIM_WRAPPERS = Registry('optim_wrapper', parent=MMENGINE_OPTIM_WRAPPERS)
 
-# # manage constructors that customize the optimization hyperparameters.
-# # OPTIM_WRAPPER_CONSTRUCTORS = Registry(
-# #     'optimizer constructor',
-# #     parent=MMENGINE_OPTIM_WRAPPER_CONSTRUCTORS,
-# #     locations=['sscma.engine.optim_wrapper_constructor'])
+#manage constructors that customize the optimization hyperparameters.
+OPTIM_WRAPPER_CONSTRUCTORS = Registry('optimizer constructor',parent=MMENGINE_OPTIM_WRAPPER_CONSTRUCTORS)
 
-# # manage all kinds of parameter schedulers like `MultiStepLR`
-# PARAM_SCHEDULERS = Registry(
-#     'parameter scheduler',
-#     parent=MMENGINE_PARAM_SCHEDULERS,
-#     locations=['sscma.engine.scheduler'])
+# manage all kinds of parameter schedulers like `MultiStepLR`
+PARAM_SCHEDULERS = Registry('parameter scheduler',parent=MMENGINE_PARAM_SCHEDULERS)
 # manage all kinds of metrics
-METRICS = Registry(
-    'metric',
-    parent=MMENGINE_METRICS,
-    locations=['sscma.evaluation'])
+METRICS = Registry('metric',parent=MMENGINE_METRICS)
 # manage evaluator
-EVALUATOR = Registry(
-    'evaluator',
-    parent=MMENGINE_EVALUATOR,
-    locations=['sscma.evaluation'])
+EVALUATOR = Registry('evaluator',parent=MMENGINE_EVALUATOR)
 
 # NOTE: sscma does not define less commomly customized
 # modules below, therefore locations are not specified for Registry.
@@ -107,6 +95,8 @@ TASK_UTILS = Registry('task util', parent=MMENGINE_TASK_UTILS)
 VISUALIZERS = Registry('visualizer', parent=MMENGINE_VISUALIZERS)
 # manage visualizer backend
 VISBACKENDS = Registry('vis_backend', parent=MMENGINE_VISBACKENDS)
+
+INFERENCERS = Registry('inferencers', parent=MMENGIN_INFERENCERS)
 
 # manage logprocessor
 LOG_PROCESSORS = Registry('log_processor', parent=MMENGINE_LOG_PROCESSORS)
