@@ -4,10 +4,8 @@ from typing import Tuple,Optional,List
 import numpy as np
 import torch
 
-from sscma.registry import TRANSFORMS
 
 
-@TRANSFORMS.register_module()
 class Mixup:
     r"""Mixup batch augmentation.
 
@@ -65,7 +63,6 @@ class Mixup:
         return mixed_inputs, mixed_score
 
 
-@TRANSFORMS.register_module()
 class CutMix(Mixup):
     r"""CutMix batch agumentation.
 

@@ -3,7 +3,6 @@ import warnings
 from typing import Optional
 
 import mmengine.fileio as fileio
-from sscma.registry import TRANSFORMS
 import numpy as np
 from mmengine.utils import is_str
 
@@ -70,7 +69,6 @@ def imfrombytes(content: bytes,
     return img
 
 
-@TRANSFORMS.register_module()
 class LoadImageFromFile(BaseTransform):
     """Load an image from file.
 
@@ -191,7 +189,6 @@ class LoadImageFromFile(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
 class LoadAnnotations(BaseTransform):
     """Load and process the ``instances`` and ``seg_map`` annotation provided
     by dataset.
