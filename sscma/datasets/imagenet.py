@@ -4,12 +4,10 @@ from typing import List, Optional, Union
 from mmengine import fileio
 from mmengine.logging import MMLogger
 
-from sscma.registry import DATASETS
 from .categories import IMAGENET_CATEGORIES, IMAGENET100_CATEGORIES
 from .custom import CustomDataset
 
 
-@DATASETS.register_module()
 class ImageNet(CustomDataset):
     """`ImageNet <http://www.image-net.org>`_ Dataset.
 
@@ -134,7 +132,6 @@ class ImageNet(CustomDataset):
         return body
 
 
-@DATASETS.register_module()
 class ImageNet21k(CustomDataset):
     """ImageNet21k Dataset.
 

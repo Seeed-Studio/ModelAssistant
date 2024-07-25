@@ -9,9 +9,7 @@ the ``CustomInitializer`` to the real name of the initializer and implement it.
 
 from mmengine.model.weight_init import BaseInit
 
-from sscma.registry import WEIGHT_INITIALIZERS
 
 
-@WEIGHT_INITIALIZERS.register_module()
 class CustomInitializer(BaseInit):
     ...

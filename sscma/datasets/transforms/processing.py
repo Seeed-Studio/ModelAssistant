@@ -2,9 +2,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from typing import Union,Sequence,Tuple,List,Optional,Dict,Iterable
 
-from sscma.registry import TRANSFORMS
 import numpy as np
 from mmengine.utils import is_list_of
+from mmengine.registry import TRANSFORMS
 
 from .basetransform import BaseTransform
 
@@ -93,7 +93,6 @@ class cache_randomness:
     
 
 
-@TRANSFORMS.register_module()
 class RandomResizedCrop(BaseTransform):
     """Crop the given image to random scale and aspect ratio.
 
@@ -247,7 +246,6 @@ class RandomResizedCrop(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
 class ResizeEdge(BaseTransform):
     """Resize images along the specified edge.
 
@@ -348,7 +346,6 @@ class ResizeEdge(BaseTransform):
 
 
 
-@TRANSFORMS.register_module()
 class RandomFlip(BaseTransform):
     """Flip the image & bbox & keypoints & segmentation map. Added or Updated
     keys: flip, flip_direction, img, gt_bboxes, gt_seg_map, and
@@ -617,7 +614,6 @@ class RandomFlip(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
 class CenterCrop(BaseTransform):
     """Crop the center of the image, segmentation masks, bounding boxes and key
     points. If the crop area exceeds the original image and ``auto_pad`` is

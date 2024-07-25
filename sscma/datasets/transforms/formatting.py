@@ -10,7 +10,7 @@ from .basetransform import BaseTransform
 from mmengine.utils import is_str
 from PIL import Image
 
-from sscma.registry import TRANSFORMS
+from mmengine.registry import TRANSFORMS
 from sscma.structures import DataSample, MultiTaskDataSample
 
 
@@ -37,7 +37,6 @@ def to_tensor(data):
             '`Sequence`, `int` and `float`')
 
 
-@TRANSFORMS.register_module()
 class PackInputs(BaseTransform):
     """Pack the inputs data.
 
@@ -167,7 +166,6 @@ class PackInputs(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
 class PackMultiTaskInputs(BaseTransform):
     """Convert all image labels of multi-task dataset to a dict of tensor.
 
@@ -227,7 +225,6 @@ class PackMultiTaskInputs(BaseTransform):
         return repr
 
 
-@TRANSFORMS.register_module()
 class Transpose(BaseTransform):
     """Transpose numpy array.
 
@@ -259,7 +256,6 @@ class Transpose(BaseTransform):
             f'(keys={self.keys}, order={self.order})'
 
 
-@TRANSFORMS.register_module(('NumpyToPIL', 'ToPIL'))
 class NumpyToPIL(BaseTransform):
     """Convert the image from OpenCV format to :obj:`PIL.Image.Image`.
 
@@ -290,7 +286,6 @@ class NumpyToPIL(BaseTransform):
         return self.__class__.__name__ + f'(to_rgb={self.to_rgb})'
 
 
-@TRANSFORMS.register_module(('PILToNumpy', 'ToNumpy'))
 class PILToNumpy(BaseTransform):
     """Convert img to :obj:`numpy.ndarray`.
 
@@ -325,7 +320,6 @@ class PILToNumpy(BaseTransform):
             f'(to_bgr={self.to_bgr}, dtype={self.dtype})'
 
 
-@TRANSFORMS.register_module()
 class Collect(BaseTransform):
     """Collect and only reserve the specified fields.
 
