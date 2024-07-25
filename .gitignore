@@ -31,6 +31,7 @@ venv.bak/
 # Datasets (and explicitly disignore sscma/datasets)
 datasets/
 !sscma/datasets
+!configs/datasets
 
 # Work directory
 work_dirs/
