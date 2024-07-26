@@ -37,6 +37,7 @@ fi
 # openmim install deps
 echo -en "Installing OpenMIM deps... \n"
 mim install -r requirements/mmlab.txt && \
+mim install mmcv==2.0.0 && \
 mim install -e .
 if [ "$?" != 0 ]; then
     echo -en "OpenMIM install deps failed... ${RED}Exiting${RST}\n"
