@@ -16,7 +16,6 @@ data_preprocessor = dict(
 model = dict(
     data_preprocessor=data_preprocessor,
     type=TimmClassifier,
-    model_name="resnet50",
     pretrained=True,
     num_classes=100,
     loss=dict(
