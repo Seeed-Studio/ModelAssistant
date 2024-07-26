@@ -3,5 +3,5 @@ with read_base():
     from .datasets.imagenet_bs32 import *
     from ._base_.default_runtime import *
     from .models.timm_resnet50 import *
-    from .schedules.imagenet_bs256 import *
+    from .schedules.sgd_linear_coslr_bs2048 import *
 
