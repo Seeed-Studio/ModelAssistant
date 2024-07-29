@@ -9,6 +9,7 @@ from mmengine.registry import TRANSFORMS
 from .basetransform import BaseTransform
 
 from sscma.utils import simplecv_imresize, simplecv_imflip,simplecv_imcrop
+from sscma.structures.bbox import  autocast_box_type
 
 import copy
 import functools
@@ -552,9 +553,9 @@ class RandomFlip(BaseTransform):
 
         return cur_dir
 
+    @autocast_box_type()
     def _flip(self, results: dict) -> None:
-        """Flip images, bounding boxes, semantic segmentation map and
-        keypoints."""
+        """Flip images, bounding boxes, and semantic segmentation map."""
         # flip image
         results['img'] = simplecv_imflip(
             results['img'], direction=results['flip_direction'])
@@ -563,20 +564,21 @@ class RandomFlip(BaseTransform):
 
         # flip bboxes
         if results.get('gt_bboxes', None) is not None:
-            results['gt_bboxes'] = self._flip_bbox(results['gt_bboxes'],
-                                                   img_shape,
-                                                   results['flip_direction'])
+            results['gt_bboxes'].flip_(img_shape, results['flip_direction'])
 
-        # flip keypoints
-        if results.get('gt_keypoints', None) is not None:
-            results['gt_keypoints'] = self._flip_keypoints(
-                results['gt_keypoints'], img_shape, results['flip_direction'])
+        # flip masks
+        if results.get('gt_masks', None) is not None:
+            results['gt_masks'] = results['gt_masks'].flip(
+                results['flip_direction'])
 
-        # flip seg map
+        # flip segs
         if results.get('gt_seg_map', None) is not None:
-            results['gt_seg_map'] = self._flip_seg_map(
+            results['gt_seg_map'] = simplecv_imflip(
                 results['gt_seg_map'], direction=results['flip_direction'])
-            results['swap_seg_labels'] = self.swap_seg_labels
+
+        # record homography matrix for flip
+        self._record_homography_matrix(results)
+
 
     def _flip_on_direction(self, results: dict) -> None:
         """Function to flip images, bounding boxes, semantic segmentation map
