@@ -13,7 +13,6 @@ import numpy as np
 
 from mmengine.evaluator import BaseMetric
 
-from sscma.registry import METRICS
 import mmengine
 
 def to_tensor(value):
@@ -27,7 +26,6 @@ def to_tensor(value):
     return value
 
 
-@METRICS.register_module()
 class Accuracy(BaseMetric):
     r"""Accuracy evaluation metric.
 

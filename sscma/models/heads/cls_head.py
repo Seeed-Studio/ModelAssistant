@@ -4,14 +4,12 @@ from typing import Optional, Tuple, Union, List
 import torch
 import torch.nn as nn
 
-from mmengine.registry import MODELS
 from mmengine.model import BaseModule
 from sscma.structures import DataSample
 from sscma.evaluation.metrics import Accuracy
 
 
 
-@MODELS.register_module()
 class ClsHead(BaseModule):
     """Classification head.
 
@@ -157,7 +155,6 @@ class ClsHead(BaseModule):
 
 
 
-@MODELS.register_module()
 class LinearClsHead(ClsHead):
     """Linear classifier head.
 

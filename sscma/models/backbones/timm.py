@@ -7,12 +7,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from mmengine.registry import MODELS
 from sscma.structures import DataSample
 from mmengine.model import BaseModel
+from sscma.datasets import ClsDataPreprocessor
+from mmengine.registry import MODELS
 
-
-@MODELS.register_module()
 class TimmClassifier(BaseModel):
     """Image classifiers for pytorch-image-models (timm) model.
 
@@ -70,7 +69,7 @@ mo
             data_preprocessor = {}
 
         if isinstance(data_preprocessor, dict):
-            data_preprocessor.setdefault('type', 'ClsDataPreprocessor')
+            data_preprocessor.setdefault('type', ClsDataPreprocessor)
 
         elif not isinstance(data_preprocessor, nn.Module):
             raise TypeError('data_preprocessor should be a `dict` or '

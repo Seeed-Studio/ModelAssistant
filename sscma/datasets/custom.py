@@ -5,7 +5,6 @@ from mmengine.fileio import (BaseStorageBackend, get_file_backend,
                              list_from_file)
 from mmengine.logging import MMLogger
 
-from sscma.registry import DATASETS
 from sscma.datasets.base_dataset import BaseDataset
 
 
@@ -96,7 +95,6 @@ def get_samples(
     return samples, empty_folders
 
 
-@DATASETS.register_module()
 class CustomDataset(BaseDataset):
     """A generic dataset for multiple tasks.
 

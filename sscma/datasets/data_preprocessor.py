@@ -9,7 +9,6 @@ import torch
 import torch.nn.functional as F
 from mmengine.model import (BaseDataPreprocessor,
                             stack_batch)
-from mmengine.registry import MODELS
 from mmengine.registry import TRANSFORMS
 
 from sscma.structures import (DataSample, MultiTaskDataSample,
@@ -89,7 +88,6 @@ class RandomBatchAugment:
 
 
 
-@MODELS.register_module()
 class ClsDataPreprocessor(BaseDataPreprocessor):
     """Image pre-processor for classification tasks.
 

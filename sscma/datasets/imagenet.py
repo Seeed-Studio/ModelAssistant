@@ -4,12 +4,10 @@ from typing import List, Optional, Union
 from mmengine import fileio
 from mmengine.logging import MMLogger
 
-from sscma.registry import DATASETS
 from .categories import IMAGENET_CATEGORIES, IMAGENET100_CATEGORIES
 from .custom import CustomDataset
 
 
-@DATASETS.register_module()
 class ImageNet(CustomDataset):
     """`ImageNet <http://www.image-net.org>`_ Dataset.
 
@@ -89,7 +87,7 @@ class ImageNet(CustomDataset):
     """  # noqa: E501
 
     IMG_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm', '.tif')
-    METAINFO = {'classes': IMAGENET_CATEGORIES}
+    METAINFO = {'classes': IMAGENET100_CATEGORIES}
 
     def __init__(self,
                  data_root: str = '',
@@ -134,7 +132,6 @@ class ImageNet(CustomDataset):
         return body
 
 
-@DATASETS.register_module()
 class ImageNet21k(CustomDataset):
     """ImageNet21k Dataset.
 

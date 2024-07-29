@@ -7,7 +7,7 @@ import mmengine
 import numpy as np
 from mmengine.dataset import BaseDataset as _BaseDataset
 
-from sscma.registry import DATASETS, TRANSFORMS
+from mmengine.registry import  TRANSFORMS
 
 
 def expanduser(path):
@@ -21,7 +21,6 @@ def expanduser(path):
         return path
 
 
-@DATASETS.register_module()
 class BaseDataset(_BaseDataset):
     """Base dataset for image classification task.
 
