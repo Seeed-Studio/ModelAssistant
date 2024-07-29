@@ -7,9 +7,8 @@ import os.path as osp
 from pycocotools.coco import COCO
 import lance
 from mmengine.dataset.base_dataset import force_full_init
-import io
-from PIL import Image
 from sscma.datasets.base_dataset import BaseDataset
+import cv2
 
 
 def process_images_detect(images_folder, schema, ann_file):
@@ -108,6 +107,34 @@ def write_to_lance(lance_file, data_folder, ann_file=None):
     return schema
 
 
+class LoadFold:
+    def __init__(self, fold) -> None:
+        catdir = [osp.join(fold, i) for i in os.listdir(fold)]
+        self.data = []
+        for cat, dirs in enumerate(catdir):
+            imgs_file = [
+                osp.join(dirs, i)
+                for i in os.listdir(dirs)
+                if i.endswith((".jpg", ".png"))
+            ]
+            for f in imgs_file:
+                tmp = {}
+                tmp["label"] = cat
+                tmp["gt_label"] = cat
+                tmp["img_path"] = f
+                self.data.append(tmp)
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, i):
+        data = self.data[i]
+        im = cv2.imread(data["img_path"])
+        data["img"] = im
+
+        return data
+
+
 class LanceDataset(BaseDataset):
     def __init__(
         self,
@@ -117,12 +144,13 @@ class LanceDataset(BaseDataset):
         data_prefix: str = "",
         filter_cfg: dict = None,
         indices: int = None,
-        serialize_data: bool = True,
+        serialize_data: bool = False,
         pipeline: Sequence = ...,
         test_mode: bool = False,
         lazy_init: bool = False,
         max_refetch: int = 1000,
         classes: str = None,
+        nodb=False,
     ):
 
         self.lance_file = osp.join(data_root, ".val" if test_mode else ".train")
@@ -137,7 +165,12 @@ class LanceDataset(BaseDataset):
         if "image" in self.cache_info:
             self.cache_info.remove("image")
 
-        self.ds = lance.dataset(self.lance_file)
+        self.nodb = nodb
+        if self.nodb:
+            self.ds = LoadFold(data_folder)
+            serialize_data = False
+        else:
+            self.ds = lance.dataset(self.lance_file)
 
         super().__init__(
             ann_file,
@@ -155,9 +188,14 @@ class LanceDataset(BaseDataset):
         )
 
     def __len__(self):
+        if self.nodb:
+            print("data:", len(self.ds.data))
+            return len(self.ds.data)
         return self.ds.count_rows()
 
     def load_data_list(self) -> List[dict]:
+        if self.nodb:
+            return self.ds.data
         anns = []
         for i in range(len(self)):
             data = self.ds.take([i], columns=self.cache_info).to_pydict()
@@ -167,13 +205,17 @@ class LanceDataset(BaseDataset):
 
     @force_full_init
     def get_data_info(self, idx: int) -> dict:
+        if self.nodb:
+            return self.ds[idx]
         data: dict = self.ds.take([idx]).to_pydict()
         if data.get("bbox", False):
-            print(data["bbox"][0])
-            # if data["bbox"][0]==None:
             data["catid"] = np.frombuffer(data["catid"][0], dtype=np.int16)
             data["bbox"] = np.frombuffer(data["bbox"][0], dtype=np.float32).reshape(
                 -1, 4
             )
-        data["image"] = Image.open(io.BytesIO(data["image"][0]))
+
+        data["img"] = cv2.imdecode(
+            np.frombuffer(data["image"][0], dtype=np.uint8), cv2.IMREAD_COLOR
+        )[..., ::-1]
+        data["gt_label"] = data["label"]
         return data
