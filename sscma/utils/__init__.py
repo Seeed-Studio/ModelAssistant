@@ -1,6 +1,6 @@
 from .simplecv import (_scale_size,simplecv_imresize, simplecv_imflip,simplecv_imcrop,simplecv_imrescale, 
                        simplecv_imread, simplecv_imfrombytes,simplecv_imwrite, simplecv_rescale_size,
-                       simplecv_impad,simplecv_imtranslate,simplecv_imshear,simplecv_imrotat,
+                       simplecv_impad,simplecv_imtranslate,simplecv_imshear,simplecv_imrotate,
                        simplecv_color_val)
 
 from  .colorspace  import (simplecv_bgr2gray, simplecv_bgr2hls, simplecv_bgr2hsv, simplecv_bgr2rgb, simplecv_bgr2ycbcr,
