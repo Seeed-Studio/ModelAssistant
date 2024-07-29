@@ -129,7 +129,7 @@ class LoadFold:
 
     def __getitem__(self, i):
         data = self.data[i]
-        im = cv2.imread(data["img_path"])
+        im = cv2.imread(data["img_path"])[...,::-1]
         data["img"] = im
 
         return data
@@ -189,7 +189,6 @@ class LanceDataset(BaseDataset):
 
     def __len__(self):
         if self.nodb:
-            print("data:", len(self.ds.data))
             return len(self.ds.data)
         return self.ds.count_rows()
 
