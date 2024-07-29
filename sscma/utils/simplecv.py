@@ -1,16 +1,13 @@
-import numpy as np
-from typing import Union,Sequence,Tuple,List,Optional,Dict,Iterable
-
-import cv2
-
-
 import io
-import os.path as osp
+import cv2
+import numbers
 import warnings
+import os.path as osp
 from pathlib import Path
-
-import mmengine.fileio as fileio
+from enum import Enum
 import numpy as np
+import mmengine.fileio as fileio
+from typing import Union,Sequence,Tuple,List,Optional,Dict,Iterable
 from cv2 import (IMREAD_COLOR, IMREAD_GRAYSCALE, IMREAD_IGNORE_ORIENTATION,
                  IMREAD_UNCHANGED)
 from mmengine.utils import is_filepath, is_str
@@ -35,6 +32,17 @@ cv2_interp_codes = {
     'lanczos': cv2.INTER_LANCZOS4
 }
 
+cv2_border_modes = {
+    'constant': cv2.BORDER_CONSTANT,
+    'replicate': cv2.BORDER_REPLICATE,
+    'reflect': cv2.BORDER_REFLECT,
+    'wrap': cv2.BORDER_WRAP,
+    'reflect_101': cv2.BORDER_REFLECT_101,
+    'transparent': cv2.BORDER_TRANSPARENT,
+    'isolated': cv2.BORDER_ISOLATED
+}
+
+
 imread_flags = {
     'color': IMREAD_COLOR,
     'grayscale': IMREAD_GRAYSCALE,
@@ -44,6 +52,50 @@ imread_flags = {
     IMREAD_IGNORE_ORIENTATION | IMREAD_GRAYSCALE
 }
 
+
+class Color(Enum):
+    """An enum that defines common colors.
+
+    Contains red, green, blue, cyan, yellow, magenta, white and black.
+    """
+    red = (0, 0, 255)
+    green = (0, 255, 0)
+    blue = (255, 0, 0)
+    cyan = (255, 255, 0)
+    yellow = (0, 255, 255)
+    magenta = (255, 0, 255)
+    white = (255, 255, 255)
+    black = (0, 0, 0)
+
+
+def simplecv_color_val(color: Union[Color, str, tuple, int, np.ndarray]) -> tuple:
+    """Convert various input to color tuples.
+
+    Args:
+        color (:obj:`Color`/str/tuple/int/ndarray): Color inputs
+
+    Returns:
+        tuple[int]: A tuple of 3 integers indicating BGR channels.
+    """
+    if is_str(color):
+        return Color[color].value  # type: ignore
+    elif isinstance(color, Color):
+        return color.value
+    elif isinstance(color, tuple):
+        assert len(color) == 3
+        for channel in color:
+            assert 0 <= channel <= 255
+        return color
+    elif isinstance(color, int):
+        assert 0 <= color <= 255
+        return color, color, color
+    elif isinstance(color, np.ndarray):
+        assert color.ndim == 1 and color.size == 3
+        assert np.all((color >= 0) & (color <= 255))
+        color = color.astype(np.uint8)
+        return tuple(color)
+    else:
+        raise TypeError(f'Invalid type for color: {type(color)}')
 
 
 
@@ -517,3 +569,320 @@ def simplecv_imwrite(img: np.ndarray,
 
     return flag
 
+def simplecv_rescale_size(old_size: tuple,
+                 scale: Union[float, int, Tuple[int, int]],
+                 return_scale: bool = False) -> tuple:
+    """Calculate the new size to be rescaled to.
+
+    Args:
+        old_size (tuple[int]): The old size (w, h) of image.
+        scale (float | int | tuple[int]): The scaling factor or maximum size.
+            If it is a float number or an integer, then the image will be
+            rescaled by this factor, else if it is a tuple of 2 integers, then
+            the image will be rescaled as large as possible within the scale.
+        return_scale (bool): Whether to return the scaling factor besides the
+            rescaled image size.
+
+    Returns:
+        tuple[int]: The new rescaled image size.
+    """
+    w, h = old_size
+    if isinstance(scale, (float, int)):
+        if scale <= 0:
+            raise ValueError(f'Invalid scale {scale}, must be positive.')
+        scale_factor = scale
+    elif isinstance(scale, tuple):
+        max_long_edge = max(scale)
+        max_short_edge = min(scale)
+        scale_factor = min(max_long_edge / max(h, w),
+                           max_short_edge / min(h, w))
+    else:
+        raise TypeError(
+            f'Scale must be a number or tuple of int, but got {type(scale)}')
+
+    new_size = _scale_size((w, h), scale_factor)
+
+    if return_scale:
+        return new_size, scale_factor
+    else:
+        return new_size
+
+
+def simplecv_impad(img: np.ndarray,
+          *,
+          shape: Optional[Tuple[int, int]] = None,
+          padding: Union[int, tuple, None] = None,
+          pad_val: Union[float, List] = 0,
+          padding_mode: str = 'constant') -> np.ndarray:
+    """Pad the given image to a certain shape or pad on all sides with
+    specified padding mode and padding value.
+
+    Args:
+        img (ndarray): Image to be padded.
+        shape (tuple[int]): Expected padding shape (h, w). Default: None.
+        padding (int or tuple[int]): Padding on each border. If a single int is
+            provided this is used to pad all borders. If tuple of length 2 is
+            provided this is the padding on left/right and top/bottom
+            respectively. If a tuple of length 4 is provided this is the
+            padding for the left, top, right and bottom borders respectively.
+            Default: None. Note that `shape` and `padding` can not be both
+            set.
+        pad_val (Number | Sequence[Number]): Values to be filled in padding
+            areas when padding_mode is 'constant'. Default: 0.
+        padding_mode (str): Type of padding. Should be: constant, edge,
+            reflect or symmetric. Default: constant.
+
+            - constant: pads with a constant value, this value is specified
+              with pad_val.
+            - edge: pads with the last value at the edge of the image.
+            - reflect: pads with reflection of image without repeating the last
+              value on the edge. For example, padding [1, 2, 3, 4] with 2
+              elements on both sides in reflect mode will result in
+              [3, 2, 1, 2, 3, 4, 3, 2].
+            - symmetric: pads with reflection of image repeating the last value
+              on the edge. For example, padding [1, 2, 3, 4] with 2 elements on
+              both sides in symmetric mode will result in
+              [2, 1, 1, 2, 3, 4, 4, 3]
+
+    Returns:
+        ndarray: The padded image.
+    """
+
+    assert (shape is not None) ^ (padding is not None)
+    if shape is not None:
+        width = max(shape[1] - img.shape[1], 0)
+        height = max(shape[0] - img.shape[0], 0)
+        padding = (0, 0, width, height)
+
+    # check pad_val
+    if isinstance(pad_val, tuple):
+        assert len(pad_val) == img.shape[-1]
+    elif not isinstance(pad_val, numbers.Number):
+        raise TypeError('pad_val must be a int or a tuple. '
+                        f'But received {type(pad_val)}')
+
+    # check padding
+    if isinstance(padding, tuple) and len(padding) in [2, 4]:
+        if len(padding) == 2:
+            padding = (padding[0], padding[1], padding[0], padding[1])
+    elif isinstance(padding, numbers.Number):
+        padding = (padding, padding, padding, padding)
+    else:
+        raise ValueError('Padding must be a int or a 2, or 4 element tuple.'
+                         f'But received {padding}')
+
+    # check padding mode
+    assert padding_mode in ['constant', 'edge', 'reflect', 'symmetric']
+
+    border_type = {
+        'constant': cv2.BORDER_CONSTANT,
+        'edge': cv2.BORDER_REPLICATE,
+        'reflect': cv2.BORDER_REFLECT_101,
+        'symmetric': cv2.BORDER_REFLECT
+    }
+    img = cv2.copyMakeBorder(
+        img,
+        padding[1],
+        padding[3],
+        padding[0],
+        padding[2],
+        border_type[padding_mode],
+        value=pad_val)
+
+    return img
+
+
+def _get_translate_matrix(offset: Union[int, float],
+                          direction: str = 'horizontal') -> np.ndarray:
+    """Generate the translate matrix.
+
+    Args:
+        offset (int | float): The offset used for translate.
+        direction (str): The translate direction, either
+            "horizontal" or "vertical".
+
+    Returns:
+        ndarray: The translate matrix with dtype float32.
+    """
+    if direction == 'horizontal':
+        translate_matrix = np.float32([[1, 0, offset], [0, 1, 0]])
+    elif direction == 'vertical':
+        translate_matrix = np.float32([[1, 0, 0], [0, 1, offset]])
+    return translate_matrix
+
+
+
+def simplecv_imtranslate(img: np.ndarray,
+                offset: Union[int, float],
+                direction: str = 'horizontal',
+                border_value: Union[int, tuple] = 0,
+                interpolation: str = 'bilinear') -> np.ndarray:
+    """Translate an image.
+
+    Args:
+        img (ndarray): Image to be translated with format
+            (h, w) or (h, w, c).
+        offset (int | float): The offset used for translate.
+        direction (str): The translate direction, either "horizontal"
+            or "vertical".
+        border_value (int | tuple[int]): Value used in case of a
+            constant border.
+        interpolation (str): Same as :func:`resize`.
+
+    Returns:
+        ndarray: The translated image.
+    """
+    assert direction in ['horizontal',
+                         'vertical'], f'Invalid direction: {direction}'
+    height, width = img.shape[:2]
+    if img.ndim == 2:
+        channels = 1
+    elif img.ndim == 3:
+        channels = img.shape[-1]
+    if isinstance(border_value, int):
+        border_value = tuple([border_value] * channels)
+    elif isinstance(border_value, tuple):
+        assert len(border_value) == channels, \
+            'Expected the num of elements in tuple equals the channels' \
+            'of input image. Found {} vs {}'.format(
+                len(border_value), channels)
+    else:
+        raise ValueError(
+            f'Invalid type {type(border_value)} for `border_value`.')
+    translate_matrix = _get_translate_matrix(offset, direction)
+    translated = cv2.warpAffine(
+        img,
+        translate_matrix,
+        (width, height),
+        # Note case when the number elements in `border_value`
+        # greater than 3 (e.g. translating masks whose channels
+        # large than 3) will raise TypeError in `cv2.warpAffine`.
+        # Here simply slice the first 3 values in `border_value`.
+        borderValue=border_value[:3],
+        flags=cv2_interp_codes[interpolation])
+    return translated
+
+
+def _get_shear_matrix(magnitude: Union[int, float],
+                      direction: str = 'horizontal') -> np.ndarray:
+    """Generate the shear matrix for transformation.
+
+    Args:
+        magnitude (int | float): The magnitude used for shear.
+        direction (str): The flip direction, either "horizontal"
+            or "vertical".
+
+    Returns:
+        ndarray: The shear matrix with dtype float32.
+    """
+    if direction == 'horizontal':
+        shear_matrix = np.float32([[1, magnitude, 0], [0, 1, 0]])
+    elif direction == 'vertical':
+        shear_matrix = np.float32([[1, 0, 0], [magnitude, 1, 0]])
+    return shear_matrix
+
+
+def simplecv_imshear(img: np.ndarray,
+            magnitude: Union[int, float],
+            direction: str = 'horizontal',
+            border_value: Union[int, Tuple[int, int]] = 0,
+            interpolation: str = 'bilinear') -> np.ndarray:
+    """Shear an image.
+
+    Args:
+        img (ndarray): Image to be sheared with format (h, w)
+            or (h, w, c).
+        magnitude (int | float): The magnitude used for shear.
+        direction (str): The flip direction, either "horizontal"
+            or "vertical".
+        border_value (int | tuple[int]): Value used in case of a
+            constant border.
+        interpolation (str): Same as :func:`resize`.
+
+    Returns:
+        ndarray: The sheared image.
+    """
+    assert direction in ['horizontal',
+                         'vertical'], f'Invalid direction: {direction}'
+    height, width = img.shape[:2]
+    if img.ndim == 2:
+        channels = 1
+    elif img.ndim == 3:
+        channels = img.shape[-1]
+    if isinstance(border_value, int):
+        border_value = tuple([border_value] * channels)  # type: ignore
+    elif isinstance(border_value, tuple):
+        assert len(border_value) == channels, \
+            'Expected the num of elements in tuple equals the channels' \
+            'of input image. Found {} vs {}'.format(
+                len(border_value), channels)
+    else:
+        raise ValueError(
+            f'Invalid type {type(border_value)} for `border_value`')
+    shear_matrix = _get_shear_matrix(magnitude, direction)
+    sheared = cv2.warpAffine(
+        img,
+        shear_matrix,
+        (width, height),
+        # Note case when the number elements in `border_value`
+        # greater than 3 (e.g. shearing masks whose channels large
+        # than 3) will raise TypeError in `cv2.warpAffine`.
+        # Here simply slice the first 3 values in `border_value`.
+        borderValue=border_value[:3],  # type: ignore
+        flags=cv2_interp_codes[interpolation])
+    return sheared
+
+
+
+def simplecv_imrotate(img: np.ndarray,
+             angle: float,
+             center: Optional[Tuple[float, float]] = None,
+             scale: float = 1.0,
+             border_value: int = 0,
+             interpolation: str = 'bilinear',
+             auto_bound: bool = False,
+             border_mode: str = 'constant') -> np.ndarray:
+    """Rotate an image.
+
+    Args:
+        img (np.ndarray): Image to be rotated.
+        angle (float): Rotation angle in degrees, positive values mean
+            clockwise rotation.
+        center (tuple[float], optional): Center point (w, h) of the rotation in
+            the source image. If not specified, the center of the image will be
+            used.
+        scale (float): Isotropic scale factor.
+        border_value (int): Border value used in case of a constant border.
+            Defaults to 0.
+        interpolation (str): Same as :func:`resize`.
+        auto_bound (bool): Whether to adjust the image size to cover the whole
+            rotated image.
+        border_mode (str): Pixel extrapolation method. Defaults to 'constant'.
+
+    Returns:
+        np.ndarray: The rotated image.
+    """
+    if center is not None and auto_bound:
+        raise ValueError('`auto_bound` conflicts with `center`')
+    h, w = img.shape[:2]
+    if center is None:
+        center = ((w - 1) * 0.5, (h - 1) * 0.5)
+    assert isinstance(center, tuple)
+
+    matrix = cv2.getRotationMatrix2D(center, -angle, scale)
+    if auto_bound:
+        cos = np.abs(matrix[0, 0])
+        sin = np.abs(matrix[0, 1])
+        new_w = h * sin + w * cos
+        new_h = h * cos + w * sin
+        matrix[0, 2] += (new_w - w) * 0.5
+        matrix[1, 2] += (new_h - h) * 0.5
+        w = int(np.round(new_w))
+        h = int(np.round(new_h))
+    rotated = cv2.warpAffine(
+        img,
+        matrix, (w, h),
+        flags=cv2_interp_codes[interpolation],
+        borderMode=cv2_border_modes[border_mode],
+        borderValue=border_value)
+    return rotated
