@@ -3,6 +3,8 @@ with read_base():
     from .datasets.imagenet_bs32 import *
     from ._base_.default_runtime import *
     from .models.timm_classify import *
-    from .schedules.sgd_linear_coslr_bs2048 import *
+    from .schedules.AdamW_linear_coslr_bs2048 import *
 
-model.model_name="mobilenetv4_hybrid_medium.e500_r224_in1k"
+train_dataloader.batch_size=256
+auto_scale_lr = dict(base_batch_size=256)
+model.model_name="mobilenetv4_hybrid_medium"
