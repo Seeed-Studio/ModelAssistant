@@ -67,7 +67,7 @@ SSCMA provides customized scenarios for specific production environments, such a
 
 SSCMA is always committed to providing the cutting-edge AI algorithms for best performance and accuracy, along with the community feedbacks, we keeps updating and optimizing the algorithms to meet the actual needs of users, here are some of the latest updates:
 
-### 🔥 YOLO-World, MobileNetV4 and lighter SSCMA (Comming Soon)
+### 🔥 YOLO-World, MobileNetV4 and lighter SSCMA (Coming Soon)
 
 We are working on the latest [YOLO-World](https://github.com/AILab-CVC/YOLO-World), [MobileNetV4](https://arxiv.org/abs/2404.10518) algorithms for embedded devices, we are also refactoring the SSCMA with less dependencies to make it more lightweight and easier to use, please stay tuned for the latest updates.
 
