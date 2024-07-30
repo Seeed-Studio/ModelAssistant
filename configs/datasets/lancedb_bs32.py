@@ -13,6 +13,9 @@ from sscma.evaluation import Accuracy
 dataset_type = LanceDataset
 
 data_root = ""
+batch_size = 32
+num_workers = 4
+
 
 train_pipeline = [
     dict(type=RandomResizedCrop, scale=224),
@@ -27,31 +30,31 @@ test_pipeline = [
 ]
 
 train_dataloader = dict(
-    batch_size=32,
-    num_workers=4,
+    batch_size=batch_size,
+    num_workers=num_workers,
     pin_memory=True,
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
         data_prefix=dict(img_path="train"),
-        nodb=False,
         pipeline=train_pipeline,
     ),
     sampler=dict(type=DefaultSampler, shuffle=True),
+    persistent_workers=True,
 )
 
 val_dataloader = dict(
-    batch_size=32,
-    num_workers=4,
-    pin_memory=False,
+    batch_size=batch_size,
+    num_workers=num_workers,
+    pin_memory=True,
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        data_prefix=dict(img_path="valid"),
-        nodb=True,
+        data_prefix=dict(img_path="val"),
         pipeline=test_pipeline,
     ),
     sampler=dict(type=DefaultSampler, shuffle=False),
+    persistent_workers=True,
 )
 val_evaluator = dict(type=Accuracy, topk=(1, 5))
 
