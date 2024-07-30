@@ -51,8 +51,7 @@ def process_images_detect(images_folder, schema, ann_file):
 
 def process_images_cls(data_folder, schema):
     folders = [osp.join(data_folder, f) for f in os.listdir(data_folder)]
-
-    for label, image_dir in enumerate(folders):
+    for label, image_dir in tqdm(enumerate(folders), total=len(folders)):
         image_files = [osp.join(image_dir, f) for f in os.listdir(image_dir)]
         for image_file in image_files:
             with open(image_file, "rb") as f:
@@ -71,7 +70,6 @@ def process_images_cls(data_folder, schema):
 
 # Function to write PyArrow Table to Lance dataset
 def write_to_lance(lance_file, data_folder, ann_file=None):
-
     if ann_file != None:
         schema = pa.schema(
             [
@@ -115,7 +113,7 @@ class LoadFold:
             imgs_file = [
                 osp.join(dirs, i)
                 for i in os.listdir(dirs)
-                if i.endswith((".jpg", ".png"))
+                if i.lower().endswith((".jpg", ".png", ".jpeg"))
             ]
             for f in imgs_file:
                 tmp = {}
@@ -129,7 +127,7 @@ class LoadFold:
 
     def __getitem__(self, i):
         data = self.data[i]
-        im = cv2.imread(data["img_path"])[...,::-1]
+        im = cv2.imread(data["img_path"])[..., ::-1]
         data["img"] = im
 
         return data
@@ -141,7 +139,7 @@ class LanceDataset(BaseDataset):
         ann_file: str = None,
         metainfo: dict = None,
         data_root: str = "",
-        data_prefix: str = "",
+        data_prefix="",
         filter_cfg: dict = None,
         indices: int = None,
         serialize_data: bool = False,
@@ -150,10 +148,9 @@ class LanceDataset(BaseDataset):
         lazy_init: bool = False,
         max_refetch: int = 1000,
         classes: str = None,
-        nodb=False,
     ):
 
-        self.lance_file = osp.join(data_root, ".val" if test_mode else ".train")
+        self.lance_file = osp.join(data_root, "." + data_prefix.get("img_path", ""))
         data_folder = osp.join(data_root, data_prefix.get("img_path", ""))
         if ann_file != None and not osp.isabs(ann_file):
             ann_file = osp.join(data_root, ann_file)
@@ -161,17 +158,10 @@ class LanceDataset(BaseDataset):
         self.cache_info = write_to_lance(
             self.lance_file, data_folder, ann_file=ann_file
         ).names
-
         if "image" in self.cache_info:
             self.cache_info.remove("image")
 
-        self.nodb = nodb
-        if self.nodb:
-            self.ds = LoadFold(data_folder)
-            serialize_data = False
-        else:
-            self.ds = lance.dataset(self.lance_file)
-
+        self.ds = lance.dataset(self.lance_file)
         super().__init__(
             ann_file,
             metainfo,
@@ -188,13 +178,9 @@ class LanceDataset(BaseDataset):
         )
 
     def __len__(self):
-        if self.nodb:
-            return len(self.ds.data)
         return self.ds.count_rows()
 
     def load_data_list(self) -> List[dict]:
-        if self.nodb:
-            return self.ds.data
         anns = []
         for i in range(len(self)):
             data = self.ds.take([i], columns=self.cache_info).to_pydict()
@@ -204,8 +190,6 @@ class LanceDataset(BaseDataset):
 
     @force_full_init
     def get_data_info(self, idx: int) -> dict:
-        if self.nodb:
-            return self.ds[idx]
         data: dict = self.ds.take([idx]).to_pydict()
         if data.get("bbox", False):
             data["catid"] = np.frombuffer(data["catid"][0], dtype=np.int16)
