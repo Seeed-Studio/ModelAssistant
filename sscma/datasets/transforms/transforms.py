@@ -7,24 +7,18 @@ from typing import List, Optional, Sequence, Tuple, Union,Iterable
 
 import cv2
 import mmengine
-# import mmcv
+
 import numpy as np
-# from simplecv_image import imresize
-# from simplecv_image.geometric import _scale_size
-# from simplecv_transforms import BaseTransform
-# from simplecv_transforms import Pad as MMCV_Pad
-# from simplecv_transforms import RandomFlip as MMCV_RandomFlip
-# from simplecv_transforms import Resize as MMCV_Resize
-# from simplecv_transforms.utils import avoid_cache_randomness, cache_randomness
+
 from sscma.utils import *
 from mmengine.dataset import BaseDataset
 from mmengine.utils import is_str
 from numpy import random
 
-from mmdet.registry import TRANSFORMS
+from mmengine.registry import TRANSFORMS
 from sscma.structures.bbox import HorizontalBoxes, autocast_box_type
 from sscma.structures.mask import BitmapMasks, PolygonMasks
-from mmdet.utils import log_img_scale
+from sscma.utils.logger import log_img_scale
 
 
 from .basetransform import BaseTransform,cache_randomness,avoid_cache_randomness
@@ -591,7 +585,7 @@ class FixShapeResize(Resize):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+()
 class RandomFlip(BaseTransform):
     """Flip the image & bbox & keypoints & segmentation map. Added or Updated
     keys: flip, flip_direction, img, gt_bboxes, gt_seg_map, and
@@ -886,7 +880,7 @@ class RandomFlip(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+()
 class RandomShift(BaseTransform):
     """Shift the image and box given shift pixels and probability.
 
@@ -992,7 +986,7 @@ class RandomShift(BaseTransform):
 
 
 
-@TRANSFORMS.register_module()
+()
 class Pad(BaseTransform):
     """Pad the image & segmentation map.
 
@@ -1156,7 +1150,7 @@ class Pad(BaseTransform):
         repr_str += f'padding_mode={self.padding_mode})'
         return repr_str
 
-@TRANSFORMS.register_module()
+()
 class RandomCrop(BaseTransform):
     """Random crop the image & bboxes & masks.
 
@@ -1401,7 +1395,7 @@ class RandomCrop(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+()
 class SegRescale(BaseTransform):
     """Rescale semantic segmentation maps.
 
@@ -1452,7 +1446,7 @@ class SegRescale(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+()
 class PhotoMetricDistortion(BaseTransform):
     """Apply photometric distortion to image sequentially, every transformation
     is applied with a probability of 0.5. The position of random contrast is in
@@ -1582,7 +1576,7 @@ class PhotoMetricDistortion(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+()
 class Expand(BaseTransform):
     """Random expand the image & bboxes & masks & segmentation map.
 
@@ -1706,7 +1700,7 @@ class Expand(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+()
 class MinIoURandomCrop(BaseTransform):
     """Random crop the image & bboxes & masks & segmentation map, the cropped
     patches have minimum IoU requirement with original image & bboxes & masks.
@@ -1862,7 +1856,7 @@ class MinIoURandomCrop(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+()
 class Corrupt(BaseTransform):
     """Corruption augmentation.
 
@@ -1913,7 +1907,7 @@ class Corrupt(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+()
 @avoid_cache_randomness
 class Albu(BaseTransform):
     """Albumentation augmentation.
@@ -2157,7 +2151,7 @@ class Albu(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+()
 @avoid_cache_randomness
 class RandomCenterCropPad(BaseTransform):
     """Random center crop and random around padding for CornerNet.
@@ -2533,7 +2527,7 @@ class RandomCenterCropPad(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+()
 class CutOut(BaseTransform):
     """CutOut operation.
 
@@ -2624,7 +2618,7 @@ class CutOut(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+()
 class Mosaic(BaseTransform):
     """Mosaic augmentation.
 
@@ -2884,7 +2878,7 @@ class Mosaic(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+()
 class MixUp(BaseTransform):
     """MixUp data augmentation.
 
@@ -3106,7 +3100,7 @@ class MixUp(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+()
 class RandomAffine(BaseTransform):
     """Random affine transform data augmentation.
 
@@ -3275,7 +3269,7 @@ class RandomAffine(BaseTransform):
         return translation_matrix
 
 
-@TRANSFORMS.register_module()
+()
 class YOLOXHSVRandomAug(BaseTransform):
     """Apply HSV augmentation to image sequentially. It is referenced from
     https://github.com/Megvii-
@@ -3335,7 +3329,7 @@ class YOLOXHSVRandomAug(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+()
 class CopyPaste(BaseTransform):
     """Simple Copy-Paste is a Strong Data Augmentation Method for Instance
     Segmentation The simple copy-paste transform steps are as follows:
@@ -3553,7 +3547,7 @@ class CopyPaste(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+()
 class RandomErasing(BaseTransform):
     """RandomErasing operation.
 
@@ -3712,7 +3706,7 @@ class RandomErasing(BaseTransform):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+()
 class CachedMosaic(Mosaic):
     """Cached mosaic augmentation.
 
@@ -3947,7 +3941,7 @@ class CachedMosaic(Mosaic):
         return repr_str
 
 
-@TRANSFORMS.register_module()
+()
 class CachedMixUp(BaseTransform):
     """Cached mixup data augmentation.
 

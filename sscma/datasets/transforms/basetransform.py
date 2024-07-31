@@ -4,6 +4,8 @@ from typing import Dict, List, Optional, Tuple, Union
 import inspect
 import functools
 import copy
+import weakref
+
 
 
 def avoid_cache_randomness(cls):

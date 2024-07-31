@@ -11,7 +11,7 @@ import os.path as osp
 
 import numpy as np
 import torch
-from mmcv import imread
+from sscma.utils.simplecv import simplecv_imread
 from mmengine.device import get_device
 from mmengine.infer import BaseInferencer
 from mmengine.visualization import Visualizer
@@ -43,7 +43,7 @@ class CustomInferencer(BaseInferencer):
         device = get_device()
 
         def naive_pipeline(image):
-            image = np.float32(imread(image))
+            image = np.float32(simplecv_imread(image))
             image = image.transpose(2, 0, 1)
             image = torch.from_numpy(image).to(device)
             return dict(inputs=image)
@@ -54,7 +54,7 @@ class CustomInferencer(BaseInferencer):
         """Visualize the predictions on the original inputs."""
         visualization = []
         for image_path, pred in zip(inputs, preds):
-            image = imread(image_path)
+            image = simplecv_imread(image_path)
             self.visualizer.set_image(image)
             # NOTE The implementation of visualization is left to the user.
             ...

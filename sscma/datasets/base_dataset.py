@@ -212,7 +212,5 @@ class BaseDataset(_BaseDataset):
 
     def extra_repr(self) -> List[str]:
         """The extra repr information of the dataset."""
-        body = []
-        body.append(f'Annotation file: \t{self.ann_file}')
-        body.append(f'Prefix of images: \t{self.img_prefix}')
+        body = [f'Annotation file: \t{self.ann_file}', f'Prefix of images: \t{self.img_prefix}']
         return body

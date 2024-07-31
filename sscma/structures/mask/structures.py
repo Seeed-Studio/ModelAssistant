@@ -8,7 +8,7 @@ import numpy as np
 import pycocotools.mask as maskUtils
 import shapely.geometry as geometry
 import torch
-from torchvision.ops.roi_align import roi_align
+from mmcv.ops.roi_align import roi_align
 from sscma.utils import *
 
 T = TypeVar('T')

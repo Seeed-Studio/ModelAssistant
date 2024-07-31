@@ -1,6 +1,7 @@
 # VS Code
 .vscode/**
 !.vscode/settings.json
+.idea/
 
 # macOS
 .DS_Store
