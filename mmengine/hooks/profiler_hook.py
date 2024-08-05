@@ -195,7 +195,7 @@ class ProfilerHook(Hook):
 
             elif trace_type == 'tb_trace':  # tensorboard_trace handler
                 try:
-                    import torch_tb_profiler  # noqa: F401
+                    import torch.profiler  # noqa: F401
                 except ImportError:
                     raise ImportError(
                         'please run ``pip install torch-tb-profiler``')

@@ -7,9 +7,9 @@ from sscma.infer import CustomInferencer
 
 def parse_args():
     parser = ArgumentParser()
-    parser.add_argument('img', help='Image file')
-    parser.add_argument('config', help='Config file')
-    parser.add_argument('checkpoint', help='Checkpoint file')
+    parser.add_argument('--img', help='Image file')
+    parser.add_argument('--config', help='Config file')
+    parser.add_argument('--checkpoint', help='Checkpoint file')
     parser.add_argument(
         '--out-file', default='result', help='Path to output file')
     parser.add_argument(
@@ -22,7 +22,7 @@ def main(args):
     DefaultScope.get_instance(
         name='sscma', scope_name='sscma')
     inferencer = CustomInferencer(
-        args.config, args.checkpoint, save_path=args.out_file)
+        args.config, args.checkpoint)
     inferencer(args.img, vis_thresh=0.8)
 
 

@@ -598,6 +598,11 @@ class Registry:
             force (bool): Whether to override an existing class with the same
                 name. Defaults to False.
         """
+        # from ..logging import print_log
+
+        # print_log(f'{name} is registered in {self.name}', logger='current',level=logging.DEBUG)
+
+
         if not callable(module):
             raise TypeError(f'module must be Callable, but got {type(module)}')
 

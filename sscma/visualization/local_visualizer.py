@@ -2,7 +2,6 @@
 from typing import Dict, List, Optional, Tuple, Union
 
 import cv2
-import mmcv
 import numpy as np
 
 try:
@@ -13,8 +12,9 @@ import torch
 from mmengine.dist import master_only
 from mmengine.structures import InstanceData, PixelData
 from mmengine.visualization import Visualizer
+from sscma.utils.simplecv import simplecv_imwrite
 
-from ..evaluation import INSTANCE_OFFSET
+from ..evaluation.panoptic_utils import INSTANCE_OFFSET
 from ..structures import DetDataSample
 from ..structures.mask import BitmapMasks, PolygonMasks, bitmap_to_polygon
 from .palette import _get_adaptive_scales, get_palette, jitter_color
@@ -499,7 +499,7 @@ class DetLocalVisualizer(Visualizer):
             self.show(drawn_img, win_name=name, wait_time=wait_time)
 
         if out_file is not None:
-            mmcv.imwrite(drawn_img[..., ::-1], out_file)
+            simplecv_imwrite(drawn_img[..., ::-1], out_file)
         else:
             self.add_image(name, drawn_img, step)
 
