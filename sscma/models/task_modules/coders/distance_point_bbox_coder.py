@@ -3,8 +3,13 @@ from typing import Optional, Sequence, Union
 
 from torch import Tensor
 
-from sscma.structures.bbox import (BaseBoxes, HorizontalBoxes, bbox2distance,
-                                   distance2bbox, get_box_tensor)
+from sscma.structures.bbox import (
+    BaseBoxes,
+    HorizontalBoxes,
+    bbox2distance,
+    distance2bbox,
+    get_box_tensor,
+)
 from .base_bbox_coder import BaseBBoxCoder
 
 
@@ -23,12 +28,13 @@ class DistancePointBBoxCoder(BaseBBoxCoder):
         super().__init__(**kwargs)
         self.clip_border = clip_border
 
-
-    def encode(self,
-               points: Tensor,
-               gt_bboxes: Tensor,
-               max_dis: float = 16.,
-               eps: float = 0.01) -> Tensor:
+    def encode(
+        self,
+        points: Tensor,
+        gt_bboxes: Tensor,
+        max_dis: float = 16.0,
+        eps: float = 0.01,
+    ) -> Tensor:
         """Encode bounding box to distances. The rewrite is to support batch
         operations.
 
@@ -55,8 +61,9 @@ class DistancePointBBoxCoder(BaseBBoxCoder):
         points: Tensor,
         pred_bboxes: Tensor,
         stride: Tensor,
-        max_shape: Optional[Union[Sequence[int], Tensor,
-                                  Sequence[Sequence[int]]]] = None
+        max_shape: Optional[
+            Union[Sequence[int], Tensor, Sequence[Sequence[int]]]
+        ] = None,
     ) -> Tensor:
         """Decode distance prediction to bounding box.
 

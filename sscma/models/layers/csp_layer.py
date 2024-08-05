@@ -34,17 +34,18 @@ class DarknetBottleneck(BaseModule):
             Defaults to dict(type='Swish').
     """
 
-    def __init__(self,
-                 in_channels: int,
-                 out_channels: int,
-                 expansion: float = 0.5,
-                 add_identity: bool = True,
-                 use_depthwise: bool = False,
-                 conv_cfg: OptConfigType = None,
-                 norm_cfg: ConfigType = dict(
-                     type='BN', momentum=0.03, eps=0.001),
-                 act_cfg: ConfigType = dict(type='Swish'),
-                 init_cfg: OptMultiConfig = None) -> None:
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        expansion: float = 0.5,
+        add_identity: bool = True,
+        use_depthwise: bool = False,
+        conv_cfg: OptConfigType = None,
+        norm_cfg: ConfigType = dict(type="BN", momentum=0.03, eps=0.001),
+        act_cfg: ConfigType = dict(type="Swish"),
+        init_cfg: OptMultiConfig = None,
+    ) -> None:
         super().__init__(init_cfg=init_cfg)
         hidden_channels = int(out_channels * expansion)
         conv = DepthwiseSeparableConvModule if use_depthwise else ConvModule
@@ -54,7 +55,8 @@ class DarknetBottleneck(BaseModule):
             1,
             conv_cfg=conv_cfg,
             norm_cfg=norm_cfg,
-            act_cfg=act_cfg)
+            act_cfg=act_cfg,
+        )
         self.conv2 = conv(
             hidden_channels,
             out_channels,
@@ -63,9 +65,9 @@ class DarknetBottleneck(BaseModule):
             padding=1,
             conv_cfg=conv_cfg,
             norm_cfg=norm_cfg,
-            act_cfg=act_cfg)
-        self.add_identity = \
-            add_identity and in_channels == out_channels
+            act_cfg=act_cfg,
+        )
+        self.add_identity = add_identity and in_channels == out_channels
 
     def forward(self, x: Tensor) -> Tensor:
         """Forward function."""
@@ -103,18 +105,19 @@ class CSPNeXtBlock(BaseModule):
             Defaults to None.
     """
 
-    def __init__(self,
-                 in_channels: int,
-                 out_channels: int,
-                 expansion: float = 0.5,
-                 add_identity: bool = True,
-                 use_depthwise: bool = False,
-                 kernel_size: int = 5,
-                 conv_cfg: OptConfigType = None,
-                 norm_cfg: ConfigType = dict(
-                     type='BN', momentum=0.03, eps=0.001),
-                 act_cfg: ConfigType = dict(type='SiLU'),
-                 init_cfg: OptMultiConfig = None) -> None:
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        expansion: float = 0.5,
+        add_identity: bool = True,
+        use_depthwise: bool = False,
+        kernel_size: int = 5,
+        conv_cfg: OptConfigType = None,
+        norm_cfg: ConfigType = dict(type="BN", momentum=0.03, eps=0.001),
+        act_cfg: ConfigType = dict(type="SiLU"),
+        init_cfg: OptMultiConfig = None,
+    ) -> None:
         super().__init__(init_cfg=init_cfg)
         hidden_channels = int(out_channels * expansion)
         conv = DepthwiseSeparableConvModule if use_depthwise else ConvModule
@@ -125,7 +128,8 @@ class CSPNeXtBlock(BaseModule):
             stride=1,
             padding=1,
             norm_cfg=norm_cfg,
-            act_cfg=act_cfg)
+            act_cfg=act_cfg,
+        )
         self.conv2 = DepthwiseSeparableConvModule(
             hidden_channels,
             out_channels,
@@ -134,9 +138,9 @@ class CSPNeXtBlock(BaseModule):
             padding=kernel_size // 2,
             conv_cfg=conv_cfg,
             norm_cfg=norm_cfg,
-            act_cfg=act_cfg)
-        self.add_identity = \
-            add_identity and in_channels == out_channels
+            act_cfg=act_cfg,
+        )
+        self.add_identity = add_identity and in_channels == out_channels
 
     def forward(self, x: Tensor) -> Tensor:
         """Forward function."""
@@ -178,20 +182,21 @@ class CSPLayer(BaseModule):
             Defaults to None.
     """
 
-    def __init__(self,
-                 in_channels: int,
-                 out_channels: int,
-                 expand_ratio: float = 0.5,
-                 num_blocks: int = 1,
-                 add_identity: bool = True,
-                 use_depthwise: bool = False,
-                 use_cspnext_block: bool = False,
-                 channel_attention: bool = False,
-                 conv_cfg: OptConfigType = None,
-                 norm_cfg: ConfigType = dict(
-                     type='BN', momentum=0.03, eps=0.001),
-                 act_cfg: ConfigType = dict(type='Swish'),
-                 init_cfg: OptMultiConfig = None) -> None:
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        expand_ratio: float = 0.5,
+        num_blocks: int = 1,
+        add_identity: bool = True,
+        use_depthwise: bool = False,
+        use_cspnext_block: bool = False,
+        channel_attention: bool = False,
+        conv_cfg: OptConfigType = None,
+        norm_cfg: ConfigType = dict(type="BN", momentum=0.03, eps=0.001),
+        act_cfg: ConfigType = dict(type="Swish"),
+        init_cfg: OptMultiConfig = None,
+    ) -> None:
         super().__init__(init_cfg=init_cfg)
         block = CSPNeXtBlock if use_cspnext_block else DarknetBottleneck
         mid_channels = int(out_channels * expand_ratio)
@@ -202,33 +207,40 @@ class CSPLayer(BaseModule):
             1,
             conv_cfg=conv_cfg,
             norm_cfg=norm_cfg,
-            act_cfg=act_cfg)
+            act_cfg=act_cfg,
+        )
         self.short_conv = ConvModule(
             in_channels,
             mid_channels,
             1,
             conv_cfg=conv_cfg,
             norm_cfg=norm_cfg,
-            act_cfg=act_cfg)
+            act_cfg=act_cfg,
+        )
         self.final_conv = ConvModule(
             2 * mid_channels,
             out_channels,
             1,
             conv_cfg=conv_cfg,
             norm_cfg=norm_cfg,
-            act_cfg=act_cfg)
+            act_cfg=act_cfg,
+        )
 
-        self.blocks = nn.Sequential(*[
-            block(
-                mid_channels,
-                mid_channels,
-                1.0,
-                add_identity,
-                use_depthwise,
-                conv_cfg=conv_cfg,
-                norm_cfg=norm_cfg,
-                act_cfg=act_cfg) for _ in range(num_blocks)
-        ])
+        self.blocks = nn.Sequential(
+            *[
+                block(
+                    mid_channels,
+                    mid_channels,
+                    1.0,
+                    add_identity,
+                    use_depthwise,
+                    conv_cfg=conv_cfg,
+                    norm_cfg=norm_cfg,
+                    act_cfg=act_cfg,
+                )
+                for _ in range(num_blocks)
+            ]
+        )
         if channel_attention:
             self.attention = ChannelAttention(2 * mid_channels)
 

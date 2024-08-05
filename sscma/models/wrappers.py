@@ -9,6 +9,7 @@ you can still customize the wrapper for some special requirements.
 The default implementation only does the register process. Users need to rename
 the ``CustomWrapper`` to the real name of the wrapper and implement it.
 """
+
 from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 
 # Define type of transform or transform config
@@ -17,6 +18,7 @@ from mmengine.registry import TRANSFORMS
 
 
 from ..datasets.transforms.basetransform import BaseTransform
+
 
 class Compose(BaseTransform):
     """Compose multiple transforms sequentially.
@@ -49,8 +51,10 @@ class Compose(BaseTransform):
             elif callable(transform):
                 self.transforms.append(transform)
             else:
-                raise TypeError('transform must be callable or a dict, but got'
-                                f' {type(transform)}')
+                raise TypeError(
+                    "transform must be callable or a dict, but got"
+                    f" {type(transform)}"
+                )
 
     def __iter__(self):
         """Allow easy iteration over the transform sequence."""
@@ -73,8 +77,8 @@ class Compose(BaseTransform):
 
     def __repr__(self):
         """Compute the string representation."""
-        format_string = self.__class__.__name__ + '('
+        format_string = self.__class__.__name__ + "("
         for t in self.transforms:
-            format_string += f'\n    {t}'
-        format_string += '\n)'
+            format_string += f"\n    {t}"
+        format_string += "\n)"
         return format_string

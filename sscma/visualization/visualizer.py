@@ -10,16 +10,23 @@ from mmengine.visualization import Visualizer
 from mmengine.visualization.utils import img_from_canvas
 
 from sscma.structures import DataSample
-from sscma.utils import simplecv_imresize, simplecv_imflip,simplecv_imcrop,simplecv_imrescale,\
-                        simplecv_imread, simplecv_imfrombytes,simplecv_imwrite
+from sscma.utils import (
+    simplecv_imresize,
+    simplecv_imflip,
+    simplecv_imcrop,
+    simplecv_imrescale,
+    simplecv_imread,
+    simplecv_imfrombytes,
+    simplecv_imwrite,
+)
 
 
 from matplotlib.figure import Figure
 
 
-def get_adaptive_scale(img_shape: Tuple[int, int],
-                       min_scale: float = 0.3,
-                       max_scale: float = 3.0) -> float:
+def get_adaptive_scale(
+    img_shape: Tuple[int, int], min_scale: float = 0.3, max_scale: float = 3.0
+) -> float:
     """Get adaptive scale according to image shape.
 
     The target scale depends on the the short edge length of the image. If the
@@ -38,11 +45,11 @@ def get_adaptive_scale(img_shape: Tuple[int, int],
         int: The adaptive scale.
     """
     short_edge_length = min(img_shape)
-    scale = short_edge_length / 224.
+    scale = short_edge_length / 224.0
     return min(max(scale, min_scale), max_scale)
 
 
-def create_figure(*args, margin=False, **kwargs) -> 'Figure':
+def create_figure(*args, margin=False, **kwargs) -> "Figure":
     """Create a independent figure.
 
     Different from the :func:`plt.figure`, the figure from this function won't
@@ -72,7 +79,6 @@ def create_figure(*args, margin=False, **kwargs) -> 'Figure':
     return figure
 
 
-
 class UniversalVisualizer(Visualizer):
     """Universal Visualizer for multiple tasks.
 
@@ -89,30 +95,33 @@ class UniversalVisualizer(Visualizer):
         fig_show_cfg (dict): Keyword parameters of figure for showing.
             Defaults to empty dict.
     """
+
     DEFAULT_TEXT_CFG = {
-        'family': 'monospace',
-        'color': 'white',
-        'bbox': dict(facecolor='black', alpha=0.5, boxstyle='Round'),
-        'verticalalignment': 'top',
-        'horizontalalignment': 'left',
+        "family": "monospace",
+        "color": "white",
+        "bbox": dict(facecolor="black", alpha=0.5, boxstyle="Round"),
+        "verticalalignment": "top",
+        "horizontalalignment": "left",
     }
 
     @master_only
-    def visualize_cls(self,
-                      image: np.ndarray,
-                      data_sample: DataSample,
-                      classes: Optional[Sequence[str]] = None,
-                      draw_gt: bool = True,
-                      draw_pred: bool = True,
-                      draw_score: bool = True,
-                      resize: Optional[int] = None,
-                      rescale_factor: Optional[float] = None,
-                      text_cfg: dict = dict(),
-                      show: bool = False,
-                      wait_time: float = 0,
-                      out_file: Optional[str] = None,
-                      name: str = '',
-                      step: int = 0) -> None:
+    def visualize_cls(
+        self,
+        image: np.ndarray,
+        data_sample: DataSample,
+        classes: Optional[Sequence[str]] = None,
+        draw_gt: bool = True,
+        draw_pred: bool = True,
+        draw_score: bool = True,
+        resize: Optional[int] = None,
+        rescale_factor: Optional[float] = None,
+        text_cfg: dict = dict(),
+        show: bool = False,
+        wait_time: float = 0,
+        out_file: Optional[str] = None,
+        name: str = "",
+        step: int = 0,
+    ) -> None:
         """Visualize image classification result.
 
         This method will draw an text box on the input image to visualize the
@@ -157,7 +166,7 @@ class UniversalVisualizer(Visualizer):
             np.ndarray: The visualization image.
         """
         if self.dataset_meta is not None:
-            classes = classes or self.dataset_meta.get('classes', None)
+            classes = classes or self.dataset_meta.get("classes", None)
 
         if resize is not None:
             h, w = image.shape[:2]
@@ -171,44 +180,43 @@ class UniversalVisualizer(Visualizer):
         texts = []
         self.set_image(image)
 
-        if draw_gt and 'gt_label' in data_sample:
+        if draw_gt and "gt_label" in data_sample:
             idx = data_sample.gt_label.tolist()
-            class_labels = [''] * len(idx)
+            class_labels = [""] * len(idx)
             if classes is not None:
-                class_labels = [f' ({classes[i]})' for i in idx]
+                class_labels = [f" ({classes[i]})" for i in idx]
             labels = [str(idx[i]) + class_labels[i] for i in range(len(idx))]
-            prefix = 'Ground truth: '
-            texts.append(prefix + ('\n' + ' ' * len(prefix)).join(labels))
+            prefix = "Ground truth: "
+            texts.append(prefix + ("\n" + " " * len(prefix)).join(labels))
 
-        if draw_pred and 'pred_label' in data_sample:
+        if draw_pred and "pred_label" in data_sample:
             idx = data_sample.pred_label.tolist()
-            score_labels = [''] * len(idx)
-            class_labels = [''] * len(idx)
-            if draw_score and 'pred_score' in data_sample:
+            score_labels = [""] * len(idx)
+            class_labels = [""] * len(idx)
+            if draw_score and "pred_score" in data_sample:
                 score_labels = [
-                    f', {data_sample.pred_score[i].item():.2f}' for i in idx
+                    f", {data_sample.pred_score[i].item():.2f}" for i in idx
                 ]
 
             if classes is not None:
-                class_labels = [f' ({classes[i]})' for i in idx]
+                class_labels = [f" ({classes[i]})" for i in idx]
 
             labels = [
-                str(idx[i]) + score_labels[i] + class_labels[i]
-                for i in range(len(idx))
+                str(idx[i]) + score_labels[i] + class_labels[i] for i in range(len(idx))
             ]
-            prefix = 'Prediction: '
-            texts.append(prefix + ('\n' + ' ' * len(prefix)).join(labels))
+            prefix = "Prediction: "
+            texts.append(prefix + ("\n" + " " * len(prefix)).join(labels))
 
         img_scale = get_adaptive_scale(image.shape[:2])
         text_cfg = {
-            'size': int(img_scale * 7),
+            "size": int(img_scale * 7),
             **self.DEFAULT_TEXT_CFG,
             **text_cfg,
         }
         self.ax_save.text(
             img_scale * 5,
             img_scale * 5,
-            '\n'.join(texts),
+            "\n".join(texts),
             **text_cfg,
         )
         drawn_img = self.get_image()
@@ -225,19 +233,21 @@ class UniversalVisualizer(Visualizer):
         return drawn_img
 
     @master_only
-    def visualize_image_retrieval(self,
-                                  image: np.ndarray,
-                                  data_sample: DataSample,
-                                  prototype_dataset: BaseDataset,
-                                  topk: int = 1,
-                                  draw_score: bool = True,
-                                  resize: Optional[int] = None,
-                                  text_cfg: dict = dict(),
-                                  show: bool = False,
-                                  wait_time: float = 0,
-                                  out_file: Optional[str] = None,
-                                  name: Optional[str] = '',
-                                  step: int = 0) -> None:
+    def visualize_image_retrieval(
+        self,
+        image: np.ndarray,
+        data_sample: DataSample,
+        prototype_dataset: BaseDataset,
+        topk: int = 1,
+        draw_score: bool = True,
+        resize: Optional[int] = None,
+        text_cfg: dict = dict(),
+        show: bool = False,
+        wait_time: float = 0,
+        out_file: Optional[str] = None,
+        name: Optional[str] = "",
+        step: int = 0,
+    ) -> None:
         """Visualize image retrieval result.
 
         This method will draw the input image and the images retrieved from the
@@ -288,7 +298,7 @@ class UniversalVisualizer(Visualizer):
 
         for k, (score, sample_idx) in enumerate(zip(match_scores, indices)):
             sample = prototype_dataset.get_data_info(sample_idx.item())
-            value_image = simplecv_imread(sample['img_path'])[..., ::-1]
+            value_image = simplecv_imread(sample["img_path"])[..., ::-1]
             value_plot = figure.add_subplot(gs[1, k])
             value_plot.axis(False)
             value_plot.imshow(value_image)
@@ -296,7 +306,7 @@ class UniversalVisualizer(Visualizer):
                 value_plot.text(
                     5,
                     5,
-                    f'{score:.2f}',
+                    f"{score:.2f}",
                     **text_cfg,
                 )
         drawn_img = img_from_canvas(figure.canvas)
@@ -318,7 +328,7 @@ class UniversalVisualizer(Visualizer):
         image: np.ndarray,
         data_sample: DataSample,
         resize: Union[int, Tuple[int]] = 224,
-        color: Union[str, Tuple[int]] = 'black',
+        color: Union[str, Tuple[int]] = "black",
         alpha: Union[int, float] = 0.8,
     ) -> np.ndarray:
         if isinstance(resize, int):
@@ -330,7 +340,7 @@ class UniversalVisualizer(Visualizer):
         if isinstance(data_sample.mask, np.ndarray):
             data_sample.mask = torch.tensor(data_sample.mask)
         mask = data_sample.mask.float()[None, None, ...]
-        mask_ = F.interpolate(mask, image.shape[:2], mode='nearest')[0, 0]
+        mask_ = F.interpolate(mask, image.shape[:2], mode="nearest")[0, 0]
 
         self.draw_binary_masks(mask_.bool(), colors=color, alphas=alpha)
 
@@ -338,17 +348,19 @@ class UniversalVisualizer(Visualizer):
         return drawn_img
 
     @master_only
-    def visualize_masked_image(self,
-                               image: np.ndarray,
-                               data_sample: DataSample,
-                               resize: Union[int, Tuple[int]] = 224,
-                               color: Union[str, Tuple[int]] = 'black',
-                               alpha: Union[int, float] = 0.8,
-                               show: bool = False,
-                               wait_time: float = 0,
-                               out_file: Optional[str] = None,
-                               name: str = '',
-                               step: int = 0) -> None:
+    def visualize_masked_image(
+        self,
+        image: np.ndarray,
+        data_sample: DataSample,
+        resize: Union[int, Tuple[int]] = 224,
+        color: Union[str, Tuple[int]] = "black",
+        alpha: Union[int, float] = 0.8,
+        show: bool = False,
+        wait_time: float = 0,
+        out_file: Optional[str] = None,
+        name: str = "",
+        step: int = 0,
+    ) -> None:
         """Visualize masked image.
 
         This method will draw an image with binary mask.
@@ -385,7 +397,8 @@ class UniversalVisualizer(Visualizer):
             data_sample=data_sample,
             resize=resize,
             color=color,
-            alpha=alpha)
+            alpha=alpha,
+        )
 
         if show:
             self.show(drawn_img, win_name=name, wait_time=wait_time)
@@ -399,16 +412,18 @@ class UniversalVisualizer(Visualizer):
         return drawn_img
 
     @master_only
-    def visualize_image_caption(self,
-                                image: np.ndarray,
-                                data_sample: DataSample,
-                                resize: Optional[int] = None,
-                                text_cfg: dict = dict(),
-                                show: bool = False,
-                                wait_time: float = 0,
-                                out_file: Optional[str] = None,
-                                name: Optional[str] = '',
-                                step: int = 0) -> None:
+    def visualize_image_caption(
+        self,
+        image: np.ndarray,
+        data_sample: DataSample,
+        resize: Optional[int] = None,
+        text_cfg: dict = dict(),
+        show: bool = False,
+        wait_time: float = 0,
+        out_file: Optional[str] = None,
+        name: Optional[str] = "",
+        step: int = 0,
+    ) -> None:
         """Visualize image caption result.
 
         This method will draw the input image and the images caption.
@@ -452,14 +467,14 @@ class UniversalVisualizer(Visualizer):
 
         img_scale = get_adaptive_scale(image.shape[:2])
         text_cfg = {
-            'size': int(img_scale * 7),
+            "size": int(img_scale * 7),
             **self.DEFAULT_TEXT_CFG,
             **text_cfg,
         }
         self.ax_save.text(
             img_scale * 5,
             img_scale * 5,
-            data_sample.get('pred_caption'),
+            data_sample.get("pred_caption"),
             wrap=True,
             **text_cfg,
         )
@@ -477,16 +492,18 @@ class UniversalVisualizer(Visualizer):
         return drawn_img
 
     @master_only
-    def visualize_vqa(self,
-                      image: np.ndarray,
-                      data_sample: DataSample,
-                      resize: Optional[int] = None,
-                      text_cfg: dict = dict(),
-                      show: bool = False,
-                      wait_time: float = 0,
-                      out_file: Optional[str] = None,
-                      name: Optional[str] = '',
-                      step: int = 0) -> None:
+    def visualize_vqa(
+        self,
+        image: np.ndarray,
+        data_sample: DataSample,
+        resize: Optional[int] = None,
+        text_cfg: dict = dict(),
+        show: bool = False,
+        wait_time: float = 0,
+        out_file: Optional[str] = None,
+        name: Optional[str] = "",
+        step: int = 0,
+    ) -> None:
         """Visualize visual question answering result.
 
         This method will draw the input image, question and answer.
@@ -530,12 +547,13 @@ class UniversalVisualizer(Visualizer):
 
         img_scale = get_adaptive_scale(image.shape[:2])
         text_cfg = {
-            'size': int(img_scale * 7),
+            "size": int(img_scale * 7),
             **self.DEFAULT_TEXT_CFG,
             **text_cfg,
         }
-        text = (f'Q: {data_sample.get("question")}\n'
-                f'A: {data_sample.get("pred_answer")}')
+        text = (
+            f'Q: {data_sample.get("question")}\n' f'A: {data_sample.get("pred_answer")}'
+        )
         self.ax_save.text(
             img_scale * 5,
             img_scale * 5,
@@ -557,18 +575,20 @@ class UniversalVisualizer(Visualizer):
         return drawn_img
 
     @master_only
-    def visualize_visual_grounding(self,
-                                   image: np.ndarray,
-                                   data_sample: DataSample,
-                                   resize: Optional[int] = None,
-                                   text_cfg: dict = dict(),
-                                   show: bool = False,
-                                   wait_time: float = 0,
-                                   out_file: Optional[str] = None,
-                                   name: Optional[str] = '',
-                                   line_width: Union[int, float] = 3,
-                                   bbox_color: Union[str, tuple] = 'green',
-                                   step: int = 0) -> None:
+    def visualize_visual_grounding(
+        self,
+        image: np.ndarray,
+        data_sample: DataSample,
+        resize: Optional[int] = None,
+        text_cfg: dict = dict(),
+        show: bool = False,
+        wait_time: float = 0,
+        out_file: Optional[str] = None,
+        name: Optional[str] = "",
+        line_width: Union[int, float] = 3,
+        bbox_color: Union[str, tuple] = "green",
+        step: int = 0,
+    ) -> None:
         """Visualize visual grounding result.
 
         This method will draw the input image, bbox and the object.
@@ -601,16 +621,18 @@ class UniversalVisualizer(Visualizer):
         """
         text_cfg = {**self.DEFAULT_TEXT_CFG, **text_cfg}
 
-        gt_bboxes = data_sample.get('gt_bboxes')
-        pred_bboxes = data_sample.get('pred_bboxes')
+        gt_bboxes = data_sample.get("gt_bboxes")
+        pred_bboxes = data_sample.get("pred_bboxes")
         if resize is not None:
             h, w = image.shape[:2]
             if w < h:
                 image, w_scale, h_scale = simplecv_imresize(
-                    image, (resize, resize * h // w), return_scale=True)
+                    image, (resize, resize * h // w), return_scale=True
+                )
             else:
                 image, w_scale, h_scale = simplecv_imresize(
-                    image, (resize * w // h, resize), return_scale=True)
+                    image, (resize * w // h, resize), return_scale=True
+                )
             pred_bboxes[:, ::2] *= w_scale
             pred_bboxes[:, 1::2] *= h_scale
             if gt_bboxes is not None:
@@ -620,15 +642,13 @@ class UniversalVisualizer(Visualizer):
         self.set_image(image)
         # Avoid the line-width limit in the base classes.
         self._default_font_size = 1e3
-        self.draw_bboxes(
-            pred_bboxes, line_widths=line_width, edge_colors=bbox_color)
+        self.draw_bboxes(pred_bboxes, line_widths=line_width, edge_colors=bbox_color)
         if gt_bboxes is not None:
-            self.draw_bboxes(
-                gt_bboxes, line_widths=line_width, edge_colors='blue')
+            self.draw_bboxes(gt_bboxes, line_widths=line_width, edge_colors="blue")
 
         img_scale = get_adaptive_scale(image.shape[:2])
         text_cfg = {
-            'size': int(img_scale * 7),
+            "size": int(img_scale * 7),
             **self.DEFAULT_TEXT_CFG,
             **text_cfg,
         }
@@ -638,7 +658,7 @@ class UniversalVisualizer(Visualizer):
             self.ax_save.text(
                 text_positions[i, 0] + line_width,
                 text_positions[i, 1] + line_width,
-                data_sample.get('text'),
+                data_sample.get("text"),
                 **text_cfg,
             )
         drawn_img = self.get_image()
@@ -655,19 +675,21 @@ class UniversalVisualizer(Visualizer):
         return drawn_img
 
     @master_only
-    def visualize_t2i_retrieval(self,
-                                text: str,
-                                data_sample: DataSample,
-                                prototype_dataset: BaseDataset,
-                                topk: int = 1,
-                                draw_score: bool = True,
-                                text_cfg: dict = dict(),
-                                fig_cfg: dict = dict(),
-                                show: bool = False,
-                                wait_time: float = 0,
-                                out_file: Optional[str] = None,
-                                name: Optional[str] = '',
-                                step: int = 0) -> None:
+    def visualize_t2i_retrieval(
+        self,
+        text: str,
+        data_sample: DataSample,
+        prototype_dataset: BaseDataset,
+        topk: int = 1,
+        draw_score: bool = True,
+        text_cfg: dict = dict(),
+        fig_cfg: dict = dict(),
+        show: bool = False,
+        wait_time: float = 0,
+        out_file: Optional[str] = None,
+        name: Optional[str] = "",
+        step: int = 0,
+    ) -> None:
         """Visualize Text-To-Image retrieval result.
 
         This method will draw the input text and the images retrieved from the
@@ -715,7 +737,7 @@ class UniversalVisualizer(Visualizer):
 
         for k, (score, sample_idx) in enumerate(zip(match_scores, indices)):
             sample = prototype_dataset.get_data_info(sample_idx.item())
-            value_image = simplecv_imread(sample['img_path'])[..., ::-1]
+            value_image = simplecv_imread(sample["img_path"])[..., ::-1]
             value_plot = figure.add_subplot(gs[0, k])
             value_plot.axis(False)
             value_plot.imshow(value_image)
@@ -723,7 +745,7 @@ class UniversalVisualizer(Visualizer):
                 value_plot.text(
                     5,
                     5,
-                    f'{score:.2f}',
+                    f"{score:.2f}",
                     **text_cfg,
                 )
         drawn_img = img_from_canvas(figure.canvas)
@@ -741,19 +763,21 @@ class UniversalVisualizer(Visualizer):
         return drawn_img
 
     @master_only
-    def visualize_i2t_retrieval(self,
-                                image: np.ndarray,
-                                data_sample: DataSample,
-                                prototype_dataset: Sequence[str],
-                                topk: int = 1,
-                                draw_score: bool = True,
-                                resize: Optional[int] = None,
-                                text_cfg: dict = dict(),
-                                show: bool = False,
-                                wait_time: float = 0,
-                                out_file: Optional[str] = None,
-                                name: str = '',
-                                step: int = 0) -> None:
+    def visualize_i2t_retrieval(
+        self,
+        image: np.ndarray,
+        data_sample: DataSample,
+        prototype_dataset: Sequence[str],
+        topk: int = 1,
+        draw_score: bool = True,
+        resize: Optional[int] = None,
+        text_cfg: dict = dict(),
+        show: bool = False,
+        wait_time: float = 0,
+        out_file: Optional[str] = None,
+        name: str = "",
+        step: int = 0,
+    ) -> None:
         """Visualize Image-To-Text retrieval result.
 
         This method will draw the input image and the texts retrieved from the
@@ -805,19 +829,19 @@ class UniversalVisualizer(Visualizer):
         for score, sample_idx in zip(match_scores, indices):
             text = prototype_dataset[sample_idx.item()]
             if draw_score:
-                text = f'{score:.2f} ' + text
+                text = f"{score:.2f} " + text
             texts.append(text)
 
         img_scale = get_adaptive_scale(image.shape[:2])
         text_cfg = {
-            'size': int(img_scale * 7),
+            "size": int(img_scale * 7),
             **self.DEFAULT_TEXT_CFG,
             **text_cfg,
         }
         self.ax_save.text(
             img_scale * 5,
             img_scale * 5,
-            '\n'.join(texts),
+            "\n".join(texts),
             **text_cfg,
         )
         drawn_img = self.get_image()

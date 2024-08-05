@@ -22,7 +22,7 @@ class Clamp(nn.Module):
             Default to 1.
     """
 
-    def __init__(self, min: float = -1., max: float = 1.):
+    def __init__(self, min: float = -1.0, max: float = 1.0):
         super().__init__()
         self.min = min
         self.max = max
@@ -63,8 +63,6 @@ class GELU(nn.Module):
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         return F.gelu(input)
-
-
 
 
 def build_activation_layer(cfg: Dict) -> nn.Module:

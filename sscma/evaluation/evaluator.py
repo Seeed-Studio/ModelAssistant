@@ -16,9 +16,7 @@ from mmengine.evaluator import Evaluator as MMEngineEvaluator
 from mmengine.structures import BaseDataElement
 
 
-
 class Evaluator(MMEngineEvaluator):
-
     def process(self, data_samples, data_batch=None):
         _data_samples = []
         for data_sample in data_samples:
@@ -39,9 +37,10 @@ class Evaluator(MMEngineEvaluator):
             for name in _results.keys():
                 if name in metrics:
                     raise ValueError(
-                        'There are multiple evaluation results with the same '
-                        f'metric name {name}. Please make sure all metrics '
-                        'have different prefixes.')
+                        "There are multiple evaluation results with the same "
+                        f"metric name {name}. Please make sure all metrics "
+                        "have different prefixes."
+                    )
 
             metrics.update(_results)
         return metrics

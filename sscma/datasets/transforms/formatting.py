@@ -13,9 +13,8 @@ from PIL import Image
 from mmengine.registry import TRANSFORMS
 from mmengine.structures import InstanceData, PixelData
 
-from sscma.structures import DataSample, DetDataSample,MultiTaskDataSample
+from sscma.structures import DataSample, DetDataSample, MultiTaskDataSample
 from sscma.structures.bbox import BaseBoxes
-
 
 
 def to_tensor(data):
@@ -36,9 +35,10 @@ def to_tensor(data):
         return torch.FloatTensor([data])
     else:
         raise TypeError(
-            f'Type {type(data)} cannot be converted to tensor.'
-            'Supported types are: `numpy.ndarray`, `torch.Tensor`, '
-            '`Sequence`, `int` and `float`')
+            f"Type {type(data)} cannot be converted to tensor."
+            "Supported types are: `numpy.ndarray`, `torch.Tensor`, "
+            "`Sequence`, `int` and `float`"
+        )
 
 
 @TRANSFORMS.register_module()
@@ -71,15 +71,25 @@ class PackDetInputs(BaseTransform):
             Default: ``('img_id', 'img_path', 'ori_shape', 'img_shape',
             'scale_factor', 'flip', 'flip_direction')``
     """
+
     mapping_table = {
-        'gt_bboxes': 'bboxes',
-        'gt_bboxes_labels': 'labels',
-        'gt_masks': 'masks'
+        "gt_bboxes": "bboxes",
+        "gt_bboxes_labels": "labels",
+        "gt_masks": "masks",
     }
 
-    def __init__(self,
-                 meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape',
-                            'scale_factor', 'flip', 'flip_direction')):
+    def __init__(
+        self,
+        meta_keys=(
+            "img_id",
+            "img_path",
+            "ori_shape",
+            "img_shape",
+            "scale_factor",
+            "flip",
+            "flip_direction",
+        ),
+    ):
         self.meta_keys = meta_keys
 
     def transform(self, results: dict) -> dict:
@@ -96,8 +106,8 @@ class PackDetInputs(BaseTransform):
                 sample.
         """
         packed_results = dict()
-        if 'img' in results:
-            img = results['img']
+        if "img" in results:
+            img = results["img"]
             if len(img.shape) < 3:
                 img = np.expand_dims(img, -1)
             # To improve the computational speed by by 3-5 times, apply:
@@ -113,11 +123,11 @@ class PackDetInputs(BaseTransform):
             else:
                 img = to_tensor(img).permute(2, 0, 1).contiguous()
 
-            packed_results['inputs'] = img
+            packed_results["inputs"] = img
 
-        if 'gt_ignore_flags' in results:
-            valid_idx = np.where(results['gt_ignore_flags'] == 0)[0]
-            ignore_idx = np.where(results['gt_ignore_flags'] == 1)[0]
+        if "gt_ignore_flags" in results:
+            valid_idx = np.where(results["gt_ignore_flags"] == 0)[0]
+            ignore_idx = np.where(results["gt_ignore_flags"] == 1)[0]
 
         data_sample = DetDataSample()
         instance_data = InstanceData()
@@ -126,38 +136,41 @@ class PackDetInputs(BaseTransform):
         for key in self.mapping_table.keys():
             if key not in results:
                 continue
-            if key == 'gt_masks' or isinstance(results[key], BaseBoxes):
-                if 'gt_ignore_flags' in results:
-                    instance_data[
-                        self.mapping_table[key]] = results[key][valid_idx]
-                    ignore_instance_data[
-                        self.mapping_table[key]] = results[key][ignore_idx]
+            if key == "gt_masks" or isinstance(results[key], BaseBoxes):
+                if "gt_ignore_flags" in results:
+                    instance_data[self.mapping_table[key]] = results[key][valid_idx]
+                    ignore_instance_data[self.mapping_table[key]] = results[key][
+                        ignore_idx
+                    ]
                 else:
                     instance_data[self.mapping_table[key]] = results[key]
             else:
-                if 'gt_ignore_flags' in results:
+                if "gt_ignore_flags" in results:
                     instance_data[self.mapping_table[key]] = to_tensor(
-                        results[key][valid_idx])
+                        results[key][valid_idx]
+                    )
                     ignore_instance_data[self.mapping_table[key]] = to_tensor(
-                        results[key][ignore_idx])
+                        results[key][ignore_idx]
+                    )
                 else:
-                    instance_data[self.mapping_table[key]] = to_tensor(
-                        results[key])
+                    instance_data[self.mapping_table[key]] = to_tensor(results[key])
         data_sample.gt_instances = instance_data
         data_sample.ignored_instances = ignore_instance_data
 
-        if 'proposals' in results:
+        if "proposals" in results:
             proposals = InstanceData(
-                bboxes=to_tensor(results['proposals']),
-                scores=to_tensor(results['proposals_scores']))
+                bboxes=to_tensor(results["proposals"]),
+                scores=to_tensor(results["proposals_scores"]),
+            )
             data_sample.proposals = proposals
 
-        if 'gt_seg_map' in results:
+        if "gt_seg_map" in results:
             gt_sem_seg_data = dict(
-                sem_seg=to_tensor(results['gt_seg_map'][None, ...].copy()))
+                sem_seg=to_tensor(results["gt_seg_map"][None, ...].copy())
+            )
             gt_sem_seg_data = PixelData(**gt_sem_seg_data)
-            if 'ignore_index' in results:
-                metainfo = dict(ignore_index=results['ignore_index'])
+            if "ignore_index" in results:
+                metainfo = dict(ignore_index=results["ignore_index"])
                 gt_sem_seg_data.set_metainfo(metainfo)
             data_sample.gt_sem_seg = gt_sem_seg_data
 
@@ -166,15 +179,14 @@ class PackDetInputs(BaseTransform):
             if key in results:
                 img_meta[key] = results[key]
         data_sample.set_metainfo(img_meta)
-        packed_results['data_samples'] = data_sample
+        packed_results["data_samples"] = data_sample
 
         return packed_results
 
     def __repr__(self) -> str:
         repr_str = self.__class__.__name__
-        repr_str += f'(meta_keys={self.meta_keys})'
+        repr_str += f"(meta_keys={self.meta_keys})"
         return repr_str
-
 
 
 class PackInputs(BaseTransform):
@@ -230,13 +242,17 @@ class PackInputs(BaseTransform):
         - ``flip_direction``: The flipping direction.
     """
 
-    DEFAULT_META_KEYS = ('sample_idx', 'img_path', 'ori_shape', 'img_shape',
-                         'scale_factor', 'flip', 'flip_direction')
+    DEFAULT_META_KEYS = (
+        "sample_idx",
+        "img_path",
+        "ori_shape",
+        "img_shape",
+        "scale_factor",
+        "flip",
+        "flip_direction",
+    )
 
-    def __init__(self,
-                 input_key='img',
-                 algorithm_keys=(),
-                 meta_keys=DEFAULT_META_KEYS):
+    def __init__(self, input_key="img", algorithm_keys=(), meta_keys=DEFAULT_META_KEYS):
         self.input_key = input_key
         self.algorithm_keys = algorithm_keys
         self.meta_keys = meta_keys
@@ -262,7 +278,7 @@ class PackInputs(BaseTransform):
         elif isinstance(input_, Image.Image):
             input_ = F.pil_to_tensor(input_)
         elif not isinstance(input_, torch.Tensor):
-            raise TypeError(f'Unsupported input type {type(input_)}.')
+            raise TypeError(f"Unsupported input type {type(input_)}.")
 
         return input_
 
@@ -272,17 +288,17 @@ class PackInputs(BaseTransform):
         packed_results = dict()
         if self.input_key in results:
             input_ = results[self.input_key]
-            packed_results['inputs'] = self.format_input(input_)
+            packed_results["inputs"] = self.format_input(input_)
 
         data_sample = DataSample()
 
         # Set default keys
-        if 'gt_label' in results:
-            data_sample.set_gt_label(results['gt_label'])
-        if 'gt_score' in results:
-            data_sample.set_gt_score(results['gt_score'])
-        if 'mask' in results:
-            data_sample.set_mask(results['mask'])
+        if "gt_label" in results:
+            data_sample.set_gt_label(results["gt_label"])
+        if "gt_score" in results:
+            data_sample.set_gt_score(results["gt_score"])
+        if "mask" in results:
+            data_sample.set_mask(results["mask"])
 
         # Set custom algorithm keys
         for key in self.algorithm_keys:
@@ -292,17 +308,16 @@ class PackInputs(BaseTransform):
         # Set meta keys
         for key in self.meta_keys:
             if key in results:
-                data_sample.set_field(results[key], key, field_type='metainfo')
+                data_sample.set_field(results[key], key, field_type="metainfo")
 
-        packed_results['data_samples'] = data_sample
+        packed_results["data_samples"] = data_sample
         return packed_results
-    
 
     def __repr__(self) -> str:
         repr_str = self.__class__.__name__
         repr_str += f"(input_key='{self.input_key}', "
-        repr_str += f'algorithm_keys={self.algorithm_keys}, '
-        repr_str += f'meta_keys={self.meta_keys})'
+        repr_str += f"algorithm_keys={self.algorithm_keys}, "
+        repr_str += f"meta_keys={self.meta_keys})"
         return repr_str
 
 
@@ -315,10 +330,7 @@ class PackMultiTaskInputs(BaseTransform):
         task_handlers (dict):
     """
 
-    def __init__(self,
-                 multi_task_fields,
-                 input_key='img',
-                 task_handlers=dict()):
+    def __init__(self, multi_task_fields, input_key="img", task_handlers=dict()):
         self.multi_task_fields = multi_task_fields
         self.input_key = input_key
         self.task_handlers = defaultdict(PackInputs)
@@ -336,7 +348,7 @@ class PackMultiTaskInputs(BaseTransform):
 
         if self.input_key in results:
             input_ = results[self.input_key]
-            packed_results['inputs'] = PackInputs.format_input(input_)
+            packed_results["inputs"] = PackInputs.format_input(input_)
 
         task_results = defaultdict(dict)
         for field in self.multi_task_fields:
@@ -349,19 +361,20 @@ class PackMultiTaskInputs(BaseTransform):
         for task_name, task_result in task_results.items():
             task_handler = self.task_handlers[task_name]
             task_pack_result = task_handler({**results, **task_result})
-            data_sample.set_field(task_pack_result['data_samples'], task_name)
+            data_sample.set_field(task_pack_result["data_samples"], task_name)
 
-        packed_results['data_samples'] = data_sample
+        packed_results["data_samples"] = data_sample
         return packed_results
 
     def __repr__(self):
         repr = self.__class__.__name__
-        task_handlers = ', '.join(
+        task_handlers = ", ".join(
             f"'{name}': {handler.__class__.__name__}"
-            for name, handler in self.task_handlers.items())
-        repr += f'(multi_task_fields={self.multi_task_fields}, '
+            for name, handler in self.task_handlers.items()
+        )
+        repr += f"(multi_task_fields={self.multi_task_fields}, "
         repr += f"input_key='{self.input_key}', "
-        repr += f'task_handlers={{{task_handlers}}})'
+        repr += f"task_handlers={{{task_handlers}}})"
         return repr
 
 
@@ -392,8 +405,7 @@ class Transpose(BaseTransform):
         return results
 
     def __repr__(self):
-        return self.__class__.__name__ + \
-            f'(keys={self.keys}, order={self.order})'
+        return self.__class__.__name__ + f"(keys={self.keys}, order={self.order})"
 
 
 class NumpyToPIL(BaseTransform):
@@ -416,14 +428,14 @@ class NumpyToPIL(BaseTransform):
 
     def transform(self, results: dict) -> dict:
         """Method to convert images to :obj:`PIL.Image.Image`."""
-        img = results['img']
+        img = results["img"]
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) if self.to_rgb else img
 
-        results['img'] = Image.fromarray(img)
+        results["img"] = Image.fromarray(img)
         return results
 
     def __repr__(self) -> str:
-        return self.__class__.__name__ + f'(to_rgb={self.to_rgb})'
+        return self.__class__.__name__ + f"(to_rgb={self.to_rgb})"
 
 
 class PILToNumpy(BaseTransform):
@@ -449,15 +461,14 @@ class PILToNumpy(BaseTransform):
 
     def transform(self, results: dict) -> dict:
         """Method to convert img to :obj:`numpy.ndarray`."""
-        img = np.array(results['img'], dtype=self.dtype)
+        img = np.array(results["img"], dtype=self.dtype)
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR) if self.to_bgr else img
 
-        results['img'] = img
+        results["img"] = img
         return results
 
     def __repr__(self) -> str:
-        return self.__class__.__name__ + \
-            f'(to_bgr={self.to_bgr}, dtype={self.dtype})'
+        return self.__class__.__name__ + f"(to_bgr={self.to_bgr}, dtype={self.dtype})"
 
 
 class Collect(BaseTransform):
@@ -485,4 +496,4 @@ class Collect(BaseTransform):
         return data
 
     def __repr__(self):
-        return self.__class__.__name__ + f'(keys={self.keys})'
+        return self.__class__.__name__ + f"(keys={self.keys})"

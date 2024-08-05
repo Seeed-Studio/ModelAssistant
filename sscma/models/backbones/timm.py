@@ -12,77 +12,82 @@ from mmengine.model import BaseModel
 from sscma.datasets import ClsDataPreprocessor
 from mmengine.registry import MODELS
 
+
 class TimmClassifier(BaseModel):
     """Image classifiers for pytorch-image-models (timm) model.
 
-    This class accepts all positional and keyword arguments of the function
-    `timm.models.create_model <https://timm.fast.ai/create_model>`_ and use
-    it to create a model from pytorch-image-models.
+        This class accepts all positional and keyword arguments of the function
+        `timm.models.create_model <https://timm.fast.ai/create_model>`_ and use
+        it to create a model from pytorch-image-models.
 
-    It can load checkpoints of timm directly, and the saved checkpoints also
-    can be directly load by timm.
+        It can load checkpoints of timm directly, and the saved checkpoints also
+        can be directly load by timm.
 
-    Please confirm that you have installed ``timm`` if you want to use it.
-mo
-    Args:
-        *args: All positional arguments of the function
-            `timm.models.create_model`.
-        loss (dict): Config of classification loss. Defaults to
-            ``dict(type='CrossEntropyLoss', loss_weight=1.0)``.
-        train_cfg (dict, optional): The training setting. The acceptable
-            fields are:
+        Please confirm that you have installed ``timm`` if you want to use it.
+    mo
+        Args:
+            *args: All positional arguments of the function
+                `timm.models.create_model`.
+            loss (dict): Config of classification loss. Defaults to
+                ``dict(type='CrossEntropyLoss', loss_weight=1.0)``.
+            train_cfg (dict, optional): The training setting. The acceptable
+                fields are:
 
-            - augments (List[dict]): The batch augmentation methods to use.
-              More details can be found in :mod:`mmpretrain.model.utils.augment`.
+                - augments (List[dict]): The batch augmentation methods to use.
+                  More details can be found in :mod:`mmpretrain.model.utils.augment`.
 
-            Defaults to None.
-        with_cp (bool): Use checkpoint or not. Using checkpoint will save some
-            memory while slowing down the training speed. Defaults to False.
-        data_preprocessor (dict, optional): The config for preprocessing input
-            data. If None or no specified type, it will use
-            "ClsDataPreprocessor" as type. See :class:`ClsDataPreprocessor` for
-            more details. Defaults to None.
-        init_cfg (dict, optional): the config to control the initialization.
-            Defaults to None.
-        **kwargs: Other keyword arguments of the function
-            `timm.models.create_model`.
+                Defaults to None.
+            with_cp (bool): Use checkpoint or not. Using checkpoint will save some
+                memory while slowing down the training speed. Defaults to False.
+            data_preprocessor (dict, optional): The config for preprocessing input
+                data. If None or no specified type, it will use
+                "ClsDataPreprocessor" as type. See :class:`ClsDataPreprocessor` for
+                more details. Defaults to None.
+            init_cfg (dict, optional): the config to control the initialization.
+                Defaults to None.
+            **kwargs: Other keyword arguments of the function
+                `timm.models.create_model`.
 
-    Examples:
-        >>> from sscma.models.backbone.timm import TimmClassifier
-        >>> model=TimmClassifier(model_name='resnet50', loss=dict(type='CrossEntropyLoss'), pretrained=True)
-        >>> import torch
-        >>> inputs = torch.rand(1, 3, 224, 224)
-        >>> out = model(inputs)
-        >>> print(out.shape)
-        torch.Size([1, 1000])
+        Examples:
+            >>> from sscma.models.backbone.timm import TimmClassifier
+            >>> model=TimmClassifier(model_name='resnet50', loss=dict(type='CrossEntropyLoss'), pretrained=True)
+            >>> import torch
+            >>> inputs = torch.rand(1, 3, 224, 224)
+            >>> out = model(inputs)
+            >>> print(out.shape)
+            torch.Size([1, 1000])
     """  # noqa: E501
 
-    def __init__(self,
-                 *args,
-                 loss=dict(type='CrossEntropyLoss', loss_weight=1.0),
-                 train_cfg: Optional[dict] = None,
-                 with_cp: bool = False,
-                 data_preprocessor: Optional[dict] = None,
-                 init_cfg: Optional[dict] = None,
-                 **kwargs):
+    def __init__(
+        self,
+        *args,
+        loss=dict(type="CrossEntropyLoss", loss_weight=1.0),
+        train_cfg: Optional[dict] = None,
+        with_cp: bool = False,
+        data_preprocessor: Optional[dict] = None,
+        init_cfg: Optional[dict] = None,
+        **kwargs,
+    ):
         if data_preprocessor is None:
             data_preprocessor = {}
 
         if isinstance(data_preprocessor, dict):
-            data_preprocessor.setdefault('type', ClsDataPreprocessor)
+            data_preprocessor.setdefault("type", ClsDataPreprocessor)
 
         elif not isinstance(data_preprocessor, nn.Module):
-            raise TypeError('data_preprocessor should be a `dict` or '
-                            f'`nn.Module` instance, but got '
-                            f'{type(data_preprocessor)}')
-        
-        if train_cfg is not None and 'augments' in train_cfg:
-            # Set batch augmentations by `train_cfg`
-            data_preprocessor['batch_augments'] = train_cfg
+            raise TypeError(
+                "data_preprocessor should be a `dict` or "
+                f"`nn.Module` instance, but got "
+                f"{type(data_preprocessor)}"
+            )
 
-        super().__init__(
-            init_cfg=init_cfg, data_preprocessor=data_preprocessor)
+        if train_cfg is not None and "augments" in train_cfg:
+            # Set batch augmentations by `train_cfg`
+            data_preprocessor["batch_augments"] = train_cfg
+
+        super().__init__(init_cfg=init_cfg, data_preprocessor=data_preprocessor)
         from timm.models import create_model
+
         self.model = create_model(*args, **kwargs)
 
         if not isinstance(loss, nn.Module):
@@ -99,33 +104,33 @@ mo
     @property
     def with_neck(self) -> bool:
         """Whether the classifier has a neck."""
-        return hasattr(self, 'neck') and self.neck is not None
+        return hasattr(self, "neck") and self.neck is not None
 
     @property
     def with_head(self) -> bool:
         """Whether the classifier has a head."""
-        return hasattr(self, 'head') and self.head is not None
-    
-    def forward(self, inputs, data_samples=None, mode='tensor'):
-        if mode == 'tensor':
+        return hasattr(self, "head") and self.head is not None
+
+    def forward(self, inputs, data_samples=None, mode="tensor"):
+        if mode == "tensor":
             return self.model(inputs)
-        elif mode == 'loss':
+        elif mode == "loss":
             return self.loss(inputs, data_samples)
-        elif mode == 'predict':
+        elif mode == "predict":
             return self.predict(inputs, data_samples)
         else:
             raise RuntimeError(f'Invalid mode "{mode}".')
 
     def extract_feat(self, inputs: torch.Tensor):
-        if hasattr(self.model, 'forward_features'):
+        if hasattr(self.model, "forward_features"):
             return self.model.forward_features(inputs)
         else:
             raise NotImplementedError(
                 f"The model {type(self.model)} doesn't support extract "
-                "feature because it don't have `forward_features` method.")
+                "feature because it don't have `forward_features` method."
+            )
 
-    def loss(self, inputs: torch.Tensor, data_samples: List[DataSample],
-             **kwargs):
+    def loss(self, inputs: torch.Tensor, data_samples: List[DataSample], **kwargs):
         """Calculate losses from a batch of inputs and data samples.
 
         Args:
@@ -145,11 +150,12 @@ mo
         losses = self._get_loss(cls_score, data_samples, **kwargs)
         return losses
 
-    def _get_loss(self, cls_score: torch.Tensor,
-                  data_samples: List[DataSample], **kwargs):
+    def _get_loss(
+        self, cls_score: torch.Tensor, data_samples: List[DataSample], **kwargs
+    ):
         """Unpack data samples and compute loss."""
         # Unpack data samples and pack targets
-        if 'gt_score' in data_samples[0]:
+        if "gt_score" in data_samples[0]:
             # Batch augmentation may convert labels to one-hot format scores.
             target = torch.stack([i.gt_score for i in data_samples])
         else:
@@ -158,13 +164,13 @@ mo
         # compute loss
         losses = dict()
         loss = self.loss_module(cls_score, target, **kwargs)
-        losses['loss'] = loss
+        losses["loss"] = loss
 
         return losses
 
-    def predict(self,
-                inputs: torch.Tensor,
-                data_samples: Optional[List[DataSample]] = None):
+    def predict(
+        self, inputs: torch.Tensor, data_samples: Optional[List[DataSample]] = None
+    ):
         """Predict results from a batch of inputs.
 
         Args:
@@ -192,21 +198,23 @@ mo
         pred_labels = pred_scores.argmax(dim=1, keepdim=True).detach()
 
         if data_samples is not None:
-            for data_sample, score, label in zip(data_samples, pred_scores,
-                                                 pred_labels):
+            for data_sample, score, label in zip(
+                data_samples, pred_scores, pred_labels
+            ):
                 data_sample.set_pred_score(score).set_pred_label(label)
         else:
             data_samples = []
             for score, label in zip(pred_scores, pred_labels):
                 data_samples.append(
-                    DataSample().set_pred_score(score).set_pred_label(label))
+                    DataSample().set_pred_score(score).set_pred_label(label)
+                )
 
         return data_samples
 
     @staticmethod
     def _remove_state_dict_prefix(module, state_dict, prefix, local_metadata):
         for k in list(state_dict.keys()):
-            new_key = re.sub(f'^{prefix}model.', prefix, k)
+            new_key = re.sub(f"^{prefix}model.", prefix, k)
             # Only delete the key that different from its new_key.
             if new_key != k:
                 # Modify the `state_dict` directly to avoid invalid changes
@@ -217,11 +225,18 @@ mo
         return state_dict
 
     @staticmethod
-    def _add_state_dict_prefix(state_dict, prefix, local_metadata, strict,
-                               missing_keys, unexpected_keys, error_msgs):
-        new_prefix = prefix + 'model.'
+    def _add_state_dict_prefix(
+        state_dict,
+        prefix,
+        local_metadata,
+        strict,
+        missing_keys,
+        unexpected_keys,
+        error_msgs,
+    ):
+        new_prefix = prefix + "model."
         for k in list(state_dict.keys()):
-            new_key = re.sub(f'^{prefix}', new_prefix, k)
+            new_key = re.sub(f"^{prefix}", new_prefix, k)
             # Only delete the key that different from its new_key.
             if new_key != k:
                 state_dict[new_key] = state_dict[k]

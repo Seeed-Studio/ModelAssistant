@@ -3,7 +3,6 @@ import torch
 import torch.nn as nn
 
 
-
 class GlobalAveragePooling(nn.Module):
     """Global Average Pooling neck.
 
@@ -18,8 +17,9 @@ class GlobalAveragePooling(nn.Module):
 
     def __init__(self, dim=2):
         super(GlobalAveragePooling, self).__init__()
-        assert dim in [1, 2, 3], 'GlobalAveragePooling dim only support ' \
-            f'{1, 2, 3}, get {dim} instead.'
+        assert dim in [1, 2, 3], (
+            "GlobalAveragePooling dim only support " f"{1, 2, 3}, get {dim} instead."
+        )
         if dim == 1:
             self.gap = nn.AdaptiveAvgPool1d(1)
         elif dim == 2:
@@ -33,11 +33,10 @@ class GlobalAveragePooling(nn.Module):
     def forward(self, inputs):
         if isinstance(inputs, tuple):
             outs = tuple([self.gap(x) for x in inputs])
-            outs = tuple(
-                [out.view(x.size(0), -1) for out, x in zip(outs, inputs)])
+            outs = tuple([out.view(x.size(0), -1) for out, x in zip(outs, inputs)])
         elif isinstance(inputs, torch.Tensor):
             outs = self.gap(inputs)
             outs = outs.view(inputs.size(0), -1)
         else:
-            raise TypeError('neck inputs should be tuple or torch.tensor')
+            raise TypeError("neck inputs should be tuple or torch.tensor")
         return outs

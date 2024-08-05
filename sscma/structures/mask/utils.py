@@ -48,8 +48,9 @@ def encode_mask_results(mask_results):
     for mask in mask_results:
         encoded_mask_results.append(
             mask_util.encode(
-                np.array(mask[:, :, np.newaxis], order='F',
-                         dtype='uint8'))[0])  # encoded with RLE
+                np.array(mask[:, :, np.newaxis], order="F", dtype="uint8")
+            )[0]
+        )  # encoded with RLE
     return encoded_mask_results
 
 
@@ -71,7 +72,6 @@ def mask2bbox(masks):
         x = torch.where(x_any[i, :])[0]
         y = torch.where(y_any[i, :])[0]
         if len(x) > 0 and len(y) > 0:
-            bboxes[i, :] = bboxes.new_tensor(
-                [x[0], y[0], x[-1] + 1, y[-1] + 1])
+            bboxes[i, :] = bboxes.new_tensor([x[0], y[0], x[-1] + 1, y[-1] + 1])
 
     return bboxes

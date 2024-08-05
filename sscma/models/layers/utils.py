@@ -5,7 +5,7 @@ from typing import Optional, Sequence, Tuple, Union
 
 import torch
 import torch.nn.functional as F
-from ..cnn import (build_conv_layer, build_norm_layer)
+from ..cnn import build_conv_layer, build_norm_layer
 from ..cnn.activation import build_activation_layer
 from ..cnn.wrappers import Linear
 
@@ -31,7 +31,7 @@ def nlc_to_nchw(x: Tensor, hw_shape: Sequence[int]) -> Tensor:
     H, W = hw_shape
     assert len(x.shape) == 3
     B, L, C = x.shape
-    assert L == H * W, 'The seq_len does not match H, W'
+    assert L == H * W, "The seq_len does not match H, W"
     return x.transpose(1, 2).reshape(B, C, H, W).contiguous()
 
 
@@ -48,10 +48,12 @@ def nchw_to_nlc(x):
     return x.flatten(2).transpose(1, 2).contiguous()
 
 
-def coordinate_to_encoding(coord_tensor: Tensor,
-                           num_feats: int = 128,
-                           temperature: int = 10000,
-                           scale: float = 2 * math.pi):
+def coordinate_to_encoding(
+    coord_tensor: Tensor,
+    num_feats: int = 128,
+    temperature: int = 10000,
+    scale: float = 2 * math.pi,
+):
     """Convert coordinate tensor to positional encoding.
 
     Args:
@@ -68,34 +70,38 @@ def coordinate_to_encoding(coord_tensor: Tensor,
     Returns:
         Tensor: Returned encoded positional tensor.
     """
-    dim_t = torch.arange(
-        num_feats, dtype=torch.float32, device=coord_tensor.device)
-    dim_t = temperature**(2 * (dim_t // 2) / num_feats)
+    dim_t = torch.arange(num_feats, dtype=torch.float32, device=coord_tensor.device)
+    dim_t = temperature ** (2 * (dim_t // 2) / num_feats)
     x_embed = coord_tensor[..., 0] * scale
     y_embed = coord_tensor[..., 1] * scale
     pos_x = x_embed[..., None] / dim_t
     pos_y = y_embed[..., None] / dim_t
-    pos_x = torch.stack((pos_x[..., 0::2].sin(), pos_x[..., 1::2].cos()),
-                        dim=-1).flatten(2)
-    pos_y = torch.stack((pos_y[..., 0::2].sin(), pos_y[..., 1::2].cos()),
-                        dim=-1).flatten(2)
+    pos_x = torch.stack(
+        (pos_x[..., 0::2].sin(), pos_x[..., 1::2].cos()), dim=-1
+    ).flatten(2)
+    pos_y = torch.stack(
+        (pos_y[..., 0::2].sin(), pos_y[..., 1::2].cos()), dim=-1
+    ).flatten(2)
     if coord_tensor.size(-1) == 2:
         pos = torch.cat((pos_y, pos_x), dim=-1)
     elif coord_tensor.size(-1) == 4:
         w_embed = coord_tensor[..., 2] * scale
         pos_w = w_embed[..., None] / dim_t
-        pos_w = torch.stack((pos_w[..., 0::2].sin(), pos_w[..., 1::2].cos()),
-                            dim=-1).flatten(2)
+        pos_w = torch.stack(
+            (pos_w[..., 0::2].sin(), pos_w[..., 1::2].cos()), dim=-1
+        ).flatten(2)
 
         h_embed = coord_tensor[..., 3] * scale
         pos_h = h_embed[..., None] / dim_t
-        pos_h = torch.stack((pos_h[..., 0::2].sin(), pos_h[..., 1::2].cos()),
-                            dim=-1).flatten(2)
+        pos_h = torch.stack(
+            (pos_h[..., 0::2].sin(), pos_h[..., 1::2].cos()), dim=-1
+        ).flatten(2)
 
         pos = torch.cat((pos_y, pos_x, pos_w, pos_h), dim=-1)
     else:
-        raise ValueError('Unknown pos_tensor shape(-1):{}'.format(
-            coord_tensor.size(-1)))
+        raise ValueError(
+            "Unknown pos_tensor shape(-1):{}".format(coord_tensor.size(-1))
+        )
     return pos
 
 
@@ -146,11 +152,10 @@ class AdaptivePadding(nn.Module):
         >>> assert (out.shape[2], out.shape[3]) == (16, 32)
     """
 
-    def __init__(self, kernel_size=1, stride=1, dilation=1, padding='corner'):
-
+    def __init__(self, kernel_size=1, stride=1, dilation=1, padding="corner"):
         super(AdaptivePadding, self).__init__()
 
-        assert padding in ('same', 'corner')
+        assert padding in ("same", "corner")
 
         kernel_size = to_2tuple(kernel_size)
         stride = to_2tuple(stride)
@@ -168,22 +173,25 @@ class AdaptivePadding(nn.Module):
         stride_h, stride_w = self.stride
         output_h = math.ceil(input_h / stride_h)
         output_w = math.ceil(input_w / stride_w)
-        pad_h = max((output_h - 1) * stride_h +
-                    (kernel_h - 1) * self.dilation[0] + 1 - input_h, 0)
-        pad_w = max((output_w - 1) * stride_w +
-                    (kernel_w - 1) * self.dilation[1] + 1 - input_w, 0)
+        pad_h = max(
+            (output_h - 1) * stride_h + (kernel_h - 1) * self.dilation[0] + 1 - input_h,
+            0,
+        )
+        pad_w = max(
+            (output_w - 1) * stride_w + (kernel_w - 1) * self.dilation[1] + 1 - input_w,
+            0,
+        )
         return pad_h, pad_w
 
     def forward(self, x):
         pad_h, pad_w = self.get_pad_shape(x.size()[-2:])
         if pad_h > 0 or pad_w > 0:
-            if self.padding == 'corner':
+            if self.padding == "corner":
                 x = F.pad(x, [0, pad_w, 0, pad_h])
-            elif self.padding == 'same':
-                x = F.pad(x, [
-                    pad_w // 2, pad_w - pad_w // 2, pad_h // 2,
-                    pad_h - pad_h // 2
-                ])
+            elif self.padding == "same":
+                x = F.pad(
+                    x, [pad_w // 2, pad_w - pad_w // 2, pad_h // 2, pad_h - pad_h // 2]
+                )
         return x
 
 
@@ -215,18 +223,20 @@ class PatchEmbed(BaseModule):
             initialization. Default: None.
     """
 
-    def __init__(self,
-                 in_channels: int = 3,
-                 embed_dims: int = 768,
-                 conv_type: str = 'Conv2d',
-                 kernel_size: int = 16,
-                 stride: int = 16,
-                 padding: Union[int, tuple, str] = 'corner',
-                 dilation: int = 1,
-                 bias: bool = True,
-                 norm_cfg: OptConfigType = None,
-                 input_size: Union[int, tuple] = None,
-                 init_cfg: OptConfigType = None) -> None:
+    def __init__(
+        self,
+        in_channels: int = 3,
+        embed_dims: int = 768,
+        conv_type: str = "Conv2d",
+        kernel_size: int = 16,
+        stride: int = 16,
+        padding: Union[int, tuple, str] = "corner",
+        dilation: int = 1,
+        bias: bool = True,
+        norm_cfg: OptConfigType = None,
+        input_size: Union[int, tuple] = None,
+        init_cfg: OptConfigType = None,
+    ) -> None:
         super(PatchEmbed, self).__init__(init_cfg=init_cfg)
 
         self.embed_dims = embed_dims
@@ -242,7 +252,8 @@ class PatchEmbed(BaseModule):
                 kernel_size=kernel_size,
                 stride=stride,
                 dilation=dilation,
-                padding=padding)
+                padding=padding,
+            )
             # disable the padding of conv
             padding = 0
         else:
@@ -257,7 +268,8 @@ class PatchEmbed(BaseModule):
             stride=stride,
             padding=padding,
             dilation=dilation,
-            bias=bias)
+            bias=bias,
+        )
 
         if norm_cfg is not None:
             self.norm = build_norm_layer(norm_cfg, embed_dims)[1]
@@ -278,10 +290,12 @@ class PatchEmbed(BaseModule):
                 input_size = (input_h, input_w)
 
             # https://pytorch.org/docs/stable/generated/torch.nn.Conv2d.html
-            h_out = (input_size[0] + 2 * padding[0] - dilation[0] *
-                     (kernel_size[0] - 1) - 1) // stride[0] + 1
-            w_out = (input_size[1] + 2 * padding[1] - dilation[1] *
-                     (kernel_size[1] - 1) - 1) // stride[1] + 1
+            h_out = (
+                input_size[0] + 2 * padding[0] - dilation[0] * (kernel_size[0] - 1) - 1
+            ) // stride[0] + 1
+            w_out = (
+                input_size[1] + 2 * padding[1] - dilation[1] * (kernel_size[1] - 1) - 1
+            ) // stride[1] + 1
             self.init_out_size = (h_out, w_out)
         else:
             self.init_input_size = None
@@ -342,16 +356,18 @@ class PatchMerging(BaseModule):
             Default: None.
     """
 
-    def __init__(self,
-                 in_channels: int,
-                 out_channels: int,
-                 kernel_size: Optional[Union[int, tuple]] = 2,
-                 stride: Optional[Union[int, tuple]] = None,
-                 padding: Union[int, tuple, str] = 'corner',
-                 dilation: Optional[Union[int, tuple]] = 1,
-                 bias: Optional[bool] = False,
-                 norm_cfg: OptConfigType = dict(type='LN'),
-                 init_cfg: OptConfigType = None) -> None:
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: Optional[Union[int, tuple]] = 2,
+        stride: Optional[Union[int, tuple]] = None,
+        padding: Union[int, tuple, str] = "corner",
+        dilation: Optional[Union[int, tuple]] = 1,
+        bias: Optional[bool] = False,
+        norm_cfg: OptConfigType = dict(type="LN"),
+        init_cfg: OptConfigType = None,
+    ) -> None:
         super().__init__(init_cfg=init_cfg)
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -369,7 +385,8 @@ class PatchMerging(BaseModule):
                 kernel_size=kernel_size,
                 stride=stride,
                 dilation=dilation,
-                padding=padding)
+                padding=padding,
+            )
             # disable the padding of unfold
             padding = 0
         else:
@@ -377,10 +394,8 @@ class PatchMerging(BaseModule):
 
         padding = to_2tuple(padding)
         self.sampler = nn.Unfold(
-            kernel_size=kernel_size,
-            dilation=dilation,
-            padding=padding,
-            stride=stride)
+            kernel_size=kernel_size, dilation=dilation, padding=padding, stride=stride
+        )
 
         sample_dim = kernel_size[0] * kernel_size[1] * in_channels
 
@@ -391,8 +406,7 @@ class PatchMerging(BaseModule):
 
         self.reduction = nn.Linear(sample_dim, out_channels, bias=bias)
 
-    def forward(self, x: Tensor,
-                input_size: Tuple[int]) -> Tuple[Tensor, Tuple[int]]:
+    def forward(self, x: Tensor, input_size: Tuple[int]) -> Tuple[Tensor, Tuple[int]]:
         """
         Args:
             x (Tensor): Has shape (B, H*W, C_in).
@@ -407,13 +421,12 @@ class PatchMerging(BaseModule):
                     (Merged_H, Merged_W).
         """
         B, L, C = x.shape
-        assert isinstance(input_size, Sequence), f'Expect ' \
-                                                 f'input_size is ' \
-                                                 f'`Sequence` ' \
-                                                 f'but get {input_size}'
+        assert isinstance(input_size, Sequence), (
+            f"Expect " f"input_size is " f"`Sequence` " f"but get {input_size}"
+        )
 
         H, W = input_size
-        assert L == H * W, 'input feature has wrong size'
+        assert L == H * W, "input feature has wrong size"
 
         x = x.view(B, H, W, C).permute([0, 3, 1, 2])  # B, C, H, W
         # Use nn.Unfold to merge patch. About 25% faster than original method,
@@ -426,12 +439,18 @@ class PatchMerging(BaseModule):
         x = self.sampler(x)
         # if kernel_size=2 and stride=2, x should has shape (B, 4*C, H/2*W/2)
 
-        out_h = (H + 2 * self.sampler.padding[0] - self.sampler.dilation[0] *
-                 (self.sampler.kernel_size[0] - 1) -
-                 1) // self.sampler.stride[0] + 1
-        out_w = (W + 2 * self.sampler.padding[1] - self.sampler.dilation[1] *
-                 (self.sampler.kernel_size[1] - 1) -
-                 1) // self.sampler.stride[1] + 1
+        out_h = (
+            H
+            + 2 * self.sampler.padding[0]
+            - self.sampler.dilation[0] * (self.sampler.kernel_size[0] - 1)
+            - 1
+        ) // self.sampler.stride[0] + 1
+        out_w = (
+            W
+            + 2 * self.sampler.padding[1]
+            - self.sampler.dilation[1] * (self.sampler.kernel_size[1] - 1)
+            - 1
+        ) // self.sampler.stride[1] + 1
 
         output_size = (out_h, out_w)
         x = x.transpose(1, 2)  # B, H/2*W/2, 4*C
@@ -462,21 +481,23 @@ class ConditionalAttention(BaseModule):
             Default: None.
     """
 
-    def __init__(self,
-                 embed_dims: int,
-                 num_heads: int,
-                 attn_drop: float = 0.,
-                 proj_drop: float = 0.,
-                 cross_attn: bool = False,
-                 keep_query_pos: bool = False,
-                 batch_first: bool = True,
-                 init_cfg: OptMultiConfig = None):
+    def __init__(
+        self,
+        embed_dims: int,
+        num_heads: int,
+        attn_drop: float = 0.0,
+        proj_drop: float = 0.0,
+        cross_attn: bool = False,
+        keep_query_pos: bool = False,
+        batch_first: bool = True,
+        init_cfg: OptMultiConfig = None,
+    ):
         super().__init__(init_cfg=init_cfg)
 
-        assert batch_first is True, 'Set `batch_first`\
+        assert batch_first is True, "Set `batch_first`\
         to False is NOT supported in ConditionalAttention. \
         First dimension of all DETRs in mmdet is `batch`, \
-        please set `batch_first` to True.'
+        please set `batch_first` to True."
 
         self.cross_attn = cross_attn
         self.keep_query_pos = keep_query_pos
@@ -499,14 +520,16 @@ class ConditionalAttention(BaseModule):
             self.qpos_sine_proj = Linear(embed_dims, embed_dims)
         self.out_proj = Linear(embed_dims, embed_dims)
 
-        nn.init.constant_(self.out_proj.bias, 0.)
+        nn.init.constant_(self.out_proj.bias, 0.0)
 
-    def forward_attn(self,
-                     query: Tensor,
-                     key: Tensor,
-                     value: Tensor,
-                     attn_mask: Tensor = None,
-                     key_padding_mask: Tensor = None) -> Tuple[Tensor]:
+    def forward_attn(
+        self,
+        query: Tensor,
+        key: Tensor,
+        value: Tensor,
+        attn_mask: Tensor = None,
+        key_padding_mask: Tensor = None,
+    ) -> Tuple[Tensor]:
         """Forward process for `ConditionalAttention`.
 
         Args:
@@ -532,72 +555,86 @@ class ConditionalAttention(BaseModule):
             is target sequence length, and :math:`S` is the source sequence
             length.
         """
-        assert key.size(1) == value.size(1), \
-            f'{"key, value must have the same sequence length"}'
-        assert query.size(0) == key.size(0) == value.size(0), \
-            f'{"batch size must be equal for query, key, value"}'
-        assert query.size(2) == key.size(2), \
-            f'{"q_dims, k_dims must be equal"}'
-        assert value.size(2) == self.embed_dims, \
-            f'{"v_dims must be equal to embed_dims"}'
+        assert key.size(1) == value.size(
+            1
+        ), f'{"key, value must have the same sequence length"}'
+        assert (
+            query.size(0) == key.size(0) == value.size(0)
+        ), f'{"batch size must be equal for query, key, value"}'
+        assert query.size(2) == key.size(2), f'{"q_dims, k_dims must be equal"}'
+        assert (
+            value.size(2) == self.embed_dims
+        ), f'{"v_dims must be equal to embed_dims"}'
 
         bs, tgt_len, hidden_dims = query.size()
         _, src_len, _ = key.size()
         head_dims = hidden_dims // self.num_heads
         v_head_dims = self.embed_dims // self.num_heads
-        assert head_dims * self.num_heads == hidden_dims, \
-            f'{"hidden_dims must be divisible by num_heads"}'
-        scaling = float(head_dims)**-0.5
+        assert (
+            head_dims * self.num_heads == hidden_dims
+        ), f'{"hidden_dims must be divisible by num_heads"}'
+        scaling = float(head_dims) ** -0.5
 
         q = query * scaling
         k = key
         v = value
 
         if attn_mask is not None:
-            assert attn_mask.dtype == torch.float32 or \
-                   attn_mask.dtype == torch.float64 or \
-                   attn_mask.dtype == torch.float16 or \
-                   attn_mask.dtype == torch.uint8 or \
-                   attn_mask.dtype == torch.bool, \
-                   'Only float, byte, and bool types are supported for \
-                    attn_mask'
+            assert (
+                attn_mask.dtype == torch.float32
+                or attn_mask.dtype == torch.float64
+                or attn_mask.dtype == torch.float16
+                or attn_mask.dtype == torch.uint8
+                or attn_mask.dtype == torch.bool
+            ), "Only float, byte, and bool types are supported for \
+                    attn_mask"
 
             if attn_mask.dtype == torch.uint8:
-                warnings.warn('Byte tensor for attn_mask is deprecated.\
-                     Use bool tensor instead.')
+                warnings.warn(
+                    "Byte tensor for attn_mask is deprecated.\
+                     Use bool tensor instead."
+                )
                 attn_mask = attn_mask.to(torch.bool)
             if attn_mask.dim() == 2:
                 attn_mask = attn_mask.unsqueeze(0)
                 if list(attn_mask.size()) != [1, query.size(1), key.size(1)]:
-                    raise RuntimeError(
-                        'The size of the 2D attn_mask is not correct.')
+                    raise RuntimeError("The size of the 2D attn_mask is not correct.")
             elif attn_mask.dim() == 3:
                 if list(attn_mask.size()) != [
-                        bs * self.num_heads,
-                        query.size(1),
-                        key.size(1)
+                    bs * self.num_heads,
+                    query.size(1),
+                    key.size(1),
                 ]:
-                    raise RuntimeError(
-                        'The size of the 3D attn_mask is not correct.')
+                    raise RuntimeError("The size of the 3D attn_mask is not correct.")
             else:
                 raise RuntimeError(
-                    "attn_mask's dimension {} is not supported".format(
-                        attn_mask.dim()))
+                    "attn_mask's dimension {} is not supported".format(attn_mask.dim())
+                )
         # attn_mask's dim is 3 now.
 
         if key_padding_mask is not None and key_padding_mask.dtype == int:
             key_padding_mask = key_padding_mask.to(torch.bool)
 
-        q = q.contiguous().view(bs, tgt_len, self.num_heads,
-                                head_dims).permute(0, 2, 1, 3).flatten(0, 1)
+        q = (
+            q.contiguous()
+            .view(bs, tgt_len, self.num_heads, head_dims)
+            .permute(0, 2, 1, 3)
+            .flatten(0, 1)
+        )
         if k is not None:
-            k = k.contiguous().view(bs, src_len, self.num_heads,
-                                    head_dims).permute(0, 2, 1,
-                                                       3).flatten(0, 1)
+            k = (
+                k.contiguous()
+                .view(bs, src_len, self.num_heads, head_dims)
+                .permute(0, 2, 1, 3)
+                .flatten(0, 1)
+            )
         if v is not None:
-            v = v.contiguous().view(bs, src_len, self.num_heads,
-                                    v_head_dims).permute(0, 2, 1,
-                                                         3).flatten(0, 1)
+            v = (
+                v.contiguous()
+                .view(bs, src_len, self.num_heads, v_head_dims)
+                .permute(0, 2, 1, 3)
+                .flatten(0, 1)
+            )
 
         if key_padding_mask is not None:
             assert key_padding_mask.size(0) == bs
@@ -605,53 +642,61 @@ class ConditionalAttention(BaseModule):
 
         attn_output_weights = torch.bmm(q, k.transpose(1, 2))
         assert list(attn_output_weights.size()) == [
-            bs * self.num_heads, tgt_len, src_len
+            bs * self.num_heads,
+            tgt_len,
+            src_len,
         ]
 
         if attn_mask is not None:
             if attn_mask.dtype == torch.bool:
-                attn_output_weights.masked_fill_(attn_mask, float('-inf'))
+                attn_output_weights.masked_fill_(attn_mask, float("-inf"))
             else:
                 attn_output_weights += attn_mask
 
         if key_padding_mask is not None:
             attn_output_weights = attn_output_weights.view(
-                bs, self.num_heads, tgt_len, src_len)
+                bs, self.num_heads, tgt_len, src_len
+            )
             attn_output_weights = attn_output_weights.masked_fill(
                 key_padding_mask.unsqueeze(1).unsqueeze(2),
-                float('-inf'),
+                float("-inf"),
             )
             attn_output_weights = attn_output_weights.view(
-                bs * self.num_heads, tgt_len, src_len)
+                bs * self.num_heads, tgt_len, src_len
+            )
 
         attn_output_weights = F.softmax(
-            attn_output_weights -
-            attn_output_weights.max(dim=-1, keepdim=True)[0],
-            dim=-1)
+            attn_output_weights - attn_output_weights.max(dim=-1, keepdim=True)[0],
+            dim=-1,
+        )
         attn_output_weights = self.attn_drop(attn_output_weights)
 
         attn_output = torch.bmm(attn_output_weights, v)
-        assert list(
-            attn_output.size()) == [bs * self.num_heads, tgt_len, v_head_dims]
-        attn_output = attn_output.view(bs, self.num_heads, tgt_len,
-                                       v_head_dims).permute(0, 2, 1,
-                                                            3).flatten(2)
+        assert list(attn_output.size()) == [bs * self.num_heads, tgt_len, v_head_dims]
+        attn_output = (
+            attn_output.view(bs, self.num_heads, tgt_len, v_head_dims)
+            .permute(0, 2, 1, 3)
+            .flatten(2)
+        )
         attn_output = self.out_proj(attn_output)
 
         # average attention weights over heads
-        attn_output_weights = attn_output_weights.view(bs, self.num_heads,
-                                                       tgt_len, src_len)
+        attn_output_weights = attn_output_weights.view(
+            bs, self.num_heads, tgt_len, src_len
+        )
         return attn_output, attn_output_weights.sum(dim=1) / self.num_heads
 
-    def forward(self,
-                query: Tensor,
-                key: Tensor,
-                query_pos: Tensor = None,
-                ref_sine_embed: Tensor = None,
-                key_pos: Tensor = None,
-                attn_mask: Tensor = None,
-                key_padding_mask: Tensor = None,
-                is_first: bool = False) -> Tensor:
+    def forward(
+        self,
+        query: Tensor,
+        key: Tensor,
+        query_pos: Tensor = None,
+        ref_sine_embed: Tensor = None,
+        key_pos: Tensor = None,
+        attn_mask: Tensor = None,
+        key_padding_mask: Tensor = None,
+        is_first: bool = False,
+    ) -> Tensor:
         """Forward function for `ConditionalAttention`.
         Args:
             query (Tensor): The input query with shape [bs, num_queries,
@@ -703,8 +748,9 @@ class ConditionalAttention(BaseModule):
                 k = k_content
             q = q.view(bs, nq, self.num_heads, c // self.num_heads)
             query_sine_embed = self.qpos_sine_proj(ref_sine_embed)
-            query_sine_embed = query_sine_embed.view(bs, nq, self.num_heads,
-                                                     c // self.num_heads)
+            query_sine_embed = query_sine_embed.view(
+                bs, nq, self.num_heads, c // self.num_heads
+            )
             q = torch.cat([q, query_sine_embed], dim=3).view(bs, nq, 2 * c)
             k = k.view(bs, hw, self.num_heads, c // self.num_heads)
             k_pos = k_pos.view(bs, hw, self.num_heads, c // self.num_heads)
@@ -714,7 +760,8 @@ class ConditionalAttention(BaseModule):
                 key=k,
                 value=v,
                 attn_mask=attn_mask,
-                key_padding_mask=key_padding_mask)[0]
+                key_padding_mask=key_padding_mask,
+            )[0]
             query = query + self.proj_drop(ca_output)
         else:
             q_content = self.qcontent_proj(query)
@@ -729,7 +776,8 @@ class ConditionalAttention(BaseModule):
                 key=k,
                 value=v,
                 attn_mask=attn_mask,
-                key_padding_mask=key_padding_mask)[0]
+                key_padding_mask=key_padding_mask,
+            )[0]
             query = query + self.proj_drop(sa_output)
 
         return query
@@ -747,13 +795,15 @@ class MLP(BaseModule):
             layer of MLP only contains FFN (Linear).
     """
 
-    def __init__(self, input_dim: int, hidden_dim: int, output_dim: int,
-                 num_layers: int) -> None:
+    def __init__(
+        self, input_dim: int, hidden_dim: int, output_dim: int, num_layers: int
+    ) -> None:
         super().__init__()
         self.num_layers = num_layers
         h = [hidden_dim] * (num_layers - 1)
         self.layers = ModuleList(
-            Linear(n, k) for n, k in zip([input_dim] + h, h + [output_dim]))
+            Linear(n, k) for n, k in zip([input_dim] + h, h + [output_dim])
+        )
 
     def forward(self, x: Tensor) -> Tensor:
         """Forward function of MLP.
@@ -798,15 +848,17 @@ class DynamicConv(BaseModule):
             Default: None.
     """
 
-    def __init__(self,
-                 in_channels: int = 256,
-                 feat_channels: int = 64,
-                 out_channels: Optional[int] = None,
-                 input_feat_shape: int = 7,
-                 with_proj: bool = True,
-                 act_cfg: OptConfigType = dict(type='ReLU', inplace=True),
-                 norm_cfg: OptConfigType = dict(type='LN'),
-                 init_cfg: OptConfigType = None) -> None:
+    def __init__(
+        self,
+        in_channels: int = 256,
+        feat_channels: int = 64,
+        out_channels: Optional[int] = None,
+        input_feat_shape: int = 7,
+        with_proj: bool = True,
+        act_cfg: OptConfigType = dict(type="ReLU", inplace=True),
+        norm_cfg: OptConfigType = dict(type="LN"),
+        init_cfg: OptConfigType = None,
+    ) -> None:
         super(DynamicConv, self).__init__(init_cfg)
         self.in_channels = in_channels
         self.feat_channels = feat_channels
@@ -820,7 +872,8 @@ class DynamicConv(BaseModule):
         self.num_params_in = self.in_channels * self.feat_channels
         self.num_params_out = self.out_channels * self.feat_channels
         self.dynamic_layer = nn.Linear(
-            self.in_channels, self.num_params_in + self.num_params_out)
+            self.in_channels, self.num_params_in + self.num_params_out
+        )
 
         self.norm_in = build_norm_layer(norm_cfg, self.feat_channels)[1]
         self.norm_out = build_norm_layer(norm_cfg, self.out_channels)[1]
@@ -852,10 +905,12 @@ class DynamicConv(BaseModule):
         input_feature = input_feature.permute(1, 0, 2)
         parameters = self.dynamic_layer(param_feature)
 
-        param_in = parameters[:, :self.num_params_in].view(
-            -1, self.in_channels, self.feat_channels)
-        param_out = parameters[:, -self.num_params_out:].view(
-            -1, self.feat_channels, self.out_channels)
+        param_in = parameters[:, : self.num_params_in].view(
+            -1, self.in_channels, self.feat_channels
+        )
+        param_out = parameters[:, -self.num_params_out :].view(
+            -1, self.feat_channels, self.out_channels
+        )
 
         # input_feature has shape (num_all_proposals, H*W, in_channels)
         # param_in has shape (num_all_proposals, in_channels, feat_channels)
@@ -896,20 +951,20 @@ def get_text_sine_pos_embed(
         pos_embed (torch.Tensor): shape: [..., n*num_pos_feats].
     """
     scale = 2 * math.pi
-    dim_t = torch.arange(
-        num_pos_feats, dtype=torch.float32, device=pos_tensor.device)
-    dim_t = temperature**(2 * torch.div(dim_t, 2, rounding_mode='floor') /
-                          num_pos_feats)
+    dim_t = torch.arange(num_pos_feats, dtype=torch.float32, device=pos_tensor.device)
+    dim_t = temperature ** (
+        2 * torch.div(dim_t, 2, rounding_mode="floor") / num_pos_feats
+    )
 
     def sine_func(x: torch.Tensor):
         sin_x = x * scale / dim_t
-        sin_x = torch.stack((sin_x[..., 0::2].sin(), sin_x[..., 1::2].cos()),
-                            dim=3).flatten(2)
+        sin_x = torch.stack(
+            (sin_x[..., 0::2].sin(), sin_x[..., 1::2].cos()), dim=3
+        ).flatten(2)
         return sin_x
 
     pos_res = [
-        sine_func(x)
-        for x in pos_tensor.split([1] * pos_tensor.shape[-1], dim=-1)
+        sine_func(x) for x in pos_tensor.split([1] * pos_tensor.shape[-1], dim=-1)
     ]
     if exchange_xy:
         pos_res[0], pos_res[1] = pos_res[1], pos_res[0]

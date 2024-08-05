@@ -39,32 +39,35 @@ class ImageClassifier(BaseModel):
             Defaults to None.
     """
 
-    def __init__(self,
-                 backbone: dict,
-                 neck: Optional[dict] = None,
-                 head: Optional[dict] = None,
-                 pretrained: Optional[str] = None,
-                 train_cfg: Optional[dict] = None,
-                 data_preprocessor: Optional[dict] = None,
-                 init_cfg: Optional[dict] = None):
+    def __init__(
+        self,
+        backbone: dict,
+        neck: Optional[dict] = None,
+        head: Optional[dict] = None,
+        pretrained: Optional[str] = None,
+        train_cfg: Optional[dict] = None,
+        data_preprocessor: Optional[dict] = None,
+        init_cfg: Optional[dict] = None,
+    ):
         if pretrained is not None:
-            init_cfg = dict(type='Pretrained', checkpoint=pretrained)
+            init_cfg = dict(type="Pretrained", checkpoint=pretrained)
 
         data_preprocessor = data_preprocessor or {}
 
         if isinstance(data_preprocessor, dict):
-            data_preprocessor.setdefault('type', 'ClsDataPreprocessor')
-            data_preprocessor.setdefault('batch_augments', train_cfg)
+            data_preprocessor.setdefault("type", "ClsDataPreprocessor")
+            data_preprocessor.setdefault("batch_augments", train_cfg)
             data_preprocessor = MODELS.build(data_preprocessor)
         elif not isinstance(data_preprocessor, nn.Module):
-            raise TypeError('data_preprocessor should be a `dict` or '
-                            f'`nn.Module` instance, but got '
-                            f'{type(data_preprocessor)}')
-        
-
+            raise TypeError(
+                "data_preprocessor should be a `dict` or "
+                f"`nn.Module` instance, but got "
+                f"{type(data_preprocessor)}"
+            )
 
         super(ImageClassifier, self).__init__(
-            init_cfg=init_cfg, data_preprocessor=data_preprocessor)
+            init_cfg=init_cfg, data_preprocessor=data_preprocessor
+        )
 
         if not isinstance(backbone, nn.Module):
             backbone = MODELS.build(backbone)
@@ -79,24 +82,25 @@ class ImageClassifier(BaseModel):
 
         # If the model needs to load pretrain weights from a third party,
         # the key can be modified with this hook
-        if hasattr(self.backbone, '_checkpoint_filter'):
-            self._register_load_state_dict_pre_hook(
-                self.backbone._checkpoint_filter)
+        if hasattr(self.backbone, "_checkpoint_filter"):
+            self._register_load_state_dict_pre_hook(self.backbone._checkpoint_filter)
+
     @property
     def with_neck(self) -> bool:
         """Whether the classifier has a neck."""
-        return hasattr(self, 'neck') and self.neck is not None
+        return hasattr(self, "neck") and self.neck is not None
 
     @property
     def with_head(self) -> bool:
         """Whether the classifier has a head."""
-        return hasattr(self, 'head') and self.head is not None
+        return hasattr(self, "head") and self.head is not None
 
-
-    def forward(self,
-                inputs: torch.Tensor,
-                data_samples: Optional[List[DataSample]] = None,
-                mode: str = 'tensor'):
+    def forward(
+        self,
+        inputs: torch.Tensor,
+        data_samples: Optional[List[DataSample]] = None,
+        mode: str = "tensor",
+    ):
         """The unified entry for a forward process in both training and test.
 
         The method should accept three modes: "tensor", "predict" and "loss":
@@ -124,17 +128,17 @@ class ImageClassifier(BaseModel):
               :obj:`mmpretrain.structures.DataSample`.
             - If ``mode="loss"``, return a dict of tensor.
         """
-        if mode == 'tensor':
+        if mode == "tensor":
             feats = self.extract_feat(inputs)
             return self.head(feats) if self.with_head else feats
-        elif mode == 'loss':
+        elif mode == "loss":
             return self.loss(inputs, data_samples)
-        elif mode == 'predict':
+        elif mode == "predict":
             return self.predict(inputs, data_samples)
         else:
             raise RuntimeError(f'Invalid mode "{mode}".')
 
-    def extract_feat(self, inputs, stage='neck'):
+    def extract_feat(self, inputs, stage="neck"):
         """Extract features from the input tensor with shape (N, C, ...).
 
         Args:
@@ -206,26 +210,27 @@ class ImageClassifier(BaseModel):
             >>> print(out.shape)  # The hidden dims in head is 3072
             torch.Size([1, 3072])
         """  # noqa: E501
-        assert stage in ['backbone', 'neck', 'pre_logits'], \
-            (f'Invalid output stage "{stage}", please choose from "backbone", '
-             '"neck" and "pre_logits"')
+        assert stage in ["backbone", "neck", "pre_logits"], (
+            f'Invalid output stage "{stage}", please choose from "backbone", '
+            '"neck" and "pre_logits"'
+        )
 
         x = self.backbone(inputs)
 
-        if stage == 'backbone':
+        if stage == "backbone":
             return x
 
         if self.with_neck:
             x = self.neck(x)
-        if stage == 'neck':
+        if stage == "neck":
             return x
 
-        assert self.with_head and hasattr(self.head, 'pre_logits'), \
-            "No head or the head doesn't implement `pre_logits` method."
+        assert self.with_head and hasattr(
+            self.head, "pre_logits"
+        ), "No head or the head doesn't implement `pre_logits` method."
         return self.head.pre_logits(x)
 
-    def loss(self, inputs: torch.Tensor,
-             data_samples: List[DataSample]) -> dict:
+    def loss(self, inputs: torch.Tensor, data_samples: List[DataSample]) -> dict:
         """Calculate losses from a batch of inputs and data samples.
 
         Args:
@@ -240,10 +245,12 @@ class ImageClassifier(BaseModel):
         feats = self.extract_feat(inputs)
         return self.head.loss(feats, data_samples)
 
-    def predict(self,
-                inputs: torch.Tensor,
-                data_samples: Optional[List[DataSample]] = None,
-                **kwargs) -> List[DataSample]:
+    def predict(
+        self,
+        inputs: torch.Tensor,
+        data_samples: Optional[List[DataSample]] = None,
+        **kwargs,
+    ) -> List[DataSample]:
         """Predict results from a batch of inputs.
 
         Args:
@@ -266,9 +273,10 @@ class ImageClassifier(BaseModel):
         Returns:
             Tuple[int, int]: The layer-wise depth and the max depth.
         """
-        if hasattr(self.backbone, 'get_layer_depth'):
-            return self.backbone.get_layer_depth(param_name, 'backbone.')
+        if hasattr(self.backbone, "get_layer_depth"):
+            return self.backbone.get_layer_depth(param_name, "backbone.")
         else:
             raise NotImplementedError(
                 f"The backbone {type(self.backbone)} doesn't "
-                'support `get_layer_depth` by now.')
+                "support `get_layer_depth` by now."
+            )

@@ -11,13 +11,13 @@ def get_caller_name():
     caller_frame = inspect.stack()[2][0]  # e.g., caller of log_img_scale
     caller_method = caller_frame.f_code.co_name
     try:
-        caller_class = caller_frame.f_locals['self'].__class__.__name__
-        return f'{caller_class}.{caller_method}'
+        caller_class = caller_frame.f_locals["self"].__class__.__name__
+        return f"{caller_class}.{caller_method}"
     except KeyError:  # caller is a function
         return caller_method
 
 
-def log_img_scale(img_scale, shape_order='hw', skip_square=False):
+def log_img_scale(img_scale, shape_order="hw", skip_square=False):
     """Log image size.
 
     Args:
@@ -31,19 +31,19 @@ def log_img_scale(img_scale, shape_order='hw', skip_square=False):
     Returns:
         bool: Whether to have done logging.
     """
-    if shape_order == 'hw':
+    if shape_order == "hw":
         height, width = img_scale
-    elif shape_order == 'wh':
+    elif shape_order == "wh":
         width, height = img_scale
     else:
-        raise ValueError(f'Invalid shape_order {shape_order}.')
+        raise ValueError(f"Invalid shape_order {shape_order}.")
 
     if skip_square and (height == width):
         return False
 
     caller = get_caller_name()
     print_log(
-        f'image shape: height={height}, width={width} in {caller}',
-        logger='current')
+        f"image shape: height={height}, width={width} in {caller}", logger="current"
+    )
 
     return True

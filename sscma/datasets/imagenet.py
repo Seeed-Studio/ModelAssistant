@@ -86,48 +86,53 @@ class ImageNet(CustomDataset):
             Root of dataset:    data/imagenet
     """  # noqa: E501
 
-    IMG_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm', '.tif')
-    METAINFO = {'classes': IMAGENET100_CATEGORIES}
+    IMG_EXTENSIONS = (".jpg", ".jpeg", ".png", ".ppm", ".bmp", ".pgm", ".tif")
+    METAINFO = {"classes": IMAGENET100_CATEGORIES}
 
-    def __init__(self,
-                 data_root: str = '',
-                 split: str = '',
-                 data_prefix: Union[str, dict] = '',
-                 ann_file: str = '',
-                 metainfo: Optional[dict] = None,
-                 **kwargs):
-        kwargs = {'extensions': self.IMG_EXTENSIONS, **kwargs}
+    def __init__(
+        self,
+        data_root: str = "",
+        split: str = "",
+        data_prefix: Union[str, dict] = "",
+        ann_file: str = "",
+        metainfo: Optional[dict] = None,
+        **kwargs,
+    ):
+        kwargs = {"extensions": self.IMG_EXTENSIONS, **kwargs}
 
         if split:
-            splits = ['train', 'val', 'test']
-            assert split in splits, \
-                f"The split must be one of {splits}, but get '{split}'"
+            splits = ["train", "val", "test"]
+            assert (
+                split in splits
+            ), f"The split must be one of {splits}, but get '{split}'"
 
-            if split == 'test':
+            if split == "test":
                 logger = MMLogger.get_current_instance()
                 logger.info(
-                    'Since the ImageNet1k test set does not provide label'
-                    'annotations, `with_label` is set to False')
-                kwargs['with_label'] = False
+                    "Since the ImageNet1k test set does not provide label"
+                    "annotations, `with_label` is set to False"
+                )
+                kwargs["with_label"] = False
 
-            data_prefix = split if data_prefix == '' else data_prefix
+            data_prefix = split if data_prefix == "" else data_prefix
 
-            if ann_file == '':
-                _ann_path = fileio.join_path(data_root, 'meta', f'{split}.txt')
+            if ann_file == "":
+                _ann_path = fileio.join_path(data_root, "meta", f"{split}.txt")
                 if fileio.exists(_ann_path):
-                    ann_file = fileio.join_path('meta', f'{split}.txt')
+                    ann_file = fileio.join_path("meta", f"{split}.txt")
 
         super().__init__(
             data_root=data_root,
             data_prefix=data_prefix,
             ann_file=ann_file,
             metainfo=metainfo,
-            **kwargs)
+            **kwargs,
+        )
 
     def extra_repr(self) -> List[str]:
         """The extra repr information of the dataset."""
         body = [
-            f'Root of dataset: \t{self.data_root}',
+            f"Root of dataset: \t{self.data_root}",
         ]
         return body
 
@@ -179,54 +184,61 @@ class ImageNet21k(CustomDataset):
             Prefix of images:   data/imagenet21k/train
     """  # noqa: E501
 
-    IMG_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm', '.tif')
+    IMG_EXTENSIONS = (".jpg", ".jpeg", ".png", ".ppm", ".bmp", ".pgm", ".tif")
 
-    def __init__(self,
-                 data_root: str = '',
-                 split: str = '',
-                 data_prefix: Union[str, dict] = '',
-                 ann_file: str = '',
-                 metainfo: Optional[dict] = None,
-                 multi_label: bool = False,
-                 **kwargs):
+    def __init__(
+        self,
+        data_root: str = "",
+        split: str = "",
+        data_prefix: Union[str, dict] = "",
+        ann_file: str = "",
+        metainfo: Optional[dict] = None,
+        multi_label: bool = False,
+        **kwargs,
+    ):
         if multi_label:
             raise NotImplementedError(
-                'The `multi_label` option is not supported by now.')
+                "The `multi_label` option is not supported by now."
+            )
         self.multi_label = multi_label
 
         if split:
-            splits = ['train']
-            assert split in splits, \
-                f"The split must be one of {splits}, but get '{split}'.\
+            splits = ["train"]
+            assert (
+                split in splits
+            ), f"The split must be one of {splits}, but get '{split}'.\
                 If you want to specify your own validation set or test set,\
                 please set split to None."
 
             self.split = split
-            data_prefix = split if data_prefix == '' else data_prefix
+            data_prefix = split if data_prefix == "" else data_prefix
 
             if not ann_file:
-                _ann_path = fileio.join_path(data_root, 'meta', f'{split}.txt')
+                _ann_path = fileio.join_path(data_root, "meta", f"{split}.txt")
                 if fileio.exists(_ann_path):
-                    ann_file = fileio.join_path('meta', f'{split}.txt')
+                    ann_file = fileio.join_path("meta", f"{split}.txt")
 
         logger = MMLogger.get_current_instance()
 
         if not ann_file:
             logger.warning(
-                'The ImageNet21k dataset is large, and scanning directory may '
-                'consume long time. Considering to specify the `ann_file` to '
-                'accelerate the initialization.')
+                "The ImageNet21k dataset is large, and scanning directory may "
+                "consume long time. Considering to specify the `ann_file` to "
+                "accelerate the initialization."
+            )
 
-        kwargs = {'extensions': self.IMG_EXTENSIONS, **kwargs}
+        kwargs = {"extensions": self.IMG_EXTENSIONS, **kwargs}
         super().__init__(
             data_root=data_root,
             data_prefix=data_prefix,
             ann_file=ann_file,
             metainfo=metainfo,
-            **kwargs)
+            **kwargs,
+        )
 
         if self.CLASSES is None:
             logger.warning(
-                'The CLASSES is not stored in the `ImageNet21k` class. '
-                'Considering to specify the `classes` argument if you need '
-                'do inference on the ImageNet-21k dataset')
+                "The CLASSES is not stored in the `ImageNet21k` class. "
+                "Considering to specify the `classes` argument if you need "
+                "do inference on the ImageNet-21k dataset"
+            )

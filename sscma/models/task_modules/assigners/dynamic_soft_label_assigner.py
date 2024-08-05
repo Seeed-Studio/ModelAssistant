@@ -37,7 +37,6 @@ def center_of_mass(masks: Tensor, eps: float = 1e-7) -> Tensor:
     return center
 
 
-
 class DynamicSoftLabelAssigner(BaseAssigner):
     """Computes matching between predictions and ground truth with dynamic soft
     label assignment.
@@ -58,7 +57,7 @@ class DynamicSoftLabelAssigner(BaseAssigner):
         topk: int = 13,
         iou_weight: float = 3.0,
         gpu_assign_thr: int = 50,
-        iou_calculator: ConfigType = dict(type=BboxOverlaps2D)
+        iou_calculator: ConfigType = dict(type=BboxOverlaps2D),
     ) -> None:
         self.soft_center_radius = soft_center_radius
         self.topk = topk
@@ -66,12 +65,13 @@ class DynamicSoftLabelAssigner(BaseAssigner):
         self.iou_calculator = TASK_UTILS.build(iou_calculator)
         self.gpu_assign_thr = gpu_assign_thr
 
-
-    def assign(self,
-               pred_instances: InstanceData,
-               gt_instances: InstanceData,
-               gt_instances_ignore: Optional[InstanceData] = None,
-               **kwargs) -> AssignResult:
+    def assign(
+        self,
+        pred_instances: InstanceData,
+        gt_instances: InstanceData,
+        gt_instances_ignore: Optional[InstanceData] = None,
+        **kwargs,
+    ) -> AssignResult:
         """Assign gt to priors.
 
         Args:
@@ -101,8 +101,11 @@ class DynamicSoftLabelAssigner(BaseAssigner):
         priors = pred_instances.priors
         num_bboxes = decoded_bboxes.size(0)
 
-        assign_on_cpu = True if (self.gpu_assign_thr > 0) and (
-            num_gt > self.gpu_assign_thr) else False
+        assign_on_cpu = (
+            True
+            if (self.gpu_assign_thr > 0) and (num_gt > self.gpu_assign_thr)
+            else False
+        )
 
         if assign_on_cpu:
             device = priors.device
@@ -112,28 +115,25 @@ class DynamicSoftLabelAssigner(BaseAssigner):
             decoded_bboxes = decoded_bboxes.cpu()
             pred_scores = pred_scores.cpu()
 
-
-
         # assign 0 by default
-        assigned_gt_inds = decoded_bboxes.new_full((num_bboxes, ),
-                                                   0,
-                                                   dtype=torch.long)
+        assigned_gt_inds = decoded_bboxes.new_full((num_bboxes,), 0, dtype=torch.long)
         if num_gt == 0 or num_bboxes == 0:
             # No ground truth or boxes, return empty assignment
-            max_overlaps = decoded_bboxes.new_zeros((num_bboxes, ))
+            max_overlaps = decoded_bboxes.new_zeros((num_bboxes,))
             if num_gt == 0:
                 # No truth, assign everything to background
                 assigned_gt_inds[:] = 0
-            assigned_labels = decoded_bboxes.new_full((num_bboxes, ),
-                                                      -1,
-                                                      dtype=torch.long)
+            assigned_labels = decoded_bboxes.new_full(
+                (num_bboxes,), -1, dtype=torch.long
+            )
             if assign_on_cpu:
                 assigned_gt_inds = assigned_gt_inds.to(device)
-                max_overlaps =  max_overlaps.to(device)
+                max_overlaps = max_overlaps.to(device)
                 assigned_labels = assigned_labels.to(device)
 
             return AssignResult(
-                num_gt, assigned_gt_inds, max_overlaps, labels=assigned_labels)
+                num_gt, assigned_gt_inds, max_overlaps, labels=assigned_labels
+            )
 
         prior_center = priors[:, :2]
         if isinstance(gt_bboxes, BaseBoxes):
@@ -154,13 +154,14 @@ class DynamicSoftLabelAssigner(BaseAssigner):
 
         if num_valid == 0:
             # No ground truth or boxes, return empty assignment
-            max_overlaps = decoded_bboxes.new_zeros((num_bboxes, ))
-            assigned_labels = decoded_bboxes.new_full((num_bboxes, ),
-                                                      -1,
-                                                      dtype=torch.long)
+            max_overlaps = decoded_bboxes.new_zeros((num_bboxes,))
+            assigned_labels = decoded_bboxes.new_full(
+                (num_bboxes,), -1, dtype=torch.long
+            )
             return AssignResult(
-                num_gt, assigned_gt_inds, max_overlaps, labels=assigned_labels)
-        if hasattr(gt_instances, 'masks'):
+                num_gt, assigned_gt_inds, max_overlaps, labels=assigned_labels
+            )
+        if hasattr(gt_instances, "masks"):
             gt_center = center_of_mass(gt_instances.masks, eps=EPS)
         elif isinstance(gt_bboxes, BaseBoxes):
             gt_center = gt_bboxes.centers
@@ -169,51 +170,56 @@ class DynamicSoftLabelAssigner(BaseAssigner):
             gt_center = (gt_bboxes[:, :2] + gt_bboxes[:, 2:]) / 2.0
         valid_prior = priors[valid_mask]
         strides = valid_prior[:, 2]
-        distance = (valid_prior[:, None, :2] - gt_center[None, :, :]
-                    ).pow(2).sum(-1).sqrt() / strides[:, None]
+        distance = (valid_prior[:, None, :2] - gt_center[None, :, :]).pow(2).sum(
+            -1
+        ).sqrt() / strides[:, None]
         soft_center_prior = torch.pow(10, distance - self.soft_center_radius)
 
         pairwise_ious = self.iou_calculator(valid_decoded_bbox, gt_bboxes)
         iou_cost = -torch.log(pairwise_ious + EPS) * self.iou_weight
 
         gt_onehot_label = (
-            F.one_hot(gt_labels.to(torch.int64),
-                      pred_scores.shape[-1]).float().unsqueeze(0).repeat(
-                          num_valid, 1, 1))
+            F.one_hot(gt_labels.to(torch.int64), pred_scores.shape[-1])
+            .float()
+            .unsqueeze(0)
+            .repeat(num_valid, 1, 1)
+        )
         valid_pred_scores = valid_pred_scores.unsqueeze(1).repeat(1, num_gt, 1)
 
         soft_label = gt_onehot_label * pairwise_ious[..., None]
         scale_factor = soft_label - valid_pred_scores.sigmoid()
         soft_cls_cost = F.binary_cross_entropy_with_logits(
-            valid_pred_scores, soft_label,
-            reduction='none') * scale_factor.abs().pow(2.0)
+            valid_pred_scores, soft_label, reduction="none"
+        ) * scale_factor.abs().pow(2.0)
         soft_cls_cost = soft_cls_cost.sum(dim=-1)
 
         cost_matrix = soft_cls_cost + iou_cost + soft_center_prior
 
         matched_pred_ious, matched_gt_inds = self.dynamic_k_matching(
-            cost_matrix, pairwise_ious, num_gt, valid_mask)
+            cost_matrix, pairwise_ious, num_gt, valid_mask
+        )
 
         # convert to AssignResult format
         assigned_gt_inds[valid_mask] = matched_gt_inds + 1
-        assigned_labels = assigned_gt_inds.new_full((num_bboxes, ), -1)
+        assigned_labels = assigned_gt_inds.new_full((num_bboxes,), -1)
         assigned_labels[valid_mask] = gt_labels[matched_gt_inds].long()
-        max_overlaps = assigned_gt_inds.new_full((num_bboxes, ),
-                                                 -INF,
-                                                 dtype=torch.float32)
+        max_overlaps = assigned_gt_inds.new_full(
+            (num_bboxes,), -INF, dtype=torch.float32
+        )
         max_overlaps[valid_mask] = matched_pred_ious
 
         if assign_on_cpu:
             assigned_gt_inds = assigned_gt_inds.to(device)
-            max_overlaps =  max_overlaps.to(device)
+            max_overlaps = max_overlaps.to(device)
             assigned_labels = assigned_labels.to(device)
 
         return AssignResult(
-            num_gt, assigned_gt_inds, max_overlaps, labels=assigned_labels)
+            num_gt, assigned_gt_inds, max_overlaps, labels=assigned_labels
+        )
 
-    def dynamic_k_matching(self, cost: Tensor, pairwise_ious: Tensor,
-                           num_gt: int,
-                           valid_mask: Tensor) -> Tuple[Tensor, Tensor]:
+    def dynamic_k_matching(
+        self, cost: Tensor, pairwise_ious: Tensor, num_gt: int, valid_mask: Tensor
+    ) -> Tuple[Tensor, Tensor]:
         """Use IoU and matching cost to calculate the dynamic top-k positive
         targets. Same as SimOTA.
 
@@ -234,15 +240,15 @@ class DynamicSoftLabelAssigner(BaseAssigner):
         dynamic_ks = torch.clamp(topk_ious.sum(0).int(), min=1)
         for gt_idx in range(num_gt):
             _, pos_idx = torch.topk(
-                cost[:, gt_idx], k=dynamic_ks[gt_idx], largest=False)
+                cost[:, gt_idx], k=dynamic_ks[gt_idx], largest=False
+            )
             matching_matrix[:, gt_idx][pos_idx] = 1
 
         del topk_ious, dynamic_ks, pos_idx
 
         prior_match_gt_mask = matching_matrix.sum(1) > 1
         if prior_match_gt_mask.sum() > 0:
-            cost_min, cost_argmin = torch.min(
-                cost[prior_match_gt_mask, :], dim=1)
+            cost_min, cost_argmin = torch.min(cost[prior_match_gt_mask, :], dim=1)
             matching_matrix[prior_match_gt_mask, :] *= 0
             matching_matrix[prior_match_gt_mask, cost_argmin] = 1
         # get foreground mask inside box and center prior
@@ -250,6 +256,5 @@ class DynamicSoftLabelAssigner(BaseAssigner):
         valid_mask[valid_mask.clone()] = fg_mask_inboxes
 
         matched_gt_inds = matching_matrix[fg_mask_inboxes, :].argmax(1)
-        matched_pred_ious = (matching_matrix *
-                             pairwise_ious).sum(1)[fg_mask_inboxes]
+        matched_pred_ious = (matching_matrix * pairwise_ious).sum(1)[fg_mask_inboxes]
         return matched_pred_ious, matched_gt_inds

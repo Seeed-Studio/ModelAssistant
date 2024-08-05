@@ -48,29 +48,31 @@ class DepthwiseSeparableConvModule(nn.Module):
             ConvModule. See ConvModule for ref.
     """
 
-    def __init__(self,
-                 in_channels: int,
-                 out_channels: int,
-                 kernel_size: Union[int, Tuple[int, int]],
-                 stride: Union[int, Tuple[int, int]] = 1,
-                 padding: Union[int, Tuple[int, int]] = 0,
-                 dilation: Union[int, Tuple[int, int]] = 1,
-                 norm_cfg: Optional[Dict] = None,
-                 act_cfg: Dict = dict(type='ReLU'),
-                 dw_norm_cfg: Union[Dict, str] = 'default',
-                 dw_act_cfg: Union[Dict, str] = 'default',
-                 pw_norm_cfg: Union[Dict, str] = 'default',
-                 pw_act_cfg: Union[Dict, str] = 'default',
-                 **kwargs):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: Union[int, Tuple[int, int]],
+        stride: Union[int, Tuple[int, int]] = 1,
+        padding: Union[int, Tuple[int, int]] = 0,
+        dilation: Union[int, Tuple[int, int]] = 1,
+        norm_cfg: Optional[Dict] = None,
+        act_cfg: Dict = dict(type="ReLU"),
+        dw_norm_cfg: Union[Dict, str] = "default",
+        dw_act_cfg: Union[Dict, str] = "default",
+        pw_norm_cfg: Union[Dict, str] = "default",
+        pw_act_cfg: Union[Dict, str] = "default",
+        **kwargs,
+    ):
         super().__init__()
-        assert 'groups' not in kwargs, 'groups should not be specified'
+        assert "groups" not in kwargs, "groups should not be specified"
 
         # if norm/activation config of depthwise/pointwise ConvModule is not
         # specified, use default config.
-        dw_norm_cfg = dw_norm_cfg if dw_norm_cfg != 'default' else norm_cfg  # type: ignore # noqa E501
-        dw_act_cfg = dw_act_cfg if dw_act_cfg != 'default' else act_cfg
-        pw_norm_cfg = pw_norm_cfg if pw_norm_cfg != 'default' else norm_cfg  # type: ignore # noqa E501
-        pw_act_cfg = pw_act_cfg if pw_act_cfg != 'default' else act_cfg
+        dw_norm_cfg = dw_norm_cfg if dw_norm_cfg != "default" else norm_cfg  # type: ignore # noqa E501
+        dw_act_cfg = dw_act_cfg if dw_act_cfg != "default" else act_cfg
+        pw_norm_cfg = pw_norm_cfg if pw_norm_cfg != "default" else norm_cfg  # type: ignore # noqa E501
+        pw_act_cfg = pw_act_cfg if pw_act_cfg != "default" else act_cfg
 
         # depthwise convolution
         self.depthwise_conv = ConvModule(
@@ -83,7 +85,8 @@ class DepthwiseSeparableConvModule(nn.Module):
             groups=in_channels,
             norm_cfg=dw_norm_cfg,  # type: ignore
             act_cfg=dw_act_cfg,  # type: ignore
-            **kwargs)
+            **kwargs,
+        )
 
         self.pointwise_conv = ConvModule(
             in_channels,
@@ -91,7 +94,8 @@ class DepthwiseSeparableConvModule(nn.Module):
             1,
             norm_cfg=pw_norm_cfg,  # type: ignore
             act_cfg=pw_act_cfg,  # type: ignore
-            **kwargs)
+            **kwargs,
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.depthwise_conv(x)

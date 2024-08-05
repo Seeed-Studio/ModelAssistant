@@ -1,9 +1,8 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from typing import Tuple,Optional,List
+from typing import Tuple, Optional, List
 
 import numpy as np
 import torch
-
 
 
 class Mixup:
@@ -31,8 +30,9 @@ class Mixup:
 
         self.alpha = alpha
 
-    def mix(self, batch_inputs: torch.Tensor,
-            batch_scores: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def mix(
+        self, batch_inputs: torch.Tensor, batch_scores: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Mix the batch inputs and batch one-hot format ground truth.
 
         Args:
@@ -55,9 +55,10 @@ class Mixup:
 
     def __call__(self, batch_inputs: torch.Tensor, batch_score: torch.Tensor):
         """Mix the batch inputs and batch data samples."""
-        assert batch_score.ndim == 2, \
-            'The input `batch_score` should be a one-hot format tensor, '\
-            'which shape should be ``(N, num_classes)``.'
+        assert batch_score.ndim == 2, (
+            "The input `batch_score` should be a one-hot format tensor, "
+            "which shape should be ``(N, num_classes)``."
+        )
 
         mixed_inputs, mixed_score = self.mix(batch_inputs, batch_score.float())
         return mixed_inputs, mixed_score
@@ -98,19 +99,20 @@ class CutMix(Mixup):
             \text{ratio} = \sqrt{1-\lambda}
     """
 
-    def __init__(self,
-                 alpha: float,
-                 cutmix_minmax: Optional[List[float]] = None,
-                 correct_lam: bool = True):
+    def __init__(
+        self,
+        alpha: float,
+        cutmix_minmax: Optional[List[float]] = None,
+        correct_lam: bool = True,
+    ):
         super().__init__(alpha=alpha)
 
         self.cutmix_minmax = cutmix_minmax
         self.correct_lam = correct_lam
 
     def rand_bbox_minmax(
-            self,
-            img_shape: Tuple[int, int],
-            count: Optional[int] = None) -> Tuple[int, int, int, int]:
+        self, img_shape: Tuple[int, int], count: Optional[int] = None
+    ) -> Tuple[int, int, int, int]:
         """Min-Max CutMix bounding-box Inspired by Darknet cutmix
         implementation. It generates a random rectangular bbox based on min/max
         percent values applied to each dimension of the input image.
@@ -127,22 +129,26 @@ class CutMix(Mixup):
         cut_h = np.random.randint(
             int(img_h * self.cutmix_minmax[0]),
             int(img_h * self.cutmix_minmax[1]),
-            size=count)
+            size=count,
+        )
         cut_w = np.random.randint(
             int(img_w * self.cutmix_minmax[0]),
             int(img_w * self.cutmix_minmax[1]),
-            size=count)
+            size=count,
+        )
         yl = np.random.randint(0, img_h - cut_h, size=count)
         xl = np.random.randint(0, img_w - cut_w, size=count)
         yu = yl + cut_h
         xu = xl + cut_w
         return yl, yu, xl, xu
 
-    def rand_bbox(self,
-                  img_shape: Tuple[int, int],
-                  lam: float,
-                  margin: float = 0.,
-                  count: Optional[int] = None) -> Tuple[int, int, int, int]:
+    def rand_bbox(
+        self,
+        img_shape: Tuple[int, int],
+        lam: float,
+        margin: float = 0.0,
+        count: Optional[int] = None,
+    ) -> Tuple[int, int, int, int]:
         """Standard CutMix bounding-box that generates a random square bbox
         based on lambda value. This implementation includes support for
         enforcing a border margin as percent of bbox dimensions.
@@ -166,10 +172,9 @@ class CutMix(Mixup):
         xh = np.clip(cx + cut_w // 2, 0, img_w)
         return yl, yh, xl, xh
 
-    def cutmix_bbox_and_lam(self,
-                            img_shape: Tuple[int, int],
-                            lam: float,
-                            count: Optional[int] = None) -> tuple:
+    def cutmix_bbox_and_lam(
+        self, img_shape: Tuple[int, int], lam: float, count: Optional[int] = None
+    ) -> tuple:
         """Generate bbox and apply lambda correction.
 
         Args:
@@ -183,11 +188,12 @@ class CutMix(Mixup):
             yl, yu, xl, xu = self.rand_bbox(img_shape, lam, count=count)
         if self.correct_lam or self.cutmix_minmax is not None:
             bbox_area = (yu - yl) * (xu - xl)
-            lam = 1. - bbox_area / float(img_shape[0] * img_shape[1])
+            lam = 1.0 - bbox_area / float(img_shape[0] * img_shape[1])
         return (yl, yu, xl, xu), lam
 
-    def mix(self, batch_inputs: torch.Tensor,
-            batch_scores: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def mix(
+        self, batch_inputs: torch.Tensor, batch_scores: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Mix the batch inputs and batch one-hot format ground truth.
 
         Args:

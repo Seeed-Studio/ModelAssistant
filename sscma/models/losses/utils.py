@@ -25,7 +25,7 @@ def reduce_loss(loss, reduction):
         return loss.sum()
 
 
-def weight_reduce_loss(loss, weight=None, reduction='mean', avg_factor=None):
+def weight_reduce_loss(loss, weight=None, reduction="mean", avg_factor=None):
     """Apply element-wise weight and reduce loss.
 
     Args:
@@ -46,10 +46,10 @@ def weight_reduce_loss(loss, weight=None, reduction='mean', avg_factor=None):
         loss = reduce_loss(loss, reduction)
     else:
         # if reduction is mean, then average the loss by avg_factor
-        if reduction == 'mean':
+        if reduction == "mean":
             loss = loss.sum() / avg_factor
         # if reduction is 'none', then do nothing, otherwise raise an error
-        elif reduction != 'none':
+        elif reduction != "none":
             raise ValueError('avg_factor can not be used with reduction="sum"')
     return loss
 
@@ -86,20 +86,13 @@ def weighted_loss(loss_func):
     """
 
     @functools.wraps(loss_func)
-    def wrapper(pred,
-                target,
-                weight=None,
-                reduction='mean',
-                avg_factor=None,
-                **kwargs):
+    def wrapper(pred, target, weight=None, reduction="mean", avg_factor=None, **kwargs):
         # get element-wise loss
         loss = loss_func(pred, target, **kwargs)
         loss = weight_reduce_loss(loss, weight, reduction, avg_factor)
         return loss
 
     return wrapper
-
-
 
 
 def convert_to_one_hot(targets: torch.Tensor, classes) -> torch.Tensor:
@@ -114,9 +107,8 @@ def convert_to_one_hot(targets: torch.Tensor, classes) -> torch.Tensor:
     Returns:
         Tensor: Processed loss values.
     """
-    assert (torch.max(targets).item() <
-            classes), 'Class Index must be less than number of classes'
-    one_hot_targets = F.one_hot(
-        targets.long().squeeze(-1), num_classes=classes)
+    assert (
+        torch.max(targets).item() < classes
+    ), "Class Index must be less than number of classes"
+    one_hot_targets = F.one_hot(targets.long().squeeze(-1), num_classes=classes)
     return one_hot_targets
-

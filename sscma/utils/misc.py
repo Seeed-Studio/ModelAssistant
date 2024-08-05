@@ -12,7 +12,7 @@ from torch.autograd import Function
 from torch.nn import functional as F
 
 from sscma.structures import SampleList
-from sscma.structures.bbox import BaseBoxes, get_box_type, stack_boxes,get_box_tensor
+from sscma.structures.bbox import BaseBoxes, get_box_type, stack_boxes, get_box_tensor
 from sscma.structures.mask import BitmapMasks, PolygonMasks
 from sscma.utils.typing_utils import OptInstanceList
 
@@ -46,7 +46,7 @@ class SigmoidGeometricMean(Function):
 sigmoid_geometric_mean = SigmoidGeometricMean.apply
 
 
-def interpolate_as(source, target, mode='bilinear', align_corners=False):
+def interpolate_as(source, target, mode="bilinear", align_corners=False):
     """Interpolate the `source` to the shape of the `target`.
 
     The `source` must be a Tensor, but the `target` can be a Tensor or a
@@ -66,7 +66,7 @@ def interpolate_as(source, target, mode='bilinear', align_corners=False):
     """
     assert len(target.shape) >= 2
 
-    def _interpolate_as(source, target, mode='bilinear', align_corners=False):
+    def _interpolate_as(source, target, mode="bilinear", align_corners=False):
         """Interpolate the `source` (4D) to the shape of the `target`."""
         target_h, target_w = target.shape[-2:]
         source_h, source_w = source.shape[-2:]
@@ -75,7 +75,8 @@ def interpolate_as(source, target, mode='bilinear', align_corners=False):
                 source,
                 size=(target_h, target_w),
                 mode=mode,
-                align_corners=align_corners)
+                align_corners=align_corners,
+            )
         return source
 
     if len(source.shape) == 3:
@@ -114,7 +115,7 @@ def unpack_gt_instances(batch_data_samples: SampleList) -> tuple:
     for data_sample in batch_data_samples:
         batch_img_metas.append(data_sample.metainfo)
         batch_gt_instances.append(data_sample.gt_instances)
-        if 'ignored_instances' in data_sample:
+        if "ignored_instances" in data_sample:
             batch_gt_instances_ignore.append(data_sample.ignored_instances)
         else:
             batch_gt_instances_ignore.append(None)
@@ -122,15 +123,17 @@ def unpack_gt_instances(batch_data_samples: SampleList) -> tuple:
     return batch_gt_instances, batch_gt_instances_ignore, batch_img_metas
 
 
-def empty_instances(batch_img_metas: List[dict],
-                    device: torch.device,
-                    task_type: str,
-                    instance_results: OptInstanceList = None,
-                    mask_thr_binary: Union[int, float] = 0,
-                    box_type: Union[str, type] = 'hbox',
-                    use_box_type: bool = False,
-                    num_classes: int = 80,
-                    score_per_cls: bool = False) -> List[InstanceData]:
+def empty_instances(
+    batch_img_metas: List[dict],
+    device: torch.device,
+    task_type: str,
+    instance_results: OptInstanceList = None,
+    mask_thr_binary: Union[int, float] = 0,
+    box_type: Union[str, type] = "hbox",
+    use_box_type: bool = False,
+    num_classes: int = 80,
+    score_per_cls: bool = False,
+) -> List[InstanceData]:
     """Handle predicted instances when RoI is empty.
 
     Note: If ``instance_results`` is not None, it will be modified
@@ -156,8 +159,9 @@ def empty_instances(batch_img_metas: List[dict],
     Returns:
         list[:obj:`InstanceData`]: Detection results of each image
     """
-    assert task_type in ('bbox', 'mask'), 'Only support bbox and mask,' \
-                                          f' but got {task_type}'
+    assert task_type in ("bbox", "mask"), (
+        "Only support bbox and mask," f" but got {task_type}"
+    )
 
     if instance_results is not None:
         assert len(instance_results) == len(batch_img_metas)
@@ -170,20 +174,18 @@ def empty_instances(batch_img_metas: List[dict],
         else:
             results = InstanceData()
 
-        if task_type == 'bbox':
+        if task_type == "bbox":
             _, box_type = get_box_type(box_type)
             bboxes = torch.zeros(0, box_type.box_dim, device=device)
             if use_box_type:
                 bboxes = box_type(bboxes, clone=False)
             results.bboxes = bboxes
-            score_shape = (0, num_classes + 1) if score_per_cls else (0, )
+            score_shape = (0, num_classes + 1) if score_per_cls else (0,)
             results.scores = torch.zeros(score_shape, device=device)
-            results.labels = torch.zeros((0, ),
-                                         device=device,
-                                         dtype=torch.long)
+            results.labels = torch.zeros((0,), device=device, dtype=torch.long)
         else:
             # TODO: Handle the case where rescale is false
-            img_h, img_w = batch_img_metas[img_id]['ori_shape'][:2]
+            img_h, img_w = batch_img_metas[img_id]["ori_shape"][:2]
             # the type of `im_mask` will be torch.bool or torch.uint8,
             # where uint8 if for visualization and debugging.
             im_mask = torch.zeros(
@@ -191,7 +193,8 @@ def empty_instances(batch_img_metas: List[dict],
                 img_h,
                 img_w,
                 device=device,
-                dtype=torch.bool if mask_thr_binary >= 0 else torch.uint8)
+                dtype=torch.bool if mask_thr_binary >= 0 else torch.uint8,
+            )
             results.masks = im_mask
         results_list.append(results)
     return results_list
@@ -223,10 +226,10 @@ def unmap(data, count, inds, fill=0):
     """Unmap a subset of item (data) back to the original set of items (of size
     count)"""
     if data.dim() == 1:
-        ret = data.new_full((count, ), fill)
+        ret = data.new_full((count,), fill)
         ret[inds.type(torch.bool)] = data
     else:
-        new_size = (count, ) + data.size()[1:]
+        new_size = (count,) + data.size()[1:]
         ret = data.new_full(new_size, fill)
         ret[inds.type(torch.bool), :] = data
     return ret
@@ -247,7 +250,7 @@ def mask2ndarray(mask):
     elif isinstance(mask, torch.Tensor):
         mask = mask.detach().cpu().numpy()
     elif not isinstance(mask, np.ndarray):
-        raise TypeError(f'Unsupported {type(mask)} data type')
+        raise TypeError(f"Unsupported {type(mask)} data type")
     return mask
 
 
@@ -263,11 +266,11 @@ def flip_tensor(src_tensor, flip_direction):
         out_tensor (Tensor): Flipped tensor.
     """
     assert src_tensor.ndim == 4
-    valid_directions = ['horizontal', 'vertical', 'diagonal']
+    valid_directions = ["horizontal", "vertical", "diagonal"]
     assert flip_direction in valid_directions
-    if flip_direction == 'horizontal':
+    if flip_direction == "horizontal":
         out_tensor = torch.flip(src_tensor, [3])
-    elif flip_direction == 'vertical':
+    elif flip_direction == "vertical":
         out_tensor = torch.flip(src_tensor, [2])
     else:
         out_tensor = torch.flip(src_tensor, [2, 3])
@@ -299,9 +302,7 @@ def select_single_mlvl(mlvl_tensors, batch_id, detach=True):
             mlvl_tensors[i][batch_id].detach() for i in range(num_levels)
         ]
     else:
-        mlvl_tensor_list = [
-            mlvl_tensors[i][batch_id] for i in range(num_levels)
-        ]
+        mlvl_tensor_list = [mlvl_tensors[i][batch_id] for i in range(num_levels)]
     return mlvl_tensor_list
 
 
@@ -349,8 +350,9 @@ def filter_scores_and_topk(scores, score_thr, topk, results=None):
         elif isinstance(results, torch.Tensor):
             filtered_results = results[keep_idxs]
         else:
-            raise NotImplementedError(f'Only supports dict or list or Tensor, '
-                                      f'but get {type(results)}.')
+            raise NotImplementedError(
+                f"Only supports dict or list or Tensor, " f"but get {type(results)}."
+            )
     return scores, labels, keep_idxs, filtered_results
 
 
@@ -376,7 +378,7 @@ def center_of_mass(mask, esp=1e-6):
     return center_h, center_w
 
 
-def generate_coordinate(featmap_sizes, device='cuda'):
+def generate_coordinate(featmap_sizes, device="cuda"):
     """Generate the coordinate.
 
     Args:
@@ -442,34 +444,35 @@ def images_to_levels(target, num_levels):
 
 def samplelist_boxtype2tensor(batch_data_samples: SampleList) -> SampleList:
     for data_samples in batch_data_samples:
-        if 'gt_instances' in data_samples:
-            bboxes = data_samples.gt_instances.get('bboxes', None)
+        if "gt_instances" in data_samples:
+            bboxes = data_samples.gt_instances.get("bboxes", None)
             if isinstance(bboxes, BaseBoxes):
                 data_samples.gt_instances.bboxes = bboxes.tensor
-        if 'pred_instances' in data_samples:
-            bboxes = data_samples.pred_instances.get('bboxes', None)
+        if "pred_instances" in data_samples:
+            bboxes = data_samples.pred_instances.get("bboxes", None)
             if isinstance(bboxes, BaseBoxes):
                 data_samples.pred_instances.bboxes = bboxes.tensor
-        if 'ignored_instances' in data_samples:
-            bboxes = data_samples.ignored_instances.get('bboxes', None)
+        if "ignored_instances" in data_samples:
+            bboxes = data_samples.ignored_instances.get("bboxes", None)
             if isinstance(bboxes, BaseBoxes):
                 data_samples.ignored_instances.bboxes = bboxes.tensor
 
 
-_torch_version_div_indexing = (
-    'parrots' not in torch.__version__
-    and digit_version(torch.__version__) >= digit_version('1.8'))
+_torch_version_div_indexing = "parrots" not in torch.__version__ and digit_version(
+    torch.__version__
+) >= digit_version("1.8")
 
 
-def floordiv(dividend, divisor, rounding_mode='trunc'):
+def floordiv(dividend, divisor, rounding_mode="trunc"):
     if _torch_version_div_indexing:
         return torch.div(dividend, divisor, rounding_mode=rounding_mode)
     else:
         return dividend // divisor
 
 
-def _filter_gt_instances_by_score(batch_data_samples: SampleList,
-                                  score_thr: float) -> SampleList:
+def _filter_gt_instances_by_score(
+    batch_data_samples: SampleList, score_thr: float
+) -> SampleList:
     """Filter ground truth (GT) instances by score.
 
     Args:
@@ -482,16 +485,19 @@ def _filter_gt_instances_by_score(batch_data_samples: SampleList,
         SampleList: The Data Samples filtered by score.
     """
     for data_samples in batch_data_samples:
-        assert 'scores' in data_samples.gt_instances, \
-            'there does not exit scores in instances'
+        assert (
+            "scores" in data_samples.gt_instances
+        ), "there does not exit scores in instances"
         if data_samples.gt_instances.bboxes.shape[0] > 0:
             data_samples.gt_instances = data_samples.gt_instances[
-                data_samples.gt_instances.scores > score_thr]
+                data_samples.gt_instances.scores > score_thr
+            ]
     return batch_data_samples
 
 
-def _filter_gt_instances_by_size(batch_data_samples: SampleList,
-                                 wh_thr: tuple) -> SampleList:
+def _filter_gt_instances_by_size(
+    batch_data_samples: SampleList, wh_thr: tuple
+) -> SampleList:
     """Filter ground truth (GT) instances by size.
 
     Args:
@@ -509,13 +515,14 @@ def _filter_gt_instances_by_size(batch_data_samples: SampleList,
             w = bboxes[:, 2] - bboxes[:, 0]
             h = bboxes[:, 3] - bboxes[:, 1]
             data_samples.gt_instances = data_samples.gt_instances[
-                (w > wh_thr[0]) & (h > wh_thr[1])]
+                (w > wh_thr[0]) & (h > wh_thr[1])
+            ]
     return batch_data_samples
 
 
-def filter_gt_instances(batch_data_samples: SampleList,
-                        score_thr: float = None,
-                        wh_thr: tuple = None):
+def filter_gt_instances(
+    batch_data_samples: SampleList, score_thr: float = None, wh_thr: tuple = None
+):
     """Filter ground truth (GT) instances by score and/or size.
 
     Args:
@@ -531,10 +538,10 @@ def filter_gt_instances(batch_data_samples: SampleList,
 
     if score_thr is not None:
         batch_data_samples = _filter_gt_instances_by_score(
-            batch_data_samples, score_thr)
+            batch_data_samples, score_thr
+        )
     if wh_thr is not None:
-        batch_data_samples = _filter_gt_instances_by_size(
-            batch_data_samples, wh_thr)
+        batch_data_samples = _filter_gt_instances_by_size(batch_data_samples, wh_thr)
     return batch_data_samples
 
 
@@ -562,7 +569,7 @@ def reweight_loss_dict(losses: dict, weight: float) -> dict:
             dict: A dictionary of weighted loss components.
     """
     for name, loss in losses.items():
-        if 'loss' in name:
+        if "loss" in name:
             if isinstance(loss, Sequence):
                 losses[name] = [item * weight for item in loss]
             else:
@@ -596,8 +603,7 @@ def relative_coordinate_maps(
     H, W = feat_sizes
     rel_coordinates = centers.reshape(-1, 1, 2) - locations.reshape(1, -1, 2)
     rel_coordinates = rel_coordinates.permute(0, 2, 1).float()
-    rel_coordinates = rel_coordinates / (
-        strides[:, None, None] * size_of_interest)
+    rel_coordinates = rel_coordinates / (strides[:, None, None] * size_of_interest)
     return rel_coordinates.reshape(-1, 2, H, W)
 
 
@@ -616,15 +622,13 @@ def aligned_bilinear(tensor: Tensor, factor: int) -> Tensor:
         return tensor
 
     h, w = tensor.size()[2:]
-    tensor = F.pad(tensor, pad=(0, 1, 0, 1), mode='replicate')
+    tensor = F.pad(tensor, pad=(0, 1, 0, 1), mode="replicate")
     oh = factor * h + 1
     ow = factor * w + 1
-    tensor = F.interpolate(
-        tensor, size=(oh, ow), mode='bilinear', align_corners=True)
-    tensor = F.pad(
-        tensor, pad=(factor // 2, 0, factor // 2, 0), mode='replicate')
+    tensor = F.interpolate(tensor, size=(oh, ow), mode="bilinear", align_corners=True)
+    tensor = F.pad(tensor, pad=(factor // 2, 0, factor // 2, 0), mode="replicate")
 
-    return tensor[:, :, :oh - 1, :ow - 1]
+    return tensor[:, :, : oh - 1, : ow - 1]
 
 
 def unfold_wo_center(x, kernel_size: int, dilation: int) -> Tensor:
@@ -640,14 +644,14 @@ def unfold_wo_center(x, kernel_size: int, dilation: int) -> Tensor:
     # using SAME padding
     padding = (kernel_size + (dilation - 1) * (kernel_size - 1)) // 2
     unfolded_x = F.unfold(
-        x, kernel_size=kernel_size, padding=padding, dilation=dilation)
-    unfolded_x = unfolded_x.reshape(
-        x.size(0), x.size(1), -1, x.size(2), x.size(3))
+        x, kernel_size=kernel_size, padding=padding, dilation=dilation
+    )
+    unfolded_x = unfolded_x.reshape(x.size(0), x.size(1), -1, x.size(2), x.size(3))
     # remove the center pixels
     size = kernel_size**2
     unfolded_x = torch.cat(
-        (unfolded_x[:, :, :size // 2], unfolded_x[:, :, size // 2 + 1:]),
-        dim=2)
+        (unfolded_x[:, :, : size // 2], unfolded_x[:, :, size // 2 + 1 :]), dim=2
+    )
 
     return unfolded_x
 
@@ -668,15 +672,15 @@ def padding_to(input_tensor: Tensor, max_len: int = 300) -> Tensor:
     num_padding = max_len - len(input_tensor)
     if input_tensor.dim() > 1:
         padding = input_tensor.new_zeros(
-            num_padding, *input_tensor.size()[1:], dtype=input_tensor.dtype)
+            num_padding, *input_tensor.size()[1:], dtype=input_tensor.dtype
+        )
     else:
         padding = input_tensor.new_zeros(num_padding, dtype=input_tensor.dtype)
     output_tensor = torch.cat([input_tensor, padding], dim=0)
     return output_tensor
 
 
-def align_tensor(inputs: List[Tensor],
-                 max_len: Optional[int] = None) -> Tensor:
+def align_tensor(inputs: List[Tensor], max_len: Optional[int] = None) -> Tensor:
     """Pad each input to `max_len`, then stack them. If `max_len` is None, then
     it is the max size of the first dimension of each input.
 
@@ -696,8 +700,10 @@ def align_tensor(inputs: List[Tensor],
 
     return torch.stack([padding_to(item, max_len) for item in inputs])
 
-def gt_instances_preprocess(batch_gt_instances: Union[Tensor, Sequence],
-                            batch_size: int) -> Tensor:
+
+def gt_instances_preprocess(
+    batch_gt_instances: Union[Tensor, Sequence], batch_size: int
+) -> Tensor:
     """Split batch_gt_instances with batch size.
 
     From [all_gt_bboxes, box_dim+2] to [batch_size, number_gt, box_dim+1].
@@ -717,7 +723,8 @@ def gt_instances_preprocess(batch_gt_instances: Union[Tensor, Sequence],
     """
     if isinstance(batch_gt_instances, Sequence):
         max_gt_bbox_len = max(
-            [len(gt_instances) for gt_instances in batch_gt_instances])
+            [len(gt_instances) for gt_instances in batch_gt_instances]
+        )
         # fill zeros with length box_dim+1 if some shape of
         # single batch not equal max_gt_bbox_len
         batch_instance_list = []
@@ -725,16 +732,17 @@ def gt_instances_preprocess(batch_gt_instances: Union[Tensor, Sequence],
             bboxes = gt_instance.bboxes
             labels = gt_instance.labels
             box_dim = get_box_tensor(bboxes).size(-1)
-            batch_instance_list.append(
-                torch.cat((labels[:, None], bboxes), dim=-1))
+            batch_instance_list.append(torch.cat((labels[:, None], bboxes), dim=-1))
 
             if bboxes.shape[0] >= max_gt_bbox_len:
                 continue
 
             fill_tensor = bboxes.new_full(
-                [max_gt_bbox_len - bboxes.shape[0], box_dim + 1], 0)
+                [max_gt_bbox_len - bboxes.shape[0], box_dim + 1], 0
+            )
             batch_instance_list[index] = torch.cat(
-                (batch_instance_list[index], fill_tensor), dim=0)
+                (batch_instance_list[index], fill_tensor), dim=0
+            )
 
         return torch.stack(batch_instance_list)
     else:
@@ -751,24 +759,25 @@ def gt_instances_preprocess(batch_gt_instances: Union[Tensor, Sequence],
         box_dim = batch_gt_instances.size(-1) - 2
         if len(batch_gt_instances) > 0:
             gt_images_indexes = batch_gt_instances[:, 0]
-            max_gt_bbox_len = gt_images_indexes.unique(
-                return_counts=True)[1].max()
+            max_gt_bbox_len = gt_images_indexes.unique(return_counts=True)[1].max()
             # fill zeros with length box_dim+1 if some shape of
             # single batch not equal max_gt_bbox_len
             batch_instance = torch.zeros(
                 (batch_size, max_gt_bbox_len, box_dim + 1),
                 dtype=batch_gt_instances.dtype,
-                device=batch_gt_instances.device)
+                device=batch_gt_instances.device,
+            )
 
             for i in range(batch_size):
                 match_indexes = gt_images_indexes == i
                 gt_num = match_indexes.sum()
                 if gt_num:
-                    batch_instance[i, :gt_num] = batch_gt_instances[
-                        match_indexes, 1:]
+                    batch_instance[i, :gt_num] = batch_gt_instances[match_indexes, 1:]
         else:
-            batch_instance = torch.zeros((batch_size, 0, box_dim + 1),
-                                         dtype=batch_gt_instances.dtype,
-                                         device=batch_gt_instances.device)
+            batch_instance = torch.zeros(
+                (batch_size, 0, box_dim + 1),
+                dtype=batch_gt_instances.dtype,
+                device=batch_gt_instances.device,
+            )
 
         return batch_instance

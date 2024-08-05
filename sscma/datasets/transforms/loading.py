@@ -2,7 +2,7 @@
 import warnings
 import torch
 
-from typing import Optional,Union
+from typing import Optional, Union
 
 import mmengine.fileio as fileio
 import numpy as np
@@ -12,33 +12,36 @@ from mmengine.fileio import get
 import pycocotools.mask as maskUtils
 from sscma.structures.bbox import get_box_type
 from sscma.structures.mask import BitmapMasks, PolygonMasks
-from sscma.utils import  simplecv_imfrombytes
-
-
+from sscma.utils import simplecv_imfrombytes
 
 
 from .basetransform import BaseTransform
 
-imread_backend = 'cv2'
+imread_backend = "cv2"
 import cv2
 
-from cv2 import (IMREAD_COLOR, IMREAD_GRAYSCALE, IMREAD_IGNORE_ORIENTATION,
-                 IMREAD_UNCHANGED)
+from cv2 import (
+    IMREAD_COLOR,
+    IMREAD_GRAYSCALE,
+    IMREAD_IGNORE_ORIENTATION,
+    IMREAD_UNCHANGED,
+)
 
 imread_flags = {
-    'color': IMREAD_COLOR,
-    'grayscale': IMREAD_GRAYSCALE,
-    'unchanged': IMREAD_UNCHANGED,
-    'color_ignore_orientation': IMREAD_IGNORE_ORIENTATION | IMREAD_COLOR,
-    'grayscale_ignore_orientation':
-    IMREAD_IGNORE_ORIENTATION | IMREAD_GRAYSCALE
+    "color": IMREAD_COLOR,
+    "grayscale": IMREAD_GRAYSCALE,
+    "unchanged": IMREAD_UNCHANGED,
+    "color_ignore_orientation": IMREAD_IGNORE_ORIENTATION | IMREAD_COLOR,
+    "grayscale_ignore_orientation": IMREAD_IGNORE_ORIENTATION | IMREAD_GRAYSCALE,
 }
 
 
-def imfrombytes(content: bytes,
-                flag: str = 'color',
-                channel_order: str = 'bgr',
-                backend: Optional[str] = None) -> np.ndarray:
+def imfrombytes(
+    content: bytes,
+    flag: str = "color",
+    channel_order: str = "bgr",
+    backend: Optional[str] = None,
+) -> np.ndarray:
     """Read an image from bytes.
 
     Args:
@@ -67,14 +70,15 @@ def imfrombytes(content: bytes,
     if backend is None:
         backend = imread_backend
     # if backend is not imread_backend report Error
-    if backend is not imread_backend:
+    if backend != imread_backend:
         raise ValueError(
-            f'backend: {backend} is not supported. Only Support cv2 backends  ')
+            f"backend: {backend} is not supported. Only Support cv2 backends  "
+        )
 
     img_np = np.frombuffer(content, np.uint8)
     flag = imread_flags[flag] if is_str(flag) else flag
     img = cv2.imdecode(img_np, flag)
-    if flag == IMREAD_COLOR and channel_order == 'rgb':
+    if flag == IMREAD_COLOR and channel_order == "rgb":
         cv2.cvtColor(img, cv2.COLOR_BGR2RGB, img)
     return img
 
@@ -118,14 +122,16 @@ class LoadImageFromFile(BaseTransform):
             New in version 2.0.0rc4.
     """
 
-    def __init__(self,
-                 to_float32: bool = False,
-                 color_type: str = 'color',
-                 imdecode_backend: str = 'cv2',
-                 file_client_args: Optional[dict] = None,
-                 ignore_empty: bool = False,
-                 *,
-                 backend_args: Optional[dict] = None) -> None:
+    def __init__(
+        self,
+        to_float32: bool = False,
+        color_type: str = "color",
+        imdecode_backend: str = "cv2",
+        file_client_args: Optional[dict] = None,
+        ignore_empty: bool = False,
+        *,
+        backend_args: Optional[dict] = None,
+    ) -> None:
         self.ignore_empty = ignore_empty
         self.to_float32 = to_float32
         self.color_type = color_type
@@ -136,11 +142,14 @@ class LoadImageFromFile(BaseTransform):
         if file_client_args is not None:
             warnings.warn(
                 '"file_client_args" will be deprecated in future. '
-                'Please use "backend_args" instead', DeprecationWarning)
+                'Please use "backend_args" instead',
+                DeprecationWarning,
+            )
             if backend_args is not None:
                 raise ValueError(
                     '"file_client_args" and "backend_args" cannot be set '
-                    'at the same time.')
+                    "at the same time."
+                )
 
             self.file_client_args = file_client_args.copy()
         if backend_args is not None:
@@ -157,17 +166,18 @@ class LoadImageFromFile(BaseTransform):
             dict: The dict contains loaded image and meta information.
         """
 
-        filename = results['img_path']
+        filename = results["img_path"]
         try:
             if self.file_client_args is not None:
                 file_client = fileio.FileClient.infer_client(
-                    self.file_client_args, filename)
+                    self.file_client_args, filename
+                )
                 img_bytes = file_client.get(filename)
             else:
-                img_bytes = fileio.get(
-                    filename, backend_args=self.backend_args)
+                img_bytes = fileio.get(filename, backend_args=self.backend_args)
             img = imfrombytes(
-                img_bytes, flag=self.color_type, backend=self.imdecode_backend)
+                img_bytes, flag=self.color_type, backend=self.imdecode_backend
+            )
         except Exception as e:
             if self.ignore_empty:
                 return None
@@ -175,26 +185,28 @@ class LoadImageFromFile(BaseTransform):
                 raise e
         # in some cases, images are not read successfully, the img would be
         # `None`, refer to https://github.com/open-mmlab/mmpretrain/issues/1427
-        assert img is not None, f'failed to load image: {filename}'
+        assert img is not None, f"failed to load image: {filename}"
         if self.to_float32:
             img = img.astype(np.float32)
 
-        results['img'] = img
-        results['img_shape'] = img.shape[:2]
-        results['ori_shape'] = img.shape[:2]
+        results["img"] = img
+        results["img_shape"] = img.shape[:2]
+        results["ori_shape"] = img.shape[:2]
         return results
 
     def __repr__(self):
-        repr_str = (f'{self.__class__.__name__}('
-                    f'ignore_empty={self.ignore_empty}, '
-                    f'to_float32={self.to_float32}, '
-                    f"color_type='{self.color_type}', "
-                    f"imdecode_backend='{self.imdecode_backend}', ")
+        repr_str = (
+            f"{self.__class__.__name__}("
+            f"ignore_empty={self.ignore_empty}, "
+            f"to_float32={self.to_float32}, "
+            f"color_type='{self.color_type}', "
+            f"imdecode_backend='{self.imdecode_backend}', "
+        )
 
         if self.file_client_args is not None:
-            repr_str += f'file_client_args={self.file_client_args})'
+            repr_str += f"file_client_args={self.file_client_args})"
         else:
-            repr_str += f'backend_args={self.backend_args})'
+            repr_str += f"backend_args={self.backend_args})"
 
         return repr_str
 
@@ -293,7 +305,7 @@ class LoadAnnotations(BaseTransform):
         self,
         with_mask: bool = False,
         poly2mask: bool = True,
-        box_type: str = 'hbox',
+        box_type: str = "hbox",
         # use for semseg
         reduce_zero_label: bool = False,
         ignore_index: int = 255,
@@ -301,12 +313,11 @@ class LoadAnnotations(BaseTransform):
         with_label: bool = True,
         with_seg: bool = False,
         with_keypoints: bool = False,
-        imdecode_backend: str = 'cv2',
+        imdecode_backend: str = "cv2",
         file_client_args: Optional[dict] = None,
         *,
-        backend_args: Optional[dict] = None) -> None:
-
-
+        backend_args: Optional[dict] = None,
+    ) -> None:
         super().__init__()
 
         self.with_mask = with_mask
@@ -326,11 +337,14 @@ class LoadAnnotations(BaseTransform):
         if file_client_args is not None:
             warnings.warn(
                 '"file_client_args" will be deprecated in future. '
-                'Please use "backend_args" instead', DeprecationWarning)
+                'Please use "backend_args" instead',
+                DeprecationWarning,
+            )
             if backend_args is not None:
                 raise ValueError(
                     '"file_client_args" and "backend_args" cannot be set '
-                    'at the same time.')
+                    "at the same time."
+                )
 
             self.file_client_args = file_client_args.copy()
         if backend_args is not None:
@@ -346,16 +360,17 @@ class LoadAnnotations(BaseTransform):
         """
         gt_bboxes = []
         gt_ignore_flags = []
-        for instance in results.get('instances', []):
-            gt_bboxes.append(instance['bbox'])
-            gt_ignore_flags.append(instance['ignore_flag'])
+        for instance in results.get("instances", []):
+            gt_bboxes.append(instance["bbox"])
+            gt_ignore_flags.append(instance["ignore_flag"])
         if self.box_type is None:
-            results['gt_bboxes'] = np.array(
-                gt_bboxes, dtype=np.float32).reshape((-1, 4))
+            results["gt_bboxes"] = np.array(gt_bboxes, dtype=np.float32).reshape(
+                (-1, 4)
+            )
         else:
             _, box_type_cls = get_box_type(self.box_type)
-            results['gt_bboxes'] = box_type_cls(gt_bboxes, dtype=torch.float32)
-        results['gt_ignore_flags'] = np.array(gt_ignore_flags, dtype=bool)
+            results["gt_bboxes"] = box_type_cls(gt_bboxes, dtype=torch.float32)
+        results["gt_ignore_flags"] = np.array(gt_ignore_flags, dtype=bool)
 
     def _load_labels(self, results: dict) -> None:
         """Private function to load label annotations.
@@ -367,13 +382,14 @@ class LoadAnnotations(BaseTransform):
             dict: The dict contains loaded label annotations.
         """
         gt_bboxes_labels = []
-        for instance in results.get('instances', []):
-            gt_bboxes_labels.append(instance['bbox_label'])
+        for instance in results.get("instances", []):
+            gt_bboxes_labels.append(instance["bbox_label"])
         # TODO: Inconsistent with mmcv, consider how to deal with it later.
-        results['gt_bboxes_labels'] = np.array(
-            gt_bboxes_labels, dtype=np.int64)
-    def _poly2mask(self, mask_ann: Union[list, dict], img_h: int,
-                   img_w: int) -> np.ndarray:
+        results["gt_bboxes_labels"] = np.array(gt_bboxes_labels, dtype=np.int64)
+
+    def _poly2mask(
+        self, mask_ann: Union[list, dict], img_h: int, img_w: int
+    ) -> np.ndarray:
         """Private function to convert masks represented with polygon to
         bitmaps.
 
@@ -391,7 +407,7 @@ class LoadAnnotations(BaseTransform):
             # we merge all parts into one mask rle code
             rles = maskUtils.frPyObjects(mask_ann, img_h, img_w)
             rle = maskUtils.merge(rles)
-        elif isinstance(mask_ann['counts'], list):
+        elif isinstance(mask_ann["counts"], list):
             # uncompressed RLE
             rle = maskUtils.frPyObjects(mask_ann, img_h, img_w)
         else:
@@ -411,36 +427,38 @@ class LoadAnnotations(BaseTransform):
         """
         gt_masks = []
         gt_ignore_flags = []
-        for instance in results.get('instances', []):
-            gt_mask = instance['mask']
+        for instance in results.get("instances", []):
+            gt_mask = instance["mask"]
             # If the annotation of segmentation mask is invalid,
             # ignore the whole instance.
             if isinstance(gt_mask, list):
                 gt_mask = [
-                    np.array(polygon) for polygon in gt_mask
+                    np.array(polygon)
+                    for polygon in gt_mask
                     if len(polygon) % 2 == 0 and len(polygon) >= 6
                 ]
                 if len(gt_mask) == 0:
                     # ignore this instance and set gt_mask to a fake mask
-                    instance['ignore_flag'] = 1
+                    instance["ignore_flag"] = 1
                     gt_mask = [np.zeros(6)]
             elif not self.poly2mask:
                 # `PolygonMasks` requires a ploygon of format List[np.array],
                 # other formats are invalid.
-                instance['ignore_flag'] = 1
+                instance["ignore_flag"] = 1
                 gt_mask = [np.zeros(6)]
-            elif isinstance(gt_mask, dict) and \
-                    not (gt_mask.get('counts') is not None and
-                         gt_mask.get('size') is not None and
-                         isinstance(gt_mask['counts'], (list, str))):
+            elif isinstance(gt_mask, dict) and not (
+                gt_mask.get("counts") is not None
+                and gt_mask.get("size") is not None
+                and isinstance(gt_mask["counts"], (list, str))
+            ):
                 # if gt_mask is a dict, it should include `counts` and `size`,
                 # so that `BitmapMasks` can uncompressed RLE
-                instance['ignore_flag'] = 1
+                instance["ignore_flag"] = 1
                 gt_mask = [np.zeros(6)]
             gt_masks.append(gt_mask)
             # re-process gt_ignore_flags
-            gt_ignore_flags.append(instance['ignore_flag'])
-        results['gt_ignore_flags'] = np.array(gt_ignore_flags, dtype=bool)
+            gt_ignore_flags.append(instance["ignore_flag"])
+        results["gt_ignore_flags"] = np.array(gt_ignore_flags, dtype=bool)
         return gt_masks
 
     def _load_masks(self, results: dict) -> None:
@@ -449,15 +467,16 @@ class LoadAnnotations(BaseTransform):
         Args:
             results (dict): Result dict from :obj:``mmengine.BaseDataset``.
         """
-        h, w = results['ori_shape']
+        h, w = results["ori_shape"]
         gt_masks = self._process_masks(results)
         if self.poly2mask:
             gt_masks = BitmapMasks(
-                [self._poly2mask(mask, h, w) for mask in gt_masks], h, w)
+                [self._poly2mask(mask, h, w) for mask in gt_masks], h, w
+            )
         else:
             # fake polygon masks will be ignored in `PackDetInputs`
             gt_masks = PolygonMasks([mask for mask in gt_masks], h, w)
-        results['gt_masks'] = gt_masks
+        results["gt_masks"] = gt_masks
 
     def _load_seg_map(self, results: dict) -> None:
         """Private function to load semantic segmentation annotations.
@@ -468,33 +487,32 @@ class LoadAnnotations(BaseTransform):
         Returns:
             dict: The dict contains loaded semantic segmentation annotations.
         """
-        if results.get('seg_map_path', None) is None:
+        if results.get("seg_map_path", None) is None:
             return
 
-        img_bytes = get(
-            results['seg_map_path'], backend_args=self.backend_args)
+        img_bytes = get(results["seg_map_path"], backend_args=self.backend_args)
         gt_semantic_seg = simplecv_imfrombytes(
-            img_bytes, flag='unchanged',
-            backend=self.imdecode_backend).squeeze()
+            img_bytes, flag="unchanged", backend=self.imdecode_backend
+        ).squeeze()
 
         if self.reduce_zero_label:
             # avoid using underflow conversion
             gt_semantic_seg[gt_semantic_seg == 0] = self.ignore_index
             gt_semantic_seg = gt_semantic_seg - 1
-            gt_semantic_seg[gt_semantic_seg == self.ignore_index -
-                            1] = self.ignore_index
+            gt_semantic_seg[gt_semantic_seg == self.ignore_index - 1] = (
+                self.ignore_index
+            )
 
         # modify if custom classes
-        if results.get('label_map', None) is not None:
+        if results.get("label_map", None) is not None:
             # Add deep copy to solve bug of repeatedly
             # replace `gt_semantic_seg`, which is reported in
             # https://github.com/open-mmlab/mmsegmentation/pull/1445/
             gt_semantic_seg_copy = gt_semantic_seg.copy()
-            for old_id, new_id in results['label_map'].items():
+            for old_id, new_id in results["label_map"].items():
                 gt_semantic_seg[gt_semantic_seg_copy == old_id] = new_id
-        results['gt_seg_map'] = gt_semantic_seg
-        results['ignore_index'] = self.ignore_index
-
+        results["gt_seg_map"] = gt_semantic_seg
+        results["ignore_index"] = self.ignore_index
 
     def _load_kps(self, results: dict) -> None:
         """Private function to load keypoints annotations.
@@ -507,10 +525,11 @@ class LoadAnnotations(BaseTransform):
             dict: The dict contains loaded keypoints annotations.
         """
         gt_keypoints = []
-        for instance in results['instances']:
-            gt_keypoints.append(instance['keypoints'])
-        results['gt_keypoints'] = np.array(gt_keypoints, np.float32).reshape(
-            (len(gt_keypoints), -1, 3))
+        for instance in results["instances"]:
+            gt_keypoints.append(instance["keypoints"])
+        results["gt_keypoints"] = np.array(gt_keypoints, np.float32).reshape(
+            (len(gt_keypoints), -1, 3)
+        )
 
     def transform(self, results: dict) -> dict:
         """Function to load multiple types annotations.
@@ -536,15 +555,15 @@ class LoadAnnotations(BaseTransform):
 
     def __repr__(self) -> str:
         repr_str = self.__class__.__name__
-        repr_str += f'(with_bbox={self.with_bbox}, '
-        repr_str += f'with_label={self.with_label}, '
-        repr_str += f'with_seg={self.with_seg}, '
-        repr_str += f'with_keypoints={self.with_keypoints}, '
+        repr_str += f"(with_bbox={self.with_bbox}, "
+        repr_str += f"with_label={self.with_label}, "
+        repr_str += f"with_seg={self.with_seg}, "
+        repr_str += f"with_keypoints={self.with_keypoints}, "
         repr_str += f"imdecode_backend='{self.imdecode_backend}', "
 
         if self.file_client_args is not None:
-            repr_str += f'file_client_args={self.file_client_args})'
+            repr_str += f"file_client_args={self.file_client_args})"
         else:
-            repr_str += f'backend_args={self.backend_args})'
+            repr_str += f"backend_args={self.backend_args})"
 
         return repr_str

@@ -7,7 +7,7 @@ import mmengine
 import numpy as np
 from mmengine.dataset import BaseDataset as _BaseDataset
 
-from mmengine.registry import  TRANSFORMS
+from mmengine.registry import TRANSFORMS
 
 
 def expanduser(path):
@@ -71,19 +71,21 @@ class BaseDataset(_BaseDataset):
             Defaults to None.
     """  # noqa: E501
 
-    def __init__(self,
-                 ann_file: str,
-                 metainfo: Optional[dict] = None,
-                 data_root: str = '',
-                 data_prefix: Union[str, dict] = '',
-                 filter_cfg: Optional[dict] = None,
-                 indices: Optional[Union[int, Sequence[int]]] = None,
-                 serialize_data: bool = True,
-                 pipeline: Sequence = (),
-                 test_mode: bool = False,
-                 lazy_init: bool = False,
-                 max_refetch: int = 1000,
-                 classes: Union[str, Sequence[str], None] = None):
+    def __init__(
+        self,
+        ann_file: str,
+        metainfo: Optional[dict] = None,
+        data_root: str = "",
+        data_prefix: Union[str, dict] = "",
+        filter_cfg: Optional[dict] = None,
+        indices: Optional[Union[int, Sequence[int]]] = None,
+        serialize_data: bool = True,
+        pipeline: Sequence = (),
+        test_mode: bool = False,
+        lazy_init: bool = False,
+        max_refetch: int = 1000,
+        classes: Union[str, Sequence[str], None] = None,
+    ):
         if isinstance(data_prefix, str):
             data_prefix = dict(img_path=expanduser(data_prefix))
 
@@ -108,17 +110,18 @@ class BaseDataset(_BaseDataset):
             pipeline=transforms,
             test_mode=test_mode,
             lazy_init=lazy_init,
-            max_refetch=max_refetch)
+            max_refetch=max_refetch,
+        )
 
     @property
     def img_prefix(self):
         """The prefix of images."""
-        return self.data_prefix['img_path']
+        return self.data_prefix["img_path"]
 
     @property
     def CLASSES(self):
         """Return all categories names."""
-        return self._metainfo.get('classes', None)
+        return self._metainfo.get("classes", None)
 
     @property
     def class_to_idx(self):
@@ -138,7 +141,8 @@ class BaseDataset(_BaseDataset):
         """
 
         gt_labels = np.array(
-            [self.get_data_info(i)['gt_label'] for i in range(len(self))])
+            [self.get_data_info(i)["gt_label"] for i in range(len(self))]
+        )
         return gt_labels
 
     def get_cat_ids(self, idx: int) -> List[int]:
@@ -151,7 +155,7 @@ class BaseDataset(_BaseDataset):
             cat_ids (List[int]): Image category of specified index.
         """
 
-        return [int(self.get_data_info(idx)['gt_label'])]
+        return [int(self.get_data_info(idx)["gt_label"])]
 
     def _compat_classes(self, metainfo, classes):
         """Merge the old style ``classes`` arguments to ``metainfo``."""
@@ -161,13 +165,13 @@ class BaseDataset(_BaseDataset):
         elif isinstance(classes, (tuple, list)):
             class_names = classes
         elif classes is not None:
-            raise ValueError(f'Unsupported type {type(classes)} of classes.')
+            raise ValueError(f"Unsupported type {type(classes)} of classes.")
 
         if metainfo is None:
             metainfo = {}
 
         if classes is not None:
-            metainfo = {'classes': tuple(class_names), **metainfo}
+            metainfo = {"classes": tuple(class_names), **metainfo}
 
         return metainfo
 
@@ -178,11 +182,11 @@ class BaseDataset(_BaseDataset):
 
         #  To support the standard OpenMMLab 2.0 annotation format. Generate
         #  metainfo in internal format from standard metainfo format.
-        if 'categories' in self._metainfo and 'classes' not in self._metainfo:
-            categories = sorted(
-                self._metainfo['categories'], key=lambda x: x['id'])
-            self._metainfo['classes'] = tuple(
-                [cat['category_name'] for cat in categories])
+        if "categories" in self._metainfo and "classes" not in self._metainfo:
+            categories = sorted(self._metainfo["categories"], key=lambda x: x["id"])
+            self._metainfo["classes"] = tuple(
+                [cat["category_name"] for cat in categories]
+            )
 
     def __repr__(self):
         """Print the basic information of the dataset.
@@ -190,27 +194,30 @@ class BaseDataset(_BaseDataset):
         Returns:
             str: Formatted string.
         """
-        head = 'Dataset ' + self.__class__.__name__
+        head = "Dataset " + self.__class__.__name__
         body = []
         if self._fully_initialized:
-            body.append(f'Number of samples: \t{self.__len__()}')
+            body.append(f"Number of samples: \t{self.__len__()}")
         else:
             body.append("Haven't been initialized")
 
         if self.CLASSES is not None:
-            body.append(f'Number of categories: \t{len(self.CLASSES)}')
+            body.append(f"Number of categories: \t{len(self.CLASSES)}")
 
         body.extend(self.extra_repr())
 
         if len(self.pipeline.transforms) > 0:
-            body.append('With transforms:')
+            body.append("With transforms:")
             for t in self.pipeline.transforms:
-                body.append(f'    {t}')
+                body.append(f"    {t}")
 
-        lines = [head] + [' ' * 4 + line for line in body]
-        return '\n'.join(lines)
+        lines = [head] + [" " * 4 + line for line in body]
+        return "\n".join(lines)
 
     def extra_repr(self) -> List[str]:
         """The extra repr information of the dataset."""
-        body = [f'Annotation file: \t{self.ann_file}', f'Prefix of images: \t{self.img_prefix}']
+        body = [
+            f"Annotation file: \t{self.ann_file}",
+            f"Prefix of images: \t{self.img_prefix}",
+        ]
         return body

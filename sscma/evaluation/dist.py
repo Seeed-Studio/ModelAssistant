@@ -2,15 +2,15 @@
 
 from typing import List, Optional, no_type_check
 
-from .dist_backends import (BaseDistBackend, NonDist, TorchCPUDist, TorchCUDADist)
+from .dist_backends import BaseDistBackend, NonDist, TorchCPUDist, TorchCUDADist
 
 _DIST_BACKENDS = {
-    'non_dist': NonDist,
-    'torch_cpu': TorchCPUDist,
-    'torch_cuda': TorchCUDADist,
+    "non_dist": NonDist,
+    "torch_cpu": TorchCPUDist,
+    "torch_cuda": TorchCUDADist,
 }
 
-_DEFAULT_BACKEND = 'non_dist'
+_DEFAULT_BACKEND = "non_dist"
 
 # Caching created dist backend instances
 _DIST_BACKEND_INSTANCES: dict = {}

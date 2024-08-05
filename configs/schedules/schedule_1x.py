@@ -13,18 +13,15 @@ test_cfg = dict(type=TestLoop)
 param_scheduler = [
     dict(type=LinearLR, start_factor=0.001, by_epoch=False, begin=0, end=500),
     dict(
-        type=MultiStepLR,
-        begin=0,
-        end=12,
-        by_epoch=True,
-        milestones=[8, 11],
-        gamma=0.1)
+        type=MultiStepLR, begin=0, end=12, by_epoch=True, milestones=[8, 11], gamma=0.1
+    ),
 ]
 
 # optimizer
 optim_wrapper = dict(
     type=OptimWrapper,
-    optimizer=dict(type=SGD, lr=0.02, momentum=0.9, weight_decay=0.0001))
+    optimizer=dict(type=SGD, lr=0.02, momentum=0.9, weight_decay=0.0001),
+)
 
 # Default setting for scaling LR automatically
 #   - `enable` means enable scaling LR automatically

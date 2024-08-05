@@ -14,9 +14,9 @@ from .norm import build_norm_layer
 from .padding import build_padding_layer
 
 
-def efficient_conv_bn_eval_forward(bn: _BatchNorm,
-                                   conv: nn.modules.conv._ConvNd,
-                                   x: torch.Tensor):
+def efficient_conv_bn_eval_forward(
+    bn: _BatchNorm, conv: nn.modules.conv._ConvNd, x: torch.Tensor
+):
     """
     Implementation based on https://arxiv.org/abs/2305.11624
     "Tune-Mode ConvBN Blocks For Efficient Transfer Learning"
@@ -49,17 +49,18 @@ def efficient_conv_bn_eval_forward(bn: _BatchNorm,
         bn_bias = torch.zeros_like(bn.running_var)
 
     # shape of [C_out, 1, 1, 1] in Conv2d
-    weight_coeff = torch.rsqrt(bn.running_var +
-                               bn.eps).reshape([-1] + [1] *
-                                               (len(conv.weight.shape) - 1))
+    weight_coeff = torch.rsqrt(bn.running_var + bn.eps).reshape(
+        [-1] + [1] * (len(conv.weight.shape) - 1)
+    )
     # shape of [C_out, 1, 1, 1] in Conv2d
     coefff_on_the_fly = bn_weight.view_as(weight_coeff) * weight_coeff
 
     # shape of [C_out, C_in, k, k] in Conv2d
     weight_on_the_fly = weight_on_the_fly * coefff_on_the_fly
     # shape of [C_out] in Conv2d
-    bias_on_the_fly = bn_bias + coefff_on_the_fly.flatten() *\
-        (bias_on_the_fly - bn.running_mean)
+    bias_on_the_fly = bn_bias + coefff_on_the_fly.flatten() * (
+        bias_on_the_fly - bn.running_mean
+    )
 
     return conv._conv_forward(x, weight_on_the_fly, bias_on_the_fly)
 
@@ -119,30 +120,32 @@ class ConvModule(nn.Module):
             proposed in https://arxiv.org/abs/2305.11624 . Default: `False`.
     """
 
-    _abbr_ = 'conv_block'
+    _abbr_ = "conv_block"
 
-    def __init__(self,
-                 in_channels: int,
-                 out_channels: int,
-                 kernel_size: Union[int, Tuple[int, int]],
-                 stride: Union[int, Tuple[int, int]] = 1,
-                 padding: Union[int, Tuple[int, int]] = 0,
-                 dilation: Union[int, Tuple[int, int]] = 1,
-                 groups: int = 1,
-                 bias: Union[bool, str] = 'auto',
-                 conv_cfg: Optional[Dict] = None,
-                 norm_cfg: Optional[Dict] = None,
-                 act_cfg: Optional[Dict] = dict(type='ReLU'),
-                 inplace: bool = True,
-                 with_spectral_norm: bool = False,
-                 padding_mode: str = 'zeros',
-                 order: tuple = ('conv', 'norm', 'act'),
-                 efficient_conv_bn_eval: bool = False):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: Union[int, Tuple[int, int]],
+        stride: Union[int, Tuple[int, int]] = 1,
+        padding: Union[int, Tuple[int, int]] = 0,
+        dilation: Union[int, Tuple[int, int]] = 1,
+        groups: int = 1,
+        bias: Union[bool, str] = "auto",
+        conv_cfg: Optional[Dict] = None,
+        norm_cfg: Optional[Dict] = None,
+        act_cfg: Optional[Dict] = dict(type="ReLU"),
+        inplace: bool = True,
+        with_spectral_norm: bool = False,
+        padding_mode: str = "zeros",
+        order: tuple = ("conv", "norm", "act"),
+        efficient_conv_bn_eval: bool = False,
+    ):
         super().__init__()
         assert conv_cfg is None or isinstance(conv_cfg, dict)
         assert norm_cfg is None or isinstance(norm_cfg, dict)
         assert act_cfg is None or isinstance(act_cfg, dict)
-        official_padding_mode = ['zeros', 'circular']
+        official_padding_mode = ["zeros", "circular"]
         self.conv_cfg = conv_cfg
         self.norm_cfg = norm_cfg
         self.act_cfg = act_cfg
@@ -151,12 +154,12 @@ class ConvModule(nn.Module):
         self.with_explicit_padding = padding_mode not in official_padding_mode
         self.order = order
         assert isinstance(self.order, tuple) and len(self.order) == 3
-        assert set(order) == {'conv', 'norm', 'act'}
+        assert set(order) == {"conv", "norm", "act"}
 
         self.with_norm = norm_cfg is not None
         self.with_activation = act_cfg is not None
         # if the conv layer is before a norm layer, bias is unnecessary.
-        if bias == 'auto':
+        if bias == "auto":
             bias = not self.with_norm
         self.with_bias = bias
 
@@ -176,7 +179,8 @@ class ConvModule(nn.Module):
             padding=conv_padding,
             dilation=dilation,
             groups=groups,
-            bias=bias)
+            bias=bias,
+        )
         # export the attributes of self.conv to a higher level for convenience
         self.in_channels = self.conv.in_channels
         self.out_channels = self.conv.out_channels
@@ -194,17 +198,15 @@ class ConvModule(nn.Module):
         # build normalization layers
         if self.with_norm:
             # norm layer is after conv layer
-            if order.index('norm') > order.index('conv'):
+            if order.index("norm") > order.index("conv"):
                 norm_channels = out_channels
             else:
                 norm_channels = in_channels
-            self.norm_name, norm = build_norm_layer(
-                norm_cfg, norm_channels)  # type: ignore
+            self.norm_name, norm = build_norm_layer(norm_cfg, norm_channels)  # type: ignore
             self.add_module(self.norm_name, norm)
             if self.with_bias:
                 if isinstance(norm, (_BatchNorm, _InstanceNorm)):
-                    warnings.warn(
-                        'Unnecessary conv bias before batch/instance norm')
+                    warnings.warn("Unnecessary conv bias before batch/instance norm")
         else:
             self.norm_name = None  # type: ignore
 
@@ -214,10 +216,15 @@ class ConvModule(nn.Module):
         if self.with_activation:
             act_cfg_ = act_cfg.copy()  # type: ignore
             # nn.Tanh has no 'inplace' argument
-            if act_cfg_['type'] not in [
-                    'Tanh', 'PReLU', 'Sigmoid', 'HSigmoid', 'Swish', 'GELU'
+            if act_cfg_["type"] not in [
+                "Tanh",
+                "PReLU",
+                "Sigmoid",
+                "HSigmoid",
+                "Swish",
+                "GELU",
             ]:
-                act_cfg_.setdefault('inplace', inplace)
+                act_cfg_.setdefault("inplace", inplace)
             self.activate = build_activation_layer(act_cfg_)
 
         # Use msra init by default
@@ -240,46 +247,49 @@ class ConvModule(nn.Module):
         #    this method with default ``kaiming_init``.
         # Note: For PyTorch's conv layers, they will be overwritten by our
         #    initialization implementation using default ``kaiming_init``.
-        if not hasattr(self.conv, 'init_weights'):
-            if self.with_activation and self.act_cfg['type'] == 'LeakyReLU':
-                nonlinearity = 'leaky_relu'
-                a = self.act_cfg.get('negative_slope', 0.01)
+        if not hasattr(self.conv, "init_weights"):
+            if self.with_activation and self.act_cfg["type"] == "LeakyReLU":
+                nonlinearity = "leaky_relu"
+                a = self.act_cfg.get("negative_slope", 0.01)
             else:
-                nonlinearity = 'relu'
+                nonlinearity = "relu"
                 a = 0
             kaiming_init(self.conv, a=a, nonlinearity=nonlinearity)
         if self.with_norm:
             constant_init(self.norm, 1, bias=0)
 
-    def forward(self,
-                x: torch.Tensor,
-                activate: bool = True,
-                norm: bool = True) -> torch.Tensor:
+    def forward(
+        self, x: torch.Tensor, activate: bool = True, norm: bool = True
+    ) -> torch.Tensor:
         layer_index = 0
         while layer_index < len(self.order):
             layer = self.order[layer_index]
-            if layer == 'conv':
+            if layer == "conv":
                 if self.with_explicit_padding:
                     x = self.padding_layer(x)
                 # if the next operation is norm and we have a norm layer in
                 # eval mode and we have enabled `efficient_conv_bn_eval` for
                 # the conv operator, then activate the optimized forward and
                 # skip the next norm operator since it has been fused
-                if layer_index + 1 < len(self.order) and \
-                        self.order[layer_index + 1] == 'norm' and norm and \
-                        self.with_norm and not self.norm.training and \
-                        self.efficient_conv_bn_eval_forward is not None:
+                if (
+                    layer_index + 1 < len(self.order)
+                    and self.order[layer_index + 1] == "norm"
+                    and norm
+                    and self.with_norm
+                    and not self.norm.training
+                    and self.efficient_conv_bn_eval_forward is not None
+                ):
                     self.conv.forward = partial(
-                        self.efficient_conv_bn_eval_forward, self.norm,
-                        self.conv)
+                        self.efficient_conv_bn_eval_forward, self.norm, self.conv
+                    )
                     layer_index += 1
                     x = self.conv(x)
                     del self.conv.forward
                 else:
                     x = self.conv(x)
-            elif layer == 'norm' and norm and self.with_norm:
+            elif layer == "norm" and norm and self.with_norm:
                 x = self.norm(x)
-            elif layer == 'act' and activate and self.with_activation:
+            elif layer == "act" and activate and self.with_activation:
                 x = self.activate(x)
             layer_index += 1
         return x
@@ -287,17 +297,22 @@ class ConvModule(nn.Module):
     def turn_on_efficient_conv_bn_eval(self, efficient_conv_bn_eval=True):
         # efficient_conv_bn_eval works for conv + bn
         # with `track_running_stats` option
-        if efficient_conv_bn_eval and self.norm \
-                            and isinstance(self.norm, _BatchNorm) \
-                            and self.norm.track_running_stats:
+        if (
+            efficient_conv_bn_eval
+            and self.norm
+            and isinstance(self.norm, _BatchNorm)
+            and self.norm.track_running_stats
+        ):
             self.efficient_conv_bn_eval_forward = efficient_conv_bn_eval_forward  # noqa: E501
         else:
             self.efficient_conv_bn_eval_forward = None  # type: ignore
 
     @staticmethod
-    def create_from_conv_bn(conv: torch.nn.modules.conv._ConvNd,
-                            bn: torch.nn.modules.batchnorm._BatchNorm,
-                            efficient_conv_bn_eval=True) -> 'ConvModule':
+    def create_from_conv_bn(
+        conv: torch.nn.modules.conv._ConvNd,
+        bn: torch.nn.modules.batchnorm._BatchNorm,
+        efficient_conv_bn_eval=True,
+    ) -> "ConvModule":
         """Create a ConvModule from a conv and a bn module."""
         self = ConvModule.__new__(ConvModule)
         super(ConvModule, self).__init__()
@@ -308,7 +323,7 @@ class ConvModule(nn.Module):
         self.inplace = False
         self.with_spectral_norm = False
         self.with_explicit_padding = False
-        self.order = ('conv', 'norm', 'act')
+        self.order = ("conv", "norm", "act")
 
         self.with_norm = True
         self.with_activation = False
@@ -328,7 +343,7 @@ class ConvModule(nn.Module):
         self.groups = self.conv.groups
 
         # build normalization layers
-        self.norm_name, norm = 'bn', bn
+        self.norm_name, norm = "bn", bn
         self.add_module(self.norm_name, norm)
 
         self.turn_on_efficient_conv_bn_eval(efficient_conv_bn_eval)

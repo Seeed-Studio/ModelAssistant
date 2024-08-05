@@ -28,13 +28,14 @@ class SELayer(BaseModule):
             Defaults to None
     """
 
-    def __init__(self,
-                 channels: int,
-                 ratio: int = 16,
-                 conv_cfg: OptConfigType = None,
-                 act_cfg: MultiConfig = (dict(type='ReLU'),
-                                         dict(type='Sigmoid')),
-                 init_cfg: OptMultiConfig = None) -> None:
+    def __init__(
+        self,
+        channels: int,
+        ratio: int = 16,
+        conv_cfg: OptConfigType = None,
+        act_cfg: MultiConfig = (dict(type="ReLU"), dict(type="Sigmoid")),
+        init_cfg: OptMultiConfig = None,
+    ) -> None:
         super().__init__(init_cfg=init_cfg)
         if isinstance(act_cfg, dict):
             act_cfg = (act_cfg, act_cfg)
@@ -47,14 +48,16 @@ class SELayer(BaseModule):
             kernel_size=1,
             stride=1,
             conv_cfg=conv_cfg,
-            act_cfg=act_cfg[0])
+            act_cfg=act_cfg[0],
+        )
         self.conv2 = ConvModule(
             in_channels=int(channels / ratio),
             out_channels=channels,
             kernel_size=1,
             stride=1,
             conv_cfg=conv_cfg,
-            act_cfg=act_cfg[1])
+            act_cfg=act_cfg[1],
+        )
 
     def forward(self, x: Tensor) -> Tensor:
         """Forward function for SELayer."""
@@ -90,16 +93,17 @@ class DyReLU(BaseModule):
             Defaults to None
     """
 
-    def __init__(self,
-                 channels: int,
-                 ratio: int = 4,
-                 conv_cfg: OptConfigType = None,
-                 act_cfg: MultiConfig = (dict(type='ReLU'),
-                                         dict(
-                                             type='HSigmoid',
-                                             bias=3.0,
-                                             divisor=6.0)),
-                 init_cfg: OptMultiConfig = None) -> None:
+    def __init__(
+        self,
+        channels: int,
+        ratio: int = 4,
+        conv_cfg: OptConfigType = None,
+        act_cfg: MultiConfig = (
+            dict(type="ReLU"),
+            dict(type="HSigmoid", bias=3.0, divisor=6.0),
+        ),
+        init_cfg: OptMultiConfig = None,
+    ) -> None:
         super().__init__(init_cfg=init_cfg)
         if isinstance(act_cfg, dict):
             act_cfg = (act_cfg, act_cfg)
@@ -114,14 +118,16 @@ class DyReLU(BaseModule):
             kernel_size=1,
             stride=1,
             conv_cfg=conv_cfg,
-            act_cfg=act_cfg[0])
+            act_cfg=act_cfg[0],
+        )
         self.conv2 = ConvModule(
             in_channels=int(channels / ratio),
             out_channels=channels * self.expansion,
             kernel_size=1,
             stride=1,
             conv_cfg=conv_cfg,
-            act_cfg=act_cfg[1])
+            act_cfg=act_cfg[1],
+        )
 
     def forward(self, x: Tensor) -> Tensor:
         """Forward function."""

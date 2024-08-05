@@ -1,6 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from multiprocessing.reduction import ForkingPickler
-from typing import Union,List, Optional
+from typing import Union, List, Optional
 
 import numpy as np
 import torch
@@ -10,7 +10,6 @@ from .utils import LABEL_TYPE, SCORE_TYPE, format_label, format_score
 
 
 class MultiTaskDataSample(BaseDataElement):
-
     @property
     def tasks(self):
         return self._data_fields
@@ -84,65 +83,65 @@ class DataSample(BaseDataElement):
         [1, 2, 3]
     """
 
-    def set_gt_label(self, value: LABEL_TYPE) -> 'DataSample':
+    def set_gt_label(self, value: LABEL_TYPE) -> "DataSample":
         """Set ``gt_label``."""
-        self.set_field(format_label(value), 'gt_label', dtype=torch.Tensor)
+        self.set_field(format_label(value), "gt_label", dtype=torch.Tensor)
         return self
 
-    def set_gt_score(self, value: SCORE_TYPE) -> 'DataSample':
+    def set_gt_score(self, value: SCORE_TYPE) -> "DataSample":
         """Set ``gt_score``."""
         score = format_score(value)
-        self.set_field(score, 'gt_score', dtype=torch.Tensor)
-        if hasattr(self, 'num_classes'):
-            assert len(score) == self.num_classes, \
-                f'The length of score {len(score)} should be '\
-                f'equal to the num_classes {self.num_classes}.'
+        self.set_field(score, "gt_score", dtype=torch.Tensor)
+        if hasattr(self, "num_classes"):
+            assert len(score) == self.num_classes, (
+                f"The length of score {len(score)} should be "
+                f"equal to the num_classes {self.num_classes}."
+            )
         else:
-            self.set_field(
-                name='num_classes', value=len(score), field_type='metainfo')
+            self.set_field(name="num_classes", value=len(score), field_type="metainfo")
         return self
 
-    def set_pred_label(self, value: LABEL_TYPE) -> 'DataSample':
+    def set_pred_label(self, value: LABEL_TYPE) -> "DataSample":
         """Set ``pred_label``."""
-        self.set_field(format_label(value), 'pred_label', dtype=torch.Tensor)
+        self.set_field(format_label(value), "pred_label", dtype=torch.Tensor)
         return self
 
     def set_pred_score(self, value: SCORE_TYPE):
         """Set ``pred_label``."""
         score = format_score(value)
-        self.set_field(score, 'pred_score', dtype=torch.Tensor)
-        if hasattr(self, 'num_classes'):
-            assert len(score) == self.num_classes, \
-                f'The length of score {len(score)} should be '\
-                f'equal to the num_classes {self.num_classes}.'
+        self.set_field(score, "pred_score", dtype=torch.Tensor)
+        if hasattr(self, "num_classes"):
+            assert len(score) == self.num_classes, (
+                f"The length of score {len(score)} should be "
+                f"equal to the num_classes {self.num_classes}."
+            )
         else:
-            self.set_field(
-                name='num_classes', value=len(score), field_type='metainfo')
+            self.set_field(name="num_classes", value=len(score), field_type="metainfo")
         return self
 
     def set_mask(self, value: Union[torch.Tensor, np.ndarray]):
         if isinstance(value, np.ndarray):
             value = torch.from_numpy(value)
         elif not isinstance(value, torch.Tensor):
-            raise TypeError(f'Invalid mask type {type(value)}')
-        self.set_field(value, 'mask', dtype=torch.Tensor)
+            raise TypeError(f"Invalid mask type {type(value)}")
+        self.set_field(value, "mask", dtype=torch.Tensor)
         return self
 
     def __repr__(self) -> str:
         """Represent the object."""
 
-        def dump_items(items, prefix=''):
-            return '\n'.join(f'{prefix}{k}: {v}' for k, v in items)
+        def dump_items(items, prefix=""):
+            return "\n".join(f"{prefix}{k}: {v}" for k, v in items)
 
-        repr_ = ''
+        repr_ = ""
         if len(self._metainfo_fields) > 0:
-            repr_ += '\n\nMETA INFORMATION\n'
-            repr_ += dump_items(self.metainfo_items(), prefix=' ' * 4)
+            repr_ += "\n\nMETA INFORMATION\n"
+            repr_ += dump_items(self.metainfo_items(), prefix=" " * 4)
         if len(self._data_fields) > 0:
-            repr_ += '\n\nDATA FIELDS\n'
-            repr_ += dump_items(self.items(), prefix=' ' * 4)
+            repr_ += "\n\nDATA FIELDS\n"
+            repr_ += dump_items(self.items(), prefix=" " * 4)
 
-        repr_ = f'<{self.__class__.__name__}({repr_}\n\n) at {hex(id(self))}>'
+        repr_ = f"<{self.__class__.__name__}({repr_}\n\n) at {hex(id(self))}>"
         return repr_
 
 
@@ -288,7 +287,7 @@ class DetDataSample(BaseDataElement):
 
     @proposals.setter
     def proposals(self, value: InstanceData):
-        self.set_field(value, '_proposals', dtype=InstanceData)
+        self.set_field(value, "_proposals", dtype=InstanceData)
 
     @proposals.deleter
     def proposals(self):
@@ -300,7 +299,7 @@ class DetDataSample(BaseDataElement):
 
     @gt_instances.setter
     def gt_instances(self, value: InstanceData):
-        self.set_field(value, '_gt_instances', dtype=InstanceData)
+        self.set_field(value, "_gt_instances", dtype=InstanceData)
 
     @gt_instances.deleter
     def gt_instances(self):
@@ -312,7 +311,7 @@ class DetDataSample(BaseDataElement):
 
     @pred_instances.setter
     def pred_instances(self, value: InstanceData):
-        self.set_field(value, '_pred_instances', dtype=InstanceData)
+        self.set_field(value, "_pred_instances", dtype=InstanceData)
 
     @pred_instances.deleter
     def pred_instances(self):
@@ -324,7 +323,7 @@ class DetDataSample(BaseDataElement):
 
     @ignored_instances.setter
     def ignored_instances(self, value: InstanceData):
-        self.set_field(value, '_ignored_instances', dtype=InstanceData)
+        self.set_field(value, "_ignored_instances", dtype=InstanceData)
 
     @ignored_instances.deleter
     def ignored_instances(self):
@@ -336,7 +335,7 @@ class DetDataSample(BaseDataElement):
 
     @gt_panoptic_seg.setter
     def gt_panoptic_seg(self, value: PixelData):
-        self.set_field(value, '_gt_panoptic_seg', dtype=PixelData)
+        self.set_field(value, "_gt_panoptic_seg", dtype=PixelData)
 
     @gt_panoptic_seg.deleter
     def gt_panoptic_seg(self):
@@ -348,7 +347,7 @@ class DetDataSample(BaseDataElement):
 
     @pred_panoptic_seg.setter
     def pred_panoptic_seg(self, value: PixelData):
-        self.set_field(value, '_pred_panoptic_seg', dtype=PixelData)
+        self.set_field(value, "_pred_panoptic_seg", dtype=PixelData)
 
     @pred_panoptic_seg.deleter
     def pred_panoptic_seg(self):
@@ -360,7 +359,7 @@ class DetDataSample(BaseDataElement):
 
     @gt_sem_seg.setter
     def gt_sem_seg(self, value: PixelData):
-        self.set_field(value, '_gt_sem_seg', dtype=PixelData)
+        self.set_field(value, "_gt_sem_seg", dtype=PixelData)
 
     @gt_sem_seg.deleter
     def gt_sem_seg(self):
@@ -372,7 +371,7 @@ class DetDataSample(BaseDataElement):
 
     @pred_sem_seg.setter
     def pred_sem_seg(self, value: PixelData):
-        self.set_field(value, '_pred_sem_seg', dtype=PixelData)
+        self.set_field(value, "_pred_sem_seg", dtype=PixelData)
 
     @pred_sem_seg.deleter
     def pred_sem_seg(self):

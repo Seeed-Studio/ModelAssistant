@@ -1,16 +1,14 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from typing import Callable, Dict, List, Optional, Sequence, Tuple, Union
 
-from mmengine.fileio import (BaseStorageBackend, get_file_backend,
-                             list_from_file)
+from mmengine.fileio import BaseStorageBackend, get_file_backend, list_from_file
 from mmengine.logging import MMLogger
 
 from sscma.datasets.base_dataset import BaseDataset
 
 
 def find_folders(
-    root: str,
-    backend: Optional[BaseStorageBackend] = None
+    root: str, backend: Optional[BaseStorageBackend] = None
 ) -> Tuple[List[str], Dict[str, int]]:
     """Find classes by folders under a root.
 
@@ -33,7 +31,8 @@ def find_folders(
             list_dir=True,
             list_file=False,
             recursive=False,
-        ))
+        )
+    )
     folders.sort()
     folder_to_idx = {folders[i]: i for i in range(len(folders))}
     return folders, folder_to_idx
@@ -185,19 +184,28 @@ class CustomDataset(BaseDataset):
         **kwargs: Other keyword arguments in :class:`BaseDataset`.
     """
 
-    def __init__(self,
-                 data_root: str = '',
-                 data_prefix: Union[str, dict] = '',
-                 ann_file: str = '',
-                 with_label=True,
-                 extensions: Sequence[str] = ('.jpg', '.jpeg', '.png', '.ppm',
-                                              '.bmp', '.pgm', '.tif'),
-                 metainfo: Optional[dict] = None,
-                 lazy_init: bool = False,
-                 **kwargs):
-        assert (ann_file or data_prefix or data_root), \
-            'One of `ann_file`, `data_root` and `data_prefix` must '\
-            'be specified.'
+    def __init__(
+        self,
+        data_root: str = "",
+        data_prefix: Union[str, dict] = "",
+        ann_file: str = "",
+        with_label=True,
+        extensions: Sequence[str] = (
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".ppm",
+            ".bmp",
+            ".pgm",
+            ".tif",
+        ),
+        metainfo: Optional[dict] = None,
+        lazy_init: bool = False,
+        **kwargs,
+    ):
+        assert ann_file or data_prefix or data_root, (
+            "One of `ann_file`, `data_root` and `data_prefix` must " "be specified."
+        )
 
         self.extensions = tuple(set([i.lower() for i in extensions]))
         self.with_label = with_label
@@ -210,7 +218,8 @@ class CustomDataset(BaseDataset):
             data_prefix=data_prefix,
             # Force to lazy_init for some modification before loading data.
             lazy_init=True,
-            **kwargs)
+            **kwargs,
+        )
 
         # Full initialize the dataset.
         if not lazy_init:
@@ -229,12 +238,13 @@ class CustomDataset(BaseDataset):
             self.folder_to_idx = folder_to_idx
 
             if self.CLASSES is not None:
-                assert len(self.CLASSES) == len(classes), \
-                    f"The number of subfolders ({len(classes)}) doesn't " \
-                    f'match the number of specified classes ' \
-                    f'({len(self.CLASSES)}). Please check the data folder.'
+                assert len(self.CLASSES) == len(classes), (
+                    f"The number of subfolders ({len(classes)}) doesn't "
+                    f"match the number of specified classes "
+                    f"({len(self.CLASSES)}). Please check the data folder."
+                )
             else:
-                self._metainfo['classes'] = tuple(classes)
+                self._metainfo["classes"] = tuple(classes)
         else:
             samples, empty_classes = get_samples(
                 self.img_prefix,
@@ -245,14 +255,16 @@ class CustomDataset(BaseDataset):
         if len(samples) == 0:
             raise RuntimeError(
                 f'Found 0 files in subfolders of: {self.data_prefix}. '
-                f'Supported extensions are: {",".join(self.extensions)}')
+                f'Supported extensions are: {",".join(self.extensions)}'
+            )
 
         if empty_classes:
             logger = MMLogger.get_current_instance()
             logger.warning(
                 'Found no valid file in the folder '
                 f'{", ".join(empty_classes)}. '
-                f"Supported extensions are: {', '.join(self.extensions)}")
+                f"Supported extensions are: {', '.join(self.extensions)}"
+            )
 
         return samples
 
@@ -262,7 +274,7 @@ class CustomDataset(BaseDataset):
             samples = self._find_samples()
         elif self.with_label:
             lines = list_from_file(self.ann_file)
-            samples = [x.strip().rsplit(' ', 1) for x in lines]
+            samples = [x.strip().rsplit(" ", 1) for x in lines]
         else:
             samples = list_from_file(self.ann_file)
 
@@ -273,10 +285,10 @@ class CustomDataset(BaseDataset):
             if self.with_label:
                 filename, gt_label = sample
                 img_path = backend.join_path(self.img_prefix, filename)
-                info = {'img_path': img_path, 'gt_label': int(gt_label)}
+                info = {"img_path": img_path, "gt_label": int(gt_label)}
             else:
                 img_path = backend.join_path(self.img_prefix, sample)
-                info = {'img_path': img_path}
+                info = {"img_path": img_path}
             data_list.append(info)
         return data_list
 

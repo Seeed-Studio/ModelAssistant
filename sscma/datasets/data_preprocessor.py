@@ -1,5 +1,3 @@
-
-
 # Copyright (c) OpenMMLab. All rights reserved.
 import math
 import torch
@@ -10,22 +8,24 @@ from numbers import Number
 from typing import List, Optional, Sequence, Tuple, Union
 
 
-
 from mmengine.utils import is_seq_of
-from mmengine.model import (BaseDataPreprocessor,ImgDataPreprocessor,
-                            stack_batch)
-from mmengine.registry import TRANSFORMS,MODELS
+from mmengine.model import BaseDataPreprocessor, ImgDataPreprocessor, stack_batch
+from mmengine.registry import TRANSFORMS, MODELS
 
 from mmengine.structures import PixelData
-from sscma.structures import (DataSample, MultiTaskDataSample,DetDataSample,
-                                   batch_label_to_onehot, cat_batch_labels,
-                                   tensor_split)
+from sscma.structures import (
+    DataSample,
+    MultiTaskDataSample,
+    DetDataSample,
+    batch_label_to_onehot,
+    cat_batch_labels,
+    tensor_split,
+)
 
 from sscma.utils.misc import samplelist_boxtype2tensor
 
 from typing import Callable, Union
 import numpy as np
-
 
 
 class RandomBatchAugment:
@@ -73,11 +73,11 @@ class RandomBatchAugment:
             probs = [probs]
 
         if probs is not None:
-            assert len(augments) == len(probs), \
-                '``augments`` and ``probs`` must have same lengths. ' \
-                f'Got {len(augments)} vs {len(probs)}.'
-            assert sum(probs) <= 1, \
-                'The total probability of batch augments exceeds 1.'
+            assert len(augments) == len(probs), (
+                "``augments`` and ``probs`` must have same lengths. "
+                f"Got {len(augments)} vs {len(probs)}."
+            )
+            assert sum(probs) <= 1, "The total probability of batch augments exceeds 1."
             self.augments.append(None)
             probs.append(1 - sum(probs))
 
@@ -93,7 +93,6 @@ class RandomBatchAugment:
             return aug(batch_input, batch_score)
         else:
             return batch_input, batch_score.float()
-
 
 
 class ClsDataPreprocessor(BaseDataPreprocessor):
@@ -134,15 +133,17 @@ class ClsDataPreprocessor(BaseDataPreprocessor):
             :class:`mmpretrain.models.RandomBatchAugment`.
     """
 
-    def __init__(self,
-                 mean: Sequence[Number] = None,
-                 std: Sequence[Number] = None,
-                 pad_size_divisor: int = 1,
-                 pad_value: Number = 0,
-                 to_rgb: bool = False,
-                 to_onehot: bool = False,
-                 num_classes: Optional[int] = None,
-                 batch_augments: Optional[dict] = None):
+    def __init__(
+        self,
+        mean: Sequence[Number] = None,
+        std: Sequence[Number] = None,
+        pad_size_divisor: int = 1,
+        pad_value: Number = 0,
+        to_rgb: bool = False,
+        to_onehot: bool = False,
+        num_classes: Optional[int] = None,
+        batch_augments: Optional[dict] = None,
+    ):
         super().__init__()
         self.pad_size_divisor = pad_size_divisor
         self.pad_value = pad_value
@@ -151,14 +152,14 @@ class ClsDataPreprocessor(BaseDataPreprocessor):
         self.num_classes = num_classes
 
         if mean is not None:
-            assert std is not None, 'To enable the normalization in ' \
-                'preprocessing, please specify both `mean` and `std`.'
+            assert std is not None, (
+                "To enable the normalization in "
+                "preprocessing, please specify both `mean` and `std`."
+            )
             # Enable the normalization in preprocessing.
             self._enable_normalize = True
-            self.register_buffer('mean',
-                                 torch.tensor(mean).view(-1, 1, 1), False)
-            self.register_buffer('std',
-                                 torch.tensor(std).view(-1, 1, 1), False)
+            self.register_buffer("mean", torch.tensor(mean).view(-1, 1, 1), False)
+            self.register_buffer("std", torch.tensor(std).view(-1, 1, 1), False)
         else:
             self._enable_normalize = False
 
@@ -166,10 +167,12 @@ class ClsDataPreprocessor(BaseDataPreprocessor):
             self.batch_augments = RandomBatchAugment(**batch_augments)
             if not self.to_onehot:
                 from mmengine.logging import MMLogger
+
                 MMLogger.get_current_instance().info(
-                    'Because batch augmentations are enabled, the data '
-                    'preprocessor automatically enables the `to_onehot` '
-                    'option to generate one-hot format labels.')
+                    "Because batch augmentations are enabled, the data "
+                    "preprocessor automatically enables the `to_onehot` "
+                    "option to generate one-hot format labels."
+                )
                 self.to_onehot = True
         else:
             self.batch_augments = None
@@ -185,7 +188,7 @@ class ClsDataPreprocessor(BaseDataPreprocessor):
         Returns:
             dict: Data in the same format as the model input.
         """
-        inputs = self.cast_data(data['inputs'])
+        inputs = self.cast_data(data["inputs"])
 
         if isinstance(inputs, torch.Tensor):
             # The branch if use `default_collate` as the collate_fn in the
@@ -204,14 +207,11 @@ class ClsDataPreprocessor(BaseDataPreprocessor):
             if self.pad_size_divisor > 1:
                 h, w = inputs.shape[-2:]
 
-                target_h = math.ceil(
-                    h / self.pad_size_divisor) * self.pad_size_divisor
-                target_w = math.ceil(
-                    w / self.pad_size_divisor) * self.pad_size_divisor
+                target_h = math.ceil(h / self.pad_size_divisor) * self.pad_size_divisor
+                target_w = math.ceil(w / self.pad_size_divisor) * self.pad_size_divisor
                 pad_h = target_h - h
                 pad_w = target_w - w
-                inputs = F.pad(inputs, (0, pad_w, 0, pad_h), 'constant',
-                               self.pad_value)
+                inputs = F.pad(inputs, (0, pad_w, 0, pad_h), "constant", self.pad_value)
         else:
             # The branch if use `pseudo_collate` as the collate_fn in the
             # dataloader.
@@ -229,44 +229,46 @@ class ClsDataPreprocessor(BaseDataPreprocessor):
 
                 processed_inputs.append(input_)
             # Combine padding and stack
-            inputs = stack_batch(processed_inputs, self.pad_size_divisor,
-                                 self.pad_value)
+            inputs = stack_batch(
+                processed_inputs, self.pad_size_divisor, self.pad_value
+            )
 
-        data_samples = data.get('data_samples', None)
+        data_samples = data.get("data_samples", None)
         sample_item = data_samples[0] if data_samples is not None else None
 
         if isinstance(sample_item, DataSample):
             batch_label = None
             batch_score = None
 
-            if 'gt_label' in sample_item:
+            if "gt_label" in sample_item:
                 gt_labels = [sample.gt_label for sample in data_samples]
                 batch_label, label_indices = cat_batch_labels(gt_labels)
                 batch_label = batch_label.to(self.device)
-            if 'gt_score' in sample_item:
+            if "gt_score" in sample_item:
                 gt_scores = [sample.gt_score for sample in data_samples]
                 batch_score = torch.stack(gt_scores).to(self.device)
-            elif self.to_onehot and 'gt_label' in sample_item:
-                assert batch_label is not None, \
-                    'Cannot generate onehot format labels because no labels.'
-                num_classes = self.num_classes or sample_item.get(
-                    'num_classes')
-                assert num_classes is not None, \
-                    'Cannot generate one-hot format labels because not set ' \
-                    '`num_classes` in `data_preprocessor`.'
+            elif self.to_onehot and "gt_label" in sample_item:
+                assert (
+                    batch_label is not None
+                ), "Cannot generate onehot format labels because no labels."
+                num_classes = self.num_classes or sample_item.get("num_classes")
+                assert num_classes is not None, (
+                    "Cannot generate one-hot format labels because not set "
+                    "`num_classes` in `data_preprocessor`."
+                )
                 batch_score = batch_label_to_onehot(
-                    batch_label, label_indices, num_classes).to(self.device)
+                    batch_label, label_indices, num_classes
+                ).to(self.device)
 
             # ----- Batch Augmentations ----
-            if (training and self.batch_augments is not None
-                    and batch_score is not None):
+            if training and self.batch_augments is not None and batch_score is not None:
                 inputs, batch_score = self.batch_augments(inputs, batch_score)
 
             # ----- scatter labels and scores to data samples ---
             if batch_label is not None:
                 for sample, label in zip(
-                        data_samples, tensor_split(batch_label,
-                                                   label_indices)):
+                    data_samples, tensor_split(batch_label, label_indices)
+                ):
                     sample.set_gt_label(label)
             if batch_score is not None:
                 for sample, score in zip(data_samples, batch_score):
@@ -274,7 +276,7 @@ class ClsDataPreprocessor(BaseDataPreprocessor):
         elif isinstance(sample_item, MultiTaskDataSample):
             data_samples = self.cast_data(data_samples)
 
-        return {'inputs': inputs, 'data_samples': data_samples}
+        return {"inputs": inputs, "data_samples": data_samples}
 
 
 class DetDataPreprocessor(ImgDataPreprocessor):
@@ -323,20 +325,22 @@ class DetDataPreprocessor(ImgDataPreprocessor):
         batch_augments (list[dict], optional): Batch-level augmentations
     """
 
-    def __init__(self,
-                 mean: Sequence[Number] = None,
-                 std: Sequence[Number] = None,
-                 pad_size_divisor: int = 1,
-                 pad_value: Union[float, int] = 0,
-                 pad_mask: bool = False,
-                 mask_pad_value: int = 0,
-                 pad_seg: bool = False,
-                 seg_pad_value: int = 255,
-                 bgr_to_rgb: bool = False,
-                 rgb_to_bgr: bool = False,
-                 boxtype2tensor: bool = True,
-                 non_blocking: Optional[bool] = False,
-                 batch_augments: Optional[List[dict]] = None):
+    def __init__(
+        self,
+        mean: Sequence[Number] = None,
+        std: Sequence[Number] = None,
+        pad_size_divisor: int = 1,
+        pad_value: Union[float, int] = 0,
+        pad_mask: bool = False,
+        mask_pad_value: int = 0,
+        pad_seg: bool = False,
+        seg_pad_value: int = 255,
+        bgr_to_rgb: bool = False,
+        rgb_to_bgr: bool = False,
+        boxtype2tensor: bool = True,
+        non_blocking: Optional[bool] = False,
+        batch_augments: Optional[List[dict]] = None,
+    ):
         super().__init__(
             mean=mean,
             std=std,
@@ -344,10 +348,12 @@ class DetDataPreprocessor(ImgDataPreprocessor):
             pad_value=pad_value,
             bgr_to_rgb=bgr_to_rgb,
             rgb_to_bgr=rgb_to_bgr,
-            non_blocking=non_blocking)
+            non_blocking=non_blocking,
+        )
         if batch_augments is not None:
             self.batch_augments = nn.ModuleList(
-                [MODELS.build(aug) for aug in batch_augments])
+                [MODELS.build(aug) for aug in batch_augments]
+            )
         else:
             self.batch_augments = None
         self.pad_mask = pad_mask
@@ -369,7 +375,7 @@ class DetDataPreprocessor(ImgDataPreprocessor):
         """
         batch_pad_shape = self._get_pad_shape(data)
         data = super().forward(data=data, training=training)
-        inputs, data_samples = data['inputs'], data['data_samples']
+        inputs, data_samples = data["inputs"], data["data_samples"]
 
         if data_samples is not None:
             # NOTE the batched image size information may be useful, e.g.
@@ -377,10 +383,9 @@ class DetDataPreprocessor(ImgDataPreprocessor):
             # then used for the transformer_head.
             batch_input_shape = tuple(inputs[0].size()[-2:])
             for data_sample, pad_shape in zip(data_samples, batch_pad_shape):
-                data_sample.set_metainfo({
-                    'batch_input_shape': batch_input_shape,
-                    'pad_shape': pad_shape
-                })
+                data_sample.set_metainfo(
+                    {"batch_input_shape": batch_input_shape, "pad_shape": pad_shape}
+                )
 
             if self.boxtype2tensor:
                 samplelist_boxtype2tensor(data_samples)
@@ -395,56 +400,61 @@ class DetDataPreprocessor(ImgDataPreprocessor):
             for batch_aug in self.batch_augments:
                 inputs, data_samples = batch_aug(inputs, data_samples)
 
-        return {'inputs': inputs, 'data_samples': data_samples}
+        return {"inputs": inputs, "data_samples": data_samples}
 
     def _get_pad_shape(self, data: dict) -> List[tuple]:
         """Get the pad_shape of each image based on data and
         pad_size_divisor."""
-        _batch_inputs = data['inputs']
+        _batch_inputs = data["inputs"]
         # Process data with `pseudo_collate`.
         if is_seq_of(_batch_inputs, torch.Tensor):
             batch_pad_shape = []
             for ori_input in _batch_inputs:
-                pad_h = int(
-                    np.ceil(ori_input.shape[1] /
-                            self.pad_size_divisor)) * self.pad_size_divisor
-                pad_w = int(
-                    np.ceil(ori_input.shape[2] /
-                            self.pad_size_divisor)) * self.pad_size_divisor
+                pad_h = (
+                    int(np.ceil(ori_input.shape[1] / self.pad_size_divisor))
+                    * self.pad_size_divisor
+                )
+                pad_w = (
+                    int(np.ceil(ori_input.shape[2] / self.pad_size_divisor))
+                    * self.pad_size_divisor
+                )
                 batch_pad_shape.append((pad_h, pad_w))
         # Process data with `default_collate`.
         elif isinstance(_batch_inputs, torch.Tensor):
             assert _batch_inputs.dim() == 4, (
-                'The input of `ImgDataPreprocessor` should be a NCHW tensor '
-                'or a list of tensor, but got a tensor with shape: '
-                f'{_batch_inputs.shape}')
-            pad_h = int(
-                np.ceil(_batch_inputs.shape[2] /
-                        self.pad_size_divisor)) * self.pad_size_divisor
-            pad_w = int(
-                np.ceil(_batch_inputs.shape[3] /
-                        self.pad_size_divisor)) * self.pad_size_divisor
+                "The input of `ImgDataPreprocessor` should be a NCHW tensor "
+                "or a list of tensor, but got a tensor with shape: "
+                f"{_batch_inputs.shape}"
+            )
+            pad_h = (
+                int(np.ceil(_batch_inputs.shape[2] / self.pad_size_divisor))
+                * self.pad_size_divisor
+            )
+            pad_w = (
+                int(np.ceil(_batch_inputs.shape[3] / self.pad_size_divisor))
+                * self.pad_size_divisor
+            )
             batch_pad_shape = [(pad_h, pad_w)] * _batch_inputs.shape[0]
         else:
-            raise TypeError('Output of `cast_data` should be a dict '
-                            'or a tuple with inputs and data_samples, but got'
-                            f'{type(data)}: {data}')
+            raise TypeError(
+                "Output of `cast_data` should be a dict "
+                "or a tuple with inputs and data_samples, but got"
+                f"{type(data)}: {data}"
+            )
         return batch_pad_shape
 
-    def pad_gt_masks(self,
-                     batch_data_samples: Sequence[DetDataSample]) -> None:
+    def pad_gt_masks(self, batch_data_samples: Sequence[DetDataSample]) -> None:
         """Pad gt_masks to shape of batch_input_shape."""
-        if 'masks' in batch_data_samples[0].gt_instances:
+        if "masks" in batch_data_samples[0].gt_instances:
             for data_samples in batch_data_samples:
                 masks = data_samples.gt_instances.masks
                 data_samples.gt_instances.masks = masks.pad(
-                    data_samples.batch_input_shape,
-                    pad_val=self.mask_pad_value)
+                    data_samples.batch_input_shape, pad_val=self.mask_pad_value
+                )
 
-    def pad_gt_sem_seg(self,
-                       batch_data_samples: Sequence[DetDataSample]) -> None:
+    def pad_gt_sem_seg(self, batch_data_samples: Sequence[DetDataSample]) -> None:
         """Pad gt_sem_seg to shape of batch_input_shape."""
-        if 'gt_sem_seg' in batch_data_samples[0]:
+        if "gt_sem_seg" in batch_data_samples[0]:
             for data_samples in batch_data_samples:
                 gt_sem_seg = data_samples.gt_sem_seg.sem_seg
                 h, w = gt_sem_seg.shape[-2:]
@@ -452,8 +462,7 @@ class DetDataPreprocessor(ImgDataPreprocessor):
                 gt_sem_seg = F.pad(
                     gt_sem_seg,
                     pad=(0, max(pad_w - w, 0), 0, max(pad_h - h, 0)),
-                    mode='constant',
-                    value=self.seg_pad_value)
+                    mode="constant",
+                    value=self.seg_pad_value,
+                )
                 data_samples.gt_sem_seg = PixelData(sem_seg=gt_sem_seg)
-
-

@@ -7,7 +7,6 @@ import copy
 import weakref
 
 
-
 def avoid_cache_randomness(cls):
     """Decorator that marks a data transform class (subclass of
     :class:`BaseTransform`) prohibited from caching randomness. With this
@@ -30,28 +29,27 @@ def avoid_cache_randomness(cls):
     assert issubclass(cls, BaseTransform)
 
     # Check that no method is decorated with `cache_randomness` in cls
-    if getattr(cls, '_methods_with_randomness', None):
+    if getattr(cls, "_methods_with_randomness", None):
         raise RuntimeError(
-            f'Class {cls.__name__} decorated with '
-            '``avoid_cache_randomness`` should not have methods decorated '
-            'with ``cache_randomness`` (invalid methods: '
-            f'{cls._methods_with_randomness})')
+            f"Class {cls.__name__} decorated with "
+            "``avoid_cache_randomness`` should not have methods decorated "
+            "with ``cache_randomness`` (invalid methods: "
+            f"{cls._methods_with_randomness})"
+        )
 
     class AvoidCacheRandomness:
-
         def __get__(self, obj, objtype=None):
             # Here we check the value in `objtype.__dict__` instead of
             # directly checking the attribute
             # `objtype._avoid_cache_randomness`. So if the base class is
             # decorated with :func:`avoid_cache_randomness`, it will not be
             # inherited by subclasses.
-            return objtype.__dict__.get('_avoid_cache_randomness', False)
+            return objtype.__dict__.get("_avoid_cache_randomness", False)
 
     cls.avoid_cache_randomness = AvoidCacheRandomness()
     cls._avoid_cache_randomness = True
 
     return cls
-
 
 
 class cache_randomness:
@@ -68,16 +66,15 @@ class cache_randomness:
     """
 
     def __init__(self, func):
-
         # Check `func` is to be bound as an instance method
         if not inspect.isfunction(func):
-            raise TypeError('Unsupport callable to decorate with'
-                            '@cache_randomness.')
+            raise TypeError("Unsupport callable to decorate with" "@cache_randomness.")
         func_args = inspect.getfullargspec(func).args
-        if len(func_args) == 0 or func_args[0] != 'self':
+        if len(func_args) == 0 or func_args[0] != "self":
             raise TypeError(
-                '@cache_randomness should only be used to decorate '
-                'instance methods (the first argument is ``self``).')
+                "@cache_randomness should only be used to decorate "
+                "instance methods (the first argument is ``self``)."
+            )
 
         functools.update_wrapper(self, func)
         self.func = func
@@ -85,8 +82,8 @@ class cache_randomness:
 
     def __set_name__(self, owner, name):
         # Maintain a record of decorated methods in the class
-        if not hasattr(owner, '_methods_with_randomness'):
-            setattr(owner, '_methods_with_randomness', [])
+        if not hasattr(owner, "_methods_with_randomness"):
+            setattr(owner, "_methods_with_randomness", [])
 
         # Here `name` equals to `self.__name__`, i.e., the name of the
         # decorated function, due to the invocation of `update_wrapper` in
@@ -101,14 +98,14 @@ class cache_randomness:
 
         # Check the flag ``self._cache_enabled``, which should be
         # set by the contextmanagers like ``cache_random_parameters```
-        cache_enabled = getattr(instance, '_cache_enabled', False)
+        cache_enabled = getattr(instance, "_cache_enabled", False)
 
         if cache_enabled:
             # Initialize the cache of the transform instances. The flag
             # ``cache_enabled``` is set by contextmanagers like
             # ``cache_random_params```.
-            if not hasattr(instance, '_cache'):
-                setattr(instance, '_cache', {})
+            if not hasattr(instance, "_cache"):
+                setattr(instance, "_cache", {})
 
             if name not in instance._cache:
                 instance._cache[name] = self.func(instance, *args, **kwargs)
@@ -116,7 +113,7 @@ class cache_randomness:
             return instance._cache[name]
         else:
             # Clear cache
-            if hasattr(instance, '_cache'):
+            if hasattr(instance, "_cache"):
                 del instance._cache
             # Return function output
             return self.func(instance, *args, **kwargs)
@@ -127,19 +124,16 @@ class cache_randomness:
         # one `cache_randomness` instance, which may cause data races
         # in multithreading cases.
         return copy.copy(self)
-    
+
 
 class BaseTransform(metaclass=ABCMeta):
     """Base class for all transformations."""
 
-    def __call__(self,
-                 results: Dict) -> Optional[Union[Dict, Tuple[List, List]]]:
-
+    def __call__(self, results: Dict) -> Optional[Union[Dict, Tuple[List, List]]]:
         return self.transform(results)
 
     @abstractmethod
-    def transform(self,
-                  results: Dict) -> Optional[Union[Dict, Tuple[List, List]]]:
+    def transform(self, results: Dict) -> Optional[Union[Dict, Tuple[List, List]]]:
         """The transform function. All subclass of BaseTransform should
         override this method.
         This function takes the result dict as the input, and can add new

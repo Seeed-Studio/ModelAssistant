@@ -6,6 +6,7 @@ in MMEval to customize a Metric.
 The default implementation only does the register process. Users need to rename
 the ``CustomMetric`` to the real name of the metric and implement it.
 """  # noqa: E501
+
 from typing import Optional, Sequence, Union, List
 import torch
 import torch.nn as nn
@@ -15,6 +16,7 @@ from mmengine.evaluator import BaseMetric
 
 import mmengine
 
+
 def to_tensor(value):
     """Convert value to torch.Tensor."""
     if isinstance(value, np.ndarray):
@@ -22,7 +24,7 @@ def to_tensor(value):
     elif isinstance(value, Sequence) and not mmengine.is_str(value):
         value = torch.tensor(value)
     elif not isinstance(value, torch.Tensor):
-        raise TypeError(f'{type(value)} is not an available argument.')
+        raise TypeError(f"{type(value)} is not an available argument.")
     return value
 
 
@@ -83,22 +85,25 @@ class Accuracy(BaseMetric):
             'accuracy/top5': 51.20000076293945
         }
     """
-    default_prefix: Optional[str] = 'accuracy'
 
-    def __init__(self,
-                 topk: Union[int, Sequence[int]] = (1, ),
-                 thrs: Union[float, Sequence[Union[float, None]], None] = 0.,
-                 collect_device: str = 'cpu',
-                 prefix: Optional[str] = None) -> None:
+    default_prefix: Optional[str] = "accuracy"
+
+    def __init__(
+        self,
+        topk: Union[int, Sequence[int]] = (1,),
+        thrs: Union[float, Sequence[Union[float, None]], None] = 0.0,
+        collect_device: str = "cpu",
+        prefix: Optional[str] = None,
+    ) -> None:
         super().__init__(collect_device=collect_device, prefix=prefix)
 
         if isinstance(topk, int):
-            self.topk = (topk, )
+            self.topk = (topk,)
         else:
             self.topk = tuple(topk)
 
         if isinstance(thrs, float) or thrs is None:
-            self.thrs = (thrs, )
+            self.thrs = (thrs,)
         else:
             self.thrs = tuple(thrs)
 
@@ -115,11 +120,11 @@ class Accuracy(BaseMetric):
 
         for data_sample in data_samples:
             result = dict()
-            if 'pred_score' in data_sample:
-                result['pred_score'] = data_sample['pred_score'].cpu()
+            if "pred_score" in data_sample:
+                result["pred_score"] = data_sample["pred_score"].cpu()
             else:
-                result['pred_label'] = data_sample['pred_label'].cpu()
-            result['gt_label'] = data_sample['gt_label'].cpu()
+                result["pred_label"] = data_sample["pred_label"].cpu()
+            result["gt_label"] = data_sample["gt_label"].cpu()
             # Save the result to `self.results`.
             self.results.append(result)
 
@@ -137,30 +142,31 @@ class Accuracy(BaseMetric):
         metrics = {}
 
         # concat
-        target = torch.cat([res['gt_label'] for res in results])
-        if 'pred_score' in results[0]:
-            pred = torch.stack([res['pred_score'] for res in results])
+        target = torch.cat([res["gt_label"] for res in results])
+        if "pred_score" in results[0]:
+            pred = torch.stack([res["pred_score"] for res in results])
 
             try:
                 acc = self.calculate(pred, target, self.topk, self.thrs)
             except ValueError as e:
                 # If the topk is invalid.
                 raise ValueError(
-                    str(e) + ' Please check the `val_evaluator` and '
-                    '`test_evaluator` fields in your config file.')
+                    str(e) + " Please check the `val_evaluator` and "
+                    "`test_evaluator` fields in your config file."
+                )
 
             multi_thrs = len(self.thrs) > 1
             for i, k in enumerate(self.topk):
                 for j, thr in enumerate(self.thrs):
-                    name = f'top{k}'
+                    name = f"top{k}"
                     if multi_thrs:
-                        name += '_no-thr' if thr is None else f'_thr-{thr:.2f}'
+                        name += "_no-thr" if thr is None else f"_thr-{thr:.2f}"
                     metrics[name] = acc[i][j].item()
         else:
             # If only label in the `pred_label`.
-            pred = torch.cat([res['pred_label'] for res in results])
+            pred = torch.cat([res["pred_label"] for res in results])
             acc = self.calculate(pred, target, self.topk, self.thrs)
-            metrics['top1'] = acc.item()
+            metrics["top1"] = acc.item()
 
         return metrics
 
@@ -168,8 +174,8 @@ class Accuracy(BaseMetric):
     def calculate(
         pred: Union[torch.Tensor, np.ndarray, Sequence],
         target: Union[torch.Tensor, np.ndarray, Sequence],
-        topk: Sequence[int] = (1, ),
-        thrs: Sequence[Union[float, None]] = (0., ),
+        topk: Sequence[int] = (1,),
+        thrs: Sequence[Union[float, None]] = (0.0,),
     ) -> Union[torch.Tensor, List[List[torch.Tensor]]]:
         """Calculate the accuracy.
 
@@ -202,15 +208,16 @@ class Accuracy(BaseMetric):
         pred = to_tensor(pred)
         target = to_tensor(target).to(torch.int64)
         num = pred.size(0)
-        assert pred.size(0) == target.size(0), \
-            f"The size of pred ({pred.size(0)}) doesn't match "\
-            f'the target ({target.size(0)}).'
+        assert pred.size(0) == target.size(0), (
+            f"The size of pred ({pred.size(0)}) doesn't match "
+            f"the target ({target.size(0)})."
+        )
 
         if pred.ndim == 1:
             # For pred label, ignore topk and acc
             pred_label = pred.int()
             correct = pred.eq(target).float().sum(0, keepdim=True)
-            acc = correct.mul_(100. / num)
+            acc = correct.mul_(100.0 / num)
             return acc
         else:
             # For pred score, calculate on all topk and thresholds.
@@ -219,8 +226,9 @@ class Accuracy(BaseMetric):
 
             if maxk > pred.size(1):
                 raise ValueError(
-                    f'Top-{maxk} accuracy is unavailable since the number of '
-                    f'categories is {pred.size(1)}.')
+                    f"Top-{maxk} accuracy is unavailable since the number of "
+                    f"categories is {pred.size(1)}."
+                )
 
             pred_score, pred_label = pred.topk(maxk, dim=1)
             pred_label = pred_label.t()
@@ -234,8 +242,7 @@ class Accuracy(BaseMetric):
                     _correct = correct
                     if thr is not None:
                         _correct = _correct & (pred_score.t() > thr)
-                    correct_k = _correct[:k].reshape(-1).float().sum(
-                        0, keepdim=True)
-                    acc = correct_k.mul_(100. / num)
+                    correct_k = _correct[:k].reshape(-1).float().sum(0, keepdim=True)
+                    acc = correct_k.mul_(100.0 / num)
                     results[-1].append(acc)
             return results

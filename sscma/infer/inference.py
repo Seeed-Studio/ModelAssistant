@@ -18,17 +18,16 @@ from mmengine.visualization import Visualizer
 
 
 class CustomInferencer(BaseInferencer):
-
     def _init_visualizer(self, cfg):
         """Return custom visualizer.
 
         The returned visualizer will be set as ``self.visualzier``.
         """
-        if cfg.get('visualizer') is not None:
+        if cfg.get("visualizer") is not None:
             visualizer = cfg.visualizer
-            visualizer.setdefault('name', 'sscma')
+            visualizer.setdefault("name", "sscma")
             return Visualizer.get_instance(**cfg.visualizer)
-        return Visualizer(name='sscma')
+        return Visualizer(name="sscma")
 
     def _init_pipeline(self, cfg):
         """Return a pipeline to process input data.
@@ -63,7 +62,8 @@ class CustomInferencer(BaseInferencer):
             vis_result = self.visualizer.get_image()
             # Return the visualization for post process.
             visualization.append(
-                dict(image=vis_result, filename=osp.basename(image_path)))
+                dict(image=vis_result, filename=osp.basename(image_path))
+            )
         return visualization
 
     def postprocess(self, preds, visualization, return_datasample=False):

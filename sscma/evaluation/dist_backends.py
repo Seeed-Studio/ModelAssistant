@@ -6,7 +6,8 @@ from typing import Any, List, Tuple, TypeVar, Union, TYPE_CHECKING
 import torch
 import torch.distributed as torch_dist
 
-Tensor = TypeVar('Tensor')
+Tensor = TypeVar("Tensor")
+
 
 class BaseDistBackend(metaclass=ABCMeta):
     """The base backend of distributed communication used by mmeval Metric."""
@@ -63,6 +64,7 @@ class BaseDistBackend(metaclass=ABCMeta):
             any: The broadcast object.
         """
 
+
 class NonDist(BaseDistBackend):
     """A dummy distributed communication for non-distributed environment."""
 
@@ -88,7 +90,6 @@ class NonDist(BaseDistBackend):
     def broadcast_object(self, obj: Any, src: int = 0) -> Any:
         """Returns the given obj directly in a non-distributed environment."""
         return obj
-    
 
 
 class TensorBaseDistBackend(BaseDistBackend):
@@ -107,8 +108,7 @@ class TensorBaseDistBackend(BaseDistBackend):
         """
 
     @abstractmethod
-    def _tensor_to_object(self, tensor: Tensor,
-                          tensor_size: Union[int, Tensor]) -> Any:
+    def _tensor_to_object(self, tensor: Tensor, tensor_size: Union[int, Tensor]) -> Any:
         """Convert the given Tensor to a object via `pickle.loads`.
 
         Args:
@@ -185,8 +185,9 @@ class TensorBaseDistBackend(BaseDistBackend):
         padded_obj_tensor_list = self._all_gather(padded_obj_tensor)
 
         obj_list = []
-        for padded_obj_tensor, obj_size_tensor in zip(padded_obj_tensor_list,
-                                                      obj_size_list):
+        for padded_obj_tensor, obj_size_tensor in zip(
+            padded_obj_tensor_list, obj_size_list
+        ):
             obj = self._tensor_to_object(padded_obj_tensor, obj_size_tensor)
             obj_list.append(obj)
         return obj_list
@@ -215,31 +216,32 @@ class TensorBaseDistBackend(BaseDistBackend):
         broadcast_obj_size_tensor = self._broadcast(obj_size_tensor, src)
 
         if self.rank != src:
-            obj_tensor = self._pad_tensor(obj_tensor,
-                                          broadcast_obj_size_tensor)
+            obj_tensor = self._pad_tensor(obj_tensor, broadcast_obj_size_tensor)
 
         broadcast_obj_tensor = self._broadcast(obj_tensor, src)
-        broadcast_obj = self._tensor_to_object(broadcast_obj_tensor,
-                                               obj_size_tensor)
+        broadcast_obj = self._tensor_to_object(broadcast_obj_tensor, obj_size_tensor)
 
         return broadcast_obj
-    
 
 
+Tensor = TypeVar("Tensor", bound="torch.Tensor")
 
-Tensor = TypeVar('Tensor', bound='torch.Tensor')
+
 class TorchCPUDist(TensorBaseDistBackend):
     """A cpu distributed communication backend for torch.distributed."""
 
     def __init__(self) -> None:
         super().__init__()
         if torch is None:
-            raise ImportError(f'For availability of {self.__class__.__name__},'
-                              ' please install pytorch first.')
+            raise ImportError(
+                f"For availability of {self.__class__.__name__},"
+                " please install pytorch first."
+            )
         if not torch_dist.is_available():
             raise RuntimeError(
-                f'For availability of {self.__class__.__name__},'
-                ' make sure torch.distributed is available.')
+                f"For availability of {self.__class__.__name__},"
+                " make sure torch.distributed is available."
+            )
 
     @property
     def is_initialized(self) -> bool:
@@ -277,8 +279,7 @@ class TorchCPUDist(TensorBaseDistBackend):
         obj_size_tensor = torch.LongTensor([obj_tensor.numel()])
         return obj_tensor, obj_size_tensor
 
-    def _tensor_to_object(self, tensor: Tensor,
-                          tensor_size: Union[int, Tensor]) -> Any:
+    def _tensor_to_object(self, tensor: Tensor, tensor_size: Union[int, Tensor]) -> Any:
         """Convert the given Tensor to a object via `pickle.loads`.
 
         Args:
@@ -319,8 +320,7 @@ class TorchCPUDist(TensorBaseDistBackend):
             list: A list of the gathered tensor.
         """
         tensor_list = [
-            torch.empty_like(tensor).to(tensor.device)
-            for _ in range(self.world_size)
+            torch.empty_like(tensor).to(tensor.device) for _ in range(self.world_size)
         ]
         torch_dist.all_gather(tensor_list, tensor)
         return tensor_list
@@ -337,7 +337,6 @@ class TorchCPUDist(TensorBaseDistBackend):
         """
         torch_dist.broadcast(tensor, src=src)
         return tensor
-    
 
 
 class TorchCUDADist(TorchCPUDist):
@@ -346,12 +345,15 @@ class TorchCUDADist(TorchCPUDist):
     def __init__(self) -> None:
         super().__init__()
         if torch is None:
-            raise ImportError(f'For availability of {self.__class__.__name__},'
-                              ' please install pytorch first.')
+            raise ImportError(
+                f"For availability of {self.__class__.__name__},"
+                " please install pytorch first."
+            )
         if not torch.distributed.is_nccl_available():
             raise RuntimeError(
-                f'For availability of {self.__class__.__name__},'
-                ' make sure torch.distributed.is_nccl_available().')
+                f"For availability of {self.__class__.__name__},"
+                " make sure torch.distributed.is_nccl_available()."
+            )
 
     def _object_to_tensor(self, obj: Any) -> Tuple[Tensor, Tensor]:
         """Convert the given object to a cuda tensor via `pickle.dumps`.
@@ -369,8 +371,7 @@ class TorchCUDADist(TorchCPUDist):
         obj_tensor, obj_size_tensor = super()._object_to_tensor(obj)
         return obj_tensor.cuda(), obj_size_tensor.cuda()
 
-    def _tensor_to_object(self, tensor: Tensor,
-                          tensor_size: Union[int, Tensor]) -> Any:
+    def _tensor_to_object(self, tensor: Tensor, tensor_size: Union[int, Tensor]) -> Any:
         """Convert the given cuda tensor to a object via `pickle.loads`.
 
         Args:
@@ -382,4 +383,3 @@ class TorchCUDADist(TorchCPUDist):
             Any: The object converted from the given cuda tensor.
         """
         return super()._tensor_to_object(tensor.detach().cpu(), tensor_size)
-    

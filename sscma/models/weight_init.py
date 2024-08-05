@@ -10,6 +10,4 @@ the ``CustomInitializer`` to the real name of the initializer and implement it.
 from mmengine.model.weight_init import BaseInit
 
 
-
-class CustomInitializer(BaseInit):
-    ...
+class CustomInitializer(BaseInit): ...

@@ -12,12 +12,14 @@ from mmengine.structures import InstanceData
 from torch import Tensor
 
 from sscma.structures import SampleList
-from sscma.structures.bbox import (cat_boxes, get_box_tensor, get_box_wh,
-                                   scale_boxes)
+from sscma.structures.bbox import cat_boxes, get_box_tensor, get_box_wh, scale_boxes
 from sscma.utils.typing_utils import InstanceList, OptMultiConfig
 from ..test_time_augs import merge_aug_results
-from sscma.utils.misc import (filter_scores_and_topk, select_single_mlvl,
-                     unpack_gt_instances)
+from sscma.utils.misc import (
+    filter_scores_and_topk,
+    select_single_mlvl,
+    unpack_gt_instances,
+)
 
 
 class BaseDenseHead(BaseModule, metaclass=ABCMeta):
@@ -69,7 +71,7 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
         # avoid init_cfg overwrite the initialization of `conv_offset`
         for m in self.modules():
             # DeformConv2dPack, ModulatedDeformConv2dPack
-            if hasattr(m, 'conv_offset'):
+            if hasattr(m, "conv_offset"):
                 constant_init(m.conv_offset, 0)
 
     def get_positive_infos(self) -> InstanceList:
@@ -83,8 +85,7 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
         if len(self._raw_positive_infos) == 0:
             return None
 
-        sampling_results = self._raw_positive_infos.get(
-            'sampling_results', None)
+        sampling_results = self._raw_positive_infos.get("sampling_results", None)
         assert sampling_results is not None
         positive_infos = []
         for sampling_result in enumerate(sampling_results):
@@ -92,8 +93,7 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
             pos_info.bboxes = sampling_result.pos_gt_bboxes
             pos_info.labels = sampling_result.pos_gt_labels
             pos_info.priors = sampling_result.pos_priors
-            pos_info.pos_assigned_gt_inds = \
-                sampling_result.pos_assigned_gt_inds
+            pos_info.pos_assigned_gt_inds = sampling_result.pos_assigned_gt_inds
             pos_info.pos_inds = sampling_result.pos_inds
             positive_infos.append(pos_info)
         return positive_infos
@@ -115,11 +115,13 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
         outs = self(x)
 
         outputs = unpack_gt_instances(batch_data_samples)
-        (batch_gt_instances, batch_gt_instances_ignore,
-         batch_img_metas) = outputs
+        (batch_gt_instances, batch_gt_instances_ignore, batch_img_metas) = outputs
 
-        loss_inputs = outs + (batch_gt_instances, batch_img_metas,
-                              batch_gt_instances_ignore)
+        loss_inputs = outs + (
+            batch_gt_instances,
+            batch_img_metas,
+            batch_gt_instances_ignore,
+        )
         losses = self.loss_by_feat(*loss_inputs)
         return losses
 
@@ -133,7 +135,7 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
         self,
         x: Tuple[Tensor],
         batch_data_samples: SampleList,
-        proposal_cfg: Optional[ConfigDict] = None
+        proposal_cfg: Optional[ConfigDict] = None,
     ) -> Tuple[dict, InstanceList]:
         """Perform forward propagation of the head, then calculate loss and
         predictions from the features and data samples.
@@ -155,23 +157,25 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
                   results of each image after the post process.
         """
         outputs = unpack_gt_instances(batch_data_samples)
-        (batch_gt_instances, batch_gt_instances_ignore,
-         batch_img_metas) = outputs
+        (batch_gt_instances, batch_gt_instances_ignore, batch_img_metas) = outputs
 
         outs = self(x)
 
-        loss_inputs = outs + (batch_gt_instances, batch_img_metas,
-                              batch_gt_instances_ignore)
+        loss_inputs = outs + (
+            batch_gt_instances,
+            batch_img_metas,
+            batch_gt_instances_ignore,
+        )
         losses = self.loss_by_feat(*loss_inputs)
 
         predictions = self.predict_by_feat(
-            *outs, batch_img_metas=batch_img_metas, cfg=proposal_cfg)
+            *outs, batch_img_metas=batch_img_metas, cfg=proposal_cfg
+        )
         return losses, predictions
 
-    def predict(self,
-                x: Tuple[Tensor],
-                batch_data_samples: SampleList,
-                rescale: bool = False) -> InstanceList:
+    def predict(
+        self, x: Tuple[Tensor], batch_data_samples: SampleList, rescale: bool = False
+    ) -> InstanceList:
         """Perform forward propagation of the detection head and predict
         detection results on the features of the upstream network.
 
@@ -188,24 +192,25 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
             list[obj:`InstanceData`]: Detection results of each image
             after the post process.
         """
-        batch_img_metas = [
-            data_samples.metainfo for data_samples in batch_data_samples
-        ]
+        batch_img_metas = [data_samples.metainfo for data_samples in batch_data_samples]
 
         outs = self(x)
 
         predictions = self.predict_by_feat(
-            *outs, batch_img_metas=batch_img_metas, rescale=rescale)
+            *outs, batch_img_metas=batch_img_metas, rescale=rescale
+        )
         return predictions
 
-    def predict_by_feat(self,
-                        cls_scores: List[Tensor],
-                        bbox_preds: List[Tensor],
-                        score_factors: Optional[List[Tensor]] = None,
-                        batch_img_metas: Optional[List[dict]] = None,
-                        cfg: Optional[ConfigDict] = None,
-                        rescale: bool = False,
-                        with_nms: bool = True) -> InstanceList:
+    def predict_by_feat(
+        self,
+        cls_scores: List[Tensor],
+        bbox_preds: List[Tensor],
+        score_factors: Optional[List[Tensor]] = None,
+        batch_img_metas: Optional[List[dict]] = None,
+        cfg: Optional[ConfigDict] = None,
+        rescale: bool = False,
+        with_nms: bool = True,
+    ) -> InstanceList:
         """Transform a batch of output features extracted from the head into
         bbox results.
 
@@ -258,21 +263,19 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
 
         featmap_sizes = [cls_scores[i].shape[-2:] for i in range(num_levels)]
         mlvl_priors = self.prior_generator.grid_priors(
-            featmap_sizes,
-            dtype=cls_scores[0].dtype,
-            device=cls_scores[0].device)
+            featmap_sizes, dtype=cls_scores[0].dtype, device=cls_scores[0].device
+        )
 
         result_list = []
 
         for img_id in range(len(batch_img_metas)):
             img_meta = batch_img_metas[img_id]
-            cls_score_list = select_single_mlvl(
-                cls_scores, img_id, detach=True)
-            bbox_pred_list = select_single_mlvl(
-                bbox_preds, img_id, detach=True)
+            cls_score_list = select_single_mlvl(cls_scores, img_id, detach=True)
+            bbox_pred_list = select_single_mlvl(bbox_preds, img_id, detach=True)
             if with_score_factors:
                 score_factor_list = select_single_mlvl(
-                    score_factors, img_id, detach=True)
+                    score_factors, img_id, detach=True
+                )
             else:
                 score_factor_list = [None for _ in range(num_levels)]
 
@@ -284,19 +287,22 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
                 img_meta=img_meta,
                 cfg=cfg,
                 rescale=rescale,
-                with_nms=with_nms)
+                with_nms=with_nms,
+            )
             result_list.append(results)
         return result_list
 
-    def _predict_by_feat_single(self,
-                                cls_score_list: List[Tensor],
-                                bbox_pred_list: List[Tensor],
-                                score_factor_list: List[Tensor],
-                                mlvl_priors: List[Tensor],
-                                img_meta: dict,
-                                cfg: ConfigDict,
-                                rescale: bool = False,
-                                with_nms: bool = True) -> InstanceData:
+    def _predict_by_feat_single(
+        self,
+        cls_score_list: List[Tensor],
+        bbox_pred_list: List[Tensor],
+        score_factor_list: List[Tensor],
+        mlvl_priors: List[Tensor],
+        img_meta: dict,
+        cfg: ConfigDict,
+        rescale: bool = False,
+        with_nms: bool = True,
+    ) -> InstanceData:
         """Transform a single image's features extracted from the head into
         bbox results.
 
@@ -345,8 +351,8 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
 
         cfg = self.test_cfg if cfg is None else cfg
         cfg = copy.deepcopy(cfg)
-        img_shape = img_meta['img_shape']
-        nms_pre = cfg.get('nms_pre', -1)
+        img_shape = img_meta["img_shape"]
+        nms_pre = cfg.get("nms_pre", -1)
 
         mlvl_bbox_preds = []
         mlvl_valid_priors = []
@@ -356,24 +362,21 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
             mlvl_score_factors = []
         else:
             mlvl_score_factors = None
-        for level_idx, (cls_score, bbox_pred, score_factor, priors) in \
-                enumerate(zip(cls_score_list, bbox_pred_list,
-                              score_factor_list, mlvl_priors)):
-
+        for level_idx, (cls_score, bbox_pred, score_factor, priors) in enumerate(
+            zip(cls_score_list, bbox_pred_list, score_factor_list, mlvl_priors)
+        ):
             assert cls_score.size()[-2:] == bbox_pred.size()[-2:]
 
             dim = self.bbox_coder.encode_size
             bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, dim)
             if with_score_factors:
-                score_factor = score_factor.permute(1, 2,
-                                                    0).reshape(-1).sigmoid()
-            cls_score = cls_score.permute(1, 2,
-                                          0).reshape(-1, self.cls_out_channels)
+                score_factor = score_factor.permute(1, 2, 0).reshape(-1).sigmoid()
+            cls_score = cls_score.permute(1, 2, 0).reshape(-1, self.cls_out_channels)
 
             # the `custom_cls_channels` parameter is derived from
             # CrossEntropyCustomLoss and FocalCustomLoss, and is currently used
             # in v3det.
-            if getattr(self.loss_cls, 'custom_cls_channels', False):
+            if getattr(self.loss_cls, "custom_cls_channels", False):
                 scores = self.loss_cls.get_activation(cls_score)
             elif self.use_sigmoid_cls:
                 scores = cls_score.sigmoid()
@@ -388,15 +391,15 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
             # There is no difference in performance for most models. If you
             # find a slight drop in performance, you can set a larger
             # `nms_pre` than before.
-            score_thr = cfg.get('score_thr', 0)
+            score_thr = cfg.get("score_thr", 0)
 
             results = filter_scores_and_topk(
-                scores, score_thr, nms_pre,
-                dict(bbox_pred=bbox_pred, priors=priors))
+                scores, score_thr, nms_pre, dict(bbox_pred=bbox_pred, priors=priors)
+            )
             scores, labels, keep_idxs, filtered_results = results
 
-            bbox_pred = filtered_results['bbox_pred']
-            priors = filtered_results['priors']
+            bbox_pred = filtered_results["bbox_pred"]
+            priors = filtered_results["priors"]
 
             if with_score_factors:
                 score_factor = score_factor[keep_idxs]
@@ -425,14 +428,17 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
             cfg=cfg,
             rescale=rescale,
             with_nms=with_nms,
-            img_meta=img_meta)
+            img_meta=img_meta,
+        )
 
-    def _bbox_post_process(self,
-                           results: InstanceData,
-                           cfg: ConfigDict,
-                           rescale: bool = False,
-                           with_nms: bool = True,
-                           img_meta: Optional[dict] = None) -> InstanceData:
+    def _bbox_post_process(
+        self,
+        results: InstanceData,
+        cfg: ConfigDict,
+        rescale: bool = False,
+        with_nms: bool = True,
+        img_meta: Optional[dict] = None,
+    ) -> InstanceData:
         """bbox post-processing method.
 
         The boxes would be rescaled to the original image scale and do
@@ -462,18 +468,18 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
                   the last dimension 4 arrange as (x1, y1, x2, y2).
         """
         if rescale:
-            assert img_meta.get('scale_factor') is not None
-            scale_factor = [1 / s for s in img_meta['scale_factor']]
+            assert img_meta.get("scale_factor") is not None
+            scale_factor = [1 / s for s in img_meta["scale_factor"]]
             results.bboxes = scale_boxes(results.bboxes, scale_factor)
 
-        if hasattr(results, 'score_factors'):
+        if hasattr(results, "score_factors"):
             # TODO: Add sqrt operation in order to be consistent with
             #  the paper.
-            score_factors = results.pop('score_factors')
+            score_factors = results.pop("score_factors")
             results.scores = results.scores * score_factors
 
         # filter small size bboxes
-        if cfg.get('min_bbox_size', -1) >= 0:
+        if cfg.get("min_bbox_size", -1) >= 0:
             w, h = get_box_wh(results.bboxes)
             valid_mask = (w > cfg.min_bbox_size) & (h > cfg.min_bbox_size)
             if not valid_mask.all():
@@ -482,21 +488,24 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
         # TODO: deal with `with_nms` and `nms_cfg=None` in test_cfg
         if with_nms and results.bboxes.numel() > 0:
             bboxes = get_box_tensor(results.bboxes)
-            det_bboxes, keep_idxs = batched_nms(bboxes, results.scores,
-                                                results.labels, cfg.nms)
+            det_bboxes, keep_idxs = batched_nms(
+                bboxes, results.scores, results.labels, cfg.nms
+            )
             results = results[keep_idxs]
             # some nms would reweight the score, such as softnms
             results.scores = det_bboxes[:, -1]
-            results = results[:cfg.max_per_img]
+            results = results[: cfg.max_per_img]
 
         return results
 
-    def aug_test(self,
-                 aug_batch_feats,
-                 aug_batch_img_metas,
-                 rescale=False,
-                 with_ori_nms=False,
-                 **kwargs):
+    def aug_test(
+        self,
+        aug_batch_feats,
+        aug_batch_img_metas,
+        rescale=False,
+        with_ori_nms=False,
+        **kwargs,
+    ):
         """Test function with test time augmentation.
 
         Args:
@@ -528,17 +537,14 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
         """
         # TODO: remove this for detr and deformdetr
         sig_of_get_results = signature(self.get_results)
-        get_results_args = [
-            p.name for p in sig_of_get_results.parameters.values()
-        ]
+        get_results_args = [p.name for p in sig_of_get_results.parameters.values()]
         get_results_single_sig = signature(self._get_results_single)
         get_results_single_sig_args = [
             p.name for p in get_results_single_sig.parameters.values()
         ]
-        assert ('with_nms' in get_results_args) and \
-               ('with_nms' in get_results_single_sig_args), \
-               f'{self.__class__.__name__}' \
-               'does not support test-time augmentation '
+        assert ("with_nms" in get_results_args) and (
+            "with_nms" in get_results_single_sig_args
+        ), f"{self.__class__.__name__}" "does not support test-time augmentation "
 
         num_imgs = len(aug_batch_img_metas[0])
         aug_batch_results = []
@@ -550,23 +556,23 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
                 cfg=self.test_cfg,
                 rescale=False,
                 with_nms=with_ori_nms,
-                **kwargs)
+                **kwargs,
+            )
             aug_batch_results.append(batch_instance_results)
 
         # after merging, bboxes will be rescaled to the original image
-        batch_results = merge_aug_results(aug_batch_results,
-                                          aug_batch_img_metas)
+        batch_results = merge_aug_results(aug_batch_results, aug_batch_img_metas)
 
         final_results = []
         for img_id in range(num_imgs):
             results = batch_results[img_id]
-            det_bboxes, keep_idxs = batched_nms(results.bboxes, results.scores,
-                                                results.labels,
-                                                self.test_cfg.nms)
+            det_bboxes, keep_idxs = batched_nms(
+                results.bboxes, results.scores, results.labels, self.test_cfg.nms
+            )
             results = results[keep_idxs]
             # some nms operation may reweight the score such as softnms
             results.scores = det_bboxes[:, -1]
-            results = results[:self.test_cfg.max_per_img]
+            results = results[: self.test_cfg.max_per_img]
             if rescale:
                 # all results have been mapped to the original scale
                 # in `merge_aug_results`, so just pass
@@ -574,9 +580,9 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
             else:
                 # map to the first aug image scale
                 scale_factor = results.bboxes.new_tensor(
-                    aug_batch_img_metas[0][img_id]['scale_factor'])
-                results.bboxes = \
-                    results.bboxes * scale_factor
+                    aug_batch_img_metas[0][img_id]["scale_factor"]
+                )
+                results.bboxes = results.bboxes * scale_factor
 
             final_results.append(results)
 

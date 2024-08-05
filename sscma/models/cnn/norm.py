@@ -5,8 +5,12 @@ from typing import Dict, Tuple, Union
 import torch.nn as nn
 from mmengine.registry import MODELS
 from mmengine.utils import is_tuple_of
-from mmengine.utils.dl_utils.parrots_wrapper import (SyncBatchNorm, _BatchNorm,
-                                                     _InstanceNorm)
+from mmengine.utils.dl_utils.parrots_wrapper import (
+    SyncBatchNorm,
+    _BatchNorm,
+    _InstanceNorm,
+)
+
 
 def infer_abbr(class_type):
     """Infer abbreviation from the class name.
@@ -31,35 +35,34 @@ def infer_abbr(class_type):
         str: The inferred abbreviation.
     """
     if not inspect.isclass(class_type):
-        raise TypeError(
-            f'class_type must be a type, but got {type(class_type)}')
-    if hasattr(class_type, '_abbr_'):
+        raise TypeError(f"class_type must be a type, but got {type(class_type)}")
+    if hasattr(class_type, "_abbr_"):
         return class_type._abbr_
     if issubclass(class_type, _InstanceNorm):  # IN is a subclass of BN
-        return 'in'
+        return "in"
     elif issubclass(class_type, _BatchNorm):
-        return 'bn'
+        return "bn"
     elif issubclass(class_type, nn.GroupNorm):
-        return 'gn'
+        return "gn"
     elif issubclass(class_type, nn.LayerNorm):
-        return 'ln'
+        return "ln"
     else:
         class_name = class_type.__name__.lower()
-        if 'batch' in class_name:
-            return 'bn'
-        elif 'group' in class_name:
-            return 'gn'
-        elif 'layer' in class_name:
-            return 'ln'
-        elif 'instance' in class_name:
-            return 'in'
+        if "batch" in class_name:
+            return "bn"
+        elif "group" in class_name:
+            return "gn"
+        elif "layer" in class_name:
+            return "ln"
+        elif "instance" in class_name:
+            return "in"
         else:
-            return 'norm_layer'
+            return "norm_layer"
 
 
-def build_norm_layer(cfg: Dict,
-                     num_features: int,
-                     postfix: Union[int, str] = '') -> Tuple[str, nn.Module]:
+def build_norm_layer(
+    cfg: Dict, num_features: int, postfix: Union[int, str] = ""
+) -> Tuple[str, nn.Module]:
     """Build normalization layer.
 
     Args:
@@ -78,12 +81,12 @@ def build_norm_layer(cfg: Dict,
         created norm layer.
     """
     if not isinstance(cfg, dict):
-        raise TypeError('cfg must be a dict')
-    if 'type' not in cfg:
+        raise TypeError("cfg must be a dict")
+    if "type" not in cfg:
         raise KeyError('the cfg dict must contain the key "type"')
     cfg_ = cfg.copy()
 
-    layer_type = cfg_.pop('type')
+    layer_type = cfg_.pop("type")
 
     if inspect.isclass(layer_type):
         norm_layer = layer_type
@@ -94,21 +97,23 @@ def build_norm_layer(cfg: Dict,
         with MODELS.switch_scope_and_registry(None) as registry:
             norm_layer = registry.get(layer_type)
         if norm_layer is None:
-            raise KeyError(f'Cannot find {norm_layer} in registry under '
-                           f'scope name {registry.scope}')
+            raise KeyError(
+                f"Cannot find {norm_layer} in registry under "
+                f"scope name {registry.scope}"
+            )
     abbr = infer_abbr(norm_layer)
 
     assert isinstance(postfix, (int, str))
     name = abbr + str(postfix)
 
-    requires_grad = cfg_.pop('requires_grad', True)
-    cfg_.setdefault('eps', 1e-5)
+    requires_grad = cfg_.pop("requires_grad", True)
+    cfg_.setdefault("eps", 1e-5)
     if norm_layer is not nn.GroupNorm:
         layer = norm_layer(num_features, **cfg_)
-        if layer_type == 'SyncBN' and hasattr(layer, '_specify_ddp_gpu_num'):
+        if layer_type == "SyncBN" and hasattr(layer, "_specify_ddp_gpu_num"):
             layer._specify_ddp_gpu_num(1)
     else:
-        assert 'num_groups' in cfg_
+        assert "num_groups" in cfg_
         layer = norm_layer(num_channels=num_features, **cfg_)
 
     for param in layer.parameters():
@@ -117,8 +122,7 @@ def build_norm_layer(cfg: Dict,
     return name, layer
 
 
-def is_norm(layer: nn.Module,
-            exclude: Union[type, tuple, None] = None) -> bool:
+def is_norm(layer: nn.Module, exclude: Union[type, tuple, None] = None) -> bool:
     """Check if a layer is a normalization layer.
 
     Args:
@@ -130,11 +134,12 @@ def is_norm(layer: nn.Module,
     """
     if exclude is not None:
         if not isinstance(exclude, tuple):
-            exclude = (exclude, )
+            exclude = (exclude,)
         if not is_tuple_of(exclude, type):
             raise TypeError(
                 f'"exclude" must be either None or type or a tuple of types, '
-                f'but got {type(exclude)}: {exclude}')
+                f"but got {type(exclude)}: {exclude}"
+            )
 
     if exclude and isinstance(layer, exclude):
         return False

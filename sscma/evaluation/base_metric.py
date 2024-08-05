@@ -66,13 +66,15 @@ class BaseMetric(metaclass=ABCMeta):
         >>> accuracy.compute()  # doctest: +SKIP
     """
 
-    def __init__(self,
-                 dataset_meta: Optional[Dict] = None,
-                 dist_collect_mode: str = 'unzip',
-                 dist_backend: Optional[str] = None,
-                 logger: Optional[Logger] = None):
+    def __init__(
+        self,
+        dataset_meta: Optional[Dict] = None,
+        dist_collect_mode: str = "unzip",
+        dist_backend: Optional[str] = None,
+        logger: Optional[Logger] = None,
+    ):
         self.dataset_meta = dataset_meta
-        assert dist_collect_mode in ('cat', 'unzip')
+        assert dist_collect_mode in ("cat", "unzip")
         self.dist_collect_mode = dist_collect_mode
         self.dist_comm = get_dist_backend(dist_backend)
         self.logger = logger
@@ -133,7 +135,7 @@ class BaseMetric(metaclass=ABCMeta):
         global_results = self.dist_comm.all_gather_object(self._results)
 
         collected_results: List[Any]
-        if self.dist_collect_mode == 'cat':
+        if self.dist_collect_mode == "cat":
             # use `sum` to concatenate list
             # e.g. sum([[1, 3], [2, 4]], []) = [1, 3, 2, 4]
             collected_results = sum(global_results, [])
@@ -154,8 +156,7 @@ class BaseMetric(metaclass=ABCMeta):
         else:
             metric_result = None  # type: ignore
 
-        global_metric_result = self.dist_comm.broadcast_object(
-            metric_result, 0)
+        global_metric_result = self.dist_comm.broadcast_object(metric_result, 0)
         return global_metric_result
 
     @abstractmethod

@@ -18,12 +18,12 @@ def build_padding_layer(cfg: Dict, *args, **kwargs) -> nn.Module:
         nn.Module: Created padding layer.
     """
     if not isinstance(cfg, dict):
-        raise TypeError('cfg must be a dict')
-    if 'type' not in cfg:
+        raise TypeError("cfg must be a dict")
+    if "type" not in cfg:
         raise KeyError('the cfg dict must contain the key "type"')
 
     cfg_ = cfg.copy()
-    padding_type = cfg_.pop('type')
+    padding_type = cfg_.pop("type")
     if inspect.isclass(padding_type):
         return padding_type(*args, **kwargs, **cfg_)
     # Switch registry to the target scope. If `padding_layer` cannot be found
@@ -32,8 +32,10 @@ def build_padding_layer(cfg: Dict, *args, **kwargs) -> nn.Module:
     with MODELS.switch_scope_and_registry(None) as registry:
         padding_layer = registry.get(padding_type)
     if padding_layer is None:
-        raise KeyError(f'Cannot find {padding_layer} in registry under scope '
-                       f'name {registry.scope}')
+        raise KeyError(
+            f"Cannot find {padding_layer} in registry under scope "
+            f"name {registry.scope}"
+        )
     layer = padding_layer(*args, **kwargs, **cfg_)
 
     return layer

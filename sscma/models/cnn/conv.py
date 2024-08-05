@@ -22,15 +22,15 @@ def build_conv_layer(cfg: Optional[Dict], *args, **kwargs) -> nn.Module:
         nn.Module: Created conv layer.
     """
     if cfg is None:
-        cfg_ = dict(type='Conv2d')
+        cfg_ = dict(type="Conv2d")
     else:
         if not isinstance(cfg, dict):
-            raise TypeError('cfg must be a dict')
-        if 'type' not in cfg:
+            raise TypeError("cfg must be a dict")
+        if "type" not in cfg:
             raise KeyError('the cfg dict must contain the key "type"')
         cfg_ = cfg.copy()
 
-    layer_type = cfg_.pop('type')
+    layer_type = cfg_.pop("type")
     if inspect.isclass(layer_type):
         return layer_type(*args, **kwargs, **cfg_)  # type: ignore
     # Switch registry to the target scope. If `conv_layer` cannot be found
@@ -39,8 +39,10 @@ def build_conv_layer(cfg: Optional[Dict], *args, **kwargs) -> nn.Module:
     with MODELS.switch_scope_and_registry(None) as registry:
         conv_layer = registry.get(layer_type)
     if conv_layer is None:
-        raise KeyError(f'Cannot find {conv_layer} in registry under scope '
-                       f'name {registry.scope}')
+        raise KeyError(
+            f"Cannot find {conv_layer} in registry under scope "
+            f"name {registry.scope}"
+        )
     layer = conv_layer(*args, **kwargs, **cfg_)
 
     return layer

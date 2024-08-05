@@ -1,9 +1,4 @@
-from .batch_sampler import (AspectRatioBatchSampler,
-                            MultiDataAspectRatioBatchSampler)
+from .batch_sampler import AspectRatioBatchSampler, MultiDataAspectRatioBatchSampler
 
 
-__all__ = [
-    'AspectRatioBatchSampler', 'MultiDataAspectRatioBatchSampler'
-]
-
-
+__all__ = ["AspectRatioBatchSampler", "MultiDataAspectRatioBatchSampler"]
