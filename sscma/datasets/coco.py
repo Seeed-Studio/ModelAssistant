@@ -1,15 +1,67 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import copy
+import torch
 import os.path as osp
 import numpy as np
-from typing import List, Union, Optional, Any
+from typing import List, Union, Sequence
 
 from mmengine.fileio import get_local_path
-from mmengine.registry import TASK_UTILS
 from mmengine.dist import get_dist_info
 
 from .api_wrappers import COCO
 from .base_det_dataset import BaseDetDataset
+
+
+def coco_collate(data_batch: Sequence, use_ms_training: bool = False) -> dict:
+    """Rewrite collate_fn to get faster training speed.
+
+    Args:
+       data_batch (Sequence): Batch of data.
+       use_ms_training (bool): Whether to use multi-scale training.
+    """
+    batch_imgs = []
+    batch_bboxes_labels = []
+    batch_masks = []
+    batch_keyponits = []
+    batch_keypoints_visible = []
+    for i in range(len(data_batch)):
+        datasamples = data_batch[i]["data_samples"]
+        inputs = data_batch[i]["inputs"]
+        batch_imgs.append(inputs)
+
+        gt_bboxes = datasamples.gt_instances.bboxes.tensor
+        gt_labels = datasamples.gt_instances.labels
+        if "masks" in datasamples.gt_instances:
+            masks = datasamples.gt_instances.masks
+            batch_masks.append(masks)
+        if "gt_panoptic_seg" in datasamples:
+            batch_masks.append(datasamples.gt_panoptic_seg.pan_seg)
+        if "keypoints" in datasamples.gt_instances:
+            keypoints = datasamples.gt_instances.keypoints
+            keypoints_visible = datasamples.gt_instances.keypoints_visible
+            batch_keyponits.append(keypoints)
+            batch_keypoints_visible.append(keypoints_visible)
+
+        batch_idx = gt_labels.new_full((len(gt_labels), 1), i)
+        bboxes_labels = torch.cat((batch_idx, gt_labels[:, None], gt_bboxes), dim=1)
+        batch_bboxes_labels.append(bboxes_labels)
+    collated_results = {
+        "data_samples": {"bboxes_labels": torch.cat(batch_bboxes_labels, 0)}
+    }
+    if len(batch_masks) > 0:
+        collated_results["data_samples"]["masks"] = torch.cat(batch_masks, 0)
+
+    if len(batch_keyponits) > 0:
+        collated_results["data_samples"]["keypoints"] = torch.cat(batch_keyponits, 0)
+        collated_results["data_samples"]["keypoints_visible"] = torch.cat(
+            batch_keypoints_visible, 0
+        )
+
+    if use_ms_training:
+        collated_results["inputs"] = batch_imgs
+    else:
+        collated_results["inputs"] = torch.stack(batch_imgs, 0)
+    return collated_results
 
 
 class BatchShapePolicy:
@@ -399,59 +451,3 @@ class CocoDataset(BaseDetDataset):
                 valid_data_infos.append(data_info)
 
         return valid_data_infos
-
-
-class BatchShapePolicyDataset(BaseDetDataset):
-    """Dataset with the batch shape policy that makes paddings with least
-    pixels during batch inference process, which does not require the image
-    scales of all batches to be the same throughout validation."""
-
-    def __init__(self, *args, batch_shapes_cfg: Optional[dict] = None, **kwargs):
-        self.batch_shapes_cfg = batch_shapes_cfg
-        super().__init__(*args, **kwargs)
-
-    def full_init(self):
-        """rewrite full_init() to be compatible with serialize_data in
-        BatchShapePolicy."""
-        if self._fully_initialized:
-            return
-        # load data information
-        self.data_list = self.load_data_list()
-
-        # batch_shapes_cfg
-        if self.batch_shapes_cfg:
-            batch_shapes_policy = TASK_UTILS.build(self.batch_shapes_cfg)
-            self.data_list = batch_shapes_policy(self.data_list)
-            del batch_shapes_policy
-
-        # filter illegal data, such as data that has no annotations.
-        self.data_list = self.filter_data()
-        # Get subset data according to indices.
-        if self._indices is not None:
-            self.data_list = self._get_unserialized_subset(self._indices)
-
-        # serialize data_list
-        if self.serialize_data:
-            self.data_bytes, self.data_address = self._serialize_data()
-
-        self._fully_initialized = True
-
-    def prepare_data(self, idx: int) -> Any:
-        """Pass the dataset to the pipeline during training to support mixed
-        data augmentation, such as Mosaic and MixUp."""
-        if self.test_mode is False:
-            data_info = self.get_data_info(idx)
-            data_info["dataset"] = self
-            return self.pipeline(data_info)
-        else:
-            return super().prepare_data(idx)
-
-
-class YOLOv5CocoDataset(BatchShapePolicyDataset, CocoDataset):
-    """Dataset for YOLOv5 COCO Dataset.
-
-    We only add `BatchShapePolicy` function compared with CocoDataset. See
-    `mmyolo/datasets/utils.py#BatchShapePolicy` for details
-    """
-
-    pass

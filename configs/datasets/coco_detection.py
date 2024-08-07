@@ -2,8 +2,7 @@
 from sscma.datasets.transforms import LoadImageFromFile
 from mmengine.dataset.sampler import DefaultSampler
 
-from sscma.datasets.samplers.batch_sampler import AspectRatioBatchSampler
-from sscma.datasets.coco import CocoDataset, YOLOv5CocoDataset
+from sscma.datasets.coco import CocoDataset, coco_collate, BatchShapePolicy
 from sscma.datasets.transforms.transforms import RandomFlip, Resize
 from sscma.datasets.transforms.formatting import PackDetInputs
 from sscma.datasets.transforms.loading import LoadAnnotations
@@ -30,6 +29,17 @@ data_root = "/dataset/coco/"
 #     }))
 backend_args = None
 
+
+# Config of batch shapes. Only on val.
+batch_shapes_cfg = dict(
+    type=BatchShapePolicy,
+    batch_size=32,
+    img_size=640,
+    size_divisor=32,
+    extra_pad_ratio=0.5,
+)
+
+
 train_pipeline = [
     dict(type=LoadImageFromFile, backend_args=backend_args),
     dict(type=LoadAnnotations, with_bbox=True),
@@ -51,8 +61,10 @@ train_dataloader = dict(
     batch_size=2,
     num_workers=2,
     persistent_workers=True,
+    pin_memory=True,
+    collate_fn=dict(type=coco_collate),
     sampler=dict(type=DefaultSampler, shuffle=True),
-    batch_sampler=dict(type=AspectRatioBatchSampler),
+    # batch_sampler=dict(type=AspectRatioBatchSampler),
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
@@ -60,13 +72,13 @@ train_dataloader = dict(
         data_prefix=dict(img="train2017/"),
         filter_cfg=dict(filter_empty_gt=True, min_size=32),
         pipeline=train_pipeline,
-        backend_args=backend_args,
     ),
 )
 val_dataloader = dict(
     batch_size=1,
     num_workers=2,
     persistent_workers=True,
+    pin_memory=True,
     drop_last=False,
     sampler=dict(type=DefaultSampler, shuffle=False),
     dataset=dict(
@@ -76,7 +88,7 @@ val_dataloader = dict(
         data_prefix=dict(img="val2017/"),
         test_mode=True,
         pipeline=test_pipeline,
-        backend_args=backend_args,
+        # batch_shapes_cfg=batch_shapes_cfg,
     ),
 )
 test_dataloader = val_dataloader

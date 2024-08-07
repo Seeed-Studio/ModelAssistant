@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from numbers import Number
-from typing import List, Optional, Sequence, Tuple, Union
+from typing import List, Optional, Sequence, Union
 
 
 from mmengine.utils import is_seq_of
@@ -22,9 +22,8 @@ from sscma.structures import (
     tensor_split,
 )
 
-from sscma.utils.misc import samplelist_boxtype2tensor
 
-from typing import Callable, Union
+from typing import Callable
 import numpy as np
 
 
@@ -363,8 +362,8 @@ class DetDataPreprocessor(ImgDataPreprocessor):
         self.boxtype2tensor = boxtype2tensor
 
     def forward(self, data: dict, training: bool = False) -> dict:
-        """Perform normalization,padding and bgr2rgb conversion based on
-        ``BaseDataPreprocessor``.
+        """Perform normalization, padding and bgr2rgb conversion based on
+        ``DetDataPreprocessorr``.
 
         Args:
             data (dict): Data sampled from dataloader.
@@ -373,34 +372,35 @@ class DetDataPreprocessor(ImgDataPreprocessor):
         Returns:
             dict: Data in the same format as the model input.
         """
-        batch_pad_shape = self._get_pad_shape(data)
-        data = super().forward(data=data, training=training)
+        if not training:
+            return super().forward(data, training)
+
+        data = self.cast_data(data)
         inputs, data_samples = data["inputs"], data["data_samples"]
+        assert isinstance(data["data_samples"], dict)
 
-        if data_samples is not None:
-            # NOTE the batched image size information may be useful, e.g.
-            # in DETR, this is needed for the construction of masks, which is
-            # then used for the transformer_head.
-            batch_input_shape = tuple(inputs[0].size()[-2:])
-            for data_sample, pad_shape in zip(data_samples, batch_pad_shape):
-                data_sample.set_metainfo(
-                    {"batch_input_shape": batch_input_shape, "pad_shape": pad_shape}
-                )
+        # TODO: Supports multi-scale training
+        if self._channel_conversion and inputs.shape[1] == 3:
+            inputs = inputs[:, [2, 1, 0], ...]
+        if self._enable_normalize:
+            inputs = (inputs - self.mean) / self.std
 
-            if self.boxtype2tensor:
-                samplelist_boxtype2tensor(data_samples)
-
-            if self.pad_mask and training:
-                self.pad_gt_masks(data_samples)
-
-            if self.pad_seg and training:
-                self.pad_gt_sem_seg(data_samples)
-
-        if training and self.batch_augments is not None:
+        if self.batch_augments is not None:
             for batch_aug in self.batch_augments:
                 inputs, data_samples = batch_aug(inputs, data_samples)
 
-        return {"inputs": inputs, "data_samples": data_samples}
+        img_metas = [{"batch_input_shape": inputs.shape[2:]}] * len(inputs)
+        data_samples_output = {
+            "bboxes_labels": data_samples["bboxes_labels"],
+            "img_metas": img_metas,
+        }
+        if "masks" in data_samples:
+            data_samples_output["masks"] = data_samples["masks"]
+        if "keypoints" in data_samples:
+            data_samples_output["keypoints"] = data_samples["keypoints"]
+            data_samples_output["keypoints_visible"] = data_samples["keypoints_visible"]
+
+        return {"inputs": inputs, "data_samples": data_samples_output}
 
     def _get_pad_shape(self, data: dict) -> List[tuple]:
         """Get the pad_shape of each image based on data and
