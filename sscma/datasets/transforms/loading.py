@@ -6,7 +6,6 @@ from typing import Optional, Union
 
 import mmengine.fileio as fileio
 import numpy as np
-from mmengine.utils import is_str
 from mmengine.fileio import get
 
 import pycocotools.mask as maskUtils
@@ -16,71 +15,6 @@ from sscma.utils import simplecv_imfrombytes
 
 
 from .basetransform import BaseTransform
-
-imread_backend = "cv2"
-import cv2
-
-from cv2 import (
-    IMREAD_COLOR,
-    IMREAD_GRAYSCALE,
-    IMREAD_IGNORE_ORIENTATION,
-    IMREAD_UNCHANGED,
-)
-
-imread_flags = {
-    "color": IMREAD_COLOR,
-    "grayscale": IMREAD_GRAYSCALE,
-    "unchanged": IMREAD_UNCHANGED,
-    "color_ignore_orientation": IMREAD_IGNORE_ORIENTATION | IMREAD_COLOR,
-    "grayscale_ignore_orientation": IMREAD_IGNORE_ORIENTATION | IMREAD_GRAYSCALE,
-}
-
-
-def imfrombytes(
-    content: bytes,
-    flag: str = "color",
-    channel_order: str = "bgr",
-    backend: Optional[str] = None,
-) -> np.ndarray:
-    """Read an image from bytes.
-
-    Args:
-        content (bytes): Image bytes got from files or other streams.
-        flag (str): Same as :func:`imread`.
-        channel_order (str): The channel order of the output, candidates
-            are 'bgr' and 'rgb'. Default to 'bgr'.
-        backend (str | None): The image decoding backend type. Options are
-            `cv2`, `pillow`, `turbojpeg`, `tifffile`, `None`. If backend is
-            None, the global imread_backend specified by ``mmcv.use_backend()``
-            will be used. Default: None.
-
-    Returns:
-        ndarray: Loaded image array.
-
-    Examples:
-        >>> img_path = '/path/to/img.jpg'
-        >>> with open(img_path, 'rb') as f:
-        >>>     img_buff = f.read()
-        >>> img = mmcv.imfrombytes(img_buff)
-        >>> img = mmcv.imfrombytes(img_buff, flag='color', channel_order='rgb')
-        >>> img = mmcv.imfrombytes(img_buff, backend='pillow')
-        >>> img = mmcv.imfrombytes(img_buff, backend='cv2')
-    """
-
-    if backend is None:
-        backend = imread_backend
-    # if backend is not imread_backend report Error
-    if backend != imread_backend:
-        raise ValueError(
-            f"backend: {backend} is not supported. Only Support cv2 backends  "
-        )
-
-    img_np = np.frombuffer(content, np.uint8)
-    flag = imread_flags[flag] if is_str(flag) else flag
-    img = cv2.imdecode(img_np, flag)
-    if flag == IMREAD_COLOR and channel_order == "rgb":
-        cv2.cvtColor(img, cv2.COLOR_BGR2RGB, img)
-    return img
 
 
 class LoadImageFromFile(BaseTransform):
@@ -100,11 +34,11 @@ class LoadImageFromFile(BaseTransform):
         to_float32 (bool): Whether to convert the loaded image to a float32
             numpy array. If set to False, the loaded image is an uint8 array.
             Defaults to False.
-        color_type (str): The flag argument for :func:`mmcv.imfrombytes`.
+        color_type (str): The flag argument for :func:`simplecv_imfrombytes`.
             Defaults to 'color'.
         imdecode_backend (str): The image decoding backend type. The backend
-            argument for :func:`mmcv.imfrombytes`.
-            See :func:`mmcv.imfrombytes` for details.
+            argument for :func:`simplecv_imfrombytes`.
+            See :func:`simplecv_imfrombytes` for details.
             Defaults to 'cv2'.
         file_client_args (dict, optional): Arguments to instantiate a
             FileClient. See :class:`mmengine.fileio.FileClient` for details.
@@ -175,7 +109,7 @@ class LoadImageFromFile(BaseTransform):
                 img_bytes = file_client.get(filename)
             else:
                 img_bytes = fileio.get(filename, backend_args=self.backend_args)
-            img = imfrombytes(
+            img = simplecv_imfrombytes(
                 img_bytes, flag=self.color_type, backend=self.imdecode_backend
             )
         except Exception as e:
@@ -284,8 +218,8 @@ class LoadAnnotations(BaseTransform):
         with_keypoints (bool): Whether to parse and load the keypoints
             annotation. Defaults to False.
         imdecode_backend (str): The image decoding backend type. The backend
-            argument for :func:`mmcv.imfrombytes`.
-            See :func:`mmcv.imfrombytes` for details.
+            argument for :func:`simplecv_imfrombytes`.
+            See :func:`simplecv_imfrombytes` for details.
             Defaults to 'cv2'.
         file_client_args (dict, optional): Arguments to instantiate a
             FileClient. See :class:`mmengine.fileio.FileClient` for details.

@@ -1,5 +1,5 @@
-import io
 import cv2
+import io
 import numbers
 import warnings
 import os.path as osp
@@ -7,7 +7,7 @@ from pathlib import Path
 from enum import Enum
 import numpy as np
 import mmengine.fileio as fileio
-from typing import Union, Sequence, Tuple, List, Optional, Dict, Iterable
+from typing import Union, Tuple, List, Optional
 from cv2 import (
     IMREAD_COLOR,
     IMREAD_GRAYSCALE,
@@ -21,10 +21,16 @@ try:
 except ImportError:
     TJCS_RGB = TJPF_GRAY = TJPF_BGR = TurboJPEG = None
 
+from PIL import Image, ImageOps
+
 try:
-    from PIL import Image, ImageOps
+    import tifffile
 except ImportError:
-    Image = None
+    tifffile = None
+
+
+imread_backend = "cv2"
+supported_backends = ["cv2", "turbojpeg", "pillow", "tifffile"]
 
 
 cv2_interp_codes = {
@@ -71,6 +77,62 @@ class Color(Enum):
     black = (0, 0, 0)
 
 
+def _pillow2array(img, flag: str = "color", channel_order: str = "bgr") -> np.ndarray:
+    """Convert a pillow image to numpy array.
+
+    Args:
+        img (:obj:`PIL.Image.Image`): The image loaded using PIL
+        flag (str): Flags specifying the color type of a loaded image,
+            candidates are 'color', 'grayscale' and 'unchanged'.
+            Default to 'color'.
+        channel_order (str): The channel order of the output image array,
+            candidates are 'bgr' and 'rgb'. Default to 'bgr'.
+
+    Returns:
+        np.ndarray: The converted numpy array
+    """
+    channel_order = channel_order.lower()
+    if channel_order not in ["rgb", "bgr"]:
+        raise ValueError('channel order must be either "rgb" or "bgr"')
+
+    if flag == "unchanged":
+        array = np.array(img)
+        if array.ndim >= 3 and array.shape[2] >= 3:  # color image
+            array[:, :, :3] = array[:, :, (2, 1, 0)]  # RGB to BGR
+    else:
+        # Handle exif orientation tag
+        if flag in ["color", "grayscale"]:
+            img = ImageOps.exif_transpose(img)
+        # If the image mode is not 'RGB', convert it to 'RGB' first.
+        if img.mode != "RGB":
+            if img.mode != "LA":
+                # Most formats except 'LA' can be directly converted to RGB
+                img = img.convert("RGB")
+            else:
+                # When the mode is 'LA', the default conversion will fill in
+                #  the canvas with black, which sometimes shadows black objects
+                #  in the foreground.
+                #
+                # Therefore, a random color (124, 117, 104) is used for canvas
+                img_rgba = img.convert("RGBA")
+                img = Image.new("RGB", img_rgba.size, (124, 117, 104))
+                img.paste(img_rgba, mask=img_rgba.split()[3])  # 3 is alpha
+        if flag in ["color", "color_ignore_orientation"]:
+            array = np.array(img)
+            if channel_order != "rgb":
+                array = array[:, :, ::-1]  # RGB to BGR
+        elif flag in ["grayscale", "grayscale_ignore_orientation"]:
+            img = img.convert("L")
+            array = np.array(img)
+        else:
+            raise ValueError(
+                'flag must be "color", "grayscale", "unchanged", '
+                f'"color_ignore_orientation" or "grayscale_ignore_orientation"'
+                f" but got {flag}"
+            )
+    return array
+
+
 def simplecv_color_val(color: Union[Color, str, tuple, int, np.ndarray]) -> tuple:
     """Convert various input to color tuples.
 
@@ -101,6 +163,29 @@ def simplecv_color_val(color: Union[Color, str, tuple, int, np.ndarray]) -> tupl
         raise TypeError(f"Invalid type for color: {type(color)}")
 
 
+# Pillow >=v9.1.0 use a slightly different naming scheme for filters.
+# Set pillow_interp_codes according to the naming scheme used.
+if Image is not None:
+    if hasattr(Image, "Resampling"):
+        pillow_interp_codes = {
+            "nearest": Image.Resampling.NEAREST,
+            "bilinear": Image.Resampling.BILINEAR,
+            "bicubic": Image.Resampling.BICUBIC,
+            "box": Image.Resampling.BOX,
+            "lanczos": Image.Resampling.LANCZOS,
+            "hamming": Image.Resampling.HAMMING,
+        }
+    else:
+        pillow_interp_codes = {
+            "nearest": Image.NEAREST,
+            "bilinear": Image.BILINEAR,
+            "bicubic": Image.BICUBIC,
+            "box": Image.BOX,
+            "lanczos": Image.LANCZOS,
+            "hamming": Image.HAMMING,
+        }
+
+
 def simplecv_imresize(
     img: np.ndarray,
     size: Tuple[int, int],
@@ -129,16 +214,22 @@ def simplecv_imresize(
     """
     h, w = img.shape[:2]
     if backend is None:
-        backend = "cv2"
-    if backend != "cv2":
+        backend = imread_backend
+    if backend not in ["cv2", "pillow"]:
         raise ValueError(
             f"backend: {backend} is not supported for resize."
-            f"Supported backends are 'cv2'"
+            f"Supported backends are 'cv2', 'pillow'"
         )
 
-    resized_img = cv2.resize(
-        img, size, dst=out, interpolation=cv2_interp_codes[interpolation]
-    )
+    if backend == "pillow":
+        assert img.dtype == np.uint8, "Pillow backend only support uint8 type"
+        pil_image = Image.fromarray(img)
+        pil_image = pil_image.resize(size, pillow_interp_codes[interpolation])
+        resized_img = np.array(pil_image)
+    else:
+        resized_img = cv2.resize(
+            img, size, dst=out, interpolation=cv2_interp_codes[interpolation]
+        )
     if not return_scale:
         return resized_img
     else:
@@ -413,24 +504,6 @@ def simplecv_imread(
     Returns:
         ndarray: Loaded image array.
 
-    Examples:
-        >>> import mmcv
-        >>> img_path = '/path/to/img.jpg'
-        >>> img = mmcv.imread(img_path)
-        >>> img = mmcv.imread(img_path, flag='color', channel_order='rgb',
-        ...     backend='cv2')
-        >>> img = mmcv.imread(img_path, flag='color', channel_order='bgr',
-        ...     backend='pillow')
-        >>> s3_img_path = 's3://bucket/img.jpg'
-        >>> # infer the file backend by the prefix s3
-        >>> img = mmcv.imread(s3_img_path)
-        >>> # manually set the file backend petrel
-        >>> img = mmcv.imread(s3_img_path, backend_args={
-        ...     'backend': 'petrel'})
-        >>> http_img_path = 'http://path/to/img.jpg'
-        >>> img = mmcv.imread(http_img_path)
-        >>> img = mmcv.imread(http_img_path, backend_args={
-        ...     'backend': 'http'})
     """
     if file_client_args is not None:
         warnings.warn(
@@ -487,25 +560,40 @@ def simplecv_imfrombytes(
         >>> img_path = '/path/to/img.jpg'
         >>> with open(img_path, 'rb') as f:
         >>>     img_buff = f.read()
-        >>> img = mmcv.imfrombytes(img_buff)
-        >>> img = mmcv.imfrombytes(img_buff, flag='color', channel_order='rgb')
-        >>> img = mmcv.imfrombytes(img_buff, backend='pillow')
-        >>> img = mmcv.imfrombytes(img_buff, backend='cv2')
+        >>> img = simplecv_imfrombytes(img_buff)
+        >>> img = simplecv_imfrombytes(img_buff, flag='color', channel_order='rgb')
+        >>> img = simplecv_imfrombytes(img_buff, backend='pillow')
+        >>> img = simplecv_imfrombytes(img_buff, backend='cv2')
     """
 
     if backend is None:
-        backend = "cv2"
-    if backend != "cv2":
+        backend = imread_backend
+    if backend not in supported_backends:
         raise ValueError(
-            f"backend: {backend} is not supported. Supported " "backends are 'cv2''"
+            f"backend: {backend} is not supported. Supported "
+            "backends are 'cv2', 'turbojpeg', 'pillow', 'tifffile'"
         )
-
-    img_np = np.frombuffer(content, np.uint8)
-    flag = imread_flags[flag] if is_str(flag) else flag
-    img = cv2.imdecode(img_np, flag)
-    if flag == IMREAD_COLOR and channel_order == "rgb":
-        cv2.cvtColor(img, cv2.COLOR_BGR2RGB, img)
-    return img
+    if backend == "turbojpeg":
+        img = jpeg.decode(content, _jpegflag(flag, channel_order))  # type: ignore
+        if img.shape[-1] == 1:
+            img = img[:, :, 0]
+        return img
+    elif backend == "pillow":
+        with io.BytesIO(content) as buff:
+            img = Image.open(buff)
+            img = _pillow2array(img, flag, channel_order)
+        return img
+    elif backend == "tifffile":
+        with io.BytesIO(content) as buff:
+            img = tifffile.imread(buff)
+        return img
+    else:
+        img_np = np.frombuffer(content, np.uint8)
+        flag = imread_flags[flag] if is_str(flag) else flag
+        img = cv2.imdecode(img_np, flag)
+        if flag == IMREAD_COLOR and channel_order == "rgb":
+            cv2.cvtColor(img, cv2.COLOR_BGR2RGB, img)
+        return img
 
 
 def simplecv_imwrite(
@@ -544,15 +632,6 @@ def simplecv_imwrite(
 
     Returns:
         bool: Successful or not.
-
-    Examples:
-        >>> # write to hard disk client
-        >>> ret = mmcv.imwrite(img, '/path/to/img.jpg')
-        >>> # infer the file backend by the prefix s3
-        >>> ret = mmcv.imwrite(img, 's3://bucket/img.jpg')
-        >>> # manually set the file backend petrel
-        >>> ret = mmcv.imwrite(img, 's3://bucket/img.jpg', backend_args={
-        ...     'backend': 'petrel'})
     """
     if file_client_args is not None:
         warnings.warn(
@@ -589,7 +668,7 @@ def simplecv_imwrite(
     return flag
 
 
-def simplecv_rescale_size(
+def simplecv_rescale_size(  # noqa: F811
     old_size: tuple,
     scale: Union[float, int, Tuple[int, int]],
     return_scale: bool = False,
