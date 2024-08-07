@@ -27,9 +27,9 @@ default_hooks = dict(
 # configure environment
 env_cfg = dict(
     # whether to enable cudnn benchmark
-    cudnn_benchmark=False,
+    cudnn_benchmark=True,
     # set multi process parameters
-    mp_cfg=dict(mp_start_method="spawn", opencv_num_threads=0),
+    mp_cfg=dict(mp_start_method="fork", opencv_num_threads=0),
     # set distributed parameters
     dist_cfg=dict(backend="nccl"),
 )
