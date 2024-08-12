@@ -1,6 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import warnings
 import torch
+from PIL import Image
+
+from torchvision.transforms.v2 import functional as F
 
 from typing import Optional, Union
 
@@ -101,31 +104,11 @@ class LoadImageFromFile(BaseTransform):
         """
 
         filename = results["img_path"]
-        try:
-            if self.file_client_args is not None:
-                file_client = fileio.FileClient.infer_client(
-                    self.file_client_args, filename
-                )
-                img_bytes = file_client.get(filename)
-            else:
-                img_bytes = fileio.get(filename, backend_args=self.backend_args)
-            img = simplecv_imfrombytes(
-                img_bytes, flag=self.color_type, backend=self.imdecode_backend
-            )
-        except Exception as e:
-            if self.ignore_empty:
-                return None
-            else:
-                raise e
-        # in some cases, images are not read successfully, the img would be
-        # `None`, refer to https://github.com/open-mmlab/mmpretrain/issues/1427
-        assert img is not None, f"failed to load image: {filename}"
-        if self.to_float32:
-            img = img.astype(np.float32)
+        image = Image.open(filename)
+        results["img"] = F.to_dtype(F.to_image(image),torch.uint8, scale=True)
+        results["img_shape"] = image.size
+        results["ori_shape"] = image.size
 
-        results["img"] = img
-        results["img_shape"] = img.shape[:2]
-        results["ori_shape"] = img.shape[:2]
         return results
 
     def __repr__(self):
