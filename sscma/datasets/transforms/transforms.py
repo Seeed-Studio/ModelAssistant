@@ -6,6 +6,7 @@ import warnings
 from typing import List, Optional, Sequence, Tuple, Union, Iterable
 
 import cv2
+import torch
 from torchvision.transforms.v2 import functional as F,InterpolationMode
 
 import mmengine
@@ -753,11 +754,15 @@ class RandomFlip(BaseTransform):
     def _flip(self, results: dict) -> None:
         """Flip images, bounding boxes, and semantic segmentation map."""
         # flip image
-        results["img"] = simplecv_imflip(
-            results["img"], direction=results["flip_direction"]
-        )
+        flip_dims = {
+            "horizontal": [2],
+            "vertical": [1],
+            "diagonal": [1, 2]
+        }
+        assert results["flip_direction"] in flip_dims
+        results["img"] = torch.flip(results["img"], dims=flip_dims[results["flip_direction"]])
 
-        img_shape = results["img"].shape[:2]
+        img_shape = results["img"].shape[1:]
 
         # flip bboxes
         if results.get("gt_bboxes", None) is not None:
