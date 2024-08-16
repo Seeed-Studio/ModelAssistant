@@ -440,9 +440,10 @@ class Runner:
         self._hooks: List[Hook] = []
         # register hooks to `self._hooks`
         self.register_hooks(default_hooks, custom_hooks)
-        # log hooks information
-        self.logger.info(f'Hooks will be executed in the following '
-                         f'order:\n{self.get_hooks_info()}')
+        if self.cfg.dump_config:
+            # log hooks information
+            self.logger.info(f'Hooks will be executed in the following '
+                             f'order:\n{self.get_hooks_info()}')
 
         # dump `cfg` to `work_dir`
         self.dump_config()
@@ -2383,9 +2384,9 @@ class Runner:
                          env_info + '\n'
                          '\nRuntime environment:' + runtime_env_info + '\n' +
                          dash_line + '\n')
-
-        if self.cfg._cfg_dict:
-            self.logger.info(f'Config:\n{self.cfg.pretty_text}')
+        if self.cfg.dump_config:
+            if self.cfg._cfg_dict:
+                self.logger.info(f'Config:\n{self.cfg.pretty_text}')
 
     def _maybe_compile(self, target: str) -> None:
         """Use `torch.compile` to optimize model/wrapped_model."""
