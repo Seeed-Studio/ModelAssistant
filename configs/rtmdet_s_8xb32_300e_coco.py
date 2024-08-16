@@ -36,7 +36,11 @@ model.update(
             widen_factor=0.5,
             init_cfg=dict(type="Pretrained", prefix="backbone.", checkpoint=checkpoint),
         ),
-        neck=dict(in_channels=[128, 256, 512], out_channels=128, num_csp_blocks=1),
+#        neck=dict(in_channels=[128, 256, 512], out_channels=128, num_csp_blocks=1),
+        neck=dict(
+            deepen_factor=0.33,
+            widen_factor=0.5,
+        ),
         bbox_head=dict(head_module=dict(widen_factor=0.5)),
     )
 )
@@ -54,7 +58,7 @@ train_pipeline = [
     dict(
         type=RandomResize,
         scale=(1280, 1280),
-        ratio_range=(0.1, 2.0),
+        ratio_range=(0.5, 2.0),  #note: changed from 0.1 to 0.5
         resize_type=Resize,
         keep_ratio=True,
     ),
@@ -83,7 +87,7 @@ train_pipeline_stage2 = [
     dict(
         type=RandomResize,
         scale=(1280, 1280),
-        ratio_range=(0.1, 2.0),
+        ratio_range=(0.5, 2.0), #note: changed from 0.1 to 0.5
         resize_type=Resize,
         keep_ratio=True,
     ),

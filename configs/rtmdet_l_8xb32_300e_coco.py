@@ -82,6 +82,8 @@ model = dict(
     ),
     neck=dict(
         type=CSPNeXtPAFPN,
+        deepen_factor=1,
+        widen_factor=1,
         in_channels=[256, 512, 1024],
         out_channels=256,
         num_csp_blocks=3,
@@ -198,8 +200,8 @@ test_pipeline = [
 
 train_dataloader.update(
     dict(
-        batch_size=32,
-        num_workers=8,
+        batch_size=36,
+        num_workers=12,
         batch_sampler=None,
         pin_memory=True,
         collate_fn=coco_collate,
