@@ -16,13 +16,14 @@ from mmengine.hooks.ema_hook import EMAHook
 from sscma.datasets.transforms.formatting import PackDetInputs
 from sscma.datasets.transforms.loading import LoadAnnotations
 from sscma.datasets.transforms.transforms import (
-    CachedMixUp,
-    CachedMosaic,
+    MixUp,
+    Mosaic,
     Pad,
     RandomCrop,
     RandomFlip,
     Resize,
-    YOLOXHSVRandomAug,
+    HSVRandomAug,
+    toTensor,
 )
 from sscma.engine.hooks.pipeline_switch_hook import PipelineSwitchHook
 from sscma.models.layers.ema import ExpMomentumEMA
@@ -41,42 +42,52 @@ model.update(
 )
 
 train_pipeline = [
-    dict(type=LoadImageFromFile, backend_args=backend_args),
-    dict(type=LoadAnnotations, with_bbox=True),
-    dict(type=CachedMosaic, img_scale=(640, 640), pad_val=114.0),
+    dict(
+        type=LoadImageFromFile,
+        imdecode_backend="pillow",
+        backend_args=None,
+    ),
+    dict(type=LoadAnnotations, imdecode_backend="pillow", with_bbox=True),
+    dict(type=HSVRandomAug),
+    dict(type=toTensor),
+    dict(type=Mosaic, img_scale=(640, 640), pad_val=114.0),
     dict(
         type=RandomResize,
         scale=(1280, 1280),
-        ratio_range=(0.5, 2.0),
+        ratio_range=(0.1, 2.0),
         resize_type=Resize,
         keep_ratio=True,
     ),
     dict(type=RandomCrop, crop_size=(640, 640)),
-    dict(type=YOLOXHSVRandomAug),
     dict(type=RandomFlip, prob=0.5),
     dict(type=Pad, size=(640, 640), pad_val=dict(img=(114, 114, 114))),
     dict(
-        type=CachedMixUp,
+        type=MixUp,
         img_scale=(640, 640),
         ratio_range=(1.0, 1.0),
         max_cached_images=20,
-        pad_val=(114, 114, 114),
+        pad_val=114.0,
     ),
     dict(type=PackDetInputs),
 ]
 
 train_pipeline_stage2 = [
-    dict(type=LoadImageFromFile, backend_args=backend_args),
-    dict(type=LoadAnnotations, with_bbox=True),
+    dict(
+        type=LoadImageFromFile,
+        imdecode_backend="pillow",
+        backend_args=None,
+    ),
+    dict(type=LoadAnnotations, imdecode_backend="pillow", with_bbox=True),
+    dict(type=HSVRandomAug),
+    dict(type=toTensor),
     dict(
         type=RandomResize,
-        scale=(640, 640),
-        ratio_range=(0.5, 2.0),
+        scale=(1280, 1280),
+        ratio_range=(0.1, 2.0),
         resize_type=Resize,
         keep_ratio=True,
     ),
     dict(type=RandomCrop, crop_size=(640, 640)),
-    dict(type=YOLOXHSVRandomAug),
     dict(type=RandomFlip, prob=0.5),
     dict(type=Pad, size=(640, 640), pad_val=dict(img=(114, 114, 114))),
     dict(type=PackDetInputs),

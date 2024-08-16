@@ -107,17 +107,7 @@ class PackDetInputs(BaseTransform):
         """
         packed_results = dict()
         if "img" in results:
-            img = results["img"]
-            if len(img.shape) < 3:
-                img = np.expand_dims(img, -1)
-            # To improve the computational speed by by 3-5 times, apply:
-            # If image is not contiguous, use
-            # `numpy.transpose()` followed by `numpy.ascontiguousarray()`
-            # If image is already contiguous, use
-            # `torch.permute()` followed by `torch.contiguous()`
-            # Refer to https://github.com/open-mmlab/mmdetection/pull/9533
-            # for more details
-            packed_results["inputs"] = img
+            packed_results["inputs"] = results["img"]
 
         if "gt_ignore_flags" in results:
             valid_idx = np.where(results["gt_ignore_flags"] == 0)[0]
@@ -175,6 +165,46 @@ class PackDetInputs(BaseTransform):
         data_sample.set_metainfo(img_meta)
         packed_results["data_samples"] = data_sample
 
+        # if data_sample.img_path == '/dataset/coco/train2017/000000195650.jpg':
+        # if "dataset" in results:
+        #     from mmengine.visualization import Visualizer
+        #     from sscma.visualization.palette import _get_adaptive_scales
+        #
+        #     show_img = packed_results["inputs"].permute(1, 2, 0).numpy()
+        #     show_img = show_img[..., [2, 1, 0]]  # bgr to rgb
+        #     visualizer = Visualizer(image=show_img)
+        #
+        #     bboxes = instance_data.bboxes.tensor
+        #
+        #     visualizer.draw_bboxes(bboxes)
+        #
+        #     positions = bboxes[:, :2] + 3
+        #     text_colors = [tuple(c) for c in np.random.randint(0, 256, size=(80, 3))]
+        #     areas = (bboxes[:, 3] - bboxes[:, 1]) * (bboxes[:, 2] - bboxes[:, 0])
+        #     scales = _get_adaptive_scales(areas)
+        #     print(results["img_path"])
+        #     for i, (pos, label) in enumerate(zip(positions, instance_data.labels)):
+        #         if "label_names" in instance_data:
+        #             label_text = instance_data.label_names[i]
+        #         else:
+        #             label_text = f"class {label}"
+        #
+        #         visualizer.draw_texts(
+        #             label_text,
+        #             pos,
+        #             colors=text_colors[i],
+        #             font_sizes=int(13 * scales[i]),
+        #             bboxes=[
+        #                 {
+        #                     "facecolor": "black",
+        #                     "alpha": 0.8,
+        #                     "pad": 0.7,
+        #                     "edgecolor": "none",
+        #                 }
+        #             ],
+        #         )
+        #
+        #     visualizer.show()
         return packed_results
 
     def __repr__(self) -> str:

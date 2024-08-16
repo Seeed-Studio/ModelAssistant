@@ -15,7 +15,7 @@ import pycocotools.mask as maskUtils
 from sscma.structures.bbox import get_box_type
 from sscma.structures.mask import BitmapMasks, PolygonMasks
 from sscma.utils import simplecv_imfrombytes
-
+from sscma.utils.simplecv import _pillow2array
 
 from .basetransform import BaseTransform
 
@@ -105,9 +105,11 @@ class LoadImageFromFile(BaseTransform):
 
         filename = results["img_path"]
         image = Image.open(filename)
-        results["img"] = F.to_dtype(F.to_image(image),torch.uint8, scale=True)
-        results["img_shape"] = image.size
-        results["ori_shape"] = image.size
+        img = _pillow2array(image, 'color', 'bgr')
+
+        results["img"] = img
+        results["img_shape"] = img.shape[:2]
+        results["ori_shape"] = img.shape[:2]
 
         return results
 

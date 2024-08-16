@@ -20,13 +20,14 @@ from torch.optim.adamw import AdamW
 from sscma.datasets.transforms.formatting import PackDetInputs
 from sscma.datasets.transforms.loading import LoadAnnotations
 from sscma.datasets.transforms.transforms import (
-    CachedMixUp,
-    CachedMosaic,
+    MixUp,
+    Mosaic,
     Pad,
     RandomCrop,
     RandomFlip,
     Resize,
-    YOLOXHSVRandomAug,
+    HSVRandomAug,
+    toTensor,
 )
 from sscma.engine.hooks.pipeline_switch_hook import PipelineSwitchHook
 from sscma.models.backbones.cspnext import CSPNeXt
@@ -131,9 +132,15 @@ model = dict(
 )
 
 train_pipeline = [
-    dict(type=LoadImageFromFile, backend_args=backend_args),
-    dict(type=LoadAnnotations, with_bbox=True),
-    dict(type=CachedMosaic, img_scale=(640, 640), pad_val=114.0),
+    dict(
+        type=LoadImageFromFile,
+        imdecode_backend="pillow",
+        backend_args=None,
+    ),
+    dict(type=LoadAnnotations, imdecode_backend="pillow", with_bbox=True),
+    dict(type=HSVRandomAug),
+    dict(type=toTensor),
+    dict(type=Mosaic, img_scale=(640, 640), pad_val=114.0),
     dict(
         type=RandomResize,
         scale=(1280, 1280),
@@ -142,31 +149,35 @@ train_pipeline = [
         keep_ratio=True,
     ),
     dict(type=RandomCrop, crop_size=(640, 640)),
-    dict(type=YOLOXHSVRandomAug),
     dict(type=RandomFlip, prob=0.5),
     dict(type=Pad, size=(640, 640), pad_val=dict(img=(114, 114, 114))),
     dict(
-        type=CachedMixUp,
+        type=MixUp,
         img_scale=(640, 640),
         ratio_range=(1.0, 1.0),
         max_cached_images=20,
-        pad_val=(114, 114, 114),
+        pad_val=114.0,
     ),
     dict(type=PackDetInputs),
 ]
 
 train_pipeline_stage2 = [
-    dict(type=LoadImageFromFile, backend_args=backend_args),
-    dict(type=LoadAnnotations, with_bbox=True),
+    dict(
+        type=LoadImageFromFile,
+        imdecode_backend="pillow",
+        backend_args=None,
+    ),
+    dict(type=LoadAnnotations, imdecode_backend="pillow", with_bbox=True),
+    dict(type=HSVRandomAug),
+    dict(type=toTensor),
     dict(
         type=RandomResize,
-        scale=(640, 640),
+        scale=(1280, 1280),
         ratio_range=(0.1, 2.0),
         resize_type=Resize,
         keep_ratio=True,
     ),
     dict(type=RandomCrop, crop_size=(640, 640)),
-    dict(type=YOLOXHSVRandomAug),
     dict(type=RandomFlip, prob=0.5),
     dict(type=Pad, size=(640, 640), pad_val=dict(img=(114, 114, 114))),
     dict(type=PackDetInputs),
@@ -174,6 +185,7 @@ train_pipeline_stage2 = [
 
 test_pipeline = [
     dict(type=LoadImageFromFile, backend_args=backend_args),
+    dict(type=toTensor),
     dict(type=Resize, scale=(640, 640), keep_ratio=True),
     dict(type=Pad, size=(640, 640), pad_val=dict(img=(114, 114, 114))),
     dict(type=LoadAnnotations, with_bbox=True),
@@ -183,12 +195,14 @@ test_pipeline = [
     ),
 ]
 
+
 train_dataloader.update(
     dict(
         batch_size=32,
-        num_workers=10,
+        num_workers=8,
         batch_sampler=None,
         pin_memory=True,
+        collate_fn=coco_collate,
         dataset=dict(pipeline=train_pipeline),
     )
 )
