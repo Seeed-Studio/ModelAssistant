@@ -7,9 +7,9 @@
 import multiprocessing
 import os
 
-import mmcv
 import numpy as np
 from mmengine.fileio import get
+from sscma.utils.simplecv import simplecv_imfrombytes,simplecv_imread
 
 # A custom value to distinguish instance ID and category ID; need to
 # be greater than the number of categories.
@@ -74,11 +74,11 @@ def pq_compute_single_core(
         img_bytes = get(
             os.path.join(gt_folder, gt_ann["file_name"]), backend_args=backend_args
         )
-        pan_gt = mmcv.imfrombytes(img_bytes, flag="color", channel_order="rgb")
+        pan_gt = simplecv_imfrombytes(img_bytes, flag="color", channel_order="rgb")
         pan_gt = rgb2id(pan_gt)
 
         # The predictions can only be on the local dist now.
-        pan_pred = mmcv.imread(
+        pan_pred = simplecv_imread(
             os.path.join(pred_folder, pred_ann["file_name"]),
             flag="color",
             channel_order="rgb",

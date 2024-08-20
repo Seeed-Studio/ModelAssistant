@@ -232,25 +232,6 @@ class BitmapMasks(BaseInstanceMasks):
             the number of objects.
         height (int): height of masks
         width (int): width of masks
-
-    Example:
-        >>> from mmdet.data_elements.mask.structures import *  # NOQA
-        >>> num_masks, H, W = 3, 32, 32
-        >>> rng = np.random.RandomState(0)
-        >>> masks = (rng.rand(num_masks, H, W) > 0.1).astype(np.int64)
-        >>> self = BitmapMasks(masks, height=H, width=W)
-
-        >>> # demo crop_and_resize
-        >>> num_boxes = 5
-        >>> bboxes = np.array([[0, 0, 30, 10.0]] * num_boxes)
-        >>> out_shape = (14, 14)
-        >>> inds = torch.randint(0, len(self), size=(num_boxes,))
-        >>> device = 'cpu'
-        >>> interpolation = 'bilinear'
-        >>> new = self.crop_and_resize(
-        ...     bboxes, out_shape, inds, device, interpolation)
-        >>> assert len(new) == num_boxes
-        >>> assert new.height, new.width == out_shape
     """
 
     def __init__(self, masks, height, width):
@@ -608,31 +589,6 @@ class PolygonMasks(BaseInstanceMasks):
             compose the object, the third level to the poly coordinates
         height (int): height of masks
         width (int): width of masks
-
-    Example:
-        >>> from mmdet.data_elements.mask.structures import *  # NOQA
-        >>> masks = [
-        >>>     [ np.array([0, 0, 10, 0, 10, 10., 0, 10, 0, 0]) ]
-        >>> ]
-        >>> height, width = 16, 16
-        >>> self = PolygonMasks(masks, height, width)
-
-        >>> # demo translate
-        >>> new = self.translate((16, 16), 4., direction='horizontal')
-        >>> assert np.all(new.masks[0][0][1::2] == masks[0][0][1::2])
-        >>> assert np.all(new.masks[0][0][0::2] == masks[0][0][0::2] + 4)
-
-        >>> # demo crop_and_resize
-        >>> num_boxes = 3
-        >>> bboxes = np.array([[0, 0, 30, 10.0]] * num_boxes)
-        >>> out_shape = (16, 16)
-        >>> inds = torch.randint(0, len(self), size=(num_boxes,))
-        >>> device = 'cpu'
-        >>> interpolation = 'bilinear'
-        >>> new = self.crop_and_resize(
-        ...     bboxes, out_shape, inds, device, interpolation)
-        >>> assert len(new) == num_boxes
-        >>> assert new.height, new.width == out_shape
     """
 
     def __init__(self, masks, height, width):

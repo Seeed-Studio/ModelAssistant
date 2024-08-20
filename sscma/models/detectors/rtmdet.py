@@ -3,7 +3,7 @@ import torch
 from mmengine.dist import get_world_size
 from mmengine.logging import print_log
 
-from mmdet.utils import ConfigType, OptConfigType, OptMultiConfig
+from sscma.utils.typing_utils import ConfigType, OptConfigType, OptMultiConfig
 from .single_stage import SingleStageDetector
 
 

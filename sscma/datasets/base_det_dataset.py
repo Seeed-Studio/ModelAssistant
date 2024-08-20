@@ -12,8 +12,7 @@ class BaseDetDataset(BaseDataset):
 
     Args:
         proposal_file (str, optional): Proposals file path. Defaults to None.
-        file_client_args (dict): Arguments to instantiate the
-            corresponding backend in mmdet <= 3.0.0rc6. Defaults to None.
+        file_client_args (dict):  Defaults to None.
         backend_args (dict, optional): Arguments to instantiate the
             corresponding backend. Defaults to None.
         return_classes (bool): Whether to return class information

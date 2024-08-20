@@ -3,8 +3,6 @@ import os.path as osp
 import warnings
 from typing import Optional, Sequence
 
-import mmcv
-import numpy as np
 from mmengine.fileio import get
 from mmengine.hooks import Hook
 from mmengine.runner import Runner
@@ -102,7 +100,7 @@ class DetVisualizationHook(Hook):
         # Visualize only the first data
         img_path = outputs[0].img_path
         img_bytes = get(img_path, backend_args=self.backend_args)
-        img = mmcv.imfrombytes(img_bytes, channel_order="rgb")
+        img = simplecv_imfrombytes(img_bytes, channel_order="rgb")
 
         if total_curr_iter % self.interval == 0:
             self._visualizer.add_datasample(

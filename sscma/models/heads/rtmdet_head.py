@@ -268,7 +268,7 @@ class YOLOv5Head(BaseDenseHead):
         ),
         bbox_coder: ConfigType = dict(type=YOLOv5BBoxCoder),
         loss_cls: ConfigType = dict(
-            type="mmdet.CrossEntropyLoss",
+            type="CrossEntropyLoss",
             use_sigmoid=True,
             reduction="mean",
             loss_weight=0.5,
@@ -283,7 +283,7 @@ class YOLOv5Head(BaseDenseHead):
             return_iou=True,
         ),
         loss_obj: ConfigType = dict(
-            type="mmdet.CrossEntropyLoss",
+            type="CrossEntropyLoss",
             use_sigmoid=True,
             reduction="mean",
             loss_weight=1.0,

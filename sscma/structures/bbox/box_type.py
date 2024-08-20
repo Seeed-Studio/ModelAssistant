@@ -55,20 +55,6 @@ def register_box(
             Defaults to None.
         force (bool): Whether to override the existing box type with the same
             name. Defaults to False.
-
-    Examples:
-        >>> from mmdet.structures.bbox import register_box
-        >>> from mmdet.structures.bbox import BaseBoxes
-
-        >>> # as a decorator
-        >>> @register_box('hbox')
-        >>> class HorizontalBoxes(BaseBoxes):
-        >>>     pass
-
-        >>> # as a normal function
-        >>> class RotatedBoxes(BaseBoxes):
-        >>>     pass
-        >>> register_box('rbox', RotatedBoxes)
     """
     if not isinstance(force, bool):
         raise TypeError(f"force must be a boolean, but got {type(force)}")
@@ -133,18 +119,6 @@ def register_box_converter(
         converter (Callable): Convert function. Defaults to None.
         force (bool): Whether to override the existing box type with the same
             name. Defaults to False.
-
-    Examples:
-        >>> from mmdet.structures.bbox import register_box_converter
-        >>> # as a decorator
-        >>> @register_box_converter('hbox', 'rbox')
-        >>> def converter_A(boxes):
-        >>>     pass
-
-        >>> # as a normal function
-        >>> def converter_B(boxes):
-        >>>     pass
-        >>> register_box_converter('rbox', 'hbox', converter_B)
     """
     if not isinstance(force, bool):
         raise TypeError(f"force must be a boolean, but got {type(force)}")
