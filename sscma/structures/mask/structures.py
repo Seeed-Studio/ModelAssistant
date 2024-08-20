@@ -8,7 +8,7 @@ import numpy as np
 import pycocotools.mask as maskUtils
 import shapely.geometry as geometry
 import torch
-from mmcv.ops.roi_align import roi_align
+from torchvision.ops import roi_align
 from sscma.utils import *
 
 T = TypeVar("T")
@@ -404,10 +404,8 @@ class BitmapMasks(BaseInstanceMasks):
                 .to(dtype=rois.dtype)
             )
             # TODO: need check
-            # targets = roi_align(gt_masks_th[:, None, :, :], rois, out_shape,
-            #                     1.0, 0, 'avg', True).squeeze(1)
             targets = roi_align(
-                gt_masks_th[:, None, :, :], rois, out_shape, 1.0, 0, True
+                gt_masks_th[:, None, :, :], rois, out_shape, spatial_scale=1.0, sampling_ratio=0, aligned=True
             ).squeeze(1)
             if binarize:
                 resized_masks = (targets >= 0.5).cpu().numpy()
@@ -450,21 +448,6 @@ class BitmapMasks(BaseInstanceMasks):
 
         Returns:
             BitmapMasks: Translated BitmapMasks.
-
-        Example:
-            >>> from mmdet.data_elements.mask.structures import BitmapMasks
-            >>> self = BitmapMasks.random(dtype=np.uint8)
-            >>> out_shape = (32, 32)
-            >>> offset = 4
-            >>> direction = 'horizontal'
-            >>> border_value = 0
-            >>> interpolation = 'bilinear'
-            >>> # Note, There seem to be issues when:
-            >>> # * the mask dtype is not supported by cv2.AffineWarp
-            >>> new = self.translate(out_shape, offset, direction,
-            >>>                      border_value, interpolation)
-            >>> assert len(new) == len(self)
-            >>> assert new.height, new.width == out_shape
         """
         if len(self.masks) == 0:
             translated_masks = np.empty((0, *out_shape), dtype=np.uint8)
@@ -585,12 +568,6 @@ class BitmapMasks(BaseInstanceMasks):
     @classmethod
     def random(cls, num_masks=3, height=32, width=32, dtype=np.uint8, rng=None):
         """Generate random bitmap masks for demo / testing purposes.
-
-        Example:
-            >>> from mmdet.data_elements.mask.structures import BitmapMasks
-            >>> self = BitmapMasks.random()
-            >>> print('self = {}'.format(self))
-            self = BitmapMasks(num_masks=3, height=32, width=32)
         """
         from mmdet.utils.util_random import ensure_rng
 
@@ -1042,11 +1019,6 @@ class PolygonMasks(BaseInstanceMasks):
 
         References:
             .. [1] https://gitlab.kitware.com/computer-vision/kwimage/-/blob/928cae35ca8/kwimage/structs/polygon.py#L379  # noqa: E501
-
-        Example:
-            >>> from mmdet.data_elements.mask.structures import PolygonMasks
-            >>> self = PolygonMasks.random()
-            >>> print('self = {}'.format(self))
         """
         from mmdet.utils.util_random import ensure_rng
 

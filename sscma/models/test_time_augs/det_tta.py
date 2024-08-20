@@ -2,7 +2,7 @@
 from typing import List, Tuple
 
 import torch
-from mmcv.ops import batched_nms
+from torchvision.ops import batched_nms
 from mmengine.model import BaseTTAModel
 from mmengine.structures import InstanceData
 from torch import Tensor

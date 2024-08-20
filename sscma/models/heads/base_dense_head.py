@@ -5,7 +5,7 @@ from inspect import signature
 from typing import List, Optional, Tuple
 
 import torch
-from mmcv.ops import batched_nms
+from torchvision.ops import batched_nms
 from mmengine.config import ConfigDict
 from mmengine.model import BaseModule, constant_init
 from mmengine.structures import InstanceData
