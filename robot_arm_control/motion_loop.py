@@ -41,28 +41,71 @@ def moveto(x, y, z):
     print(json_data)
 
 
+def wrist_angle(angle):
+    global current_sent_x, current_sent_y
+    if not serial_status:
+        return
+    data = {"T": 121, "joint": 4, "angle": angle, "spd": 0, "acc": 10}
+    json_data = json.dumps(data)
+    ser.write(json_data.encode() + b'\n')
+    print(json_data)
+
+
+def write_signal(order):
+    data = order
+    json_data = json.dumps(data)
+    ser.write(json_data.encode() + b'\n')
+
+
 def main_tancle_loop(base_x, base_y, base_z):
-    factor = 0
     wait_sec = 0.8
-    expan = 0.5
+    expan = 0.4
+    write_signal({"T": 101})
+    time.sleep(1)
+    write_signal({"T": 109})
+    write_signal({"T": 108, "joint": 2, "p": 16, "i": 0})
+    # time.sleep(2)
     moveto(base_x + 0, base_y + 200, base_z + 300)
+    wrist_angle(180)
     time.sleep(1)
     while True:
-        noisy_x = random.random() * factor
-        noisy_y = random.random() * factor
-        moveto(base_x + 0 * expan + noisy_x, base_y + 0 * expan + noisy_y, base_z + 100 * expan)
+        write_signal({"T": 109})
+        write_signal({"T": 108, "joint": 2, "p": 4, "i": 0})
+
+        moveto(base_x + 0 * expan, base_y + 0 * expan, base_z + 100 * expan)
+        wrist_angle(160)
         time.sleep(wait_sec)
-        noisy_x = random.random() * factor
-        noisy_y = random.random() * factor
-        moveto(base_x + 0 * expan + noisy_x, base_y + 200 * expan + noisy_y, base_z + 200 * expan)
+
+        moveto(base_x + 0 * expan, base_y + 200 * expan, base_z + 200 * expan)
+        wrist_angle(170)
         time.sleep(wait_sec)
-        noisy_x = random.random() * factor
-        noisy_y = random.random() * factor
-        moveto(base_x + 200 * expan + noisy_x, base_y + 200 * expan + noisy_y, base_z + 300 * expan)
+
+        moveto(base_x + 200 * expan, base_y + 200 * expan, base_z + 300 * expan)
+        wrist_angle(120)
         time.sleep(wait_sec)
-        noisy_x = random.random() * factor
-        noisy_y = random.random() * factor
-        moveto(base_x + 200 * expan + noisy_x, base_y + 0 * expan + noisy_y, base_z + 100 * expan)
+
+        moveto(base_x + 800 * expan, base_y + 600 * expan, base_z + 400 * expan)
+        wrist_angle(130)
+        time.sleep(wait_sec)
+
+        moveto(base_x + 400 * expan, base_y + -100 * expan, base_z + 100 * expan)
+        wrist_angle(160)
+        time.sleep(wait_sec)
+
+        moveto(base_x + 300 * expan, base_y + 0 * expan, base_z + 0 * expan)
+        wrist_angle(170)
+        time.sleep(wait_sec)
+
+        moveto(base_x + 100 * expan, base_y + 100 * expan, base_z + 200 * expan)
+        wrist_angle(180)
+        time.sleep(wait_sec)
+
+        moveto(base_x - 100 * expan, base_y - 100 * expan, base_z + 50 * expan)
+        wrist_angle(160)
+        time.sleep(wait_sec)
+
+        moveto(base_x - 100 * expan, base_y + 100 * expan, base_z + 300 * expan)
+        wrist_angle(120)
         time.sleep(wait_sec)
 
 

@@ -1,9 +1,8 @@
 '''
 该文件用于处理采集好的三轴震动信号
 '''
-
-import pandas as pd
 import numpy as np
+import pandas as pd
 import os
 import tools as dt
 import sys
@@ -15,27 +14,27 @@ sys.path.append("../")
 def data_process(data_path):
     datas = pd.read_csv(data_path)
     process_data = []
-    std_record = []
-    mean_record = []
-
+    # std_record = []
+    # mean_record = []
+    mean, std = dt.global_mean_std_estimate(datas.values)
     for iter, item in datas.iterrows():
-        data, c, label = dt.sample_c_process(item)
-        mean_record.append([np.mean(data[0]), np.mean(data[1]), np.mean(data[2])])
-        std_record.append([np.std(data[0]), np.std(data[1]), np.std(data[2])])
+        data, c, label = dt.sample_c_process(item, mean=mean, std=std)
+        # mean_record.append([np.mean(data[0]), np.mean(data[1]), np.mean(data[2])])
+        # std_record.append([np.std(data[0]), np.std(data[1]), np.std(data[2])])
         process_data.append([data, c, label])
 
-    mean_record = np.array(mean_record)
-    std_record = np.array(std_record)
-    data_mean = np.sum(mean_record, axis=0, keepdims=True) / len(mean_record)
-    data_mean = np.transpose(np.expand_dims(data_mean, axis=0), (2, 1, 0))
-    data_std = np.sum(std_record, axis=0, keepdims=True) / len(std_record)
-    data_std = np.transpose(np.expand_dims(data_std, axis=0), (2, 1, 0))
+    # mean_record = np.array(mean_record)
+    # std_record = np.array(std_record)
+    # data_mean = np.sum(mean_record, axis=0, keepdims=True) / len(mean_record)
+    # data_mean = np.transpose(np.expand_dims(data_mean, axis=0), (2, 1, 0))
+    # data_std = np.sum(std_record, axis=0, keepdims=True) / len(std_record)
+    # data_std = np.transpose(np.expand_dims(data_std, axis=0), (2, 1, 0))
 
-    for index, data in enumerate(process_data):
-        process_data[index][0] = ((data[0] - data_mean) / (data_std + 1e-5)) / 100
+    # for index, data in enumerate(process_data):
+    #     process_data[index][0] = ((data[0] - data_mean) / (data_std + 1e-5)) / 10
 
-    np.save('x_data_mean', data_mean)
-    np.save('x_data_std', data_std)
+    # np.save('x_data_mean', data_mean)
+    # np.save('x_data_std', data_std)
     process_data = np.array(process_data)
 
     return process_data

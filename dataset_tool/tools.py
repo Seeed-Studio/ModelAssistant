@@ -18,8 +18,12 @@ from scipy.signal import stft
 from scipy.signal import firwin, lfilter
 import cv2
 from matplotlib import pyplot as plt
+from pyts.image import MarkovTransitionField
+import sys
 
-sample_rate = 4096
+sys.path.append("../")
+
+sample_rate = 256
 
 
 def haar_wavelet_transform(signal):
@@ -71,14 +75,21 @@ def calculate_rms(signal):
 
 
 def preprocess(data):
-    data = data * 0.021
+    # data = data * 1024
+    # data = data * 0.005
+    data = data.astype(np.float32)
+    data = data * (1024 * 0.005)
     data = np.floor(data)
-    data = data * 50
-    return data
+    data = data * 200
+    data = data / 1024
+    return data.astype('float32')
 
 
 def CWT(signal, scales=np.arange(1, 32), wavelet='cgau8'):
-    coefficients, frequencies = pywt.cwt(signal, scales, wavelet)
+    # a = time.time()
+    coefficients, frequencies = pywt.cwt(signal, scales, wavelet, method='conv')
+    # b = time.time()
+    # print(abs(b - a))
     # Zxx = np.abs(coefficients)
     # min_val = np.min(Zxx)
     # max_val = np.max(Zxx)
@@ -171,7 +182,8 @@ def min_max_scale(X, max_val=1, min_val=0):
 
 
 def mean_std_scale(x, mean, std):
-    x = ((x - mean) / (std + 1e-5)) / 100
+    for i in range(len(x)):
+        x[i] = (x[i] - mean) / std
     return x
 
 
@@ -212,6 +224,27 @@ def frequency_masking(mel_spectrogram, freq_mask_param=10):
     return augmented_mel_spectrogram
 
 
+def global_mean_std_estimate(signal_dataset):
+    mean = 0
+    std = 0
+    data_len = 0
+    for data in signal_dataset:
+        data = np.reshape(np.array(data).astype('float32'), (-1, 3))
+        mean = mean + data.mean()
+        data_len = data_len + 1
+    mean = mean / data_len
+    for data in signal_dataset:
+        data = np.reshape(np.array(data).astype('float32'), (-1, 3))
+        temp = (data - mean) * (data - mean)
+        temp = temp.mean()
+        std = std + temp
+    std = std / data_len
+    std = np.sqrt(std)
+    np.save('x_data_mean', mean)
+    np.save('x_data_std', std)
+    return mean, std
+
+
 def sample_c_process(
     raw_sample,
     mean=None,
@@ -220,29 +253,52 @@ def sample_c_process(
     data = raw_sample
     data = np.reshape(np.array(data).astype('float32'), (-1, 3))
     data = preprocess(data)
+    if mean is not None:
+        data = mean_std_scale(data, mean, std)
     x = []
     c = []
+    use_fir = False
+    # mtf = MarkovTransitionField(n_bins=64, strategy="normal")
     for i in range(3):
         data_temp = data[:, i]
-        nyquist_rate = 6667 / 2.0
-        cutoff_freq = 160.0  # 截止频率
-        numtaps = 200  # 滤波器系数数量，越大则滤波器越陡峭
+        nyquist_rate = 200 / 2.0  # 采样频率，根据传感器的采样速率更改
+        cutoff_freq = 20.0  # 需要过滤的截止频率，该数值越大则削掉的高频越多，
+        # 注意该数值不能超过nyquist_rate
+        numtaps = 200  # 滤波器系数数量，越大则滤波器越陡峭，对高频的削减越大，100-200范围调整即可
         fir_coeff = firwin(numtaps, cutoff_freq / nyquist_rate)
         data_temp = lfilter(fir_coeff, 1.0, data_temp)
-        # data_c = paa(data_temp, 1024)
-        data_temp_m = paa(data_temp, 32)
-        c_i = markov_transition_field(data_temp_m)
-        # x_i = long_time_fourier_transform(data_c, fs=6667, nperseg=64, nfft=64)
-        x_i = CWT(data_temp, np.arange(9, 41), wavelet='morl')
+        data_temp_c = paa(data_temp, 32)
+        if use_fir:
+            data_temp_x = data_temp
+        else:
+            data_temp_x = data[:, i]
+        # data_temp_x = paa(data_temp, 512)
+        # c_i = mtf.fit_transform([data_temp_m])
+        # c_i = c_i.squeeze(0)
+        c_i = markov_transition_field(data_temp_c)
+        # x_i = long_time_fourier_transform(data_temp_x, fs=250, nperseg=16, nfft=64)
+        data_temp = cv2.resize(data_temp, (1, 32), interpolation=cv2.INTER_LINEAR)
+        # 对信号数据进行插值缩放以提升小波变换速度，要注意缩放大小会影响传感器敏感度，当前数值是比较好的妥协
+        # 若数据点为256，则缩放到32-96均有效果，若数据点为1024，则建议缩放到128
+        data_temp = np.squeeze(data_temp)
+        x_i = CWT(data_temp_x, scales=np.arange(2, 2 + 16), wavelet='morl')
+        # scales参数的大小可以大幅度影响小波变换的速度，建议生成16个scale，同样会影响敏感度，范围为8-32
+        # 要注意scales的起点设定，需要观察处理后图像进行调整
         x_i = cv2.resize(x_i, (32, 32), interpolation=cv2.INTER_LINEAR)
         x.append(x_i)
         c.append(c_i)
 
+    # gadf_diff = np.transpose(x, (1, 2, 0))
+    # image = (gadf_diff * 255).astype(np.uint8)
+    # # 绘制结果
+    # cv2.imshow('55', image)
+    # cv2.waitKey(1)
+    # time.sleep(8)
     c = np.array(c)
     x = np.array(x)
-    if mean is not None:
-        x = mean_std_scale(x, mean, std)
     label = x
+    # print(mean)
+    # print(std)
 
     return x.astype('float32'), c.astype('float32'), label.astype('float32')
 
@@ -277,24 +333,25 @@ class Signal_dataset(Dataset):
     def sample_c_process(self):
         if self.tag == "Dynamic_Train":
             sample = []
-            std_record = []
-            mean_record = []
+            mean, std = global_mean_std_estimate(self.raw_sample)  # 该函数为数据集全局均值方差估计函数，返回数据集整体的方差与均值
+            # std_record = []
+            # mean_record = []
             for index, data in enumerate(self.raw_sample):
-                gadf, c, label = sample_c_process(data)
-                mean_record.append([np.mean(gadf[0]), np.mean(gadf[1]), np.mean(gadf[2])])
-                std_record.append([np.std(gadf[0]), np.std(gadf[1]), np.std(gadf[2])])
-                sample.append([gadf, c, label])
+                gadf, c, label = sample_c_process(data, mean, std)
+            #     mean_record.append([np.mean(gadf[0]), np.mean(gadf[1]), np.mean(gadf[2])])
+            #     std_record.append([np.std(gadf[0]), np.std(gadf[1]), np.std(gadf[2])])
+            #     sample.append([gadf, c, label])
 
-            mean_record = np.array(mean_record)
-            std_record = np.array(std_record)
-            data_mean = np.sum(mean_record, axis=0, keepdims=True) / self.data_len
-            data_mean = np.transpose(np.expand_dims(data_mean, axis=0), (2, 1, 0))
-            data_std = np.sum(std_record, axis=0, keepdims=True) / self.data_len
-            data_std = np.transpose(np.expand_dims(data_std, axis=0), (2, 1, 0))
-            for index, data in enumerate(sample):
-                sample[index][0] = ((data[0] - data_mean) / (data_std + 1e-5)) / 100
-            np.save('x_data_mean', data_mean)
-            np.save('x_data_std', data_std)
+            # mean_record = np.array(mean_record)
+            # std_record = np.array(std_record)
+            # data_mean = np.sum(mean_record, axis=0, keepdims=True) / self.data_len
+            # data_mean = np.transpose(np.expand_dims(data_mean, axis=0), (2, 1, 0))
+            # data_std = np.sum(std_record, axis=0, keepdims=True) / self.data_len
+            # data_std = np.transpose(np.expand_dims(data_std, axis=0), (2, 1, 0))
+            # for index, data in enumerate(sample):
+            #     sample[index][0] = ((data[0] - data_mean) / (data_std + 1e-5)) / 100
+            # np.save('x_data_mean', data_mean)
+            # np.save('x_data_std', data_std)
             return sample
         else:
             return self.raw_sample

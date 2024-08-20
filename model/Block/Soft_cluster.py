@@ -8,7 +8,6 @@ from torch.autograd import Variable
 import torch.optim as optim
 import numpy as np
 import torch.nn.init as init
-from einops import rearrange
 
 
 class CustomLayerNorm(nn.Module):
@@ -129,7 +128,7 @@ class NegSoftAssign(nn.Module):
         # x_min, _ = custom_min(x, x_min_index, keepdim=True)
         # x_std = x - x_min
         exp_x = torch.exp(-self.alpha * x_norm)  # 这是一个类似于紧缩的方法
-        soft_x = exp_x / (exp_x.sum(self.dims, keepdim=True))
+        soft_x = exp_x / (exp_x.sum(self.dims, keepdim=True) + 1e-6)
         return soft_x
 
 
@@ -142,12 +141,14 @@ class EuclidDistance_Assign_Module(nn.Module):
         self.feature_dim = feature_dim
         self.cluster_num = cluster_num
         self.norm = CustomLayerNorm(feature_dim)
-
+        self.trans = self.fc2_mu = nn.Linear(64, 64)
+        self.relu = nn.ReLU()
         self.assign_func = NegSoftAssign(-1, soft_assign_alpha)
         self.register_param(is_grad)
 
     def register_param(self, is_grad):
-        cluster_center = nn.Parameter(torch.rand(self.cluster_num, self.feature_dim), requires_grad=is_grad)
+        # cluster_center = nn.Parameter(torch.normal(mean=0.5, std=0.01**0.5, size=(self.cluster_num, self.feature_dim)), requires_grad=False)
+        cluster_center = nn.Parameter(torch.rand(self.cluster_num, self.feature_dim), requires_grad=True)
         identity_matrix = nn.Parameter(torch.eye(self.cluster_num), requires_grad=False)
         self.register_parameter('cluster_center', cluster_center)
         self.register_parameter('identity_matrix', identity_matrix)
@@ -160,7 +161,9 @@ class EuclidDistance_Assign_Module(nn.Module):
     def forward(self, x, alpha=None):
         #   传入x尺寸为B*D*H*W*C
         x_temp = x.clone()
+        x = self.relu(self.trans(x))
         x = self.norm(x_temp)
+
         soft_assign = cdist(x.contiguous(), self.cluster_center)
         x_distance = soft_assign
         x_distance_assign = self.assign_func(x_distance, alpha)
@@ -168,41 +171,3 @@ class EuclidDistance_Assign_Module(nn.Module):
         x_rec = x_distance_assign @ kk
 
         return x_distance, x_distance_assign, x_rec.squeeze(0)
-
-
-class Space_EuclidDistance_Assign_Module(nn.Module):
-
-    def __init__(self, feature_dim, cluster_num=2, maxpool=1, soft_assign_alpha=32.0):
-        super(Space_EuclidDistance_Assign_Module, self).__init__()
-        self.euclid_dis = torch.cdist
-        self.act = nn.Sigmoid()
-        self.feature_dim = feature_dim
-        self.cluster_num = cluster_num
-        self.norm = nn.LayerNorm(feature_dim)
-        self.assign_func = NegSoftAssign(-1, soft_assign_alpha)
-        self.register_param()
-
-    def register_param(self, ):
-        cluster_center = nn.Parameter(torch.rand(self.cluster_num, self.feature_dim), requires_grad=True)
-        ident_temp = torch.empty((self.feature_dim, self.cluster_num, self.cluster_num))
-        for i in range(self.feature_dim):
-            ident_temp[i] = torch.eye(self.cluster_num)
-        identity_matrix = nn.Parameter(ident_temp, requires_grad=False)
-        self.register_parameter('cluster_center', cluster_center)
-        self.register_parameter('identity_matrix', identity_matrix)
-        return
-
-    def self_similarity(self):
-        return self.euclid_dis(self.cluster_center, self.cluster_center)
-
-    def forward(self, x, alpha=None):
-        #   传入x尺寸为B*D*H*W*C
-        # x_temp = x.clone()
-        # x = self.norm(x_temp)
-        B, H, W, C = x.shape
-        x_re = rearrange(x, 'B H W C -> (H W) B C')
-        soft_assign = self.euclid_dis(x_re.contiguous(), self.cluster_center.unsqueeze(0))  # 这里返回的是向量间的距离
-        # 若是输入b*w*h*c的矩阵，返回则是b*w*h*1
-        x_distance = rearrange(soft_assign, '(H W) B CN -> B CN H W', H=H)
-        x_distance_assign = self.assign_func(x_distance, alpha)
-        return x_distance, x_distance_assign

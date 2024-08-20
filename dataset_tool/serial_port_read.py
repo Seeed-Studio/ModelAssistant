@@ -3,7 +3,7 @@ import csv
 import tools as dt
 
 # 打开串行端口
-ser = serial.Serial('COM8', 115200)  # 请根据实际情况修改串行端口和波特率
+ser = serial.Serial('COM9', 115200)  # 请根据实际情况修改串行端口和波特率
 if ser.isOpen():  # 判断串口是否成功打开
     print("打开串口成功。")
     print(ser.name)  # 输出串口号
@@ -20,12 +20,12 @@ with open(file_path, 'a') as file:
         for index, i in enumerate(ser):
             # 从串行端口读取数据
             if (index + 1) % dt.sample_rate != 0:
-                temp = i.decode().strip('\r\n').split(' ')
+                temp = i.decode().strip('\r\n').split(' ')[:-1]
                 data = data + temp
 
                 continue
             record = record + 1
-            temp = i.decode().strip('\r\n').split(' ')
+            temp = i.decode().strip('\r\n').split(' ')[:-1]
             data = data + temp
             # 将数据写入文件
             csv_writer.writerow(data)

@@ -102,31 +102,31 @@ class Conv_block1D(nn.Module):
         super().__init__()
         self.conv_block = nn.ModuleList()
         channel_list = [in_channel, out_channel]
-        self.lstm = nn.LSTM(out_channel, out_channel, batch_first=True)
+        # self.lstm = nn.LSTM(out_channel, out_channel, batch_first=True)
         for i in range(2):
-            layer = nn.Sequential(nn.Conv1d(in_channels=channel_list[i], out_channels=out_channel, kernel_size=3, stride=1, padding=1), nn.GELU(), nn.BatchNorm1d(out_channel))
+            layer = nn.Sequential(nn.Conv1d(in_channels=channel_list[i], out_channels=out_channel, kernel_size=3, stride=1, padding=1), nn.ReLU(), nn.BatchNorm1d(out_channel))
             self.conv_block.append(layer)
 
     def forward(self, x):
         for layer in self.conv_block:
             x = layer(x)
-        x = x.permute(0, 2, 1)
-        x, (_, _) = self.lstm(x)
-        x = x.permute(0, 2, 1)
+        # x = x.permute(0, 2, 1)
+        # x, (_, _) = self.lstm(x)
+        # x = x.permute(0, 2, 1)
         return x
 
 
 class Conv_block2D(nn.Module):
 
-    def __init__(self, in_channel, out_channel, is_attn=False):
+    def __init__(self, in_channel, out_channel, is_attn=False, layer_num=2):
         super().__init__()
         self.conv_block = nn.ModuleList()
         channel_list = [in_channel, out_channel]
-        for i in range(2):
-            dilation = i + 1
-            pad = dilation
+        for i in range(layer_num):
+            # dilation = i + 1
+            # pad = dilation
             layer = nn.Sequential(
-                nn.Conv2d(in_channels=channel_list[i], out_channels=out_channel, kernel_size=3, stride=1, padding=pad, dilation=dilation),
+                nn.Conv2d(in_channels=channel_list[i], out_channels=out_channel, kernel_size=3, stride=1, padding=1),
                 nn.BatchNorm2d(out_channel),
                 nn.ReLU(),
             )
@@ -146,6 +146,7 @@ class Conv_block2D(nn.Module):
             #     x = res
 
         if self.attn is not None:
+            # x = x.permute(0, 2, 3, 1)
             x = self.attn(x)
             x = x.permute(0, 3, 1, 2)
         return x

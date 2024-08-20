@@ -49,3 +49,53 @@ python ./dataset_tool/Signal_data_processing.py
 尽管在目前参数下的灵敏度与稳定性得到了平衡，但若一些任务有特殊需要，想要更加稳定或更加灵敏的性能，这里建议一个重要参数：```./dataset_tool/tools.py``` 中的sample_rate参数，在确保机器运行稳定，且需要更加灵敏时请加大该参数以便模型获得更大的时间窗口学习整体运动规律，在需要无视机械运动中的正常噪声且仅关心较大的运动姿态变化异常时请减小该参数以便模型仅捕捉瞬时的运动姿态变化。
 
 注意每次更改都需要重复采集数据的过程！
+
+
+```
+demo
+├─ checkpoints
+│  └─ best-checkpoint-v189.ckpt
+├─ ckpt2tflite.py
+├─ datasets
+│  └─ Train
+├─ dataset_tool
+│  ├─ serial_port_read.py
+│  ├─ Signal_data_processing.py
+│  ├─ tools.py
+│  └─ __init__.py
+├─ environment.yml
+├─ evaluate.py
+├─ export.py
+├─ export_quant.py
+├─ main.py
+├─ misc
+│  ├─ tools.py
+│  └─ __init__.py
+├─ model
+│  ├─ Block
+│  │  ├─ ConvBlock.py
+│  │  ├─ Decoder.py
+│  │  ├─ Encoder.py
+│  │  ├─ Soft_cluster.py
+│  │  └─ __init__.py
+│  ├─ models.py
+│  └─ __init__.py
+├─ README.md
+├─ robot_arm_control
+│  ├─ horizontal_drag_custom.py
+│  ├─ http_simple_ctrl.py
+│  ├─ motion_loop.py
+│  ├─ requirements.txt
+│  ├─ serial_simple_ctrl.py
+│  └─ vertical_drag_custom.py
+├─ seed.npy
+├─ serial_data.csv
+├─ test.py
+├─ test2.py
+├─ test_int8.tflite
+├─ tflite_evaluate.py
+├─ tflite_vs_ckpt.py
+├─ x_data_mean.npy
+└─  x_data_std.npy
+
+```
