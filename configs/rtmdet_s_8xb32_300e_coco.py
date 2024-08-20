@@ -12,6 +12,8 @@ with read_base():
 from sscma.datasets.transforms.loading import LoadImageFromFile
 from sscma.datasets.transforms.processing import RandomResize
 from mmengine.hooks.ema_hook import EMAHook
+from mmengine.hooks.profiler_hook import ProfilerHook
+
 
 from sscma.datasets.transforms.formatting import PackDetInputs
 from sscma.datasets.transforms.loading import LoadAnnotations
@@ -110,4 +112,13 @@ custom_hooks = [
     dict(
         type=PipelineSwitchHook, switch_epoch=280, switch_pipeline=train_pipeline_stage2
     ),
+    dict(type=ProfilerHook,
+         activity_with_cpu=True,
+         activity_with_cuda=True,
+         profile_memory=True,
+         record_shapes=True,
+         with_stack=True,
+         with_flops=True,
+         schedule=dict(wait=1,warmup=1,active=2,repeat=1),
+         on_trace_ready=dict(type='tb_trace'))
 ]

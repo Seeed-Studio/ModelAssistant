@@ -7,10 +7,11 @@ with read_base():
     from .schedules.schedule_1x import *
     from .datasets.coco_detection import *
 
-from mmcv.ops import nms
+from torchvision.ops import nms
 from sscma.datasets.transforms.loading import LoadImageFromFile
 from sscma.datasets.transforms.processing import RandomResize
 from mmengine.hooks.ema_hook import EMAHook
+from mmengine.hooks.profiler_hook import  ProfilerHook
 from mmengine.optim.optimizer.optimizer_wrapper import OptimWrapper
 from mmengine.optim.scheduler.lr_scheduler import CosineAnnealingLR, LinearLR
 from torch.nn import SyncBatchNorm
@@ -200,7 +201,7 @@ test_pipeline = [
 
 train_dataloader.update(
     dict(
-        batch_size=36,
+        batch_size=32,
         num_workers=12,
         batch_sampler=None,
         pin_memory=True,
@@ -217,7 +218,7 @@ test_dataloader = val_dataloader
 max_epochs = 300
 stage2_num_epochs = 20
 base_lr = 0.004
-interval = 1
+interval = 5
 
 train_cfg.update(
     dict(
@@ -274,5 +275,5 @@ custom_hooks = [
         type=PipelineSwitchHook,
         switch_epoch=max_epochs - stage2_num_epochs,
         switch_pipeline=train_pipeline_stage2,
-    ),
+    )
 ]
