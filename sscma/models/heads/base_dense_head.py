@@ -489,7 +489,7 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
         if with_nms and results.bboxes.numel() > 0:
             bboxes = get_box_tensor(results.bboxes)
             det_bboxes, keep_idxs = batched_nms(
-                bboxes, results.scores, results.labels, cfg.nms
+                bboxes, results.scores, results.labels, cfg.nms.iou_threshold
             )
             results = results[keep_idxs]
             # some nms would reweight the score, such as softnms

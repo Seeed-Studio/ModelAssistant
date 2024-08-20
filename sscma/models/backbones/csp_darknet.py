@@ -130,7 +130,6 @@ class SPPBottleneck(BaseModule):
         return x
 
 
-@MODELS.register_module()
 class CSPDarknet(BaseModule):
     """CSP-Darknet backbone used in YOLOv5 and YOLOX.
 

@@ -940,7 +940,7 @@ class RandomResize(BaseTransform):
             tuple: The targeted scale of the image to be resized.
         """
 
-        assert mmengine.is_list_of(scales, tuple) and len(scales) == 2
+        assert is_list_of(scales, tuple) and len(scales) == 2
         scale_0 = [scales[0][0], scales[1][0]]
         scale_1 = [scales[0][1], scales[1][1]]
         edge_0 = np.random.randint(min(scale_0), max(scale_0) + 1)

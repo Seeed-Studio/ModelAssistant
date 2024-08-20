@@ -41,6 +41,8 @@ from ..layers.utils import inverse_sigmoid
 from ..task_modules import anchor_inside_flags
 from sscma.utils.misc import gt_instances_preprocess, filter_scores_and_topk
 from .atss_head import ATSSHead
+from sscma.models.losses.iou_loss import IoULoss
+from sscma.models.losses.cross_entropy_loss import CrossEntropyLoss
 
 
 def get_prior_xy_info(
@@ -268,13 +270,13 @@ class YOLOv5Head(BaseDenseHead):
         ),
         bbox_coder: ConfigType = dict(type=YOLOv5BBoxCoder),
         loss_cls: ConfigType = dict(
-            type="CrossEntropyLoss",
+            type=CrossEntropyLoss,
             use_sigmoid=True,
             reduction="mean",
             loss_weight=0.5,
         ),
         loss_bbox: ConfigType = dict(
-            type="IoULoss",
+            type=IoULoss,
             iou_mode="ciou",
             bbox_format="xywh",
             eps=1e-7,
@@ -283,7 +285,7 @@ class YOLOv5Head(BaseDenseHead):
             return_iou=True,
         ),
         loss_obj: ConfigType = dict(
-            type="CrossEntropyLoss",
+            type=CrossEntropyLoss,
             use_sigmoid=True,
             reduction="mean",
             loss_weight=1.0,

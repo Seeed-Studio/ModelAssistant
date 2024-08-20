@@ -1,10 +1,11 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import inspect
 from typing import Dict, Optional
-
-from mmengine.registry import MODELS
 from torch import nn
 
+
+from mmengine.registry import MODELS
+from .wrappers import Conv2d
 
 def build_conv_layer(cfg: Optional[Dict], *args, **kwargs) -> nn.Module:
     """Build convolution layer.
@@ -22,7 +23,7 @@ def build_conv_layer(cfg: Optional[Dict], *args, **kwargs) -> nn.Module:
         nn.Module: Created conv layer.
     """
     if cfg is None:
-        cfg_ = dict(type="Conv2d")
+        cfg_ = dict(type=Conv2d)
     else:
         if not isinstance(cfg, dict):
             raise TypeError("cfg must be a dict")
