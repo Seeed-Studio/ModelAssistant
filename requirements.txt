@@ -1,0 +1,11 @@
+addict
+termcolor
+torch-tb-profiler
+terminaltables
+pycocotools
+lance
+shapely
+torch>=1.8.0
+torchvision
+tensorboard
+
