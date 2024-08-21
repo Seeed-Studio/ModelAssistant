@@ -5,7 +5,10 @@ terminaltables
 pycocotools
 lance
 shapely
-torch>=1.8.0
+torch>=2.1.0
 torchvision
 tensorboard
+opencv-python>=4.6.0
+numpy>=1.23.0,<2.0.0
+pillow>=7.1.2
 
