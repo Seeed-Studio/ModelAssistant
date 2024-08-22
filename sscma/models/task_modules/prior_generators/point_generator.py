@@ -116,7 +116,7 @@ class MlvlPointGenerator:
     def _meshgrid(
         self, x: Tensor, y: Tensor, row_major: bool = True
     ) -> Tuple[Tensor, Tensor]:
-        yy, xx = torch.meshgrid(y, x)
+        yy, xx = torch.meshgrid(y, x, indexing='ij')
         if row_major:
             # warning .flatten() would cause error in ONNX exporting
             # have to use reshape here

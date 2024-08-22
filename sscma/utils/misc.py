@@ -4,6 +4,7 @@ from typing import List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import torch
+
 from mmengine.structures import InstanceData
 from mmengine.utils import digit_version
 from six.moves import map, zip
@@ -391,7 +392,7 @@ def generate_coordinate(featmap_sizes, device="cuda"):
 
     x_range = torch.linspace(-1, 1, featmap_sizes[-1], device=device)
     y_range = torch.linspace(-1, 1, featmap_sizes[-2], device=device)
-    y, x = torch.meshgrid(y_range, x_range)
+    y, x = torch.meshgrid(y_range, x_range, indexing='ij')
     y = y.expand([featmap_sizes[0], 1, -1, -1])
     x = x.expand([featmap_sizes[0], 1, -1, -1])
     coord_feat = torch.cat([x, y], 1)
@@ -699,7 +700,6 @@ def align_tensor(inputs: List[Tensor], max_len: Optional[int] = None) -> Tensor:
         max_len = max([len(item) for item in inputs])
 
     return torch.stack([padding_to(item, max_len) for item in inputs])
-
 
 def gt_instances_preprocess(
     batch_gt_instances: Union[Tensor, Sequence], batch_size: int
