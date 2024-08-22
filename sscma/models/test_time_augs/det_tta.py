@@ -126,10 +126,10 @@ class DetTTAModel(BaseTTAModel):
         if merged_bboxes.numel() == 0:
             return data_samples[0]
 
-        det_bboxes, keep_idxs = batched_nms(
-            merged_bboxes, merged_scores, merged_labels, self.tta_cfg.nms
+        keep_idxs = batched_nms(
+            merged_bboxes, merged_scores, merged_labels, self.tta_cfg.nms.iou_threshold
         )
-
+        det_bboxes = merged_bboxes[keep_idxs]
         det_bboxes = det_bboxes[: self.tta_cfg.max_per_img]
         det_labels = merged_labels[keep_idxs][: self.tta_cfg.max_per_img]
 

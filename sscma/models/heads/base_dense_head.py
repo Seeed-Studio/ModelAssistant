@@ -488,12 +488,10 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
         # TODO: deal with `with_nms` and `nms_cfg=None` in test_cfg
         if with_nms and results.bboxes.numel() > 0:
             bboxes = get_box_tensor(results.bboxes)
-            det_bboxes, keep_idxs = batched_nms(
+            keep_idxs = batched_nms(
                 bboxes, results.scores, results.labels, cfg.nms.iou_threshold
             )
             results = results[keep_idxs]
-            # some nms would reweight the score, such as softnms
-            results.scores = det_bboxes[:, -1]
             results = results[: cfg.max_per_img]
 
         return results
@@ -566,12 +564,10 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
         final_results = []
         for img_id in range(num_imgs):
             results = batch_results[img_id]
-            det_bboxes, keep_idxs = batched_nms(
-                results.bboxes, results.scores, results.labels, self.test_cfg.nms
+            keep_idxs = batched_nms(
+                results.bboxes, results.scores, results.labels, self.test_cfg.nms.iou_threshold
             )
             results = results[keep_idxs]
-            # some nms operation may reweight the score such as softnms
-            results.scores = det_bboxes[:, -1]
             results = results[: self.test_cfg.max_per_img]
             if rescale:
                 # all results have been mapped to the original scale
