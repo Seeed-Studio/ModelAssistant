@@ -25,17 +25,20 @@ from sscma.datasets.transforms.transforms import (
 from sscma.engine.hooks.pipeline_switch_hook import PipelineSwitchHook
 from sscma.models.layers.ema import ExpMomentumEMA
 
-checkpoint = "https://download.openmmlab.com/mmdetection/v3.0/rtmdet/cspnext_rsb_pretrain/cspnext-s_imagenet_600e.pth"  # noqa
 d_factor = 0.33
 w_factor = 0.25
-input_shape = 320
+imgsz = (320, 320)
+
+max_epochs = 300
+stage2_num_epochs = 20
+
+
 model.update(
     dict(
         backbone=dict(
             deepen_factor=d_factor,
             widen_factor=w_factor,
             use_depthwise=True,
-            init_cfg=dict(type="Pretrained", prefix="backbone.", checkpoint=checkpoint),
         ),
         neck=dict(
             deepen_factor=d_factor,
@@ -56,17 +59,17 @@ train_pipeline = [
     dict(type=LoadAnnotations, imdecode_backend="pillow", with_bbox=True),
     dict(type=HSVRandomAug),
     dict(type=toTensor),
-    dict(type=Mosaic, img_scale=(input_shape, input_shape), pad_val=114.0),
+    dict(type=Mosaic, img_scale=imgsz, pad_val=114.0),
     dict(
         type=RandomResize,
-        scale=(input_shape*2, input_shape*2),
-        ratio_range=(0.5, 1.5),  #note: changed from 0.1 to 0.5, 2.0 to 1.5
+        scale=(imgsz[0] * 2, imgsz[1] * 2),
+        ratio_range=(0.5, 1.5),  # note: changed from 0.1 to 0.5, 2.0 to 1.5
         resize_type=Resize,
         keep_ratio=True,
     ),
-    dict(type=RandomCrop, crop_size=(input_shape, input_shape)),
+    dict(type=RandomCrop, crop_size=imgsz),
     dict(type=RandomFlip, prob=0.5),
-    dict(type=Pad, size=(input_shape, input_shape), pad_val=dict(img=(114, 114, 114))),
+    dict(type=Pad, size=imgsz, pad_val=dict(img=(114, 114, 114))),
     # dict(
     #     type=MixUp,
     #     img_scale=(input_shape, input_shape),
@@ -88,22 +91,20 @@ train_pipeline_stage2 = [
     dict(type=toTensor),
     dict(
         type=RandomResize,
-        scale=(input_shape*2, input_shape*2),
-        ratio_range=(0.5, 1.5), #note: changed from 0.1 to 0.5, 2.0 to 1.5
+        scale=(imgsz[0] * 2, imgsz[1] * 2),
+        ratio_range=(0.5, 1.5),  # note: changed from 0.1 to 0.5, 2.0 to 1.5
         resize_type=Resize,
         keep_ratio=True,
     ),
-    dict(type=RandomCrop, crop_size=(input_shape, input_shape)),
+    dict(type=RandomCrop, crop_size=imgsz),
     dict(type=RandomFlip, prob=0.5),
-    dict(type=Pad, size=(input_shape, input_shape), pad_val=dict(img=(114, 114, 114))),
+    dict(type=Pad, size=imgsz, pad_val=dict(img=(114, 114, 114))),
     dict(type=PackDetInputs),
 ]
 
-train_dataloader.update(dict(
-    batch_size=128,
-    num_workers=16,
-    dataset=dict(pipeline=train_pipeline)))
-
+train_dataloader.update(
+    dict(batch_size=128, num_workers=16, dataset=dict(pipeline=train_pipeline))
+)
 
 
 custom_hooks = [
@@ -115,15 +116,17 @@ custom_hooks = [
         priority=49,
     ),
     dict(
-        type=PipelineSwitchHook, switch_epoch=280, switch_pipeline=train_pipeline_stage2
+        type=PipelineSwitchHook, switch_epoch=max_epochs - stage2_num_epochs, switch_pipeline=train_pipeline_stage2
     ),
-    dict(type=ProfilerHook,
-         activity_with_cpu=True,
-         activity_with_cuda=True,
-         profile_memory=True,
-         record_shapes=True,
-         with_stack=True,
-         with_flops=True,
-         schedule=dict(wait=1,warmup=1,active=2,repeat=1),
-         on_trace_ready=dict(type='tb_trace'))
+    dict(
+        type=ProfilerHook,
+        activity_with_cpu=True,
+        activity_with_cuda=True,
+        profile_memory=True,
+        record_shapes=True,
+        with_stack=True,
+        with_flops=True,
+        schedule=dict(wait=1, warmup=1, active=2, repeat=1),
+        on_trace_ready=dict(type="tb_trace"),
+    ),
 ]

@@ -11,7 +11,7 @@ from torchvision.ops import nms
 from sscma.datasets.transforms.loading import LoadImageFromFile
 from sscma.datasets.transforms.processing import RandomResize
 from mmengine.hooks.ema_hook import EMAHook
-from mmengine.hooks.profiler_hook import  ProfilerHook
+from mmengine.hooks.profiler_hook import ProfilerHook
 from mmengine.optim.optimizer.optimizer_wrapper import OptimWrapper
 from mmengine.optim.scheduler.lr_scheduler import CosineAnnealingLR, LinearLR
 from torch.nn import SyncBatchNorm
@@ -61,6 +61,16 @@ default_hooks.visualization = dict(type=DetVisualizationHook)
 
 visualizer = dict(type=DetLocalVisualizer, vis_backends=vis_backends, name="visualizer")
 
+d_factor = 1
+w_factor = 1
+num_classes = 80
+imgsz = (640, 640)
+max_epochs = 300
+stage2_num_epochs = 20
+base_lr = 0.004
+interval = 5
+batch_size = (32,)
+num_workers = (12,)
 
 model = dict(
     type=RTMDet,
@@ -75,16 +85,16 @@ model = dict(
         type=CSPNeXt,
         arch="P5",
         expand_ratio=0.5,
-        deepen_factor=1,
-        widen_factor=1,
+        deepen_factor=d_factor,
+        widen_factor=w_factor,
         channel_attention=True,
         norm_cfg=dict(type=SyncBatchNorm),
         act_cfg=dict(type=SiLU, inplace=True),
     ),
     neck=dict(
         type=CSPNeXtPAFPN,
-        deepen_factor=1,
-        widen_factor=1,
+        deepen_factor=d_factor,
+        widen_factor=w_factor,
         in_channels=[256, 512, 1024],
         out_channels=256,
         num_csp_blocks=3,
@@ -116,7 +126,7 @@ model = dict(
     train_cfg=dict(
         assigner=dict(
             type=BatchDynamicSoftLabelAssigner,
-            num_classes=80,
+            num_classes=num_classes,
             topk=13,
             iou_calculator=dict(type=BboxOverlaps2D),
         ),
@@ -143,20 +153,20 @@ train_pipeline = [
     dict(type=LoadAnnotations, imdecode_backend="pillow", with_bbox=True),
     dict(type=HSVRandomAug),
     dict(type=toTensor),
-    dict(type=Mosaic, img_scale=(640, 640), pad_val=114.0),
+    dict(type=Mosaic, img_scale=imgsz, pad_val=114.0),
     dict(
         type=RandomResize,
-        scale=(1280, 1280),
+        scale=(imgsz[0] * 2, imgsz[1] * 2),
         ratio_range=(0.1, 2.0),
         resize_type=Resize,
         keep_ratio=True,
     ),
-    dict(type=RandomCrop, crop_size=(640, 640)),
+    dict(type=RandomCrop, crop_size=imgsz),
     dict(type=RandomFlip, prob=0.5),
-    dict(type=Pad, size=(640, 640), pad_val=dict(img=(114, 114, 114))),
+    dict(type=Pad, size=imgsz, pad_val=dict(img=(114, 114, 114))),
     dict(
         type=MixUp,
-        img_scale=(640, 640),
+        img_scale=imgsz,
         ratio_range=(1.0, 1.0),
         max_cached_images=20,
         pad_val=114.0,
@@ -175,22 +185,22 @@ train_pipeline_stage2 = [
     dict(type=toTensor),
     dict(
         type=RandomResize,
-        scale=(1280, 1280),
+        scale=(imgsz[0] * 2, imgsz[1] * 2),
         ratio_range=(0.1, 2.0),
         resize_type=Resize,
         keep_ratio=True,
     ),
-    dict(type=RandomCrop, crop_size=(640, 640)),
+    dict(type=RandomCrop, crop_size=imgsz),
     dict(type=RandomFlip, prob=0.5),
-    dict(type=Pad, size=(640, 640), pad_val=dict(img=(114, 114, 114))),
+    dict(type=Pad, size=imgsz, pad_val=dict(img=(114, 114, 114))),
     dict(type=PackDetInputs),
 ]
 
 test_pipeline = [
     dict(type=LoadImageFromFile, backend_args=backend_args),
     dict(type=toTensor),
-    dict(type=Resize, scale=(640, 640), keep_ratio=True),
-    dict(type=Pad, size=(640, 640), pad_val=dict(img=(114, 114, 114))),
+    dict(type=Resize, scale=imgsz, keep_ratio=True),
+    dict(type=Pad, size=imgsz, pad_val=dict(img=(114, 114, 114))),
     dict(type=LoadAnnotations, with_bbox=True),
     dict(
         type=PackDetInputs,
@@ -198,11 +208,10 @@ test_pipeline = [
     ),
 ]
 
-
 train_dataloader.update(
     dict(
-        batch_size=32,
-        num_workers=12,
+        batch_size=batch_size,
+        num_workers=num_workers,
         batch_sampler=None,
         pin_memory=True,
         collate_fn=coco_collate,
@@ -215,10 +224,6 @@ val_dataloader.update(
 )
 test_dataloader = val_dataloader
 
-max_epochs = 300
-stage2_num_epochs = 20
-base_lr = 0.004
-interval = 5
 
 train_cfg.update(
     dict(
@@ -275,5 +280,5 @@ custom_hooks = [
         type=PipelineSwitchHook,
         switch_epoch=max_epochs - stage2_num_epochs,
         switch_pipeline=train_pipeline_stage2,
-    )
+    ),
 ]
