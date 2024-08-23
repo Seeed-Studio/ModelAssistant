@@ -268,13 +268,14 @@ class DefaultOptimWrapperConstructor:
                         param_group[
                             'weight_decay'] = self.base_wd * flat_decay_mult
             params.append(param_group)
-            for key, value in param_group.items():
-                if key == 'params':
-                    continue
-                full_name = f'{prefix}.{name}' if prefix else name
-                print_log(
-                    f'paramwise_options -- {full_name}:{key}={value}',
-                    logger='current')
+            if self.paramwise_cfg.get('dump_paramwise_options', False):
+                for key, value in param_group.items():
+                    if key == 'params':
+                        continue
+                    full_name = f'{prefix}.{name}' if prefix else name
+                    print_log(
+                        f'paramwise_options -- {full_name}:{key}={value}',
+                        logger='current')
 
         if mmcv_full_available():
             from mmcv.ops import DeformConv2d, ModulatedDeformConv2d
