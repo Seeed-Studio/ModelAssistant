@@ -435,7 +435,8 @@ class Runner:
 
         # log model information
         imgsz =  self.cfg.get('imgsz', (320, 320))
-        summary(self.model, input_size=(1, 3, imgsz[0], imgsz[1]))
+        summary(self.model, input_size=(1, 3, imgsz[0], imgsz[1]),
+                col_names=["input_size", "output_size", "num_params"],)
 
         # get model name from the model class
         if hasattr(self.model, 'module'):
