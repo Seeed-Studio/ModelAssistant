@@ -16,6 +16,7 @@ import torch.nn as nn
 from torch.nn.parallel.distributed import DistributedDataParallel
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
+from torchinfo import summary
 
 import mmengine
 from mmengine.config import Config, ConfigDict
@@ -427,9 +428,14 @@ class Runner:
             # Merge the data_preprocessor to model config.
             model.setdefault('data_preprocessor', data_preprocessor)
         self.model = self.build_model(model)
+
         # wrap model
         self.model = self.wrap_model(
             self.cfg.get('model_wrapper_cfg'), self.model)
+
+        # log model information
+        imgsz =  self.cfg.get('imgsz', (320, 320))
+        summary(self.model, input_size=(1, 3, imgsz[0], imgsz[1]))
 
         # get model name from the model class
         if hasattr(self.model, 'module'):
