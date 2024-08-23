@@ -19,11 +19,11 @@ def get_args_parser():
     parser.add_argument('--data_root', default="datasets", type=str, help="数据集的根路径")
 
     # Model parameters
-    parser.add_argument('--in_channel', default=3, type=int, help="数据集的输入通道数")
+    parser.add_argument('--in_channel', default=1, type=int, help="数据集的输入通道数")
     parser.add_argument('--out_channel', default=8, type=int, help="数据集的特征通道数")
     parser.add_argument('--conv_tag', default="Conv_block2D", type=str, help="指定卷积模块的结构")
     parser.add_argument('--dataset_get_tag', default="Train", type=str, help="指定使用的数据集模式,可选有Train,Dynamic_Train")
-    parser.add_argument('--dataset_type', default="Signal", type=str, help="指定使用的数据集加载类型,可选有Signal,Microphone")
+    parser.add_argument('--dataset_type', default="Micro", type=str, help="指定使用的数据集加载类型,可选有Signal,Micro")
     parser.add_argument('--epochs', default=3000, type=int, help="训练epoch数")
     parser.add_argument('--data_len', default=100, type=int, help="若采用实时采集数据进行训练的情况下需要指定该参数")
     parser.add_argument('--train_batch_size', default=12, type=int, help="训练集的batch_size")
@@ -73,7 +73,7 @@ def main():
     # rand_freeze = None
     model = models.Vae_Model(in_channel=in_channel, out_channel=out_channel, tag=conv_tag, freeze_randn=rand_freeze)
     checkpoint_callback = ModelCheckpoint(
-        monitor='val_loss',  # 根据训练损失保存模型s
+        monitor='val_loss',  # 根据训练损失保存模型
         dirpath='checkpoints/',
         filename='best-checkpoint',
         save_top_k=1,

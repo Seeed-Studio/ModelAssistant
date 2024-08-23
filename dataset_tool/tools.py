@@ -23,7 +23,7 @@ import sys
 
 sys.path.append("../")
 
-sample_rate = 256
+sample_rate = None
 
 
 def haar_wavelet_transform(signal):
@@ -75,13 +75,12 @@ def calculate_rms(signal):
 
 
 def preprocess(data):
+    factor = 5.12
     # data = data * 1024
-    # data = data * 0.005
-    data = data.astype(np.float32)
-    data = data * (1024 * 0.005)
+    data = data * factor
     data = np.floor(data)
-    data = data * 200
-    data = data / 1024
+    data = data / factor
+    # data = data / 1024
     return data.astype('float32')
 
 
@@ -224,17 +223,23 @@ def frequency_masking(mel_spectrogram, freq_mask_param=10):
     return augmented_mel_spectrogram
 
 
-def global_mean_std_estimate(signal_dataset):
+def global_mean_std_estimate(dataset, data_type="Signal"):
     mean = 0
     std = 0
     data_len = 0
-    for data in signal_dataset:
-        data = np.reshape(np.array(data).astype('float32'), (-1, 3))
+    for data in dataset:
+        if data_type == "Signal":
+            data = np.reshape(np.array(data).astype('float32'), (-1, 3))
+        elif data_type == "Micro":
+            data = np.reshape(np.array(data).astype('float32'), (-1, ))
         mean = mean + data.mean()
         data_len = data_len + 1
     mean = mean / data_len
-    for data in signal_dataset:
-        data = np.reshape(np.array(data).astype('float32'), (-1, 3))
+    for data in dataset:
+        if data_type == "Signal":
+            data = np.reshape(np.array(data).astype('float32'), (-1, 3))
+        elif data_type == "Micro":
+            data = np.reshape(np.array(data).astype('float32'), (-1, ))
         temp = (data - mean) * (data - mean)
         temp = temp.mean()
         std = std + temp
@@ -261,8 +266,8 @@ def sample_c_process(
     # mtf = MarkovTransitionField(n_bins=64, strategy="normal")
     for i in range(3):
         data_temp = data[:, i]
-        nyquist_rate = 200 / 2.0  # 采样频率，根据传感器的采样速率更改
-        cutoff_freq = 20.0  # 需要过滤的截止频率，该数值越大则削掉的高频越多，
+        nyquist_rate = sample_rate / 2.0  # 采样频率，根据传感器的采样速率更改
+        cutoff_freq = 90.0  # 需要过滤的截止频率，该数值越大则削掉的高频越多，
         # 注意该数值不能超过nyquist_rate
         numtaps = 200  # 滤波器系数数量，越大则滤波器越陡峭，对高频的削减越大，100-200范围调整即可
         fir_coeff = firwin(numtaps, cutoff_freq / nyquist_rate)
@@ -281,7 +286,7 @@ def sample_c_process(
         # 对信号数据进行插值缩放以提升小波变换速度，要注意缩放大小会影响传感器敏感度，当前数值是比较好的妥协
         # 若数据点为256，则缩放到32-96均有效果，若数据点为1024，则建议缩放到128
         data_temp = np.squeeze(data_temp)
-        x_i = CWT(data_temp_x, scales=np.arange(2, 2 + 16), wavelet='morl')
+        x_i = CWT(data_temp_x, scales=np.arange(10, 10 + 16), wavelet='morl')
         # scales参数的大小可以大幅度影响小波变换的速度，建议生成16个scale，同样会影响敏感度，范围为8-32
         # 要注意scales的起点设定，需要观察处理后图像进行调整
         x_i = cv2.resize(x_i, (32, 32), interpolation=cv2.INTER_LINEAR)
@@ -303,13 +308,21 @@ def sample_c_process(
     return x.astype('float32'), c.astype('float32'), label.astype('float32')
 
 
-def sample_mico_process(x, mel_transform, db_transform):
+def generate_Mel_DBtans(sample_rate=96000, n_fft=64, n_mels=32):
+    mel_transform = MelSpectrogram(sample_rate, n_fft=n_fft, n_mels=n_mels)
+    db_transform = AmplitudeToDB()
+    return mel_transform, db_transform
+
+
+def sample_micro_process(x, mel_transform, db_transform, mean, std):
     x = np.reshape(np.array(x).astype('float32'), (-1, ))
-    x = torch.tensor(x) / 1024
+    if mean is not None:
+        x = mean_std_scale(x, mean, std)
+    x = torch.tensor(x)
     mel_spectrogram = mel_transform(x)
     mel_spectrogram_db = db_transform(mel_spectrogram) / 100
     mel_spectrogram_db = mel_spectrogram_db[:, :-1]
-    x = mel_spectrogram_db.unsqueeze(0)
+    x = mel_spectrogram_db.unsqueeze(0).numpy()
     return x, x, x
 
 
@@ -338,20 +351,6 @@ class Signal_dataset(Dataset):
             # mean_record = []
             for index, data in enumerate(self.raw_sample):
                 gadf, c, label = sample_c_process(data, mean, std)
-            #     mean_record.append([np.mean(gadf[0]), np.mean(gadf[1]), np.mean(gadf[2])])
-            #     std_record.append([np.std(gadf[0]), np.std(gadf[1]), np.std(gadf[2])])
-            #     sample.append([gadf, c, label])
-
-            # mean_record = np.array(mean_record)
-            # std_record = np.array(std_record)
-            # data_mean = np.sum(mean_record, axis=0, keepdims=True) / self.data_len
-            # data_mean = np.transpose(np.expand_dims(data_mean, axis=0), (2, 1, 0))
-            # data_std = np.sum(std_record, axis=0, keepdims=True) / self.data_len
-            # data_std = np.transpose(np.expand_dims(data_std, axis=0), (2, 1, 0))
-            # for index, data in enumerate(sample):
-            #     sample[index][0] = ((data[0] - data_mean) / (data_std + 1e-5)) / 100
-            # np.save('x_data_mean', data_mean)
-            # np.save('x_data_std', data_std)
             return sample
         else:
             return self.raw_sample
@@ -401,13 +400,12 @@ class Signal_dataset(Dataset):
 
 class Microphone_dataset(Dataset):
 
-    def __init__(self, data_root, tag, sample_rate=96000, n_mels=16, data_len=10, transform=None):
+    def __init__(self, data_root, tag, data_len=10, transform=None):
         self.data_root = data_root
         self.tag = tag
-        self.sample_rate = sample_rate
-        self.mel_transform = MelSpectrogram(sample_rate, n_fft=32, n_mels=n_mels)
+        # self.sample_rate = sample_rate
+        self.mel_transform, self.db_transform = generate_Mel_DBtans()
 
-        self.db_transform = AmplitudeToDB()
         if tag == "Dynamic_Train":
             self.data_len = data_len
             self.ser = serial.Serial('COM5', 115200)
@@ -441,15 +439,18 @@ class Microphone_dataset(Dataset):
         return sample
 
     def sample_process(self):
-        sample = []
-        for data in self.sample:
-            data = data.astype(np.float32) / 1024
-            data = torch.tensor(data)
-            data = self.augment_waveform(data)
-            data, c, label = sample_mico_process(data, self.mel_transform, self.db_transform)
-            sample.append([data, c, label])
+        if self.tag == "Dynamic_Train":
+            sample = []
+            for data in self.sample:
+                data = data.astype(np.float32) / 1024
+                data = torch.tensor(data)
+                data = self.augment_waveform(data)
+                data, c, label = sample_micro_process(data, self.mel_transform, self.db_transform)
+                sample.append([data, c, label])
 
-        return sample
+            return sample
+        else:
+            return self.sample
 
     def __getitem__(self, index: Any) -> Any:
         # 适用于音频数据的代码还未写，具体实现方法参考信号
