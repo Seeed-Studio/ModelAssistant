@@ -24,7 +24,7 @@ param_scheduler = [
         type=LinearLR,
         start_factor=4e-4,
         by_epoch=True,
-        begin=0,
+		begin=1,
         end=warmup_epochs,
         # update by iter
         convert_to_iter_based=True,
@@ -34,7 +34,7 @@ param_scheduler = [
 ]
 
 # train, val, test setting
-train_cfg = dict(by_epoch=True, max_epochs=500, val_interval=1)
+train_cfg = dict(by_epoch=True, max_epochs=100, val_interval=1)
 val_cfg = dict()
 test_cfg = dict()
 

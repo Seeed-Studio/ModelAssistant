@@ -37,23 +37,24 @@ class NewEmptyTensorOp(torch.autograd.Function):
 
 
 class Conv2d(nn.Conv2d):
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        if obsolete_torch_version(TORCH_VERSION, (1, 4)) and x.numel() == 0:
-            out_shape = [x.shape[0], self.out_channels]
-            for i, k, p, s, d in zip(
-                x.shape[-2:], self.kernel_size, self.padding, self.stride, self.dilation
-            ):
-                o = (i + 2 * p - (d * (k - 1) + 1)) // s + 1
-                out_shape.append(o)
-            empty = NewEmptyTensorOp.apply(x, out_shape)
-            if self.training:
-                # produce dummy gradient to avoid DDP warning.
-                dummy = sum(x.view(-1)[0] for x in self.parameters()) * 0.0
-                return empty + dummy
-            else:
-                return empty
+    ...
+    # def forward(self, x: torch.Tensor) -> torch.Tensor:
+    #     # if obsolete_torch_version(TORCH_VERSION, (1, 4)) and x.numel() == 0:
+    #     #     out_shape = [x.shape[0], self.out_channels]
+    #     #     for i, k, p, s, d in zip(
+    #     #         x.shape[-2:], self.kernel_size, self.padding, self.stride, self.dilation
+    #     #     ):
+    #     #         o = (i + 2 * p - (d * (k - 1) + 1)) // s + 1
+    #     #         out_shape.append(o)
+    #     #     empty = NewEmptyTensorOp.apply(x, out_shape)
+    #     #     if self.training:
+    #     #         # produce dummy gradient to avoid DDP warning.
+    #     #         dummy = sum(x.view(-1)[0] for x in self.parameters()) * 0.0
+    #     #         return empty + dummy
+    #     #     else:
+    #     #         return empty
 
-        return super().forward(x)
+    #     return super().forward(x)
 
 
 class Conv3d(nn.Conv3d):

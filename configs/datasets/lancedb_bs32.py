@@ -12,10 +12,7 @@ from sscma.evaluation import Accuracy
 # dataset settings
 dataset_type = LanceDataset
 
-data_root = ""
-batch_size = 32
-num_workers = 4
-
+data_root = "/home/dq/datasets/imagenet100/"
 
 train_pipeline = [
     dict(type=RandomResizedCrop, scale=224),
@@ -30,8 +27,8 @@ test_pipeline = [
 ]
 
 train_dataloader = dict(
-    batch_size=batch_size,
-    num_workers=num_workers,
+    batch_size=64,
+    num_workers=8,
     pin_memory=True,
     dataset=dict(
         type=dataset_type,
@@ -40,12 +37,12 @@ train_dataloader = dict(
         pipeline=train_pipeline,
     ),
     sampler=dict(type=DefaultSampler, shuffle=True),
-    persistent_workers=True,
+    persistent_workers=True
 )
 
 val_dataloader = dict(
-    batch_size=batch_size,
-    num_workers=num_workers,
+    batch_size=64,
+    num_workers=8,
     pin_memory=True,
     dataset=dict(
         type=dataset_type,
@@ -54,7 +51,7 @@ val_dataloader = dict(
         pipeline=test_pipeline,
     ),
     sampler=dict(type=DefaultSampler, shuffle=False),
-    persistent_workers=True,
+    persistent_workers=True
 )
 val_evaluator = dict(type=Accuracy, topk=(1, 5))
 

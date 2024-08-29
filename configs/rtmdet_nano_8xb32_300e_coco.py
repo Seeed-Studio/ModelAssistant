@@ -25,8 +25,11 @@ from sscma.datasets.transforms.transforms import (
 from sscma.engine.hooks.pipeline_switch_hook import PipelineSwitchHook
 from sscma.models.layers.ema import ExpMomentumEMA
 
+checkpoint = "/home/dq/code/sscma/work_dirs/rtmdet_nano_8xb256_600e_coco_1k/rtmdet_pretrain.pth"  # noqa
 d_factor = 0.33
 w_factor = 0.25
+input_shape = 320
+
 imgsz = (320, 320)
 
 max_epochs = 300

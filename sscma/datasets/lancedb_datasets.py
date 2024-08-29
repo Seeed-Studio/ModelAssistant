@@ -6,6 +6,7 @@ import os
 import os.path as osp
 from pycocotools.coco import COCO
 import lance
+from torch.utils.data import get_worker_info,DataLoader
 from mmengine.dataset.base_dataset import force_full_init
 from sscma.datasets.base_dataset import BaseDataset
 import cv2
@@ -18,9 +19,13 @@ def process_images_detect(images_folder, schema, ann_file):
     for im_ann in images:
         images2id[im_ann["file_name"]] = im_ann["id"]
     image2ann = coco.imgToAnns
-
+    num=0
     for image_id, img_info in tqdm(coco.imgs.items()):
-        image_file = img_info["file_name"]
+        image_file = osp.basename(img_info["file_name"])
+        if not osp.exists(osp.join(images_folder, image_file)):
+            print(num)
+            num+=1
+            continue
 
         bboxes = []
         catids = []
@@ -160,7 +165,9 @@ class LanceDataset(BaseDataset):
         if "image" in self.cache_info:
             self.cache_info.remove("image")
 
+
         self.ds = lance.dataset(self.lance_file)
+
         super().__init__(
             ann_file,
             metainfo,
@@ -201,3 +208,9 @@ class LanceDataset(BaseDataset):
         )[..., ::-1]
         data["gt_label"] = data["label"]
         return data
+
+if __name__=="__main__":
+
+    datasets = LanceDataset(data_root="/home/dq/datasets/nas/objects365v1/images/",data_prefix=dict(img_path='train'),test_mode=False,ann_file='/home/dq/datasets/nas/objects365v1/zhiyuan_objv2_train.json')
+    loader = DataLoader(datasets,2,num_workers=2)
+    

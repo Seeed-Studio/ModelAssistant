@@ -158,6 +158,7 @@ class ChannelAttention(BaseModule):
             self.act = nn.Hardsigmoid()
         else:
             self.act = nn.Hardsigmoid(inplace=True)
+        self.act = nn.ReLU6()
 
     def forward(self, x: Tensor) -> Tensor:
         """Forward function for ChannelAttention."""

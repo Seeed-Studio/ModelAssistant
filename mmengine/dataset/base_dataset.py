@@ -239,12 +239,13 @@ class BaseDataset(Dataset):
 
         # Join paths.
         self._join_prefix()
-
+        
         # Build pipeline.
         self.pipeline = Compose(pipeline)
         # Full initialize the dataset.
         if not lazy_init:
             self.full_init()
+            
 
     @force_full_init
     def get_data_info(self, idx: int) -> dict:
@@ -301,11 +302,9 @@ class BaseDataset(Dataset):
         # Get subset data according to indices.
         if self._indices is not None:
             self.data_list = self._get_unserialized_subset(self._indices)
-
         # serialize data_list
         if self.serialize_data:
             self.data_bytes, self.data_address = self._serialize_data()
-
         self._fully_initialized = True
 
     @property

@@ -1,5 +1,4 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-
 from mmengine.config import read_base
 
 with read_base():
@@ -90,6 +89,11 @@ model = dict(
         channel_attention=True,
         norm_cfg=dict(type=SyncBatchNorm),
         act_cfg=dict(type=SiLU, inplace=True),
+        init_cfg={
+            "type": "Pretrained",
+            "prefix": "backbone.",
+            "checkpoint": "/home/dq/code/sscma/pretrain.pt",
+        },
     ),
     neck=dict(
         type=CSPNeXtPAFPN,

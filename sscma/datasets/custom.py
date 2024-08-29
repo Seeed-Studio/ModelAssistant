@@ -238,11 +238,11 @@ class CustomDataset(BaseDataset):
             self.folder_to_idx = folder_to_idx
 
             if self.CLASSES is not None:
-                assert len(self.CLASSES) == len(classes), (
-                    f"The number of subfolders ({len(classes)}) doesn't "
-                    f"match the number of specified classes "
-                    f"({len(self.CLASSES)}). Please check the data folder."
-                )
+                print(len(self.CLASSES),len(classes))
+                assert len(self.CLASSES) == len(classes), \
+                    f"The number of subfolders ({len(classes)}) doesn't " \
+                    f'match the number of specified classes ' \
+                    f'({len(self.CLASSES)}). Please check the data folder.'
             else:
                 self._metainfo["classes"] = tuple(classes)
         else:
