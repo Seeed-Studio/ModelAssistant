@@ -1,3 +1,3 @@
-from .timm import TimmClassifier
+from .timm import TimmBackbone
 
-__all__ = ["TimmClassifier"]
+__all__ = ["TimmBackbone"]
