@@ -1,12 +1,9 @@
 from sscma.datasets import ImageNet
-from sscma.datasets.transforms import (
-    LoadImageFromFile,
-    RandomResizedCrop,
-    RandomFlip,
-    ResizeEdge,
-    CenterCrop,
-    PackInputs,
-)
+from sscma.datasets.transforms.loading import LoadImageFromFile
+from sscma.datasets.transforms.processing import RandomResizedCrop, ResizeEdge, CenterCrop
+from sscma.datasets.transforms.formatting import PackInputs
+from sscma.datasets.transforms.transforms import RandomFlip
+
 from mmengine.dataset import DefaultSampler
 from sscma.evaluation import Accuracy
 

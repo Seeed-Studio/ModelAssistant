@@ -1,4 +1,4 @@
-from sscma.models.backbones import TimmClassifier
+from sscma.models.backbones import TimmBackbone
 from sscma.models.losses import CrossEntropyLoss
 from sscma.models import Mixup, CutMix
 
@@ -15,7 +15,7 @@ data_preprocessor = dict(
 
 model = dict(
     data_preprocessor=data_preprocessor,
-    type=TimmClassifier,
+    type=TimmBackbone,
     pretrained=True,
     num_classes=100,
     loss=dict(
