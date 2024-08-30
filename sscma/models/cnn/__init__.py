@@ -2,11 +2,12 @@
 # from .activation import build_activation_layer
 from .conv import build_conv_layer
 from .conv_module import ConvModule
-from .padding import build_padding_layer
-from .norm import build_norm_layer, is_norm
 from .depthwise_separable_conv_module import DepthwiseSeparableConvModule
-from .scale import Scale
 from .drop import Dropout, DropPath
+from .inverted_residual import InvertedResidual, EnhancedInvertedResidual, EnhancedInvertedResidualDS, make_divisible
+from .norm import build_norm_layer, is_norm
+from .padding import build_padding_layer
+from .scale import Scale
 from .wrappers import (
     Conv2d,
     Conv3d,
@@ -34,4 +35,8 @@ __all__ = [
     "Linear",
     "MaxPool2d",
     "MaxPool3d",
+    "InvertedResidual",
+    "EnhancedInvertedResidual",
+    "EnhancedInvertedResidualDS",
+    "make_divisible",
 ]
