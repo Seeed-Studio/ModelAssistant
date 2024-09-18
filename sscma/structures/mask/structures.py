@@ -9,6 +9,7 @@ import pycocotools.mask as maskUtils
 import shapely.geometry as geometry
 import torch
 from torchvision.ops import roi_align
+
 from sscma.utils import *
 
 T = TypeVar("T")
@@ -386,7 +387,12 @@ class BitmapMasks(BaseInstanceMasks):
             )
             # TODO: need check
             targets = roi_align(
-                gt_masks_th[:, None, :, :], rois, out_shape, spatial_scale=1.0, sampling_ratio=0, aligned=True
+                gt_masks_th[:, None, :, :],
+                rois,
+                out_shape,
+                spatial_scale=1.0,
+                sampling_ratio=0,
+                aligned=True,
             ).squeeze(1)
             if binarize:
                 resized_masks = (targets >= 0.5).cpu().numpy()
@@ -548,8 +554,7 @@ class BitmapMasks(BaseInstanceMasks):
 
     @classmethod
     def random(cls, num_masks=3, height=32, width=32, dtype=np.uint8, rng=None):
-        """Generate random bitmap masks for demo / testing purposes.
-        """
+        """Generate random bitmap masks for demo / testing purposes."""
         from mmdet.utils.util_random import ensure_rng
 
         rng = ensure_rng(rng)
@@ -896,7 +901,9 @@ class PolygonMasks(BaseInstanceMasks):
                     )  # [n, 3]
                     rotated_coords = np.matmul(
                         rotate_matrix[None, :, :], coords[:, :, None]
-                    )[..., 0]  # [n, 2, 1] -> [n, 2]
+                    )[
+                        ..., 0
+                    ]  # [n, 2, 1] -> [n, 2]
                     rotated_coords[:, 0] = np.clip(
                         rotated_coords[:, 0], 0, out_shape[1]
                     )

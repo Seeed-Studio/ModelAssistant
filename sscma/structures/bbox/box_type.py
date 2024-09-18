@@ -276,7 +276,7 @@ def autocast_box_type(dst_box_type="hbox") -> Callable:
             else:
                 raise TypeError(
                     "auto_box_type requires results['gt_bboxes'] to "
-                    'be BaseBoxes or np.ndarray, but got '
+                    "be BaseBoxes or np.ndarray, but got "
                     f"{type(results['gt_bboxes'])}"
                 )
 
