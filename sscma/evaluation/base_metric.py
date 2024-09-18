@@ -1,5 +1,4 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-
 from abc import ABCMeta, abstractmethod
 from logging import Logger
 from typing import Any, Dict, List, Optional

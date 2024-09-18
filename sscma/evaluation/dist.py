@@ -1,5 +1,4 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-
 from typing import List, Optional, no_type_check
 
 from .dist_backends import BaseDistBackend, NonDist, TorchCPUDist, TorchCUDADist

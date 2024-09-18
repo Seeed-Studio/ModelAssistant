@@ -1,8 +1,8 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-
 import pickle
 from abc import ABCMeta, abstractmethod
-from typing import Any, List, Tuple, TypeVar, Union, TYPE_CHECKING
+from typing import Any, List, Tuple, TypeVar, Union
+
 import torch
 import torch.distributed as torch_dist
 
@@ -121,8 +121,9 @@ class TensorBaseDistBackend(BaseDistBackend):
         """
 
     @abstractmethod
-    def _pad_tensor(self, tensor: Tensor,
-                    max_size: Union[int, Tensor]) -> Tensor:  # yapf: disable
+    def _pad_tensor(
+        self, tensor: Tensor, max_size: Union[int, Tensor]
+    ) -> Tensor:  # yapf: disable
         """Padding the given tensor to the given size with 0.
 
         Args:
@@ -294,8 +295,9 @@ class TorchCPUDist(TensorBaseDistBackend):
         obj = pickle.loads(buffer)
         return obj
 
-    def _pad_tensor(self, tensor: Tensor,
-                    max_size: Union[int, Tensor]) -> Tensor:  # yapf: disable
+    def _pad_tensor(
+        self, tensor: Tensor, max_size: Union[int, Tensor]
+    ) -> Tensor:  # yapf: disable
         """Padding the given tensor to the given size.
 
         Args:

@@ -1,3 +1,4 @@
+# Copyright (c) OpenMMLab. All rights reserved.
 """This module is used to patch the default Evaluator in MMEngine.
 
 Follow the `Guide <https://mmeval.readthedocs.io/en/latest/tutorials/custom_metric.html>_`
@@ -8,20 +9,19 @@ the ``CustomMetric`` to the real name of the metric and implement it.
 """  # noqa: E501
 
 from typing import Optional, Sequence, Union, List
+
 import torch
-import torch.nn as nn
 import numpy as np
 
 from mmengine.evaluator import BaseMetric
-
-import mmengine
+from mmengine import is_str
 
 
 def to_tensor(value):
     """Convert value to torch.Tensor."""
     if isinstance(value, np.ndarray):
         value = torch.from_numpy(value)
-    elif isinstance(value, Sequence) and not mmengine.is_str(value):
+    elif isinstance(value, Sequence) and not is_str(value):
         value = torch.tensor(value)
     elif not isinstance(value, torch.Tensor):
         raise TypeError(f"{type(value)} is not an available argument.")

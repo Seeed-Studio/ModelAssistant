@@ -1,3 +1,4 @@
+# Copyright (c) OpenMMLab. All rights reserved.
 """This module is used to patch the default Evaluator in MMEngine.
 
 For the convenient of customizing the Metric, ``sscma`` patch

@@ -1,5 +1,4 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-
 # Copyright (c) 2018, Alexander Kirillov
 # This file supports `backend_args` for `panopticapi`,
 # the source code is copied from `panopticapi`,
@@ -9,7 +8,7 @@ import os
 
 import numpy as np
 from mmengine.fileio import get
-from sscma.utils.simplecv import simplecv_imfrombytes,simplecv_imread
+from sscma.utils.simplecv import simplecv_imfrombytes, simplecv_imread
 
 # A custom value to distinguish instance ID and category ID; need to
 # be greater than the number of categories.

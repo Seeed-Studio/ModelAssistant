@@ -2,9 +2,9 @@
 from collections.abc import Sequence
 
 import numpy as np
-from mmengine.logging import print_log
 from terminaltables import AsciiTable
 
+from mmengine.logging import print_log
 from .bbox_overlaps import bbox_overlaps
 
 
