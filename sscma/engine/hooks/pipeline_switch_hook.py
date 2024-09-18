@@ -1,5 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from sscma.models.wrappers import Compose
+from mmengine.dataset.base_dataset import Compose
 from mmengine.hooks import Hook
 
 

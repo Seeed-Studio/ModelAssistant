@@ -8,7 +8,6 @@ from mmengine.hooks import Hook
 from mmengine.runner import Runner
 from mmengine.utils import mkdir_or_exist
 from mmengine.visualization import Visualizer
-
 from sscma.structures import DetDataSample
 from sscma.utils import simplecv_imfrombytes
 
