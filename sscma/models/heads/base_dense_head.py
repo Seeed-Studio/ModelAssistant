@@ -5,21 +5,22 @@ from inspect import signature
 from typing import List, Optional, Tuple
 
 import torch
+from torch import Tensor
 from torchvision.ops import batched_nms
+
 from mmengine.config import ConfigDict
 from mmengine.model import BaseModule, constant_init
 from mmengine.structures import InstanceData
-from torch import Tensor
-
 from sscma.structures import SampleList
 from sscma.structures.bbox import cat_boxes, get_box_tensor, get_box_wh, scale_boxes
 from sscma.utils.typing_utils import InstanceList, OptMultiConfig
-from ..test_time_augs import merge_aug_results
 from sscma.utils.misc import (
     filter_scores_and_topk,
     select_single_mlvl,
     unpack_gt_instances,
 )
+
+from ..test_time_augs import merge_aug_results
 
 
 class BaseDenseHead(BaseModule, metaclass=ABCMeta):
@@ -542,7 +543,7 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
         ]
         assert ("with_nms" in get_results_args) and (
             "with_nms" in get_results_single_sig_args
-        ), f"{self.__class__.__name__}" "does not support test-time augmentation "
+        ), (f"{self.__class__.__name__}" "does not support test-time augmentation ")
 
         num_imgs = len(aug_batch_img_metas[0])
         aug_batch_results = []
@@ -565,7 +566,10 @@ class BaseDenseHead(BaseModule, metaclass=ABCMeta):
         for img_id in range(num_imgs):
             results = batch_results[img_id]
             keep_idxs = batched_nms(
-                results.bboxes, results.scores, results.labels, self.test_cfg.nms.iou_threshold
+                results.bboxes,
+                results.scores,
+                results.labels,
+                self.test_cfg.nms.iou_threshold,
             )
             results = results[keep_idxs]
             results = results[: self.test_cfg.max_per_img]

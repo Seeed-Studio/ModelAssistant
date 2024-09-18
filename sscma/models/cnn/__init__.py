@@ -1,12 +1,13 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 # from .activation import build_activation_layer
+from .activation import build_activation_layer, Clamp, GELU
 from .conv import build_conv_layer
 from .conv_module import ConvModule
-from .padding import build_padding_layer
-from .norm import build_norm_layer, is_norm
 from .depthwise_separable_conv_module import DepthwiseSeparableConvModule
-from .scale import Scale
 from .drop import Dropout, DropPath
+from .norm import build_norm_layer, is_norm
+from .padding import build_padding_layer
+from .scale import Scale
 from .wrappers import (
     Conv2d,
     Conv3d,
@@ -18,6 +19,9 @@ from .wrappers import (
 )
 
 __all__ = [
+    "build_activation_layer",
+    "Clamp",
+    "GELU",
     "ConvModule",
     "Scale",
     "build_conv_layer",

@@ -4,9 +4,8 @@ from typing import Dict
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
 from mmengine.registry import MODELS
-from mmengine.utils import digit_version
-from mmengine.utils.dl_utils import TORCH_VERSION
 
 
 class Clamp(nn.Module):

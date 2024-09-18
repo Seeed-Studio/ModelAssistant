@@ -3,14 +3,14 @@ import math
 from typing import Sequence, Tuple
 
 import torch.nn as nn
-from ..cnn import ConvModule, DepthwiseSeparableConvModule
-from mmengine.model import BaseModule
 from torch import Tensor
 from torch.nn.modules.batchnorm import _BatchNorm
 
+from mmengine.model import BaseModule
+from sscma.models.cnn import ConvModule, DepthwiseSeparableConvModule
 from sscma.utils.typing_utils import ConfigType, OptConfigType, OptMultiConfig
-from ..layers import CSPLayer
-from .csp_darknet import SPPBottleneck
+from sscma.models.layers import CSPLayer
+from sscma.models.backbones.csp_darknet import SPPBottleneck
 
 
 class CSPNeXt(BaseModule):

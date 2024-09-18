@@ -3,9 +3,9 @@ from abc import ABCMeta, abstractmethod
 from typing import Dict, List, Tuple, Union
 
 import torch
-from mmengine.model import BaseModel
 from torch import Tensor
 
+from mmengine.model import BaseModel
 from sscma.structures import DetDataSample, OptSampleList, SampleList
 from sscma.utils.typing_utils import InstanceList, OptConfigType, OptMultiConfig
 from sscma.utils.misc import samplelist_boxtype2tensor

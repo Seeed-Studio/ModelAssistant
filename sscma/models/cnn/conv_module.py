@@ -5,6 +5,7 @@ from typing import Dict, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
+
 from mmengine.model import constant_init, kaiming_init
 from mmengine.utils.dl_utils.parrots_wrapper import _BatchNorm, _InstanceNorm
 
@@ -303,7 +304,9 @@ class ConvModule(nn.Module):
             and isinstance(self.norm, _BatchNorm)
             and self.norm.track_running_stats
         ):
-            self.efficient_conv_bn_eval_forward = efficient_conv_bn_eval_forward  # noqa: E501
+            self.efficient_conv_bn_eval_forward = (
+                efficient_conv_bn_eval_forward  # noqa: E501
+            )
         else:
             self.efficient_conv_bn_eval_forward = None  # type: ignore
 

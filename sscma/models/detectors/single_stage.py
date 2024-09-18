@@ -1,9 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from typing import List, Tuple, Union
 
-from torch import Tensor
 import torch.nn as nn
-import torch
+from torch import Tensor
+
 from mmengine.registry import MODELS
 from sscma.structures import OptSampleList, SampleList
 from sscma.utils.typing_utils import ConfigType, OptConfigType, OptMultiConfig
@@ -29,12 +29,6 @@ class SingleStageDetector(BaseDetector):
     ) -> None:
         super().__init__(data_preprocessor=data_preprocessor, init_cfg=init_cfg)
         self.backbone: nn.Module = MODELS.build(backbone)
-        print("="*100)
-        # self.backbone.load_state_dict(
-        #     torch.load(
-        #         "/home/dq/code/sscma/work_dirs/rtmdet_nano_8xb256_600e_coco_1k/epoch_398.pth"
-        #     )
-        # )
         if neck is not None:
             self.neck = MODELS.build(neck)
         bbox_head.update(train_cfg=train_cfg)

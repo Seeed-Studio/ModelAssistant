@@ -4,10 +4,10 @@ from typing import List, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
-from mmengine.structures import InstanceData
-from mmengine.registry import MODELS, TASK_UTILS
 from torch import Tensor
 
+from mmengine.structures import InstanceData
+from mmengine.registry import MODELS, TASK_UTILS
 from sscma.structures.bbox import BaseBoxes, cat_boxes, get_box_tensor
 from sscma.utils.typing_utils import (
     ConfigType,
@@ -16,9 +16,9 @@ from sscma.utils.typing_utils import (
     OptInstanceList,
     OptMultiConfig,
 )
+from sscma.utils.misc import images_to_levels, multi_apply, unmap
 from ..task_modules.prior_generators import AnchorGenerator, anchor_inside_flags
 from ..task_modules.samplers import PseudoSampler
-from sscma.utils.misc import images_to_levels, multi_apply, unmap
 from .base_dense_head import BaseDenseHead
 
 

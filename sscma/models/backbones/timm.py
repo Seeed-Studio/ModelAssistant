@@ -1,19 +1,16 @@
 # Copyright (c) OpenMMLab. All right reserved.
 # Copyright (c) Seeed Technology Co.,Ltd. All rights reserved.
 import re
-from collections import OrderedDict
 from typing import List, Optional
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 import timm
+
 from mmengine.logging import MMLogger
 from mmengine.model import BaseModel
 from mmengine.registry import MODELS
-
-
 from sscma.structures import DataSample
 from sscma.datasets import ClsDataPreprocessor
 

@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
+
 from mmengine.dist import get_world_size
 from mmengine.logging import print_log
 

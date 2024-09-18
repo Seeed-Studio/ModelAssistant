@@ -3,11 +3,12 @@ from typing import List, Optional, Sequence, Tuple
 
 import torch
 import torch.nn as nn
-from ..cnn import ConvModule, Scale
-from mmengine.structures import InstanceData
-from mmengine.registry import MODELS
 from torch import Tensor
 
+from mmengine.structures import InstanceData
+from mmengine.registry import MODELS
+
+from sscma.models.cnn import ConvModule, Scale
 from sscma.utils.typing_utils import (
     ConfigType,
     InstanceList,
@@ -16,9 +17,9 @@ from sscma.utils.typing_utils import (
     OptInstanceList,
 )
 from sscma.utils.dist_utils import reduce_mean
-from ..task_modules import anchor_inside_flags
+from sscma.models.task_modules import anchor_inside_flags
 from sscma.utils.misc import images_to_levels, multi_apply, unmap
-from .anchor_head import AnchorHead
+from sscma.models.heads.anchor_head import AnchorHead
 from sscma.models.losses.cross_entropy_loss import CrossEntropyLoss
 
 

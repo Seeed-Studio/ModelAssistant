@@ -3,15 +3,14 @@ from typing import List, Optional, Tuple, Union, Sequence
 import copy
 import torch
 import torch.nn as nn
-from ..cnn import ConvModule, DepthwiseSeparableConvModule, Scale, is_norm
+from torch import Tensor
+
 from mmengine.model import BaseModule, bias_init_with_prob, constant_init, normal_init
 from mmengine.structures import InstanceData
 from mmengine.registry import MODELS
 from mmengine.config import ConfigDict
 from mmengine.dist import get_dist_info
-from torch import Tensor
 from mmengine.logging import print_log
-
 from mmengine.registry import TASK_UTILS
 
 from sscma.structures.bbox import distance2bbox, bbox_overlaps
@@ -22,8 +21,9 @@ from sscma.utils.typing_utils import (
     OptConfigType,
     OptMultiConfig,
 )
+from sscma.models.cnn import ConvModule, is_norm
 from sscma.utils.dist_utils import reduce_mean
-from .base_dense_head import BaseDenseHead
+from sscma.models.heads.base_dense_head import BaseDenseHead
 from sscma.models.task_modules.prior_generators.anchor_generator import (
     YOLOAnchorGenerator,
 )
@@ -37,10 +37,7 @@ from sscma.models.task_modules.prior_generators.point_generator import (
     MlvlPointGenerator,
 )
 from sscma.models.losses.iou_loss import GIoULoss
-from ..layers.utils import inverse_sigmoid
-from ..task_modules import anchor_inside_flags
 from sscma.utils.misc import gt_instances_preprocess, filter_scores_and_topk
-from .atss_head import ATSSHead
 from sscma.models.losses.iou_loss import IoULoss
 from sscma.models.losses.cross_entropy_loss import CrossEntropyLoss
 
