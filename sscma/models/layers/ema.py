@@ -4,8 +4,9 @@ from typing import Optional
 
 import torch
 import torch.nn as nn
-from mmengine.model import ExponentialMovingAverage
 from torch import Tensor
+
+from mmengine.model import ExponentialMovingAverage
 
 
 class ExpMomentumEMA(ExponentialMovingAverage):

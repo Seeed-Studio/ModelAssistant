@@ -1,18 +1,16 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import math
 from abc import ABCMeta, abstractmethod
-from typing import Sequence, Tuple, Union, List
+from typing import Sequence, Union, List
 
 import torch
 import torch.nn as nn
 from torch.nn.modules.batchnorm import _BatchNorm
-from ..cnn import ConvModule, DepthwiseSeparableConvModule
-from mmengine.model import BaseModule
-from torch import Tensor
 
+from mmengine.model import BaseModule
 from sscma.utils.typing_utils import ConfigType, OptMultiConfig
 from ..layers import CSPLayer
-
+from ..cnn import ConvModule, DepthwiseSeparableConvModule
 
 
 class BaseYOLONeck(BaseModule, metaclass=ABCMeta):
@@ -134,17 +132,19 @@ class BaseYOLONeck(BaseModule, metaclass=ABCMeta):
             Defaults to None.
     """
 
-    def __init__(self,
-                 in_channels: List[int],
-                 out_channels: Union[int, List[int]],
-                 deepen_factor: float = 1.0,
-                 widen_factor: float = 1.0,
-                 upsample_feats_cat_first: bool = True,
-                 freeze_all: bool = False,
-                 norm_cfg: ConfigType = None,
-                 act_cfg: ConfigType = None,
-                 init_cfg: OptMultiConfig = None,
-                 **kwargs):
+    def __init__(
+        self,
+        in_channels: List[int],
+        out_channels: Union[int, List[int]],
+        deepen_factor: float = 1.0,
+        widen_factor: float = 1.0,
+        upsample_feats_cat_first: bool = True,
+        freeze_all: bool = False,
+        norm_cfg: ConfigType = None,
+        act_cfg: ConfigType = None,
+        init_cfg: OptMultiConfig = None,
+        **kwargs
+    ):
         super().__init__(init_cfg)
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -235,15 +235,16 @@ class BaseYOLONeck(BaseModule, metaclass=ABCMeta):
         for idx in range(len(self.in_channels) - 1, 0, -1):
             feat_high = inner_outs[0]
             feat_low = reduce_outs[idx - 1]
-            upsample_feat = self.upsample_layers[len(self.in_channels) - 1 -
-                                                 idx](
-                                                     feat_high)
+            upsample_feat = self.upsample_layers[len(self.in_channels) - 1 - idx](
+                feat_high
+            )
             if self.upsample_feats_cat_first:
                 top_down_layer_inputs = torch.cat([upsample_feat, feat_low], 1)
             else:
                 top_down_layer_inputs = torch.cat([feat_low, upsample_feat], 1)
             inner_out = self.top_down_layers[len(self.in_channels) - 1 - idx](
-                top_down_layer_inputs)
+                top_down_layer_inputs
+            )
             inner_outs.insert(0, inner_out)
 
         # bottom-up path
@@ -252,8 +253,7 @@ class BaseYOLONeck(BaseModule, metaclass=ABCMeta):
             feat_low = outs[-1]
             feat_high = inner_outs[idx + 1]
             downsample_feat = self.downsample_layers[idx](feat_low)
-            out = self.bottom_up_layers[idx](
-                torch.cat([downsample_feat, feat_high], 1))
+            out = self.bottom_up_layers[idx](torch.cat([downsample_feat, feat_high], 1))
             outs.append(out)
 
         # out_layers
@@ -262,8 +262,6 @@ class BaseYOLONeck(BaseModule, metaclass=ABCMeta):
             results.append(self.out_layers[idx](outs[idx]))
 
         return tuple(results)
-
-
 
 
 class CSPNeXtPAFPN(BaseYOLONeck):
@@ -304,36 +302,35 @@ class CSPNeXtPAFPN(BaseYOLONeck):
         freeze_all: bool = False,
         use_depthwise: bool = False,
         expand_ratio: float = 0.5,
-        upsample_cfg: ConfigType = dict(scale_factor=2, mode='nearest'),
+        upsample_cfg: ConfigType = dict(scale_factor=2, mode="nearest"),
         conv_cfg: bool = None,
-        norm_cfg: ConfigType = dict(type='BN'),
-        act_cfg: ConfigType = dict(type='SiLU', inplace=True),
+        norm_cfg: ConfigType = dict(type="BN"),
+        act_cfg: ConfigType = dict(type="SiLU", inplace=True),
         init_cfg: OptMultiConfig = dict(
-            type='Kaiming',
-            layer='Conv2d',
+            type="Kaiming",
+            layer="Conv2d",
             a=math.sqrt(5),
-            distribution='uniform',
-            mode='fan_in',
-            nonlinearity='leaky_relu')
+            distribution="uniform",
+            mode="fan_in",
+            nonlinearity="leaky_relu",
+        ),
     ) -> None:
         self.num_csp_blocks = round(num_csp_blocks * deepen_factor)
-        self.conv = DepthwiseSeparableConvModule \
-            if use_depthwise else ConvModule
+        self.conv = DepthwiseSeparableConvModule if use_depthwise else ConvModule
         self.upsample_cfg = upsample_cfg
         self.expand_ratio = expand_ratio
         self.conv_cfg = conv_cfg
 
         super().__init__(
-            in_channels=[
-                int(channel * widen_factor) for channel in in_channels
-            ],
+            in_channels=[int(channel * widen_factor) for channel in in_channels],
             out_channels=int(out_channels * widen_factor),
             deepen_factor=deepen_factor,
             widen_factor=widen_factor,
             freeze_all=freeze_all,
             norm_cfg=norm_cfg,
             act_cfg=act_cfg,
-            init_cfg=init_cfg)
+            init_cfg=init_cfg,
+        )
 
     def build_reduce_layer(self, idx: int) -> nn.Module:
         """build reduce layer.
@@ -350,7 +347,8 @@ class CSPNeXtPAFPN(BaseYOLONeck):
                 self.in_channels[idx - 1],
                 1,
                 norm_cfg=self.norm_cfg,
-                act_cfg=self.act_cfg)
+                act_cfg=self.act_cfg,
+            )
         else:
             layer = nn.Identity()
 
@@ -379,7 +377,8 @@ class CSPNeXtPAFPN(BaseYOLONeck):
                 expand_ratio=self.expand_ratio,
                 conv_cfg=self.conv_cfg,
                 norm_cfg=self.norm_cfg,
-                act_cfg=self.act_cfg)
+                act_cfg=self.act_cfg,
+            )
         else:
             return nn.Sequential(
                 CSPLayer(
@@ -391,13 +390,16 @@ class CSPNeXtPAFPN(BaseYOLONeck):
                     expand_ratio=self.expand_ratio,
                     conv_cfg=self.conv_cfg,
                     norm_cfg=self.norm_cfg,
-                    act_cfg=self.act_cfg),
+                    act_cfg=self.act_cfg,
+                ),
                 self.conv(
                     self.in_channels[idx - 1],
                     self.in_channels[idx - 2],
                     kernel_size=1,
                     norm_cfg=self.norm_cfg,
-                    act_cfg=self.act_cfg))
+                    act_cfg=self.act_cfg,
+                ),
+            )
 
     def build_downsample_layer(self, idx: int) -> nn.Module:
         """build downsample layer.
@@ -415,7 +417,8 @@ class CSPNeXtPAFPN(BaseYOLONeck):
             stride=2,
             padding=1,
             norm_cfg=self.norm_cfg,
-            act_cfg=self.act_cfg)
+            act_cfg=self.act_cfg,
+        )
 
     def build_bottom_up_layer(self, idx: int) -> nn.Module:
         """build bottom up layer.
@@ -435,7 +438,8 @@ class CSPNeXtPAFPN(BaseYOLONeck):
             expand_ratio=self.expand_ratio,
             conv_cfg=self.conv_cfg,
             norm_cfg=self.norm_cfg,
-            act_cfg=self.act_cfg)
+            act_cfg=self.act_cfg,
+        )
 
     def build_out_layer(self, idx: int) -> nn.Module:
         """build out layer.
@@ -452,4 +456,5 @@ class CSPNeXtPAFPN(BaseYOLONeck):
             3,
             padding=1,
             norm_cfg=self.norm_cfg,
-            act_cfg=self.act_cfg)
+            act_cfg=self.act_cfg,
+        )

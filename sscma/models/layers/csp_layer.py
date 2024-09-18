@@ -1,12 +1,12 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
 import torch.nn as nn
-from ..cnn import ConvModule, DepthwiseSeparableConvModule
-from mmengine.model import BaseModule
 from torch import Tensor
 
+from mmengine.model import BaseModule
 from sscma.utils.typing_utils import ConfigType, OptConfigType, OptMultiConfig
 from .se_layer import ChannelAttention
+from ..cnn import ConvModule, DepthwiseSeparableConvModule
 
 
 class DarknetBottleneck(BaseModule):

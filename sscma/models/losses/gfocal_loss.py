@@ -26,7 +26,9 @@ def quality_focal_loss(pred, target, beta=2.0):
     Returns:
         torch.Tensor: Loss tensor with shape (N,).
     """
-    assert len(target) == 2, """target for QFL must be a tuple of two elements,
+    assert (
+        len(target) == 2
+    ), """target for QFL must be a tuple of two elements,
         including category label and quality label, respectively"""
     # label denotes the category id, score denotes the quality score
     label, score = target
@@ -113,7 +115,9 @@ def quality_focal_loss_with_prob(pred, target, beta=2.0):
     Returns:
         torch.Tensor: Loss tensor with shape (N,).
     """
-    assert len(target) == 2, """target for QFL must be a tuple of two elements,
+    assert (
+        len(target) == 2
+    ), """target for QFL must be a tuple of two elements,
         including category label and quality label, respectively"""
     # label denotes the category id, score denotes the quality score
     label, score = target

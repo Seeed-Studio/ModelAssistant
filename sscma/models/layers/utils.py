@@ -4,18 +4,17 @@ import warnings
 from typing import Optional, Sequence, Tuple, Union
 
 import torch
+from torch import Tensor, nn
 import torch.nn.functional as F
-from ..cnn import build_conv_layer, build_norm_layer
-from ..cnn.activation import build_activation_layer
-from ..cnn.wrappers import Linear
 
-from ..cnn.drop import Dropout
 from mmengine.model import BaseModule, ModuleList
 from mmengine.utils import to_2tuple
-from torch import Tensor, nn
-
 from mmengine.registry import MODELS
 from sscma.utils.typing_utils import OptConfigType, OptMultiConfig
+from ..cnn.drop import Dropout
+from ..cnn.wrappers import Linear
+from ..cnn.activation import build_activation_layer
+from ..cnn import build_conv_layer, build_norm_layer
 
 
 def nlc_to_nchw(x: Tensor, hw_shape: Sequence[int]) -> Tensor:
@@ -494,7 +493,9 @@ class ConditionalAttention(BaseModule):
     ):
         super().__init__(init_cfg=init_cfg)
 
-        assert batch_first is True, "Set `batch_first`\
+        assert (
+            batch_first is True
+        ), "Set `batch_first`\
         to False is NOT supported in ConditionalAttention. \
         First dimension of all DETRs in mmdet is `batch`, \
         please set `batch_first` to True."

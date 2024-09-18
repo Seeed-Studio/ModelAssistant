@@ -1,12 +1,16 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
 import torch.nn as nn
-from ..cnn import ConvModule
-from mmengine.model import BaseModule
-from mmengine.utils import digit_version, is_tuple_of
 from torch import Tensor
 
-from sscma.utils.typing_utils import MultiConfig, OptConfigType, OptMultiConfig
+from mmengine.model import BaseModule
+from mmengine.utils import is_tuple_of
+from sscma.utils.typing_utils import (
+    MultiConfig,
+    OptConfigType,
+    OptMultiConfig,
+)
+from ..cnn import ConvModule
 
 
 class SELayer(BaseModule):
@@ -150,19 +154,26 @@ class ChannelAttention(BaseModule):
             Defaults to None
     """
 
-    def __init__(self, channels: int, init_cfg: OptMultiConfig = None) -> None:
+    def __init__(
+        self,
+        channels: int,
+        init_cfg: OptMultiConfig = None,
+    ) -> None:
         super().__init__(init_cfg=init_cfg)
         self.global_avgpool = nn.AdaptiveAvgPool2d(1)
         self.fc = nn.Conv2d(channels, channels, 1, 1, 0, bias=True)
-        if digit_version(torch.__version__) < (1, 7, 0):
-            self.act = nn.Hardsigmoid()
-        else:
-            self.act = nn.Hardsigmoid(inplace=True)
-        self.act = nn.ReLU6()
+
+        # delete standard activation layer, for quantify use default ReLU6 instead
+        # self.act = build_activation_layer(act_cfg)
+        # if digit_version(torch.__version__) < (1, 7, 0):
+        #     self.act = nn.Hardsigmoid()
+        # else:
+        #     self.act = nn.Hardsigmoid(inplace=True)
+        self.act = nn.ReLU6(inplace=True)
 
     def forward(self, x: Tensor) -> Tensor:
         """Forward function for ChannelAttention."""
-        with torch.amp.autocast('cuda', enabled=False):
+        with torch.amp.autocast("cuda", enabled=False):
             out = self.global_avgpool(x)
         out = self.fc(out)
         out = self.act(out)

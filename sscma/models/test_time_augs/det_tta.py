@@ -2,11 +2,11 @@
 from typing import List, Tuple
 
 import torch
+from torch import Tensor
 from torchvision.ops import batched_nms
+
 from mmengine.model import BaseTTAModel
 from mmengine.structures import InstanceData
-from torch import Tensor
-
 from sscma.structures import DetDataSample
 from sscma.structures.bbox import bbox_flip
 

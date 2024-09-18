@@ -5,10 +5,10 @@ from typing import List, Optional, Union
 
 import numpy as np
 import torch
-from torchvision.ops import nms
-from mmengine.config import ConfigDict
 from torch import Tensor
+from torchvision.ops import nms
 
+from mmengine.config import ConfigDict
 from sscma.structures.bbox import bbox_mapping_back
 
 
