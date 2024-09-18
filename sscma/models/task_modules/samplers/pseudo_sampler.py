@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
+
 from mmengine.structures import InstanceData
 
 from ..assigners.assign_result import AssignResult

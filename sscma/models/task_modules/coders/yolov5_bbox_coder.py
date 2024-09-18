@@ -2,8 +2,8 @@
 from typing import Union
 
 import torch
-from sscma.models.task_modules.coders.base_bbox_coder import BaseBBoxCoder
 
+from sscma.models.task_modules.coders.base_bbox_coder import BaseBBoxCoder
 from mmengine.registry import TASK_UTILS
 
 

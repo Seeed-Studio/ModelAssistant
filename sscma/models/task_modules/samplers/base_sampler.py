@@ -5,8 +5,8 @@ import torch
 from mmengine.structures import InstanceData
 
 from sscma.structures.bbox import BaseBoxes, cat_boxes
-from ..assigners.assign_result import AssignResult
-from .sampling_result import SamplingResult
+from sscma.models.task_modules.assigners.assign_result import AssignResult
+from sscma.models.task_modules.samplers.sampling_result import SamplingResult
 
 
 class BaseSampler(metaclass=ABCMeta):

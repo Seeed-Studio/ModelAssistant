@@ -3,13 +3,7 @@ from typing import Optional, Sequence, Union
 
 from torch import Tensor
 
-from sscma.structures.bbox import (
-    BaseBoxes,
-    HorizontalBoxes,
-    bbox2distance,
-    distance2bbox,
-    get_box_tensor,
-)
+from sscma.structures.bbox import bbox2distance, distance2bbox
 from .base_bbox_coder import BaseBBoxCoder
 
 

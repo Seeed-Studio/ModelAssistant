@@ -3,11 +3,11 @@ from typing import Tuple
 
 import torch
 import torch.nn as nn
+from torch import Tensor
 import torch.nn.functional as F
+
 from sscma.structures.bbox import BaseBoxes
 from sscma.utils.typing_utils import ConfigType
-from torch import Tensor
-
 from mmengine.registry import TASK_UTILS
 from .iou2d_calculator import BboxOverlaps2D
 

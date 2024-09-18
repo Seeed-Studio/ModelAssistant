@@ -2,11 +2,11 @@
 from typing import Optional, Tuple
 
 import torch
+from torch import Tensor
 import torch.nn.functional as F
+
 from mmengine.structures import InstanceData
 from mmengine.registry import TASK_UTILS
-from torch import Tensor
-
 from sscma.structures.bbox import BaseBoxes
 from sscma.utils.typing_utils import ConfigType
 from .assign_result import AssignResult
