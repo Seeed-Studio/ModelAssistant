@@ -9,6 +9,3 @@ from .necks import *  # noqa: F401,F403
 from .task_modules import *  # noqa: F401,F403
 from .test_time_augs import *  # noqa: F401,F403
 from .utils import *  # noqa: F401,F403
-
-
-__all__ = ["ImageClassifier", "Mixup", "CutMix"]
