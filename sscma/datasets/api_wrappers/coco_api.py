@@ -1,6 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 # This file add snake case alias for coco api
-
 import warnings
 from collections import defaultdict
 from typing import List, Optional, Union

@@ -23,7 +23,6 @@ def process_images_detect(images_folder, schema, ann_file):
     for image_id, img_info in tqdm(coco.imgs.items()):
         image_file = osp.basename(img_info["file_name"])
         if not osp.exists(osp.join(images_folder, image_file)):
-            print(num)
             num+=1
             continue
 
@@ -208,9 +207,4 @@ class LanceDataset(BaseDataset):
         )[..., ::-1]
         data["gt_label"] = data["label"]
         return data
-
-if __name__=="__main__":
-
-    datasets = LanceDataset(data_root="/home/dq/datasets/nas/objects365v1/images/",data_prefix=dict(img_path='train'),test_mode=False,ann_file='/home/dq/datasets/nas/objects365v1/zhiyuan_objv2_train.json')
-    loader = DataLoader(datasets,2,num_workers=2)
     

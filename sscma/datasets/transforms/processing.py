@@ -1,95 +1,14 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from typing import Union, Sequence, Tuple, List, Optional, Dict, Iterable
+import math
+import warnings
+from typing import Union, Sequence, Tuple, Dict
 
 import numpy as np
 from mmengine.utils import is_list_of, is_tuple_of, is_seq_of
 from mmengine.registry import TRANSFORMS
-
+from sscma.utils import simplecv_imresize, simplecv_imcrop
 from .basetransform import BaseTransform
-
-from sscma.utils import simplecv_imresize, simplecv_imflip, simplecv_imcrop
-from sscma.structures.bbox import autocast_box_type
-
-import copy
-import functools
-import inspect
-import weakref
-import math
-import warnings
-
-
-class cache_randomness:
-    """Decorator that marks the method with random return value(s) in a
-    transform class.
-
-    This decorator is usually used together with the context-manager
-    :func`:cache_random_params`. In this context, a decorated method will
-    cache its return value(s) at the first time of being invoked, and always
-    return the cached values when being invoked again.
-
-    .. note::
-        Only an instance method can be decorated with ``cache_randomness``.
-    """
-
-    def __init__(self, func):
-        # Check `func` is to be bound as an instance method
-        if not inspect.isfunction(func):
-            raise TypeError("Unsupport callable to decorate with" "@cache_randomness.")
-        func_args = inspect.getfullargspec(func).args
-        if len(func_args) == 0 or func_args[0] != "self":
-            raise TypeError(
-                "@cache_randomness should only be used to decorate "
-                "instance methods (the first argument is ``self``)."
-            )
-
-        functools.update_wrapper(self, func)
-        self.func = func
-        self.instance_ref = None
-
-    def __set_name__(self, owner, name):
-        # Maintain a record of decorated methods in the class
-        if not hasattr(owner, "_methods_with_randomness"):
-            setattr(owner, "_methods_with_randomness", [])
-
-        # Here `name` equals to `self.__name__`, i.e., the name of the
-        # decorated function, due to the invocation of `update_wrapper` in
-        # `self.__init__()`
-        owner._methods_with_randomness.append(name)
-
-    def __call__(self, *args, **kwargs):
-        # Get the transform instance whose method is decorated
-        # by cache_randomness
-        instance = self.instance_ref()
-        name = self.__name__
-
-        # Check the flag ``self._cache_enabled``, which should be
-        # set by the contextmanagers like ``cache_random_parameters```
-        cache_enabled = getattr(instance, "_cache_enabled", False)
-
-        if cache_enabled:
-            # Initialize the cache of the transform instances. The flag
-            # ``cache_enabled``` is set by contextmanagers like
-            # ``cache_random_params```.
-            if not hasattr(instance, "_cache"):
-                setattr(instance, "_cache", {})
-
-            if name not in instance._cache:
-                instance._cache[name] = self.func(instance, *args, **kwargs)
-            # Return the cached value
-            return instance._cache[name]
-        else:
-            # Clear cache
-            if hasattr(instance, "_cache"):
-                del instance._cache
-            # Return function output
-            return self.func(instance, *args, **kwargs)
-
-    def __get__(self, obj, cls):
-        self.instance_ref = weakref.ref(obj)
-        # Return a copy to avoid multiple transform instances sharing
-        # one `cache_randomness` instance, which may cause data races
-        # in multithreading cases.
-        return copy.copy(self)
+from .utils import cache_randomness
 
 
 class RandomResizedCrop(BaseTransform):
@@ -355,6 +274,7 @@ class ResizeEdge(BaseTransform):
         repr_str += f"backend={self.backend}, "
         repr_str += f"interpolation={self.interpolation})"
         return repr_str
+
 
 class CenterCrop(BaseTransform):
     """Crop the center of the image, segmentation masks, bounding boxes and key

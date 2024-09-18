@@ -1,22 +1,18 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import warnings
-import torch
-from PIL import Image
-
-from torchvision.transforms.v2 import functional as F
-
 from typing import Optional, Union
 
-import mmengine.fileio as fileio
+import torch
 import numpy as np
-from mmengine.fileio import get
-
+from PIL import Image
 import pycocotools.mask as maskUtils
+from torchvision.transforms.v2 import functional as F
+
+from mmengine.fileio import get
 from sscma.structures.bbox import get_box_type
 from sscma.structures.mask import BitmapMasks, PolygonMasks
 from sscma.utils import simplecv_imfrombytes
 from sscma.utils.simplecv import _pillow2array
-
 from .basetransform import BaseTransform
 
 
@@ -105,7 +101,7 @@ class LoadImageFromFile(BaseTransform):
 
         filename = results["img_path"]
         image = Image.open(filename)
-        img = _pillow2array(image, 'color', 'bgr')
+        img = _pillow2array(image, "color", "bgr")
 
         results["img"] = img
         results["img_shape"] = img.shape[:2]

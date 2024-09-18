@@ -1,34 +1,22 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import copy
-import inspect
-import math
 import collections
 from abc import ABCMeta, abstractmethod
-
-import warnings
-from typing import List, Optional, Sequence, Tuple, Union, Iterable
+from typing import Optional, Sequence, Tuple, Union, Iterable
 
 import cv2
 import torch
+import numpy as np
+from numpy import random
 from torchvision.transforms.v2 import functional as F
 from torchvision.transforms.v2.functional import InterpolationMode
+
 import mmengine
-
-import numpy as np
-from time import perf_counter
-
 from sscma.utils import *
 from mmengine.dataset import BaseDataset
-from mmengine.utils import is_str
-from numpy import random
-
-from mmengine.registry import TRANSFORMS
-from sscma.structures.bbox import HorizontalBoxes, autocast_box_type
-from sscma.structures.mask import BitmapMasks, PolygonMasks
-from sscma.utils.logger import log_img_scale
+from sscma.structures.bbox import autocast_box_type
 from sscma.utils.simplecv import simplecv_rescale_size, simplecv_imresize
-
-from .basetransform import BaseTransform, cache_randomness, avoid_cache_randomness
+from .utils import BaseTransform, cache_randomness
 
 try:
     from imagecorruptions import corrupt
@@ -119,7 +107,7 @@ class Resize(BaseTransform):
         self,
         scale: Optional[Union[int, Tuple[int, int]]] = None,
         scale_factor: Optional[Union[float, Tuple[float, float]]] = None,
-        keep_ratio: bool = False,
+        keep_ratio: bool = True,
         clip_object_border: bool = True,
         backend: str = "cv2",
         interpolation="bilinear",
@@ -159,7 +147,6 @@ class Resize(BaseTransform):
             if self.keep_ratio:
                 img = results["img"]
                 _, h, w = img.size()
-
 
                 new_size, scale_factor = simplecv_rescale_size(
                     (w, h), results["scale"], return_scale=True
@@ -1585,6 +1572,7 @@ class Mosaic(BaseMixImageTransform):
         repr_str += f"prob={self.prob})"
         return repr_str
 
+
 class MixUp(BaseMixImageTransform):
     """MixUp data augmentation for YOLOX.
 
@@ -1737,15 +1725,18 @@ class MixUp(BaseMixImageTransform):
                 dtype=retrieve_img.dtype,
             )
 
-
         # 1. keep_ratio resize
         scale_ratio = min(
-            self.img_scale[1] / retrieve_img.shape[1], # h
-            self.img_scale[0] / retrieve_img.shape[2], # w
+            self.img_scale[1] / retrieve_img.shape[1],  # h
+            self.img_scale[0] / retrieve_img.shape[2],  # w
         )
 
         retrieve_img = F.resize(
-            retrieve_img, [int(retrieve_img.shape[1] * scale_ratio), int(retrieve_img.shape[2] * scale_ratio)]
+            retrieve_img,
+            [
+                int(retrieve_img.shape[1] * scale_ratio),
+                int(retrieve_img.shape[2] * scale_ratio),
+            ],
         )
 
         # 2. paste
@@ -1755,24 +1746,25 @@ class MixUp(BaseMixImageTransform):
         scale_ratio *= jit_factor
 
         out_img = F.resize(
-            out_img, [int(out_img.shape[1] * jit_factor), int(out_img.shape[2] * jit_factor)]
+            out_img,
+            [int(out_img.shape[1] * jit_factor), int(out_img.shape[2] * jit_factor)],
         )
 
         # 4. flip ？
         if is_filp:
             out_img = torch.flip(out_img, [2])
 
-
         # 5. random crop
         ori_img = results["img"]
         origin_h, origin_w = out_img.shape[1:]
         target_h, target_w = ori_img.shape[1:]
         padded_img = (
-            torch.ones(3, max(origin_h, target_h), max(origin_w, target_w), dtype=torch.uint8)
+            torch.ones(
+                3, max(origin_h, target_h), max(origin_w, target_w), dtype=torch.uint8
+            )
             * self.pad_val
         )
         padded_img[:origin_h, :origin_w] = out_img
-
 
         x_offset, y_offset = 0, 0
         if padded_img.shape[0] > target_h:

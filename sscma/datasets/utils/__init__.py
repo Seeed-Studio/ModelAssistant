@@ -1,3 +1,3 @@
-from sampler import LanceDistributedSampler
+from .sampler import LanceDistributedSampler
 
 __all__ = ["LanceDistributedSampler"]
