@@ -4,24 +4,19 @@ from typing import Optional, Sequence, Tuple, Union
 import numpy as np
 import torch
 import torch.nn.functional as F
+from matplotlib.figure import Figure
+
 from mmengine.dataset import BaseDataset
 from mmengine.dist import master_only
 from mmengine.visualization import Visualizer
 from mmengine.visualization.utils import img_from_canvas
-
 from sscma.structures import DataSample
 from sscma.utils import (
     simplecv_imresize,
-    simplecv_imflip,
-    simplecv_imcrop,
     simplecv_imrescale,
     simplecv_imread,
-    simplecv_imfrombytes,
     simplecv_imwrite,
 )
-
-
-from matplotlib.figure import Figure
 
 
 def get_adaptive_scale(
