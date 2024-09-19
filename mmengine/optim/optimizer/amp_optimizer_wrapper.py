@@ -18,6 +18,7 @@ if is_npu_available():
 elif is_mlu_available():
     from torch.mlu.amp import GradScaler
 else:
+    # from torch.amp import GradScaler as amp_GradScaler
     from torch.cuda.amp import GradScaler as amp_GradScaler
     GradScaler = partial(amp_GradScaler, device='cuda')
 
