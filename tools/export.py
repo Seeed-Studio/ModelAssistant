@@ -31,6 +31,7 @@ def parse_args():
     parser.add_argument(
         "--img-size",
         "--img_size",
+        "--imgsz",
         nargs="+",
         type=int,
         default=[320, 320],
@@ -44,9 +45,17 @@ def parse_args():
         "--image_path", type=str, help="Used to export verification data of tflite"
     )
     parser.add_argument(
-        "--vela",
-        action="store_true",
-        help="Whether to continue exporting the vela model format",
+        "--format",
+        nargs="*",
+        default=["onnx"],
+        choices=[
+            "onnx",
+            "tflite",
+            "vela",
+            "savemodel",
+            "torchscript",
+        ],
+        help="Model format to be exported",
     )
     parser.add_argument(
         "--verify",
@@ -102,6 +111,7 @@ def main():
     if "runner_type" not in cfg:
         # build the default runner
         runner = Runner.from_cfg(cfg)
+
     # else:
     #     # build customized runner from the registry
     #     # if 'runner_type' is set in the cfg
@@ -112,8 +122,36 @@ def main():
     runner.load_checkpoint(args.checkpoint, map_location=torch.device(args.device))
     model = runner.model.to(device=args.device)
 
-    export_onnx(model, args)
-    # export_lite_tinn(model, loader)
+    model_format = args.format
+    new_model_format = []
+    for fmt in model_format:
+        if fmt == "onnx":
+            new_model_format.append("onnx")
+        elif fmt == "savemodel":
+            new_model_format.extend(["onnx", "savemodel"])
+        elif fmt == "tflite":
+            new_model_format.extend(["onnx", "savemodel", "tflite"])
+        elif fmt == "vela":
+            new_model_format.extend(["onnx", "savemodel", "tflite", "vela"])
+        elif fmt == "torchscript":
+            new_model_format.append("torchscript")
+    new_model_format = list(set(new_model_format))
+
+    # export
+    if "torchscript" in new_model_format:
+        export_torchscript(model, args)
+
+    if "onnx" in new_model_format:
+        onnx_file = export_onnx(model, args)
+
+    if "savemodel" in new_model_format:
+        export_savemodel(onnx_file)
+
+    if "tflite" in new_model_format:
+        tflite_file = export_tflite(onnx_file, args.image_path, args.img_size)
+
+    if "vela" in new_model_format:
+        export_vela(tflite_file, args.verify)
 
     # add `DumpResults` dummy metric
     if args.out is not None:
@@ -121,6 +159,30 @@ def main():
             (".pkl", ".pickle")
         ), "The dump file must be a pkl file."
         runner.test_evaluator.metrics.append(DumpResults(out_file_path=args.out))
+
+
+def export_savemodel(onnx_file):
+    tflite_path = f"{osp.splitext(onnx_file)[0]}_int8.tflite"
+
+    # onnx convert to pb
+    cmd = f"onnx2tf -i {onnx_file}  -v warn  -osd -o {osp.dirname(onnx_file)}"
+    state = os.system(cmd)
+    if not state:
+        print("The pb model format was exported successfully")
+    else:
+        print("Export of pb model failed, export interrupted")
+        return
+
+    return osp.dirname(onnx_file)
+
+
+def export_torchscript(model, args):
+    from torch.utils.mobile_optimizer import optimize_for_mobile
+
+    f = f"{osp.splitext(args.checkpoint)[0]}_script.pt"
+    script_model = torch.jit.script(model)
+    script_model = optimize_for_mobile(script_model)
+    torch.jit.save(script_model, f)
 
 
 def export_onnx(model, args):
@@ -148,28 +210,18 @@ def export_onnx(model, args):
         except Exception as e:
             print(f"Simplify failure: {e}")
 
-    if args.vela:
-        export_vela(f, args.image_path, args.img_size, args.verify)
+    return f
 
 
-def export_vela(onnx_path: str, img_path, img_shape, verify=False):
+def export_tflite(onnx_path: str, img_path, img_shape):
     import os.path as osp
     import cv2
     from tqdm.std import tqdm
     import tensorflow as tf
 
     tflite_path = f"{osp.splitext(onnx_path)[0]}_int8.tflite"
-
-    # onnx convert to pb
-    cmd = f"onnx2tf -i {onnx_path}  -v warn  -osd -o {osp.dirname(onnx_path)}"
-    state = os.system(cmd)
-    if not state:
-        print("The pb model format was exported successfully")
-    else:
-        print("Export of pb model failed, export interrupted")
-        return
     # pb convert to tflite
-    converter = tf.lite.TFLiteConverter.from_saved_model(f"work_dirs/")
+    converter = tf.lite.TFLiteConverter.from_saved_model(osp.dirname(onnx_path))
 
     def representative_dataset():
         datasets = [
@@ -195,10 +247,14 @@ def export_vela(onnx_path: str, img_path, img_shape, verify=False):
     # converter.experimental_use_stablehlo_quantizer=True
 
     tflite_quant_model = converter.convert()
-
     with open(tflite_path, "wb") as f:
         f.write(tflite_quant_model)
     print("tflite model export successful")
+
+    return tflite_path
+
+
+def export_vela(tflite_path: str, verify=False):
     # tflite convert to vela.tflite
     cmd = f"vela \
     --config {osp.dirname(osp.abspath(__file__))}/vela_config.ini \
