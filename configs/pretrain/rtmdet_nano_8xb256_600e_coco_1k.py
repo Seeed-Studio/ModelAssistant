@@ -8,31 +8,31 @@ with read_base():
 from torch.nn import SyncBatchNorm
 from torch.nn.modules.activation import SiLU
 
-from sscma.models.backbones.cspnext import CSPNeXt
-
-from mmpretrain.models.classifiers import ImageClassifier
-from mmpretrain.datasets import ImageNet
-from mmengine.dataset.sampler import DefaultSampler
-from mmpretrain.datasets.transforms import (
+from mmengine.dataset import DefaultSampler
+from sscma.datasets.transforms import (
     LoadImageFromFile,
     RandomResizedCrop,
     RandomFlip,
-    RandAugment,
     PackInputs,
     ResizeEdge,
     CenterCrop,
 )
-from mmpretrain.evaluation.metrics import Accuracy
-from mmpretrain.models import GlobalAveragePooling, LinearClsHead, LabelSmoothLoss
-from mmpretrain.models import LabelSmoothLoss, Mixup, CutMix
-from mmpretrain.models import ClsDataPreprocessor
+from sscma.evaluation.metrics import Accuracy
+from sscma.datasets import ClsDataPreprocessor, ImageNet
+from sscma.models import (
+    Mixup,
+    CutMix,
+    GlobalAveragePooling,
+    LinearClsHead,
+    LabelSmoothLoss,
+    ImageClassifier,
+    CSPNeXt,
+)
 
 
 d_factor = 0.33
 w_factor = 0.25
 input_shape = 320
-checkpoint = "/home/dq/code/sscma/pretrain.pt"  # noqa
-
 model = dict(
     type=ImageClassifier,
     data_preprocessor=dict(
@@ -54,8 +54,6 @@ model = dict(
         use_depthwise=True,
         norm_cfg=dict(type=SyncBatchNorm),
         act_cfg=dict(type=SiLU, inplace=True),
-        init_cfg=dict(type="Pretrained", prefix="backbone.", checkpoint=checkpoint),
-        
     ),
     neck=dict(type=GlobalAveragePooling),
     head=dict(
@@ -97,15 +95,6 @@ train_pipeline = [
     dict(type=LoadImageFromFile),
     dict(type=RandomResizedCrop, scale=320, backend="pillow", interpolation="bicubic"),
     dict(type=RandomFlip, prob=0.5, direction="horizontal"),
-    dict(
-        type=RandAugment,
-        policies="timm_increasing",
-        num_policies=2,
-        total_level=10,
-        magnitude_level=7,
-        magnitude_std=0.5,
-        hparams=dict(pad_val=[round(x) for x in bgr_mean], interpolation="bicubic"),
-    ),
     dict(type=PackInputs),
 ]
 

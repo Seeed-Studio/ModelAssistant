@@ -1,4 +1,4 @@
-from mmpretrain.engine.optimizers import Lamb
+from sscma.optim import Lamb
 from mmengine.optim import LinearLR,CosineAnnealingLR
 # optimizer
 optim_wrapper = dict(optimizer=dict(type=Lamb, lr=0.005, weight_decay=0.02))

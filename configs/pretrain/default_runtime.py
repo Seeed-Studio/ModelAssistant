@@ -6,9 +6,9 @@ from mmengine.hooks import (
     CheckpointHook,
     DistSamplerSeedHook,
 )
-from mmpretrain.engine.hooks import VisualizationHook
+from mmengine.hooks.visualization_hook import VisualizationHook
 from mmengine.visualization import LocalVisBackend
-from mmpretrain.visualization import UniversalVisualizer
+from sscma.visualization import UniversalVisualizer
 
 # configure default hooks
 default_hooks = dict(
@@ -44,7 +44,7 @@ visualizer = dict(type=UniversalVisualizer, vis_backends=vis_backends)
 log_level = "INFO"
 
 # load from which checkpoint
-load_from = "/home/dq/code/sscma/work_dirs/rtmdet_nano_8xb256_600e_coco_1k/epoch_396.pth"
+load_from = None
 
 # whether to resume training from the loaded checkpoint
 resume = False
