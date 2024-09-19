@@ -1,18 +1,18 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from sscma.datasets.transforms import LoadImageFromFile
 from mmengine.dataset.sampler import DefaultSampler
-
-from sscma.datasets.coco import CocoDataset, coco_collate, BatchShapePolicy
-from sscma.datasets.transforms.transforms import RandomFlip, Resize
-from sscma.datasets.transforms.formatting import PackDetInputs
-from sscma.datasets.transforms.loading import LoadAnnotations
-
-
+from sscma.datasets import CocoDataset, coco_collate, BatchShapePolicy
+from sscma.datasets.transforms import (
+    LoadAnnotations,
+    PackDetInputs,
+    RandomFlip,
+    Resize,
+    LoadImageFromFile,
+)
 from sscma.evaluation import CocoMetric
 
 # dataset settings
 dataset_type = CocoDataset
-data_root = "/home/dq/datasets/coco/"
+data_root = "datasets/coco/"
 
 # Example to use different file client
 # Method 1: simply set the data root and let the file I/O module
@@ -58,8 +58,8 @@ test_pipeline = [
     ),
 ]
 train_dataloader = dict(
-    batch_size=2,
-    num_workers=2,
+    batch_size=32,
+    num_workers=4,
     persistent_workers=True,
     pin_memory=True,
     collate_fn=dict(type=coco_collate),

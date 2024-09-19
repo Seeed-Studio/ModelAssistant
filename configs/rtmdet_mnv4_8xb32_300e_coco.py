@@ -8,20 +8,14 @@ with read_base():
     from .datasets.coco_detection import *
 
 from torchvision.ops import nms
-from sscma.datasets.transforms.loading import LoadImageFromFile
-from sscma.datasets.transforms.processing import RandomResize
-from mmengine.hooks.ema_hook import EMAHook
-from mmengine.hooks.profiler_hook import ProfilerHook
-from mmengine.optim.optimizer.optimizer_wrapper import OptimWrapper
-from mmengine.optim.scheduler.lr_scheduler import CosineAnnealingLR, LinearLR
-from mmengine.runner.loops import EpochBasedTrainLoop
-from torch.nn import SyncBatchNorm
-from torch.nn.modules.activation import SiLU
+from torch.nn import SyncBatchNorm, SiLU
 from torch.optim.adamw import AdamW
 
-from sscma.datasets.transforms.formatting import PackDetInputs
-from sscma.datasets.transforms.loading import LoadAnnotations
-from sscma.datasets.transforms.transforms import (
+from mmengine.hooks import EMAHook
+from mmengine.runner import EpochBasedTrainLoop
+from mmengine.optim import OptimWrapper, CosineAnnealingLR, LinearLR
+
+from sscma.datasets.transforms import (
     MixUp,
     Mosaic,
     Pad,
@@ -30,32 +24,31 @@ from sscma.datasets.transforms.transforms import (
     Resize,
     HSVRandomAug,
     toTensor,
+    LoadAnnotations,
+    PackDetInputs,
+    LoadImageFromFile,
+    RandomResize,
 )
-from sscma.engine.hooks.pipeline_switch_hook import PipelineSwitchHook
-from sscma.models.backbones.timm import TimmBackbone
-from sscma.datasets.data_preprocessor import DetDataPreprocessor,YOLOXBatchSyncRandomResize
-from sscma.models.heads.rtmdet_head import RTMDetHead, RTMDetSepBNHeadModule
-from sscma.models.detectors.rtmdet import RTMDet
-from sscma.models.layers.ema import ExpMomentumEMA
-from sscma.models.losses.gfocal_loss import QualityFocalLoss
-from sscma.models.losses.iou_loss import GIoULoss
-from sscma.models.necks.cspnext_pafpn import CSPNeXtPAFPN
-from sscma.models.task_modules.assigners.dynamic_soft_label_assigner import (
-    DynamicSoftLabelAssigner,
+from sscma.datasets import (
+    DetDataPreprocessor,
+    YOLOXBatchSyncRandomResize,
 )
-from sscma.models.task_modules.assigners.batch_dsl_assigner import (
-    BatchDynamicSoftLabelAssigner,
-)
-from sscma.models.task_modules.coders.distance_point_bbox_coder import (
-    DistancePointBBoxCoder,
-)
-from sscma.models.task_modules.prior_generators.point_generator import (
+from sscma.models import (
+    BboxOverlaps2D,
     MlvlPointGenerator,
+    DistancePointBBoxCoder,
+    BatchDynamicSoftLabelAssigner,
+    CSPNeXtPAFPN,
+    GIoULoss,
+    QualityFocalLoss,
+    ExpMomentumEMA,
+    RTMDet,
+    RTMDetHead,
+    RTMDetSepBNHeadModule,
+    TimmBackbone,
 )
-from sscma.models.task_modules.assigners.iou2d_calculator import BboxOverlaps2D
-
-from sscma.engine.hooks.visualization_hook import DetVisualizationHook
-from sscma.visualization.local_visualizer import DetLocalVisualizer
+from sscma.engine import DetVisualizationHook, PipelineSwitchHook
+from sscma.visualization import DetLocalVisualizer
 
 
 default_hooks.visualization = dict(type=DetVisualizationHook)
@@ -88,7 +81,8 @@ model = dict(
                 # 输出尺度需要被 32 整除
                 size_divisor=32,
                 # 每隔 1 个迭代改变一次输出输出
-                interval=1)
+                interval=1,
+            )
         ],
     ),
     backbone=dict(
@@ -228,7 +222,11 @@ train_dataloader.update(
 )
 
 val_dataloader.update(
-    dict(batch_size=batch_size, num_workers=num_workers, dataset=dict(pipeline=test_pipeline))
+    dict(
+        batch_size=batch_size,
+        num_workers=num_workers,
+        dataset=dict(pipeline=test_pipeline),
+    )
 )
 test_dataloader = val_dataloader
 

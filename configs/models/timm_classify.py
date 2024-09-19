@@ -1,6 +1,5 @@
-from sscma.models.backbones import TimmBackbone
-from sscma.models.losses import CrossEntropyLoss
-from sscma.models import Mixup, CutMix
+from sscma.models import TimmBackbone, CrossEntropyLoss, Mixup, CutMix
+
 
 # model settings
 data_preprocessor = dict(

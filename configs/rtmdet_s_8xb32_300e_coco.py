@@ -1,20 +1,11 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-
-
 from mmengine.config import read_base
 
 with read_base():
     from .rtmdet_l_8xb32_300e_coco import *
 
-from sscma.datasets.transforms.loading import LoadImageFromFile
-from sscma.datasets.transforms.processing import RandomResize
-from mmengine.hooks.ema_hook import EMAHook
-from mmengine.hooks.profiler_hook import ProfilerHook
-
-
-from sscma.datasets.transforms.formatting import PackDetInputs
-from sscma.datasets.transforms.loading import LoadAnnotations
-from sscma.datasets.transforms.transforms import (
+from mmengine.hooks import ProfilerHook, EMAHook
+from sscma.datasets.transforms import (
     MixUp,
     Mosaic,
     Pad,
@@ -23,9 +14,13 @@ from sscma.datasets.transforms.transforms import (
     Resize,
     HSVRandomAug,
     toTensor,
+    LoadAnnotations,
+    PackDetInputs,
+    RandomResize,
+    LoadImageFromFile,
 )
-from sscma.engine.hooks.pipeline_switch_hook import PipelineSwitchHook
-from sscma.models.layers.ema import ExpMomentumEMA
+from sscma.engine import PipelineSwitchHook
+from sscma.models import ExpMomentumEMA
 
 d_factor = 0.33
 w_factor = 0.5
@@ -41,7 +36,7 @@ model.update(
             widen_factor=w_factor,
             init_cfg=dict(type="Pretrained", prefix="backbone.", checkpoint=checkpoint),
         ),
-#        neck=dict(in_channels=[128, 256, 512], out_channels=128, num_csp_blocks=1),
+        #        neck=dict(in_channels=[128, 256, 512], out_channels=128, num_csp_blocks=1),
         neck=dict(
             deepen_factor=d_factor,
             widen_factor=w_factor,
@@ -63,7 +58,7 @@ train_pipeline = [
     dict(
         type=RandomResize,
         scale=(1280, 1280),
-        ratio_range=(0.5, 2.0),  #note: changed from 0.1 to 0.5
+        ratio_range=(0.5, 2.0),  # note: changed from 0.1 to 0.5
         resize_type=Resize,
         keep_ratio=True,
     ),
@@ -91,8 +86,8 @@ train_pipeline_stage2 = [
     dict(type=toTensor),
     dict(
         type=RandomResize,
-        scale=(imgsz[0]*2, imgsz[1]*2),
-        ratio_range=(0.5, 2.0), #note: changed from 0.1 to 0.5
+        scale=(imgsz[0] * 2, imgsz[1] * 2),
+        ratio_range=(0.5, 2.0),  # note: changed from 0.1 to 0.5
         resize_type=Resize,
         keep_ratio=True,
     ),
@@ -113,15 +108,19 @@ custom_hooks = [
         priority=49,
     ),
     dict(
-        type=PipelineSwitchHook, switch_epoch=max_epochs - stage2_num_epochs, switch_pipeline=train_pipeline_stage2
+        type=PipelineSwitchHook,
+        switch_epoch=max_epochs - stage2_num_epochs,
+        switch_pipeline=train_pipeline_stage2,
     ),
-    dict(type=ProfilerHook,
-         activity_with_cpu=True,
-         activity_with_cuda=True,
-         profile_memory=True,
-         record_shapes=True,
-         with_stack=True,
-         with_flops=True,
-         schedule=dict(wait=1,warmup=1,active=2,repeat=1),
-         on_trace_ready=dict(type='tb_trace'))
+    dict(
+        type=ProfilerHook,
+        activity_with_cpu=True,
+        activity_with_cuda=True,
+        profile_memory=True,
+        record_shapes=True,
+        with_stack=True,
+        with_flops=True,
+        schedule=dict(wait=1, warmup=1, active=2, repeat=1),
+        on_trace_ready=dict(type="tb_trace"),
+    ),
 ]

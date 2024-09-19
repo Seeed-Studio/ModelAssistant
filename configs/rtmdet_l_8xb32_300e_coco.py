@@ -7,19 +7,12 @@ with read_base():
     from .datasets.coco_detection import *
 
 from torchvision.ops import nms
-from sscma.datasets.transforms.loading import LoadImageFromFile
-from sscma.datasets.transforms.processing import RandomResize
-from mmengine.hooks.ema_hook import EMAHook
-from mmengine.hooks.profiler_hook import ProfilerHook
-from mmengine.optim.optimizer.optimizer_wrapper import OptimWrapper
-from mmengine.optim.scheduler.lr_scheduler import CosineAnnealingLR, LinearLR
-from torch.nn import SyncBatchNorm
-from torch.nn.modules.activation import SiLU
+from torch.nn import SiLU, ReLU6, SyncBatchNorm
 from torch.optim.adamw import AdamW
 
-from sscma.datasets.transforms.formatting import PackDetInputs
-from sscma.datasets.transforms.loading import LoadAnnotations
-from sscma.datasets.transforms.transforms import (
+from mmengine.hooks import EMAHook
+from mmengine.optim import OptimWrapper, CosineAnnealingLR, LinearLR
+from sscma.datasets.transforms import (
     MixUp,
     Mosaic,
     Pad,
@@ -28,46 +21,44 @@ from sscma.datasets.transforms.transforms import (
     Resize,
     HSVRandomAug,
     toTensor,
+    RandomResize,
+    LoadImageFromFile,
+    LoadAnnotations,
+    PackDetInputs,
 )
-from sscma.engine.hooks.pipeline_switch_hook import PipelineSwitchHook
-from sscma.models.backbones.cspnext import CSPNeXt
-from sscma.datasets.data_preprocessor import DetDataPreprocessor
-from sscma.models.heads.rtmdet_head import RTMDetHead, RTMDetSepBNHeadModule
-from sscma.models.detectors.rtmdet import RTMDet
-from sscma.models.layers.ema import ExpMomentumEMA
-from sscma.models.losses.gfocal_loss import QualityFocalLoss
-from sscma.models.losses.iou_loss import GIoULoss
-from sscma.models.necks.cspnext_pafpn import CSPNeXtPAFPN
-from sscma.models.task_modules.assigners.dynamic_soft_label_assigner import (
-    DynamicSoftLabelAssigner,
-)
-from sscma.models.task_modules.assigners.batch_dsl_assigner import (
-    BatchDynamicSoftLabelAssigner,
-)
-from sscma.models.task_modules.coders.distance_point_bbox_coder import (
-    DistancePointBBoxCoder,
-)
-from sscma.models.task_modules.prior_generators.point_generator import (
+from sscma.datasets import DetDataPreprocessor
+from sscma.engine import PipelineSwitchHook, DetVisualizationHook
+from sscma.models import (
+    BboxOverlaps2D,
     MlvlPointGenerator,
+    DistancePointBBoxCoder,
+    BatchDynamicSoftLabelAssigner,
+    CSPNeXtPAFPN,
+    GIoULoss,
+    QualityFocalLoss,
+    ExpMomentumEMA,
+    RTMDet,
+    RTMDetHead,
+    RTMDetSepBNHeadModule,
+    CSPNeXt,
 )
-from sscma.models.task_modules.assigners.iou2d_calculator import BboxOverlaps2D
-
-from sscma.engine.hooks.visualization_hook import DetVisualizationHook
-from sscma.visualization.local_visualizer import DetLocalVisualizer
+from sscma.visualization import DetLocalVisualizer
 
 
-default_hooks.visualization = dict(type=DetVisualizationHook)
+default_hooks.visualization = dict(
+    type=DetVisualizationHook, draw=True, test_out_dir="works"
+)
 
 visualizer = dict(type=DetLocalVisualizer, vis_backends=vis_backends, name="visualizer")
 
 d_factor = 1
 w_factor = 1
 num_classes = 80
-imgsz = (640, 640)
+imgsz = (416, 416)
 max_epochs = 300
 stage2_num_epochs = 20
-base_lr = 0.004
-interval = 5
+base_lr = 0.00065
+interval = 10
 batch_size = (32,)
 num_workers = (12,)
 
@@ -75,9 +66,9 @@ model = dict(
     type=RTMDet,
     data_preprocessor=dict(
         type=DetDataPreprocessor,
-        mean=[103.53, 116.28, 123.675],
-        std=[57.375, 57.12, 58.395],
-        bgr_to_rgb=False,
+        mean=[0, 0, 0],
+        std=[255, 255, 255],
+        bgr_to_rgb=True,
         batch_augments=None,
     ),
     backbone=dict(
@@ -89,11 +80,6 @@ model = dict(
         channel_attention=True,
         norm_cfg=dict(type=SyncBatchNorm),
         act_cfg=dict(type=SiLU, inplace=True),
-        init_cfg={
-            "type": "Pretrained",
-            "prefix": "backbone.",
-            "checkpoint": "/home/dq/code/sscma/pretrain.pt",
-        },
     ),
     neck=dict(
         type=CSPNeXtPAFPN,
@@ -101,7 +87,7 @@ model = dict(
         widen_factor=w_factor,
         in_channels=[256, 512, 1024],
         out_channels=256,
-        num_csp_blocks=3,
+        num_csp_blocks=1,
         expand_ratio=0.5,
         norm_cfg=dict(type=SyncBatchNorm),
         act_cfg=dict(type=SiLU, inplace=True),
@@ -224,7 +210,7 @@ train_dataloader.update(
 )
 
 val_dataloader.update(
-    dict(batch_size=5, num_workers=8, dataset=dict(pipeline=test_pipeline))
+    dict(batch_size=16, num_workers=8, dataset=dict(pipeline=test_pipeline))
 )
 test_dataloader = val_dataloader
 

@@ -2,18 +2,10 @@
 from mmengine.config import read_base
 
 with read_base():
-    from .rtmdet_l_8xb32_300e_coco import *
+    from configs.rtmdet_l_8xb32_300e_coco import *
 
-from sscma.datasets.transforms.loading import LoadImageFromFile
-from sscma.datasets.transforms.processing import RandomResize
-from mmengine.hooks.ema_hook import EMAHook
-from mmengine.hooks.profiler_hook import ProfilerHook
-
-
-from sscma.datasets.transforms.formatting import PackDetInputs
-from sscma.datasets.transforms.loading import LoadAnnotations
-from sscma.datasets.transforms.transforms import (
-    MixUp,
+from mmengine.hooks import EMAHook
+from sscma.datasets.transforms import (
     Mosaic,
     Pad,
     RandomCrop,
@@ -21,16 +13,19 @@ from sscma.datasets.transforms.transforms import (
     Resize,
     HSVRandomAug,
     toTensor,
+    LoadAnnotations,
+    PackDetInputs,
+    RandomResize,
+    LoadImageFromFile,
 )
-from sscma.engine.hooks.pipeline_switch_hook import PipelineSwitchHook
-from sscma.models.layers.ema import ExpMomentumEMA
 
-checkpoint = "/home/dq/code/sscma/work_dirs/rtmdet_nano_8xb256_600e_coco_1k/rtmdet_pretrain.pth"  # noqa
+from sscma.engine import PipelineSwitchHook
+from sscma.models import ExpMomentumEMA
+
 d_factor = 0.33
 w_factor = 0.25
-input_shape = 320
 
-imgsz = (320, 320)
+imgsz = (416, 416)
 
 max_epochs = 300
 stage2_num_epochs = 20
@@ -41,13 +36,13 @@ model.update(
         backbone=dict(
             deepen_factor=d_factor,
             widen_factor=w_factor,
-            use_depthwise=True,
+            use_depthwise=False,
         ),
         neck=dict(
             deepen_factor=d_factor,
             widen_factor=w_factor,
             num_csp_blocks=1,
-            use_depthwise=True,
+            use_depthwise=False,
         ),
         bbox_head=dict(head_module=dict(widen_factor=w_factor, share_conv=False)),
     )
@@ -73,13 +68,6 @@ train_pipeline = [
     dict(type=RandomCrop, crop_size=imgsz),
     dict(type=RandomFlip, prob=0.5),
     dict(type=Pad, size=imgsz, pad_val=dict(img=(114, 114, 114))),
-    # dict(
-    #     type=MixUp,
-    #     img_scale=(input_shape, input_shape),
-    #     ratio_range=(1.0, 1.0),
-    #     max_cached_images=20,
-    #     pad_val=114.0,
-    # ), #removed MixUp
     dict(type=PackDetInputs),
 ]
 
@@ -109,7 +97,7 @@ train_dataloader.update(
     dict(batch_size=128, num_workers=16, dataset=dict(pipeline=train_pipeline))
 )
 
-
+dump_config = True
 custom_hooks = [
     dict(
         type=EMAHook,
@@ -119,17 +107,19 @@ custom_hooks = [
         priority=49,
     ),
     dict(
-        type=PipelineSwitchHook, switch_epoch=max_epochs - stage2_num_epochs, switch_pipeline=train_pipeline_stage2
+        type=PipelineSwitchHook,
+        switch_epoch=max_epochs - stage2_num_epochs,
+        switch_pipeline=train_pipeline_stage2,
     ),
-    dict(
-        type=ProfilerHook,
-        activity_with_cpu=True,
-        activity_with_cuda=True,
-        profile_memory=True,
-        record_shapes=True,
-        with_stack=True,
-        with_flops=True,
-        schedule=dict(wait=1, warmup=1, active=2, repeat=1),
-        on_trace_ready=dict(type="tb_trace"),
-    ),
+    # dict(
+    #     type=ProfilerHook,
+    #     activity_with_cpu=True,
+    #     activity_with_cuda=True,
+    #     profile_memory=True,
+    #     record_shapes=True,
+    #     with_stack=True,
+    #     with_flops=True,
+    #     schedule=dict(wait=1, warmup=1, active=2, repeat=1),
+    #     on_trace_ready=dict(type="tb_trace"),
+    # ),
 ]
