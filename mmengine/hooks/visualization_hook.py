@@ -5,7 +5,7 @@ from typing import Optional, Sequence
 
 from mmengine.fileio import join_path
 from mmengine.hooks import Hook
-from mmengine.runner import EpochBasedTrainLoop, Runner
+from mmengine import runner as mmenginerunner
 from mmengine.visualization import Visualizer
 from mmengine.structures import BaseDataElement
 
@@ -30,12 +30,14 @@ class VisualizationHook(Hook):
             :meth:`mmpretrain.visualization.UniversalVisualizer.visualize_cls`.
     """
 
-    def __init__(self,
-                 enable=False,
-                 interval: int = 5000,
-                 show: bool = False,
-                 out_dir: Optional[str] = None,
-                 **kwargs):
+    def __init__(
+        self,
+        enable=False,
+        interval: int = 5000,
+        show: bool = False,
+        out_dir: Optional[str] = None,
+        **kwargs,
+    ):
         self._visualizer: Visualizer = Visualizer.get_current_instance()
         exit()
         self.enable = enable
@@ -43,13 +45,15 @@ class VisualizationHook(Hook):
         self.show = show
         self.out_dir = out_dir
 
-        self.draw_args = {**kwargs, 'show': show}
+        self.draw_args = {**kwargs, "show": show}
 
-    def _draw_samples(self,
-                      batch_idx: int,
-                      data_batch: dict,
-                      data_samples: Sequence[BaseDataElement],
-                      step: int = 0) -> None:
+    def _draw_samples(
+        self,
+        batch_idx: int,
+        data_batch: dict,
+        data_samples: Sequence[BaseDataElement],
+        step: int = 0,
+    ) -> None:
         """Visualize every ``self.interval`` samples from a data batch.
 
         Args:
@@ -62,7 +66,7 @@ class VisualizationHook(Hook):
             return
 
         batch_size = len(data_samples)
-        images = data_batch['inputs']
+        images = data_batch["inputs"]
         start_idx = batch_size * batch_idx
         end_idx = start_idx + batch_size
 
@@ -71,19 +75,20 @@ class VisualizationHook(Hook):
 
         for sample_id in range(first_sample_id, end_idx, self.interval):
             image = images[sample_id - start_idx]
-            image = image.permute(1, 2, 0).cpu().numpy().astype('uint8')
+            image = image.permute(1, 2, 0).cpu().numpy().astype("uint8")
 
             data_sample = data_samples[sample_id - start_idx]
-            if 'img_path' in data_sample:
+            if "img_path" in data_sample:
                 # osp.basename works on different platforms even file clients.
-                sample_name = osp.basename(data_sample.get('img_path'))
+                sample_name = osp.basename(data_sample.get("img_path"))
             else:
                 sample_name = str(sample_id)
 
             draw_args = self.draw_args
             if self.out_dir is not None:
-                draw_args['out_file'] = join_path(self.out_dir,
-                                                  f'{sample_name}_{step}.png')
+                draw_args["out_file"] = join_path(
+                    self.out_dir, f"{sample_name}_{step}.png"
+                )
 
             self._visualizer.visualize_cls(
                 image=image,
@@ -93,8 +98,13 @@ class VisualizationHook(Hook):
                 **self.draw_args,
             )
 
-    def after_val_iter(self, runner: Runner, batch_idx: int, data_batch: dict,
-                       outputs: Sequence[BaseDataElement]) -> None:
+    def after_val_iter(
+        self,
+        runner,
+        batch_idx: int,
+        data_batch: dict,
+        outputs: Sequence[BaseDataElement],
+    ) -> None:
         """Visualize every ``self.interval`` samples during validation.
 
         Args:
@@ -103,15 +113,20 @@ class VisualizationHook(Hook):
             data_batch (dict): Data from dataloader.
             outputs (Sequence[:obj:`DataSample`]): Outputs from model.
         """
-        if isinstance(runner.train_loop, EpochBasedTrainLoop):
+        if isinstance(runner.train_loop, mmenginerunner.EpochBasedTrainLoop):
             step = runner.epoch
         else:
             step = runner.iter
 
         self._draw_samples(batch_idx, data_batch, outputs, step=step)
 
-    def after_test_iter(self, runner: Runner, batch_idx: int, data_batch: dict,
-                        outputs: Sequence[BaseDataElement]) -> None:
+    def after_test_iter(
+        self,
+        runner,
+        batch_idx: int,
+        data_batch: dict,
+        outputs: Sequence[BaseDataElement],
+    ) -> None:
         """Visualize every ``self.interval`` samples during test.
 
         Args:
