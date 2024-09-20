@@ -48,15 +48,37 @@ else:
 def _lazy2string(cfg_dict, dict_type=None):
     if isinstance(cfg_dict, dict):
         dict_type = dict_type or type(cfg_dict)
-        return dict_type(
-            {k: _lazy2string(v, dict_type)
-             for k, v in dict.items(cfg_dict)})
+        return dict_type({
+            k: _lazy2string(v, dict_type)
+            for k, v in dict.items(cfg_dict)
+        })
     elif isinstance(cfg_dict, (tuple, list)):
         return type(cfg_dict)(_lazy2string(v, dict_type) for v in cfg_dict)
     elif isinstance(cfg_dict, (LazyAttr, LazyObject)):
         return f'{cfg_dict.module}.{str(cfg_dict)}'
     else:
         return cfg_dict
+
+
+class ModifyConstant(ast.NodeTransformer):
+
+    def __init__(self, modif_key_value: dict):
+        self.modify_key_value = modif_key_value
+
+    def visit_Module(self, node: ast.Module) -> Any:
+        for item in node.body:
+            if isinstance(item, ast.Assign):
+                for target in item.targets:
+                    if isinstance(
+                            target, ast.Name
+                    ) and target.id in self.modify_key_value.keys():
+                        value = self.modify_key_value[target.id]
+                        if isinstance(value, list):
+                            value = tuple(value)
+                        new_value = ast.Constant(value=value)
+                        ast.copy_location(new_value, item.value)
+                        item.value = new_value
+        return node
 
 
 class ConfigDict(Dict):
@@ -273,13 +295,15 @@ class ConfigDict(Dict):
         # called by CPython interpreter during pickling. See more details in
         # https://github.com/python/cpython/blob/8d61a71f9c81619e34d4a30b625922ebc83c561b/Objects/typeobject.c#L6196  # noqa: E501
         if digit_version(platform.python_version()) < digit_version('3.8'):
-            return (self.__class__, ({k: v
-                                      for k, v in super().items()}, ), None,
-                    None, None)
+            return (self.__class__, ({
+                k: v
+                for k, v in super().items()
+            }, ), None, None, None)
         else:
-            return (self.__class__, ({k: v
-                                      for k, v in super().items()}, ), None,
-                    None, None, None)
+            return (self.__class__, ({
+                k: v
+                for k, v in super().items()
+            }, ), None, None, None, None)
 
     def __eq__(self, other):
         if isinstance(other, ConfigDict):
@@ -429,13 +453,23 @@ class Config:
             env_variables = dict()
         super().__setattr__('_env_variables', env_variables)
 
+    def add_constant_modify(self, modified_constant: Union[dict,
+                                                           ModifyConstant]):
+        if isinstance(modified_constant, ModifyConstant):
+            self.transformer_modify = modified_constant
+        else:
+            self.transformer_modify = ModifyConstant(modified_constant)
+
     @staticmethod
-    def fromfile(filename: Union[str, Path],
-                 use_predefined_variables: bool = True,
-                 import_custom_modules: bool = True,
-                 use_environment_variables: bool = True,
-                 lazy_import: Optional[bool] = None,
-                 format_python_code: bool = True) -> 'Config':
+    def fromfile(
+        filename: Union[str, Path],
+        use_predefined_variables: bool = True,
+        import_custom_modules: bool = True,
+        use_environment_variables: bool = True,
+        lazy_import: Optional[bool] = None,
+        format_python_code: bool = True,
+        modified_constant: Optional[Union[dict, ModifyConstant]] = None
+    ) -> 'Config':
         """Build a Config instance from config file.
 
         Args:
@@ -456,6 +490,12 @@ class Config:
             Config: Config instance built from config file.
         """
         filename = str(filename) if isinstance(filename, Path) else filename
+        if isinstance(modified_constant, ModifyConstant):
+            transformer_modify = modified_constant
+        elif isinstance(modified_constant, dict):
+            transformer_modify = ModifyConstant(modified_constant)
+        else:
+            transformer_modify = None
         if lazy_import is False or \
            lazy_import is None and not Config._is_lazy_import(filename):
             cfg_dict, cfg_text, env_variables = Config._file2dict(
@@ -489,7 +529,8 @@ class Config:
             # ConfigDict
             ConfigDict.lazy = True
             try:
-                cfg_dict, imported_names = Config._parse_lazy_import(filename)
+                cfg_dict, imported_names = Config._parse_lazy_import(
+                    filename, transformer_modifier=transformer_modify)
             except Exception as e:
                 raise e
             finally:
@@ -982,7 +1023,10 @@ class Config:
         return cfg_dict, cfg_text, env_variables
 
     @staticmethod
-    def _parse_lazy_import(filename: str) -> Tuple[ConfigDict, set]:
+    def _parse_lazy_import(
+        filename: str,
+        transformer_modifier: Optional[ModifyConstant] = None
+    ) -> Tuple[ConfigDict, set]:
         """Transform file to variables dictionary.
 
         Args:
@@ -1079,7 +1123,8 @@ class Config:
                         'and is consistent with the prior import '
                         'logic')
                 _base_cfg_dict, _base_imported_names = Config._parse_lazy_import(  # noqa: E501
-                    module_path)
+                    module_path,
+                    transformer_modifier=transformer_modifier)
                 base_imported_names |= _base_imported_names
                 # The base_dict will be:
                 # {
@@ -1106,6 +1151,8 @@ class Config:
             imported_names = transform.imported_obj | abs_imported
             imported_names |= base_imported_names
             modified_code = ast.fix_missing_locations(modified_code)
+            if transformer_modifier != None:
+                modified_code = transformer_modifier.visit(modified_code)
             exec(
                 compile(modified_code, filename, mode='exec'), global_dict,
                 global_dict)
