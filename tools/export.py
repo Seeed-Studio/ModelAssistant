@@ -90,7 +90,7 @@ def main():
     args = parse_args()
 
     # load config
-    cfg = Config.fromfile(args.config)
+    cfg = Config.fromfile(args.config, modified_constant=args.cfg_options)
     cfg.launcher = args.launcher
     if args.cfg_options is not None:
         cfg.merge_from_dict(args.cfg_options)
@@ -227,7 +227,7 @@ def export_tflite(onnx_path: str, img_path, img_shape):
         datasets = [
             osp.join(img_path, i) for i in os.listdir(img_path) if i.endswith(".jpg")
         ]
-        for ps in tqdm(datasets[:100]):
+        for ps in tqdm(datasets[:300]):
             img = cv2.imread(ps)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) / 255
             img = cv2.resize(img, (img_shape[0], img_shape[1]))
