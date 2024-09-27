@@ -162,8 +162,6 @@ def main():
 
 
 def export_savemodel(onnx_file):
-    tflite_path = f"{osp.splitext(onnx_file)[0]}_int8.tflite"
-
     # onnx convert to pb
     cmd = f"onnx2tf -i {onnx_file}  -v warn  -osd -o {osp.dirname(onnx_file)}"
     state = os.system(cmd)

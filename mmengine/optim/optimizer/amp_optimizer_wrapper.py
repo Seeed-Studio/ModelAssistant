@@ -20,7 +20,7 @@ elif is_mlu_available():
 else:
     # from torch.amp import GradScaler as amp_GradScaler
     from torch.cuda.amp import GradScaler as amp_GradScaler
-    GradScaler = partial(amp_GradScaler, device='cuda')
+    GradScaler = partial(amp_GradScaler)
 
 
 @OPTIM_WRAPPERS.register_module()
@@ -97,6 +97,7 @@ class AmpOptimWrapper(OptimWrapper):
         if loss_scale == 'dynamic':
             #  If loss_scale is a string, it must be 'dynamic', then dynamic
             #  loss scaling will be used.
+            print(scaler_type)
             self.loss_scaler = scaler_type()
         elif isinstance(loss_scale, float):
             # Static loss scaling
