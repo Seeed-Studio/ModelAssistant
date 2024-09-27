@@ -101,10 +101,10 @@ SSCMA aims to provide the best performance and accuracy for embedded devices, he
 
 SSCMA provides a complete toolchain for users to easily deploy AI models on low-cost hardwares, including:
 
-- [SSCMA-Model-Zoo](https://github.com/Seeed-Studio/sscma-model-zoo) SSCMA Model Zoo provide a series of pre-trained models for different application scenarios for you to use.
+- [SSCMA-Model-Zoo](https://sensecraft.seeed.cc/ai/#/model) SSCMA Model Zoo provides a series of pre-trained models for different application scenarios for you to use. The source code for this web is [hosted here](https://github.com/Seeed-Studio/sscma-model-zoo).
+- [SSCMA-Web-Toolkit, which is now renamed to SenseCraft AI](https://sensecraft.seeed.cc/ai/#/home) A web-based tool that makes trainning and deploying machine learning models (with a focus on vision models by now) fast, easy, and accessible to everyone. 
 - [SSCMA-Micro](https://github.com/Seeed-Studio/SSCMA-Micro) A cross-platform framework that deploys and applies SSCMA models to microcontrol devices.
 - [Seeed-Arduino-SSCMA](https://github.com/Seeed-Studio/Seeed_Arduino_SSCMA) Arduino library for devices supporting the SSCMA-Micro firmware.
-- [SSCMA-Web-Toolkit](https://seeed-studio.github.io/SenseCraft-Web-Toolkit) A web-based tool that updates the device's firmware, SSCMA model, and parameters.
 - [Python-SSCMA](https://github.com/Seeed-Studio/python-sscma) A Python library for interacting with microcontrollers using SSCMA-Micro, and for higher-level deep learning applications.
 
 ## Acknowledgement
