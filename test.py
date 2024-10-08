@@ -8,7 +8,12 @@ from mmengine.evaluator import DumpResults
 from mmengine.runner import Runner
 
 from mmengine.registry import RUNNERS, MODELS
-from sscma.deploy.backend import TorchScriptInfer, OnnxInfer
+from sscma.deploy.backend import (
+    TorchScriptInfer,
+    OnnxInfer,
+    SavedModelInfer,
+    TFliteInfer,
+)
 from sscma.deploy.utils import model_type
 
 
@@ -120,6 +125,12 @@ def main():
     elif backend[2]:  # onnx
         infer_onnx_model = OnnxInfer(args.model)
         model.set_infer(infer_onnx_model, cfg)
+    elif backend[8]:  # TFlite
+        infer_tflite_model = TFliteInfer(args.model)
+        model.set_infer(infer_tflite_model, cfg)
+    elif backend[6]:  # saved_model
+        infer_saved_model = SavedModelInfer(args.model)
+        model.set_infer(infer_saved_model, cfg)
 
     runner = DeployTestRunner.from_cfg(cfg)
 
