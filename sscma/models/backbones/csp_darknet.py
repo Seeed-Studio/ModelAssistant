@@ -93,6 +93,7 @@ class SPPBottleneck(BaseModule):
         conv_cfg=None,
         norm_cfg=dict(type="BN", momentum=0.03, eps=0.001),
         act_cfg=dict(type="Swish"),
+        split_max_pool_kernel=False,
         init_cfg=None,
     ):
         super().__init__(init_cfg)
@@ -106,12 +107,28 @@ class SPPBottleneck(BaseModule):
             norm_cfg=norm_cfg,
             act_cfg=act_cfg,
         )
-        self.poolings = nn.ModuleList(
-            [
-                nn.MaxPool2d(kernel_size=ks, stride=1, padding=ks // 2)
-                for ks in kernel_sizes
-            ]
-        )
+
+        if not split_max_pool_kernel:
+            self.poolings = nn.ModuleList(
+                [
+                    nn.MaxPool2d(kernel_size=ks, stride=1, padding=ks // 2)
+                    for ks in kernel_sizes
+                ]
+            )
+        else:
+            max_pool_module_list = []
+            for ks in kernel_sizes:
+                assert (ks - 1) % 2 == 0
+                "kernel cannot be splitted into 3x3 kernels"
+                num_3x3_maxpool = (ks - 1) // 2
+                max_pool_module_list.append(
+                    nn.Sequential(
+                        *num_3x3_maxpool
+                        * [nn.MaxPool2d(kernel_size=3, stride=1, padding=1)]
+                    )
+                )
+            self.poolings = nn.ModuleList(max_pool_module_list)
+
         conv2_channels = mid_channels * (len(kernel_sizes) + 1)
         self.conv2 = ConvModule(
             conv2_channels,
@@ -124,7 +141,7 @@ class SPPBottleneck(BaseModule):
 
     def forward(self, x):
         x = self.conv1(x)
-        with torch.amp.autocast('cuda', enabled=False):
+        with torch.amp.autocast("cuda", enabled=False):
             x = torch.cat([x] + [pooling(x) for pooling in self.poolings], dim=1)
         x = self.conv2(x)
         return x
@@ -159,19 +176,6 @@ class CSPDarknet(BaseModule):
             and its variants only.
         init_cfg (dict or list[dict], optional): Initialization config dict.
             Default: None.
-    Example:
-        >>> from mmdet.models import CSPDarknet
-        >>> import torch
-        >>> self = CSPDarknet(depth=53)
-        >>> self.eval()
-        >>> inputs = torch.rand(1, 3, 416, 416)
-        >>> level_outputs = self.forward(inputs)
-        >>> for level_out in level_outputs:
-        ...     print(tuple(level_out.shape))
-        ...
-        (1, 256, 52, 52)
-        (1, 512, 26, 26)
-        (1, 1024, 13, 13)
     """
 
     # From left to right:
