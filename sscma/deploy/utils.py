@@ -50,7 +50,7 @@ def export_formats():
         ["OpenVINO", "openvino", "_openvino_model", True, False],
         ["TensorRT", "engine", ".engine", False, True],
         ["CoreML", "coreml", ".mlpackage", True, False],
-        ["TensorFlow SavedModel", "saved_model", "_saved_model", True, True],
+        ["TensorFlow SavedModel", "saved_model", "saved_model", True, True],
         ["TensorFlow GraphDef", "pb", ".pb", True, True],
         ["TensorFlow Lite", "tflite", ".tflite", True, False],
         ["TensorFlow Edge TPU", "edgetpu", "_edgetpu.tflite", False, False],
