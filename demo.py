@@ -17,7 +17,7 @@ from mmengine.registry import VISUALIZERS, DATASETS
 
 from sscma.utils import simplecv_imread
 from sscma.utils.colorspace import simplecv_imconvert
-from sscma.deploy.backend import OnnxInfer, TorchScriptInfer
+from sscma.deploy.backend import OnnxInfer, TorchScriptInfer, TFliteInfer
 from sscma.deploy.utils import get_file_list, model_type
 
 
@@ -74,6 +74,9 @@ def main():
     elif backend[2]:  # onnx
         infer_onnx_model = OnnxInfer(args.model, args.device)
         model_infer.set_infer(infer_onnx_model, config)
+    elif backend[8]:  # TFlite
+        infer_tflite_model = TFliteInfer(args.model)
+        model_infer.set_infer(infer_tflite_model, config)
 
     # init test pipeline
     test_pipeline = Compose(config.test_pipeline)

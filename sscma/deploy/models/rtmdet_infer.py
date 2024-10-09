@@ -92,7 +92,8 @@ class RTMDetInfer(BaseModel):
         data = self.func.infer(inputs)
         for result, data_sample in zip(data, batch_data_samples):
             # check item in result is tensor or numpy
-            if isinstance(result[0], torch.Tensor):
+
+            if isinstance(result[0][0], torch.Tensor):
                 cls_scores = result[0]
                 bbox_preds = result[1]
             else:

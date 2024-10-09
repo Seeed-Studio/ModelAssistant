@@ -1,5 +1,6 @@
 """
  python export.py --config configs/rtmdet_nano_8xb32_300e_coco.py --weights  work_dirs/rtmdet_nano_8xb32_300e_coco/epoch_300.pth --include onnx torchscript
+  onnx2tf -i work_dirs/rtmdet_nano_8xb32_300e_coco/20240930_170538/epoch_300.onnx -oiqt -cind images calib_data_416x416_n200.npy "[[[[0,0,0]]]]" "[[[[1,1,1]]]]"
 todo
 imsz ?
 """
@@ -11,10 +12,14 @@ import json
 import math
 import os
 import time
+import glob
+import random
 import warnings
 from pathlib import Path
 from typing import Optional
 
+import cv2
+import numpy as np
 import pandas as pd
 import torch
 from torch.utils.mobile_optimizer import optimize_for_mobile
@@ -26,6 +31,52 @@ from sscma.apis import init_detector
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[1]  # sscma root directory
+
+
+def preprocess(img, input_size):
+    # reference:
+    # https://github.com/TexasInstruments/edgeai-yolox/blob/b6a825e1a0105acbbefc0f24770082e3f1f1c320/yolox/data/data_augment.py#L174
+    if len(img.shape) == 3:
+        padded_img = np.ones((input_size[0], input_size[1], 3), dtype=np.uint8) * 114
+    else:
+        padded_img = np.ones(input_size, dtype=np.uint8) * 114
+
+    r = min(input_size[0] / img.shape[0], input_size[1] / img.shape[1])
+    resized_img = cv2.resize(
+        img,
+        (int(img.shape[1] * r), int(img.shape[0] * r)),
+        interpolation=cv2.INTER_LINEAR,
+    ).astype(np.uint8)
+    padded_img[: int(img.shape[0] * r), : int(img.shape[1] * r)] = resized_img
+
+    padded_img = padded_img.astype(np.float32)
+    return padded_img, r
+
+
+def generate_calib_data(img_dir, img_size, n_img):
+    # reference:
+    # https://github.com/PINTO0309/onnx2tf#7-calibration-data-creation-for-int8-quantization
+
+    img_paths = glob.glob(os.path.join(img_dir, "*"))
+    img_paths.sort()
+    assert len(img_paths) >= n_img
+    random.seed(0)
+    random.shuffle(img_paths)
+
+    calib_data = []
+    for i, img_path in enumerate(img_paths):
+        if i >= n_img:
+            break
+        img = cv2.imread(img_path)
+        img, _ = preprocess(img, img_size)
+        img = img[np.newaxis]
+        calib_data.append(img)
+    calib_data = np.vstack(calib_data)  # [n_img, img_size[0], img_size[1], 3]
+
+    print_log(f"calib_datas.shape: {calib_data.shape}")
+
+    return calib_data
+    # np.save(file=args.out, arr=calib_data)
 
 
 def colorstr(*input):
