@@ -2,15 +2,20 @@ import argparse
 import os
 import os.path as osp
 
+
 from mmengine.config import Config, DictAction
 from mmengine.evaluator import DumpResults
 from mmengine.runner import Runner
+
+from mmengine.registry import RUNNERS, MODELS
+from sscma.deploy.backend import TorchScriptInfer, OnnxInfer
+from sscma.deploy.utils import model_type
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="test (and eval) a model")
     parser.add_argument("config", help="test config file path")
-    parser.add_argument("checkpoint", help="checkpoint file")
+    parser.add_argument("model", help="checkpoint file")
     parser.add_argument(
         "--work-dir",
         help="the directory to save the file containing evaluation metrics",
@@ -50,12 +55,51 @@ def parse_args():
     return args
 
 
+class DeployTestRunner(Runner):
+    """The runner for test models.
+
+    Args:
+        log_file (str | None): The path of log file. Default is ``None``.
+        device (str): The device type.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(DeployTestRunner, self).__init__(*args, **kwargs)
+
+    def test(self) -> dict:
+        """Launch test.
+
+        Returns:
+            dict: A dict of metrics on testing set.
+        """
+        if self._test_loop is None:
+            raise RuntimeError(
+                "`self._test_loop` should not be None when calling test "
+                "method. Please provide `test_dataloader`, `test_cfg` and "
+                "`test_evaluator` arguments when initializing runner."
+            )
+
+        self._test_loop = self.build_test_loop(self._test_loop)  # type: ignore
+
+        self.call_hook("before_run")
+
+        metrics = self.test_loop.run()  # type: ignore
+        self.call_hook("after_run")
+        return metrics
+
+
 def main():
     args = parse_args()
 
     # load config
     cfg = Config.fromfile(args.config, modified_constant=args.cfg_options)
     cfg.launcher = args.launcher
+    cfg.custom_hooks = []
+
+    # multiprocessing.set_start_method("spawn")
+    # # onnxruntime does not support fork method in multiprocessing
+    # cfg.env_cfg.mp_cfg.mp_start_method = "spawn"
+
     if args.cfg_options is not None:
         cfg.merge_from_dict(args.cfg_options)
 
@@ -69,15 +113,24 @@ def main():
             "./work_dirs", osp.splitext(osp.basename(args.config))[0]
         )
 
-    cfg.load_from = args.checkpoint
+    cfg.load_from = args.model
 
-    # build the runner from config
-    if "runner_type" not in cfg:
-        # build the default runner
-        runner = Runner.from_cfg(cfg)
-    runner.call_hook("before_run")
-    runner.load_checkpoint(args.checkpoint, map_location=args.device)
-    runner.model.eval()
+    # build model
+    model = MODELS.build(cfg.deploy)
+
+    # select backend
+    backend = model_type(args.model)
+    if backend[1]:  # torchscript
+        infer_torchscript_model = TorchScriptInfer(args.model)
+        model.set_infer(infer_torchscript_model, cfg)
+    elif backend[2]:  # onnx
+        infer_onnx_model = OnnxInfer(args.model)
+        model.set_infer(infer_onnx_model, cfg)
+
+    runner = DeployTestRunner.from_cfg(cfg)
+
+    runner.model = model
+
     # add `DumpResults` dummy metric
     if args.out is not None:
         assert args.out.endswith(
