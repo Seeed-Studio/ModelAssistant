@@ -29,6 +29,15 @@ def parse_args():
         help="dump predictions to a pickle file for offline evaluation",
     )
     parser.add_argument(
+        "--show", action="store_true", help="Whether to visualize inference results"
+    )
+    parser.add_argument(
+        "--show_dir",
+        "--show-dir" "-o",
+        type=str,
+        help="Path to save visualization results",
+    )
+    parser.add_argument(
         "--device",
         type=str,
         default="cuda",
@@ -82,6 +91,12 @@ def main():
         cfg.work_dir = osp.join(
             "./work_dirs", osp.splitext(osp.basename(args.config))[0]
         )
+
+    if args.show:
+        cfg.default_hooks.visualization.show = True
+
+    if args.show_dir:
+        cfg.default_hooks.visualization.test_out_dir = args.show_dir
 
     cfg.load_from = args.model
     # cfg.model = cfg.deploy
