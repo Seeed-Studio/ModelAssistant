@@ -1,9 +1,7 @@
 import onnxruntime
-
+import torch
 
 from .base_infer import BaseInfer
-
-import torch
 
 
 class OnnxInfer(BaseInfer):
