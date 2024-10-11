@@ -1,4 +1,5 @@
 import copy
+import warnings
 from typing import Dict, List, Tuple, Union
 
 import torch
@@ -8,6 +9,7 @@ from mmengine.model import BaseModel
 from sscma.structures import DetDataSample, OptSampleList
 from sscma.utils.typing_utils import OptConfigType, OptMultiConfig
 from sscma.utils.misc import samplelist_boxtype2tensor
+from sscma.models.heads import RTMDetHead
 from ..backend import BaseInfer
 
 ForwardResults = Union[
@@ -89,7 +91,27 @@ class RTMDetInfer(BaseModel):
             list[:obj:`DetDataSample`]: The predicted data samples.
         """
 
-        data = self.func.infer(inputs)
+        data_tmp = self.func.infer(inputs)
+        _, _, H, W = inputs.shape
+        data = []
+        if all([d.shape[1] == 4 for d in data_tmp[0]]):
+            warnings.warn(
+                "Please note that the inference found that the output result channels are all 4, which may lead to wrong results",
+                Warning,
+            )
+
+        for dt in data_tmp:
+            scale = self.pred_head.featmap_strides
+            featmap_size = [(H // s, W // s) for s in scale]
+            tmp = [None for _ in range(6)]
+            for d in dt:
+                if d.shape[2:] in featmap_size:
+                    if d.shape[1] == 4:
+                        tmp[3 + featmap_size.index(d.shape[2:])] = d
+                    else:
+                        tmp[featmap_size.index(d.shape[2:])] = d
+
+            data.append(tmp)
         for result, data_sample in zip(data, batch_data_samples):
             # check item in result is tensor or numpy
 
@@ -116,4 +138,4 @@ class RTMDetInfer(BaseModel):
         self.func.load_weights()
         if Config is not None:
             self.config = copy.deepcopy(Config)
-            self.pred_head = MODELS.build(self.config.model.bbox_head)
+            self.pred_head: RTMDetHead = MODELS.build(self.config.model.bbox_head)
