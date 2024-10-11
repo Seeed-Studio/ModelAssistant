@@ -1,11 +1,8 @@
-# python test.py configs/rtmdet_nano_8xb32_300e_coco.py work_dirs/rtmdet_nano_8xb32_300e_coco/saved_model/epoch_300_float32.tflite --cfg-options test_evaluator.classwise=True
-
 import numpy as np
-from tflite_runtime.interpreter import Interpreter, load_delegate
+import torch
+from tflite_runtime.interpreter import Interpreter
 
 from .base_infer import BaseInfer
-
-import torch
 
 
 class TFliteInfer(BaseInfer):
@@ -20,7 +17,7 @@ class TFliteInfer(BaseInfer):
         for data in input_data.split(1, 0):
             # check if input_data is Tensor
             if isinstance(data, torch.Tensor):
-                # Torch Tensor convert NCWH to NHWC
+                # Torch Tensor convert NCWH to NHW
                 data = data.permute(0, 2, 3, 1).numpy()
 
                 input = self.input_details[0]
@@ -43,12 +40,7 @@ class TFliteInfer(BaseInfer):
                     # numpy x convert NHWC to NCWH
                     y.append(np.transpose(x, [0, 3, 1, 2]))
 
-                if int8:
-                    new_order = [4, 1, 5, 3, 0, 2]
-                    new_y = [y[i] for i in new_order]
-                    results.append(new_y)
-                else:
-                    results.append(y)
+                results.append(y)
 
         return results
 
