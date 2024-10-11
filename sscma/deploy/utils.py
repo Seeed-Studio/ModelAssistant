@@ -44,6 +44,7 @@ def export_formats():
         - Supports Detection: Whether the format supports detection.
     """
     x = [
+        ["PyTorch", "-", ".pth", True, True],
         ["PyTorch", "-", ".pt", True, True],
         ["TorchScript", "torchscript", ".torchscript", True, True],
         ["ONNX", "onnx", ".onnx", True, True],

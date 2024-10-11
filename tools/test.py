@@ -2,12 +2,10 @@ import argparse
 import os
 import os.path as osp
 
-
 from mmengine.config import Config, DictAction
 from mmengine.evaluator import DumpResults
 from mmengine.runner import Runner
-
-from mmengine.registry import RUNNERS, MODELS
+from mmengine.registry import MODELS
 from sscma.deploy.backend import (
     TorchScriptInfer,
     OnnxInfer,
@@ -60,39 +58,6 @@ def parse_args():
     return args
 
 
-class DeployTestRunner(Runner):
-    """The runner for test models.
-
-    Args:
-        log_file (str | None): The path of log file. Default is ``None``.
-        device (str): The device type.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super(DeployTestRunner, self).__init__(*args, **kwargs)
-
-    def test(self) -> dict:
-        """Launch test.
-
-        Returns:
-            dict: A dict of metrics on testing set.
-        """
-        if self._test_loop is None:
-            raise RuntimeError(
-                "`self._test_loop` should not be None when calling test "
-                "method. Please provide `test_dataloader`, `test_cfg` and "
-                "`test_evaluator` arguments when initializing runner."
-            )
-
-        self._test_loop = self.build_test_loop(self._test_loop)  # type: ignore
-
-        self.call_hook("before_run")
-
-        metrics = self.test_loop.run()  # type: ignore
-        self.call_hook("after_run")
-        return metrics
-
-
 def main():
     args = parse_args()
 
@@ -119,28 +84,31 @@ def main():
         )
 
     cfg.load_from = args.model
-
+    # cfg.model = cfg.deploy
     # build model
     model = MODELS.build(cfg.deploy)
 
     # select backend
     backend = model_type(args.model)
-    if backend[1]:  # torchscript
+    if backend[2]:  # torchscript
         infer_torchscript_model = TorchScriptInfer(args.model)
         model.set_infer(infer_torchscript_model, cfg)
-    elif backend[2]:  # onnx
+    elif backend[3]:  # onnx
         infer_onnx_model = OnnxInfer(args.model)
         model.set_infer(infer_onnx_model, cfg)
-    elif backend[8]:  # TFlite
+    elif backend[9]:  # TFlite
         infer_tflite_model = TFliteInfer(args.model)
         model.set_infer(infer_tflite_model, cfg)
-    elif backend[6]:  # saved_model
+    elif backend[7]:  # saved_model
         infer_saved_model = SavedModelInfer(args.model)
         model.set_infer(infer_saved_model, cfg)
+    elif backend[0] or backend[1]:
+        model = MODELS.build(cfg.model)
 
-    runner = DeployTestRunner.from_cfg(cfg)
-
-    runner.model = model
+    runner = Runner.from_cfg(cfg)
+    if not (backend[0] or backend[1]):
+        runner.load_or_resume = lambda *args: None
+        runner.model = model
 
     # add `DumpResults` dummy metric
     if args.out is not None:
