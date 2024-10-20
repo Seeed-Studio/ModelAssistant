@@ -4,6 +4,7 @@ import sys
 import argparse
 
 import torch
+import numpy as np
 from mmengine.config import Config, DictAction
 from mmengine.runner import Runner
 from mmengine.evaluator import DumpResults
@@ -48,14 +49,15 @@ def parse_args():
         "--format",
         nargs="*",
         default=["onnx"],
-        choices=[
-            "onnx",
-            "tflite",
-            "vela",
-            "savemodel",
-            "torchscript",
-        ],
+        choices=["onnx", "tflite", "vela", "savemodel", "torchscript", "hailo"],
         help="Model format to be exported",
+    )
+    parser.add_argument(
+        "--arch",
+        type=str,
+        default="hailo8",
+        choices=["hailo8", "hailo15"],
+        help="hailo hardware type",
     )
     parser.add_argument(
         "--verify",
@@ -127,6 +129,8 @@ def main():
     for fmt in model_format:
         if fmt == "onnx":
             new_model_format.append("onnx")
+        elif fmt == "hailo":
+            new_model_format.extend(["onnx", "hailo"])
         elif fmt == "savemodel":
             new_model_format.extend(["onnx", "savemodel"])
         elif fmt == "tflite":
@@ -143,6 +147,9 @@ def main():
 
     if "onnx" in new_model_format:
         onnx_file = export_onnx(model, args)
+
+    if "hailo" in new_model_format:
+        export_hailo(onnx_file, args.arch, args.image_path, args.img_size, cfg)
 
     if "savemodel" in new_model_format:
         export_savemodel(onnx_file)
@@ -209,6 +216,53 @@ def export_onnx(model, args):
             print(f"Simplify failure: {e}")
 
     return f
+
+
+def export_hailo(onnx_path: str, arch: str, img_path, img_shape, cfg):
+    from hailo_sdk_client import ClientRunner
+    import onnx
+    import cv2
+    from hailo_sdk_client.exposed_definitions import CalibrationDataType
+
+    datasets = [
+        osp.join(img_path, i) for i in os.listdir(img_path) if i.endswith(".jpg")
+    ]
+    calib_dataset = []
+    for ps in datasets[:300]:
+        img = cv2.imread(ps)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) / 255
+        img = cv2.resize(img, (img_shape[0], img_shape[1]))
+        calib_dataset.append(img)
+    calib_dataset = np.asarray(calib_dataset)
+
+    har_file = f"{osp.dirname(onnx_path)}{osp.sep}{osp.splitext(osp.basename(onnx_path))[0]}.har"
+    har_quant_file = f"{osp.dirname(onnx_path)}{osp.sep}{osp.splitext(osp.basename(onnx_path))[0]}_quant.har"
+    hef_file = f"{osp.dirname(onnx_path)}{osp.sep}{osp.splitext(osp.basename(onnx_path))[0]}.hef"
+
+    model = onnx.load(onnx_path)
+    runner = ClientRunner(hw_arch=arch)
+    input_shape = {
+        inp.name: [dim.dim_value for dim in inp.type.tensor_type.shape.dim]
+        for inp in model.graph.input
+    }
+    runner.translate_onnx_model(
+        onnx_path,
+        "onnx",
+        start_node_names=[i.name for i in model.graph.input],
+        end_node_names=[i.name for i in model.graph.output],
+        net_input_shapes=input_shape,
+    )
+    runner.save_har(har_file)
+    runner = ClientRunner(har=har_file)
+
+    alls = f"normalization1 = normalization({cfg.model.data_preprocessor.mean}, {cfg.model.data_preprocessor.std})\n"
+    runner.load_model_script(alls)
+    runner.optimize(calib_dataset, CalibrationDataType.np_array)
+    runner.save_har(har_quant_file)
+    runner = ClientRunner(har=har_quant_file)
+    hef = runner.compile()
+    with open(hef_file, "wb") as f:
+        f.write(hef)
 
 
 def export_tflite(onnx_path: str, img_path, img_shape):
