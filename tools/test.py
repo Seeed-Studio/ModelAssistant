@@ -11,6 +11,7 @@ from sscma.deploy.backend import (
     OnnxInfer,
     SavedModelInfer,
     TFliteInfer,
+    HailoInfer,
 )
 from sscma.deploy.utils import model_type
 
@@ -119,6 +120,9 @@ def main():
         model.set_infer(infer_saved_model, cfg)
     elif backend[0] or backend[1]:
         model = MODELS.build(cfg.model)
+    elif backend[13]:
+        infer_hailo = HailoInfer(args.model)
+        model.set_infer(infer_hailo, cfg)
 
     runner = Runner.from_cfg(cfg)
     if not (backend[0] or backend[1]):

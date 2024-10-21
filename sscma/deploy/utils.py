@@ -57,6 +57,7 @@ def export_formats():
         ["TensorFlow Edge TPU", "edgetpu", "_edgetpu.tflite", False, False],
         ["TensorFlow.js", "tfjs", "_web_model", False, False],
         ["PaddlePaddle", "paddle", "_paddle_model", True, True],
+        ["Hailo", "hailo", ".har", True, True],
     ]
     return pd.DataFrame(x, columns=["Format", "Argument", "Suffix", "CPU", "GPU"])
 
