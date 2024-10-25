@@ -3,6 +3,8 @@ from .atss_head import ATSSHead, AnchorHead
 from .base_dense_head import BaseDenseHead
 from .cls_head import LinearClsHead
 from .rtmdet_head import RTMDetHead, RTMDetSepBNHeadModule
+from .pfld_head import PFLDhead
+from .fomo_head import FomoHead
 
 __all__ = [
     "AnchorHead",
@@ -12,4 +14,6 @@ __all__ = [
     "LinearClsHead",
     "RTMDetHead",
     "RTMDetSepBNHeadModule",
+    "PFLDhead",
+    "FomoHead",
 ]

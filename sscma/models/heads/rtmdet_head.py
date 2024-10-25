@@ -225,6 +225,8 @@ class RTMDetSepBNHeadModule(BaseModule):
                 reg_feat = reg_layer(reg_feat)
 
             reg_dist = self.rtm_reg[idx](reg_feat)
+            # cls_scores.append(cls_score.permute(0,2,3,1).reshape(1,-1,self.num_classes))
+            # bbox_preds.append(reg_dist.permute(0,2,3,1).reshape(1,-1,4))
             cls_scores.append(cls_score)
             bbox_preds.append(reg_dist)
         return tuple(cls_scores), tuple(bbox_preds)
@@ -460,7 +462,6 @@ class YOLOv5Head(BaseDenseHead):
         ]
         flatten_stride = torch.cat(mlvl_strides)
 
-        # flatten cls_scores, bbox_preds and objectness
         flatten_cls_scores = [
             cls_score.permute(0, 2, 3, 1).reshape(num_imgs, -1, self.num_classes)
             for cls_score in cls_scores
