@@ -4,7 +4,7 @@ import torch.nn as nn
 from torch import Tensor
 
 from mmengine.model import BaseModule
-from mmengine.utils import is_tuple_of
+from mmengine.utils import is_tuple_of, digit_version
 from sscma.utils.typing_utils import (
     MultiConfig,
     OptConfigType,
@@ -165,11 +165,11 @@ class ChannelAttention(BaseModule):
 
         # delete standard activation layer, for quantify use default ReLU6 instead
         # self.act = build_activation_layer(act_cfg)
-        # if digit_version(torch.__version__) < (1, 7, 0):
-        #     self.act = nn.Hardsigmoid()
-        # else:
-        #     self.act = nn.Hardsigmoid(inplace=True)
-        self.act = nn.ReLU6(inplace=True)
+        if digit_version(torch.__version__) < (1, 7, 0):
+            self.act = nn.Hardsigmoid()
+        else:
+            self.act = nn.Hardsigmoid(inplace=True)
+        # self.act = nn.ReLU(inplace=True)
 
     def forward(self, x: Tensor) -> Tensor:
         """Forward function for ChannelAttention."""

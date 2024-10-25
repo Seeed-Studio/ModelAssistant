@@ -15,6 +15,7 @@ from .utils import (
     MLP,
     DynamicConv,
 )
+from .rep import RepBlock, RepConv1x1, RepLine, VanillaBlock, Activation
 
 __all__ = [
     "CSPLayer",
@@ -34,4 +35,9 @@ __all__ = [
     "ConditionalAttention",
     "MLP",
     "DynamicConv",
+    "RepBlock",
+    "RepConv1x1",
+    "RepLine",
+    "VanillaBlock",
+    "Activation",
 ]
