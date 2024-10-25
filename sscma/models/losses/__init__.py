@@ -12,6 +12,7 @@ from .iou_loss import (
 )
 from .label_smooth_loss import LabelSmoothLoss
 from .utils import reduce_loss, weight_reduce_loss, weighted_loss, convert_to_one_hot
+from .pfld_loss import PFLDLoss
 
 
 __all__ = [
@@ -32,4 +33,5 @@ __all__ = [
     "weight_reduce_loss",
     "weighted_loss",
     "convert_to_one_hot",
+    "PFLDLoss",
 ]
