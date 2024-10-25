@@ -20,6 +20,8 @@ from .recall import (
     plot_num_recall,
     plot_iou_recall,
 )
+from .point_metric import PointMetric
+from .fomo_metric import FomoMetric
 
 __all__ = [
     "BaseMetric",
@@ -43,4 +45,6 @@ __all__ = [
     "print_recall_summary",
     "plot_num_recall",
     "plot_iou_recall",
+    "PointMetric",
+    "FomoMetric",
 ]
