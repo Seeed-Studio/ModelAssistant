@@ -114,7 +114,7 @@ class Fomo(SingleStageDetector):
         optim_wrapper.update_params(parsed_losses)
         return log_vars
 
-    def val_step(self, data: [tuple, dict, list]) -> list:
+    def val_step(self, data: Union[tuple, dict, list]) -> list:
         if not self.skip_preprocessor:
             data = self.data_preprocessor(data, False)
         return self._run_forward(data, "predict")
