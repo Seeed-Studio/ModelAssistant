@@ -5,6 +5,7 @@ from .data_sample import (
     MultiTaskDataSample,
     OptSampleList,
     SampleList,
+    PoseDataSample,
 )
 from .utils import (
     batch_label_to_onehot,
@@ -27,4 +28,5 @@ __all__ = [
     "label_to_onehot",
     "format_label",
     "format_score",
+    "PoseDataSample",
 ]
