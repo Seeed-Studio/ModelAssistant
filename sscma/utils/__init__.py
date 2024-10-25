@@ -34,6 +34,17 @@ from .colorspace import (
 )
 
 from .logger import get_caller_name, log_img_scale
+from .typing_utils import (
+    ConfigType,
+    OptConfigType,
+    MultiConfig,
+    OptMultiConfig,
+    InstanceList,
+    OptInstanceList,
+    PixelList,
+    OptPixelList,
+    RangeType,
+)
 
 __all__ = [
     "_scale_size",
@@ -67,4 +78,13 @@ __all__ = [
     "simplecv_ycbcr2rgb",
     "get_caller_name",
     "log_img_scale",
+    "ConfigType",
+    "OptConfigType",
+    "MultiConfig",
+    "OptMultiConfig",
+    "InstanceList",
+    "OptInstanceList",
+    "PixelList",
+    "OptPixelList",
+    "RangeType",
 ]
