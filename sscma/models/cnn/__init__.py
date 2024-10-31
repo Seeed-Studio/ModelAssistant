@@ -17,6 +17,7 @@ from .wrappers import (
     MaxPool2d,
     MaxPool3d,
 )
+from .conv_block import Conv_block1D, Conv_block2D
 
 __all__ = [
     "build_activation_layer",
@@ -38,4 +39,6 @@ __all__ = [
     "Linear",
     "MaxPool2d",
     "MaxPool3d",
+    "Conv_block1D",
+    "Conv_block2D",
 ]
