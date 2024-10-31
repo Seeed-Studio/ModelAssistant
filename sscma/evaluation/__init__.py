@@ -22,6 +22,7 @@ from .recall import (
 )
 from .point_metric import PointMetric
 from .fomo_metric import FomoMetric
+from .mse_metric import MseMetric
 
 __all__ = [
     "BaseMetric",
@@ -47,4 +48,5 @@ __all__ = [
     "plot_iou_recall",
     "PointMetric",
     "FomoMetric",
+    "MseMetric",
 ]
