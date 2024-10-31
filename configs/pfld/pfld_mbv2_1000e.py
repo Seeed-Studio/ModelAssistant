@@ -21,6 +21,7 @@ from mmengine.optim import LinearLR, MultiStepLR
 from torch.optim import Adam
 from sscma.evaluation import PointMetric
 from mmengine.dataset import default_collate
+from sscma.deploy.models.pfld_infer import PFLDInfer
 
 # ========================Suggested optional parameters========================
 # MODEL
@@ -73,6 +74,10 @@ model = dict(
     ),
 )
 
+
+deploy = dict(
+    type=PFLDInfer,
+)
 
 train_pipeline = [
     dict(type=Resize, height=imgsz[1], width=imgsz[0], interpolation=0),
