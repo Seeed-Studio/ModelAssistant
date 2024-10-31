@@ -3,7 +3,7 @@ import re
 import os
 from tqdm.std import tqdm
 import platform
-from typing import AnyStr, List, Optional
+from typing import AnyStr, List, Optional, Union
 
 
 def download_file(url, path) -> bool:
@@ -131,7 +131,7 @@ def defile(files, store_dir):
         res.append(cmd)
 
 
-def download(links: List or AnyStr, store_path: AnyStr, unzip_dir=None):
+def download(links: Union[List, AnyStr], store_path: AnyStr, unzip_dir=None):
     if isinstance(links, str):
         links = [links]
     os.chdir(store_path)
