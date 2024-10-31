@@ -93,6 +93,7 @@ class RTMDetInfer(BaseModel):
 
         data_tmp = self.func.infer(inputs)
         _, _, H, W = inputs.shape
+        featmap_size = [(H // s, W // s) for s in self.scale]
         data = []
         if all([d.shape[1] == 4 for d in data_tmp[0]]):
             warnings.warn(
@@ -101,8 +102,6 @@ class RTMDetInfer(BaseModel):
             )
 
         for dt in data_tmp:
-            scale = self.pred_head.featmap_strides
-            featmap_size = [(H // s, W // s) for s in scale]
             tmp = [None for _ in range(6)]
             for d in dt:
                 if d.shape[2:] in featmap_size:
@@ -139,3 +138,4 @@ class RTMDetInfer(BaseModel):
         if Config is not None:
             self.config = copy.deepcopy(Config)
             self.pred_head: RTMDetHead = MODELS.build(self.config.model.bbox_head)
+        self.scale = self.pred_head.featmap_strides
