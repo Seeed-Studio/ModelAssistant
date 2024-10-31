@@ -16,6 +16,8 @@ from .utils import (
     DynamicConv,
 )
 from .rep import RepBlock, RepConv1x1, RepLine, VanillaBlock, Activation
+from .encode import Vae_Encode
+from .decode import Vae_Decode
 
 __all__ = [
     "CSPLayer",
@@ -40,4 +42,6 @@ __all__ = [
     "RepLine",
     "VanillaBlock",
     "Activation",
+    "Vae_Encode",
+    "Vae_Decode",
 ]

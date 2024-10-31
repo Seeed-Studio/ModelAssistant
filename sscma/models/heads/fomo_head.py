@@ -126,6 +126,9 @@ class FomoHead(BaseModule):
         preds = self.forward(features)
         preds = tuple([F.softmax(pred, dim=1) for pred in preds])
 
+        return self.predict_by_feat(preds, batch_data_samples)
+
+    def predict_by_feat(self, preds, batch_data_samples):
         batch_data_samples[0].metainfo["img_shape"]
         # batch_gt_instances = [data_samples.gt_instances for data_samples in batch_data_samples]
         batch_gt_instances = [
