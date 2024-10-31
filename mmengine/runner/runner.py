@@ -434,9 +434,14 @@ class Runner:
             self.cfg.get('model_wrapper_cfg'), self.model)
 
         # log model information
-        imgsz =  self.cfg.get('imgsz', (320, 320))
-        summary(self.model, input_size=(1, 3, imgsz[0], imgsz[1]),
-                col_names=["input_size", "output_size", "num_params"],)
+        try:
+            imgsz =  self.cfg.get('imgsz', (320, 320))
+            summary(self.model, input_size=(1, 3, imgsz[0], imgsz[1]),
+                    col_names=["input_size", "output_size", "num_params"],)
+        except Exception as e:
+            self.logger.warning(
+                f'Failed to inference model, please check the model configuration '
+                f'and try again. Error: {e}')
 
         # get model name from the model class
         if hasattr(self.model, 'module'):

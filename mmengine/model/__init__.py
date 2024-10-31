@@ -17,6 +17,7 @@ from .weight_init import (BaseInit, Caffe2XavierInit, ConstantInit,
                           xavier_init)
 from .wrappers import (MMDistributedDataParallel,
                        MMSeparateDistributedDataParallel, is_model_wrapper)
+from .plugin import build_plugin_layer,infer_abbr
 
 __all__ = [
     'MMDistributedDataParallel', 'is_model_wrapper', 'BaseAveragedModel',
@@ -30,7 +31,7 @@ __all__ = [
     'bias_init_with_prob', 'BaseInit', 'ConstantInit', 'XavierInit',
     'NormalInit', 'TruncNormalInit', 'UniformInit', 'KaimingInit',
     'Caffe2XavierInit', 'PretrainedInit', 'initialize',
-    'convert_sync_batchnorm', 'BaseTTAModel'
+    'convert_sync_batchnorm', 'BaseTTAModel','build_plugin_layer','infer_abbr'
 ]
 
 if digit_version(TORCH_VERSION) >= digit_version('2.0.0'):

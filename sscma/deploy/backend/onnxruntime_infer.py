@@ -22,6 +22,13 @@ class OnnxInfer(BaseInfer):
         return results
 
     def load_weights(self):
-        self.sess = onnxruntime.InferenceSession(self.weights)
+        self.sess = onnxruntime.InferenceSession(
+            self.weights,
+            providers=[
+                "TensorrtExecutionProvider",
+                "CUDAExecutionProvider",
+                "CPUExecutionProvider",
+            ],
+        )
         self.input_name = self.sess.get_inputs()[0].name
         self.output_names = [x.name for x in self.sess.get_outputs()]

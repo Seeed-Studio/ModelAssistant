@@ -39,7 +39,6 @@ class VisualizationHook(Hook):
         **kwargs,
     ):
         self._visualizer: Visualizer = Visualizer.get_current_instance()
-        exit()
         self.enable = enable
         self.interval = interval
         self.show = show
