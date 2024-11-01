@@ -2,7 +2,7 @@
 import copy
 import collections
 from abc import ABCMeta, abstractmethod
-from typing import Optional, Sequence, Tuple, Union, Iterable
+from typing import Optional, Sequence, Tuple, Union, Iterable, Dict, List
 
 import cv2
 import torch
@@ -30,7 +30,40 @@ except ImportError:
     albumentations = None
     Compose = None
 
+try:
+    from PIL import Image
+except ImportError:
+    Image = None
+
 Number = Union[int, float]
+
+cv2_interp_codes = {
+    "nearest": cv2.INTER_NEAREST,
+    "bilinear": cv2.INTER_LINEAR,
+    "bicubic": cv2.INTER_CUBIC,
+    "area": cv2.INTER_AREA,
+    "lanczos": cv2.INTER_LANCZOS4,
+}
+
+if Image is not None:
+    if hasattr(Image, "Resampling"):
+        pillow_interp_codes = {
+            "nearest": Image.Resampling.NEAREST,
+            "bilinear": Image.Resampling.BILINEAR,
+            "bicubic": Image.Resampling.BICUBIC,
+            "box": Image.Resampling.BOX,
+            "lanczos": Image.Resampling.LANCZOS,
+            "hamming": Image.Resampling.HAMMING,
+        }
+    else:
+        pillow_interp_codes = {
+            "nearest": Image.NEAREST,
+            "bilinear": Image.BILINEAR,
+            "bicubic": Image.BICUBIC,
+            "box": Image.BOX,
+            "lanczos": Image.LANCZOS,
+            "hamming": Image.HAMMING,
+        }
 
 
 class toTensor(BaseTransform):
@@ -140,23 +173,76 @@ class Resize(BaseTransform):
                 f"get {type(scale_factor)}"
             )
 
+    def imresize(
+        self,
+        img: np.ndarray,
+        size: Tuple[int, int],
+        return_scale: bool = False,
+        interpolation: str = "bilinear",
+        out: Optional[np.ndarray] = None,
+        backend: Optional[str] = None,
+    ) -> Union[Tuple[np.ndarray, float, float], np.ndarray]:
+        """Resize image to a given size.
+
+        Args:
+            img (ndarray): The input image.
+            size (tuple[int]): Target size (w, h).
+            return_scale (bool): Whether to return `w_scale` and `h_scale`.
+            interpolation (str): Interpolation method, accepted values are
+                "nearest", "bilinear", "bicubic", "area", "lanczos" for 'cv2'
+                backend, "nearest", "bilinear" for 'pillow' backend.
+            out (ndarray): The output destination.
+            backend (str | None): The image resize backend type. Options are `cv2`,
+                `pillow`, `None`. If backend is None, the global imread_backend
+                specified by ``mmcv.use_backend()`` will be used. Default: None.
+
+        Returns:
+            tuple | ndarray: (`resized_img`, `w_scale`, `h_scale`) or
+            `resized_img`.
+        """
+
+        imread_backend = "cv2"
+        h, w = img.shape[:2]
+        if backend is None:
+            backend = imread_backend
+            if isinstance(img, torch.Tensor):
+                backend = "torch"
+            elif isinstance(img, np.ndarray):
+                backend = "cv2"
+        if backend not in ["cv2", "pillow", "torch"]:
+            raise ValueError(
+                f"backend: {backend} is not supported for resize."
+                f"Supported backends are 'cv2', 'pillow'"
+            )
+        if backend == "pillow":
+            assert img.dtype == np.uint8, "Pillow backend only support uint8 type"
+            pil_image = Image.fromarray(img)
+            pil_image = pil_image.resize(size, pillow_interp_codes[interpolation])
+            resized_img = np.array(pil_image)
+        elif backend == "torch":
+            resized_img = F.resize(img, size, interpolation=InterpolationMode.BILINEAR)
+        else:
+            resized_img = cv2.resize(
+                img, size, dst=out, interpolation=cv2_interp_codes[interpolation]
+            )
+        if not return_scale:
+            return resized_img
+        else:
+            w_scale = size[0] / w
+            h_scale = size[1] / h
+            return resized_img, w_scale, h_scale
+
     def _resize_img(self, results: dict) -> None:
         """Resize images with ``results['scale']``."""
-
         if results.get("img", None) is not None:
             if self.keep_ratio:
-                img = results["img"]
-                _, h, w = img.size()
-
-                new_size, scale_factor = simplecv_rescale_size(
-                    (w, h), results["scale"], return_scale=True
+                img, w_scale, h_scale = self.imresize(
+                    results["img"],
+                    results["scale"],
+                    interpolation=self.interpolation,
+                    return_scale=True,
+                    backend=self.backend,
                 )
-
-                img = F.resize(img, new_size, interpolation=InterpolationMode.BILINEAR)
-
-                _, new_h, new_w = img.size()
-                w_scale = new_w / w
-                h_scale = new_h / h
             else:
                 img = F.resize(
                     results["img"],
@@ -168,7 +254,9 @@ class Resize(BaseTransform):
                 h_scale = img.size()[1] / h
 
             results["img"] = img
-            results["img_shape"] = img.shape[1:]
+            results["img_shape"] = (
+                img.shape[:2] if isinstance(img, np.ndarray) else img.shape[:-1]
+            )
             results["scale_factor"] = (w_scale, h_scale)
             results["keep_ratio"] = self.keep_ratio
 
@@ -1857,3 +1945,42 @@ class MixUp(BaseMixImageTransform):
         repr_str += f"max_refetch={self.max_refetch}, "
         repr_str += f"bbox_clip_border={self.bbox_clip_border})"
         return repr_str
+
+
+class Bbox2FomoMask(BaseTransform):
+    def __init__(
+        self,
+        downsample_factor: Tuple[int, ...] = (8,),
+        num_classes: int = 80,
+    ) -> None:
+        super().__init__()
+        self.downsample_factor = downsample_factor
+        self.num_classes = num_classes
+
+    def transform(self, results: Dict) -> Optional[Union[Dict, Tuple[List, List]]]:
+        H, W = results["img_shape"]
+        bbox = results["gt_bboxes"]
+        labels = results["gt_bboxes_labels"]
+
+        res = []
+        for factor in self.downsample_factor:
+            Dh, Dw = int(H / factor), int(W / factor)
+            target = self.build_target(
+                bbox, feature_shape=(Dh, Dw), ori_shape=(W, H), labels=labels
+            )
+            res.append(target)
+
+        results["fomo_mask"] = copy.deepcopy(res)
+        return results
+
+    def build_target(self, bboxs, feature_shape, ori_shape, labels):
+        (H, W) = feature_shape
+        # target_data = torch.zeros(size=(1,H, W, self.num_classes + 1))
+        target_data = np.zeros((1, H, W, self.num_classes + 1))
+        target_data[..., 0] = 1
+        for idx, i in enumerate(bboxs):
+            w = int(i.centers[0][0] / ori_shape[0] * W)
+            h = int(i.centers[0][1] / ori_shape[1] * H)
+            target_data[0, h, w, 0] = 0  # background
+            target_data[0, h, w, int(labels[idx] + 1)] = 1  # label
+        return target_data

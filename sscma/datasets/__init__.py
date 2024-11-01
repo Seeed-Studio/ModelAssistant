@@ -13,6 +13,9 @@ from .data_preprocessor import (
 
 from .imagenet import ImageNet, ImageNet21k
 from .lancedb_datasets import LanceDataset
+from .meter import MeterData
+from .fomo import CustomFomoCocoDataset
+from .anomaly_dataset import Microphone_dataset, Signal_dataset
 
 
 __all__ = [
@@ -34,4 +37,8 @@ __all__ = [
     "CustomDataset",
     "ClsDataPreprocessor",
     "LanceDataset",
+    "MeterData",
+    "CustomFomoCocoDataset",
+    "Microphone_dataset",
+    "Signal_dataset",
 ]

@@ -11,6 +11,7 @@ from .transforms import (
     BaseMixImageTransform,
     MixUp,
     Mosaic,
+    Bbox2FomoMask,
 )
 from .formatting import (
     PackInputs,
@@ -48,4 +49,5 @@ __all__ = [
     "PILToNumpy",
     "Collect",
     "BaseTransform",
+    "Bbox2FomoMask",
 ]
