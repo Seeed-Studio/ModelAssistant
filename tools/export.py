@@ -3,6 +3,8 @@ import os.path as osp
 import sys
 import argparse
 
+# sys.path.insert(0, osp.dirname(osp.dirname(osp.abspath(__file__))))
+
 import torch
 import numpy as np
 from mmengine.config import Config, DictAction
@@ -55,8 +57,8 @@ def parse_args():
     parser.add_argument(
         "--arch",
         type=str,
-        default="hailo8",
-        choices=["hailo8", "hailo15"],
+        default="hailo8l",
+        choices=["hailo8", "hailo8l", "hailo15", "hailo15l"],
         help="hailo hardware type",
     )
     parser.add_argument(
@@ -185,7 +187,9 @@ def export_torchscript(model, args):
     from torch.utils.mobile_optimizer import optimize_for_mobile
 
     f = f"{osp.splitext(args.checkpoint)[0]}_script.pt"
-    script_model = torch.jit.script(model)
+    script_model = torch.jit.trace(
+        model, torch.randn(1, 3, *args.img_size).to(args.device)
+    )
     script_model = optimize_for_mobile(script_model)
     torch.jit.save(script_model, f)
 
@@ -193,7 +197,7 @@ def export_torchscript(model, args):
 def export_onnx(model, args):
     import onnx
 
-    fake_input = torch.randn(1, 3, *args.img_size).to(args.device)
+    fake_input = torch.randn(3, 3, *args.img_size).to(args.device)
     f = f"{osp.splitext(args.checkpoint)[0]}.onnx"
     torch.onnx.export(
         model,
@@ -253,13 +257,13 @@ def export_hailo(onnx_path: str, arch: str, img_path, img_shape, cfg):
         net_input_shapes=input_shape,
     )
     runner.save_har(har_file)
-    runner = ClientRunner(har=har_file)
+    runner = ClientRunner(har=har_file, hw_arch="hailo8l")
 
     alls = f"normalization1 = normalization({cfg.model.data_preprocessor.mean}, {cfg.model.data_preprocessor.std})\n"
     runner.load_model_script(alls)
     runner.optimize(calib_dataset, CalibrationDataType.np_array)
     runner.save_har(har_quant_file)
-    runner = ClientRunner(har=har_quant_file)
+    runner = ClientRunner(har=har_quant_file, hw_arch="hailo8l")
     hef = runner.compile()
     with open(hef_file, "wb") as f:
         f.write(hef)
