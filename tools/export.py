@@ -3,7 +3,7 @@ import os.path as osp
 import sys
 import argparse
 
-# sys.path.insert(0, osp.dirname(osp.dirname(osp.abspath(__file__))))
+sys.path.insert(0, osp.dirname(osp.dirname(osp.abspath(__file__))))
 
 import torch
 import numpy as np

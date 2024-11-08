@@ -3,6 +3,9 @@ import logging
 import os
 import os.path as osp
 import torch
+import sys
+
+sys.path.insert(0, osp.dirname(osp.dirname(osp.abspath(__file__))))
 
 torch.multiprocessing.set_sharing_strategy("file_system")
 

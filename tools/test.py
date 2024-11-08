@@ -1,6 +1,9 @@
 import argparse
 import os
+import sys
 import os.path as osp
+
+sys.path.insert(0, osp.dirname(osp.dirname(osp.abspath(__file__))))
 
 from mmengine.config import Config, DictAction
 from mmengine.evaluator import DumpResults
