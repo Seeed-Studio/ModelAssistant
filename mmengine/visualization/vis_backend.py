@@ -16,11 +16,12 @@ import torch
 
 from mmengine.config import Config, ConfigDict
 from mmengine.fileio import dump
-from mmengine.hooks.logger_hook import SUFFIX_TYPE
 from mmengine.logging import MMLogger, print_log
 from mmengine.registry import VISBACKENDS
 from mmengine.utils import digit_version, scandir
 from mmengine.utils.dl_utils import TORCH_VERSION
+
+SUFFIX_TYPE = Union[Sequence[str], str]
 
 
 def force_init_env(old_func: Callable) -> Any:

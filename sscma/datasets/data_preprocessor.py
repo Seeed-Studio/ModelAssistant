@@ -495,7 +495,7 @@ class DetDataPreprocessor(ImgDataPreprocessor):
         self.seg_pad_value = seg_pad_value
         self.boxtype2tensor = boxtype2tensor
 
-    def forward(self, data: dict, training: bool = False) -> dict:
+    def forward(self, data, training: bool = False):
         """Perform normalization, padding and bgr2rgb conversion based on
         ``DetDataPreprocessorr``.
 

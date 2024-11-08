@@ -8,6 +8,7 @@ import cv2
 import torch
 import numpy as np
 from numpy import random
+import torchvision as tv
 from torchvision.transforms.v2 import functional as F
 from torchvision.transforms.v2.functional import InterpolationMode
 
@@ -203,12 +204,12 @@ class Resize(BaseTransform):
 
         imread_backend = "cv2"
         h, w = img.shape[:2]
-        if backend is None:
-            backend = imread_backend
-            if isinstance(img, torch.Tensor):
-                backend = "torch"
-            elif isinstance(img, np.ndarray):
-                backend = "cv2"
+
+        backend = imread_backend
+        if isinstance(img, (torch.Tensor, tv.tv_tensors._image.Image)):
+            backend = "torch"
+        elif isinstance(img, np.ndarray):
+            backend = "cv2"
         if backend not in ["cv2", "pillow", "torch"]:
             raise ValueError(
                 f"backend: {backend} is not supported for resize."

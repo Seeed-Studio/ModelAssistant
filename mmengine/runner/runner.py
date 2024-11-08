@@ -436,7 +436,7 @@ class Runner:
         # log model information
         try:
             imgsz =  self.cfg.get('imgsz', (320, 320))
-            summary(self.model, input_size=(1, 3, imgsz[0], imgsz[1]),
+            summary(self.model, input_size=(3, 3, imgsz[0], imgsz[1]),
                     col_names=["input_size", "output_size", "num_params"],)
         except Exception as e:
             self.logger.warning(
