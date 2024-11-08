@@ -36,7 +36,7 @@ dataset
 ```
 
 # 模型训练
-
+在满足数据集文件结构的情况下用户只需要修改数据集根路径即可进行训练，其训练命令如下：
 ```bash
 python tools/train.py configs/anomaly/vae_mirophone.py --cfg-options data_root=${数据集路径}
 ```
@@ -44,6 +44,8 @@ python tools/train.py configs/anomaly/vae_mirophone.py --cfg-options data_root=$
 
 
 # 模型导出
+在训练完成后即可进行导出用户需要的格式，其导出命令如下，更多详细信息可通过`python tools/export.py --help`命令查看
+
 ```bash
 python tools/export.py configs/anomaly/vae_mirophone.py work_dirs/epoch_100.pth --imgsz 32 32
 ```
@@ -51,6 +53,7 @@ python tools/export.py configs/anomaly/vae_mirophone.py work_dirs/epoch_100.pth 
 
 # 测试
 
+目前测试可运行`Pytorch`格式的模型以及导出的其他格式的模型，其运行命令如下：
 ```bash
 python tools/test.py configs/anomaly/vae_mirophone.py work_dirs/epoch_100.onnx 
 ```
