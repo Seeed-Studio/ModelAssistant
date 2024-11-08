@@ -1,5 +1,8 @@
+import copy
+
 import torch
 
+from mmengine import MODELS
 from mmengine.model import BaseModel
 from sscma.utils.typing_utils import OptConfigType, OptMultiConfig
 from ..backend import BaseInfer
@@ -51,14 +54,21 @@ class AnomalyInfer(BaseModel):
             return self._predict(inputs, data_samples)
         else:
             raise RuntimeError(
-                f'Invalid mode "{mode}". ' "RTMDetInfer Only supports predict mode"
+                f'Invalid mode "{mode}". ' "AnomalyetInfer Only supports predict mode"
             )
 
     def _predict(self, inputs: torch.Tensor, batch_data_samples=None):
-        data = self.func.infer(inputs)[0]
-        mse = torch.mean((torch.from_numpy(data[0]) - inputs) ** 2)
-        return [dict(loss=mse)]
+        data = self.func.infer(inputs, split=False)
+        res = []
+        for d in data:
+            res.append(torch.from_numpy(d))
+        loss1, loss2, loss3 = self.vae_model.loss_function(*res)
+        loss = loss1 + loss2 + loss3
+        return [dict(loss=loss)]
 
     def set_infer(self, func: BaseInfer, Config: OptConfigType = None):
         self.func = func
         self.func.load_weights()
+        if Config is not None:
+            self.config = copy.deepcopy(Config)
+            self.vae_model = MODELS.build(self.config.model)

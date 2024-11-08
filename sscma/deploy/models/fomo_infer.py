@@ -55,7 +55,7 @@ class FomoInfer(BaseModel):
             return self._predict(inputs, data_samples)
         else:
             raise RuntimeError(
-                f'Invalid mode "{mode}". ' "RTMDetInfer Only supports predict mode"
+                f'Invalid mode "{mode}". ' "FomoInfer Only supports predict mode"
             )
 
     def _predict(self, inputs: torch.Tensor, batch_data_samples=None):

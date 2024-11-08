@@ -41,13 +41,14 @@ class Vae_Model(BaseModel):
 
     def forward(self, batch):
         x = batch[:1, ...].clone()
-        c = batch[:1, ...].clone()
+        c = batch[1:2, ...].clone()
 
         mu, mu_c, logvar, logvar_c, res_x1, res_x2, res_x3 = self.encode(x, c)
         z = self.reparameterize(mu, logvar)
-        c = self.reparameterize(mu_c, logvar_c)
-        x, c = self.decode(z, c, res_x1, res_x2, res_x3)
-        return x, c
+        c_recon = self.reparameterize(mu_c, logvar_c)
+        x_recon, c_recon = self.decode(z, c_recon, res_x1, res_x2, res_x3)
+
+        return x_recon, c_recon, x, c, mu, mu_c, logvar, logvar_c
 
     def train_step(self, data, optim_wrapper):
         res = self.training_step(data)
@@ -71,6 +72,7 @@ class Vae_Model(BaseModel):
         c = batch[1:2, ...]
 
         x_recon, c_recon, mu, mu_c, logvar, logvar_c = self._forward(x, c)
+
         loss1, loss2, loss3 = self.loss_function(
             x_recon, c_recon, x, c, mu, mu_c, logvar, logvar_c
         )

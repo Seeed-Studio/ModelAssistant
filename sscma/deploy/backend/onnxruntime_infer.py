@@ -11,14 +11,21 @@ class OnnxInfer(BaseInfer):
         self.input_name = None
         self.sess = None
 
-    def infer(self, input_data):
+    def infer(self, input_data, split=True):
         results = []
-        for data in input_data.split(1, 0):
+        if split:
+            for data in input_data.split(1, 0):
+                # check if input_data is Tensor
+                if isinstance(data, torch.Tensor):
+                    data = data.numpy()
+                results.append(
+                    self.sess.run(self.output_names, {self.input_name: data})
+                )
+        else:
             # check if input_data is Tensor
-            if isinstance(data, torch.Tensor):
-                data = data.numpy()
-            results.append(self.sess.run(self.output_names, {self.input_name: data}))
-
+            if isinstance(input_data, torch.Tensor):
+                input_data = input_data.numpy()
+            results = self.sess.run(self.output_names, {self.input_name: input_data})
         return results
 
     def load_weights(self):
