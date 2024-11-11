@@ -19,7 +19,7 @@ default_hooks = dict(
     # enable the parameter scheduler.
     param_scheduler=dict(type=ParamSchedulerHook),
     # save checkpoint per epoch.
-    checkpoint=dict(type=CheckpointHook, interval=1),
+    checkpoint=dict(type=CheckpointHook, interval=5),
     # set sampler seed in distributed evrionment.
     sampler_seed=dict(type=DistSamplerSeedHook),
 )
@@ -29,8 +29,7 @@ env_cfg = dict(
     # whether to enable cudnn benchmark
     cudnn_benchmark=True,
     # set multi process parameters
-    mp_cfg=dict(mp_start_method='spawn', opencv_num_threads=0),
-
+    mp_cfg=dict(mp_start_method='fork', opencv_num_threads=0),
     # set distributed parameters
     dist_cfg=dict(backend="nccl"),
 )
