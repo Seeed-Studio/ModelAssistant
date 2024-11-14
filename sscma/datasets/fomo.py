@@ -4,9 +4,9 @@ import json
 import os.path as osp
 from typing import Optional, Sequence, List
 
-from mmdet.datasets import CocoDataset
 from mmengine.fileio import get_local_path
 from .utils.download import check_file
+from sscma.datasets import CocoDataset
 
 
 class CustomFomoCocoDataset(CocoDataset):

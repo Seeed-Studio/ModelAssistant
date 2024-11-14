@@ -3,7 +3,8 @@ import copy
 import functools
 import inspect
 import weakref
-from collections import defaultdict, Iterable
+from collections import defaultdict
+from collections.abc import Iterable
 from contextlib import contextmanager
 from typing import Callable, Union
 

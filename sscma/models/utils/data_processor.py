@@ -9,8 +9,8 @@ from mmengine.model import BaseDataPreprocessor, stack_batch
 
 from mmengine.registry import MODELS
 
-from sscma.structures import DataSample
-from mmpretrain.structures import (
+from sscma.structures import (
+    DataSample,
     MultiTaskDataSample,
     batch_label_to_onehot,
     cat_batch_labels,

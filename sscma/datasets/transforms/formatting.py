@@ -1,6 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from collections import defaultdict, Sequence
-
+from collections import defaultdict
+from collections.abc import Sequence
 import cv2
 import numpy as np
 import torch
