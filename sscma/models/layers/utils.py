@@ -12,7 +12,6 @@ from mmengine.utils import to_2tuple
 from mmengine.registry import MODELS
 from sscma.utils.typing_utils import OptConfigType, OptMultiConfig
 from ..cnn.drop import Dropout
-from ..cnn.wrappers import Linear
 from ..cnn.activation import build_activation_layer
 from ..cnn import build_conv_layer, build_norm_layer
 
@@ -512,14 +511,14 @@ class ConditionalAttention(BaseModule):
     def _init_layers(self):
         """Initialize layers for qkv projection."""
         embed_dims = self.embed_dims
-        self.qcontent_proj = Linear(embed_dims, embed_dims)
-        self.qpos_proj = Linear(embed_dims, embed_dims)
-        self.kcontent_proj = Linear(embed_dims, embed_dims)
-        self.kpos_proj = Linear(embed_dims, embed_dims)
-        self.v_proj = Linear(embed_dims, embed_dims)
+        self.qcontent_proj = nn.Linear(embed_dims, embed_dims)
+        self.qpos_proj = nn.Linear(embed_dims, embed_dims)
+        self.kcontent_proj = nn.Linear(embed_dims, embed_dims)
+        self.kpos_proj = nn.Linear(embed_dims, embed_dims)
+        self.v_proj = nn.Linear(embed_dims, embed_dims)
         if self.cross_attn:
-            self.qpos_sine_proj = Linear(embed_dims, embed_dims)
-        self.out_proj = Linear(embed_dims, embed_dims)
+            self.qpos_sine_proj = nn.Linear(embed_dims, embed_dims)
+        self.out_proj = nn.Linear(embed_dims, embed_dims)
 
         nn.init.constant_(self.out_proj.bias, 0.0)
 

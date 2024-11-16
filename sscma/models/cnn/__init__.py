@@ -8,15 +8,7 @@ from .drop import Dropout, DropPath
 from .norm import build_norm_layer, is_norm
 from .padding import build_padding_layer
 from .scale import Scale
-from .wrappers import (
-    Conv2d,
-    Conv3d,
-    ConvTranspose2d,
-    ConvTranspose3d,
-    Linear,
-    MaxPool2d,
-    MaxPool3d,
-)
+
 from .conv_block import Conv_block1D, Conv_block2D
 
 __all__ = [
@@ -32,13 +24,6 @@ __all__ = [
     "is_norm",
     "Dropout",
     "DropPath",
-    "Conv2d",
-    "Conv3d",
-    "ConvTranspose2d",
-    "ConvTranspose3d",
-    "Linear",
-    "MaxPool2d",
-    "MaxPool3d",
     "Conv_block1D",
     "Conv_block2D",
 ]
