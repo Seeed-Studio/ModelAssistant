@@ -12,7 +12,6 @@ from sscma.datasets.transforms import (
     RandomFlip,
     Resize,
     HSVRandomAug,
-    toTensor,
     LoadAnnotations,
     PackDetInputs,
     RandomResize,
@@ -25,10 +24,10 @@ from sscma.models import ExpMomentumEMA
 d_factor = 0.33
 w_factor = 0.25
 
-imgsz = (416, 416)
+imgsz = (320, 320)
 
-max_epochs = 300
-stage2_num_epochs = 20
+max_epochs = 120
+stage2_num_epochs = 50
 
 
 model.update(
@@ -56,7 +55,6 @@ train_pipeline = [
     ),
     dict(type=LoadAnnotations, imdecode_backend="pillow", with_bbox=True),
     dict(type=HSVRandomAug),
-    dict(type=toTensor),
     dict(type=Mosaic, img_scale=imgsz, pad_val=114.0),
     dict(
         type=RandomResize,
@@ -79,7 +77,6 @@ train_pipeline_stage2 = [
     ),
     dict(type=LoadAnnotations, imdecode_backend="pillow", with_bbox=True),
     dict(type=HSVRandomAug),
-    dict(type=toTensor),
     dict(
         type=RandomResize,
         scale=(imgsz[0] * 2, imgsz[1] * 2),
@@ -94,7 +91,7 @@ train_pipeline_stage2 = [
 ]
 
 train_dataloader.update(
-    dict(batch_size=128, num_workers=16, dataset=dict(pipeline=train_pipeline))
+    dict(batch_size=batch_size, num_workers=num_workers, dataset=dict(pipeline=train_pipeline))
 )
 
 dump_config = True
