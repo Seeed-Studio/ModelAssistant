@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import torch
 import torchvision.transforms.functional as F
+from torchvision.transforms.v2 import functional as V2F
 from PIL import Image
 
 from mmengine.utils import is_str
@@ -104,6 +105,13 @@ class PackDetInputs(BaseTransform):
                 sample.
         """
         packed_results = dict()
+
+        if not results.get("torch", False):
+            results["img"] = V2F.to_dtype(
+                V2F.to_image(results["img"].copy()), torch.uint8, scale=True
+            )
+            results["torch"] = True
+
         if "img" in results:
             packed_results["inputs"] = results["img"]
 

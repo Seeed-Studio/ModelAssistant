@@ -106,6 +106,7 @@ class LoadImageFromFile(BaseTransform):
         results["img"] = img
         results["img_shape"] = img.shape[:2]
         results["ori_shape"] = img.shape[:2]
+        results["torch"] = False
 
         return results
 
