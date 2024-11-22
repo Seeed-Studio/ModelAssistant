@@ -32,6 +32,7 @@ class FomoMetric(BaseMetric):
         )
 
     def compute_ftp(self, preds, target):
+        preds = preds.permute(0, 2, 3, 1)
         preds, target = preds.to(torch.device("cpu")), target.to(torch.device("cpu"))
         preds = torch.softmax(preds, dim=-1)
         B, H, W, C = preds.shape
@@ -62,8 +63,6 @@ class FomoMetric(BaseMetric):
                     preds_max[site.chunk(3)] = target_max[ti.chunk(3)]
                     target_max[site.chunk(3)] = target_max[ti.chunk(3)]
         # Calculate the confusion matrix
-        # print(target_max.shape)
-        # print(preds_max.shape)
         confusion = confusion_matrix(
             target_max.flatten().cpu().numpy(),
             preds_max.flatten().cpu().numpy(),

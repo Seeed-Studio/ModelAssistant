@@ -58,6 +58,9 @@ class Vae_Model(BaseModel):
     def val_step(self, data):
         return self.validation_step(data)
 
+    def test_step(self, data):
+        return self.validation_step(data)
+
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
         if self.freeze_randn is None:
