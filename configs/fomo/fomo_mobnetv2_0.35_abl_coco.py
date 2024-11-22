@@ -123,7 +123,7 @@ from sscma.datasets.transforms import (
     PackDetInputs,
     LoadImageFromFile,
     Bbox2FomoMask,
-    toTensor,
+    toTensor,Pad
 )
 
 pre_transform = [
@@ -145,6 +145,7 @@ train_pipeline = [
     #     ),
     #     keymap={"img": "image", "gt_bboxes": "bboxes"},
     # ),
+    dict(type=Pad, size=imgsz, pad_val=dict(img=(114, 114, 114))),
     dict(type=Bbox2FomoMask, downsample_factor=(8,), num_classes=num_classes),
     dict(type=toTensor),
     dict(
@@ -165,6 +166,7 @@ train_pipeline = [
 test_pipeline = [
     *pre_transform,
     dict(type=Resize, scale=imgsz),
+    dict(type=Pad, size=imgsz, pad_val=dict(img=(114, 114, 114))),
     dict(type=Bbox2FomoMask, downsample_factor=(8,), num_classes=num_classes),
     dict(type=toTensor),
     dict(
