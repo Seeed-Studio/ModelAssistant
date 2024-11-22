@@ -26,6 +26,8 @@ train_data = "train/"
 val_ann = "valid/_annotations.coco.json"
 val_data = "valid/"
 
+metainfo = None
+
 height = 96
 width = 96
 imgsz = (width, height)
@@ -35,8 +37,8 @@ batch = 16
 workers = 1
 persistent_workers = True
 
-val_batch = 1
-val_workers = 1
+val_batch = 8
+val_workers = 2
 
 lr = 0.001
 epochs = 100
@@ -188,7 +190,9 @@ train_dataloader = dict(
         data_root=data_root,
         ann_file=train_ann,
         data_prefix=dict(img=train_data),
+        filter_cfg=dict(filter_empty_gt=True, min_size=32),
         pipeline=train_pipeline,
+        metainfo=metainfo,
     ),
 )
 val_dataloader = dict(
@@ -201,7 +205,9 @@ val_dataloader = dict(
         data_root=data_root,
         ann_file=val_ann,
         data_prefix=dict(img=val_data),
+        filter_cfg=dict(filter_empty_gt=True, min_size=32),
         pipeline=test_pipeline,
+        metainfo=metainfo,
     ),
 )
 test_dataloader = val_dataloader
