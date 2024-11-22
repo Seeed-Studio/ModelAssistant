@@ -48,7 +48,7 @@ class PFLD(BaseModel):
         res.results = x
         res.pred_instances = InstanceData(
             keypoints=np.array([x.reshape(-1, 2).cpu().numpy()])
-            * data_samples["init_size"][1].cpu().numpy()
+            * data_samples["init_size"][1].reshape(-1, 1).cpu().numpy()
         )
 
         return [res]
