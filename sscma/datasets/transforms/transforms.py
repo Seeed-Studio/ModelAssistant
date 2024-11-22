@@ -66,6 +66,42 @@ if Image is not None:
             "hamming": Image.HAMMING,
         }
 
+Number = Union[int, float]
+
+
+class ImageType:
+    _torch = False
+    _numpy = False
+
+    @classmethod
+    def get_torch(cls):
+        return cls._torch
+
+    @classmethod
+    def set_torch(cls, value):
+        cls._torch = value
+        cls._numpy = False
+
+    @classmethod
+    def get_numpy(cls):
+        return cls._numpy
+
+    @classmethod
+    def set_numpy(cls, value):
+        cls._numpy = value
+        cls._torch = False
+
+    @property
+    def numpy(self):
+        return self.get_numpy()
+
+    @property
+    def torch(self):
+        return self.get_torch()
+
+    classmethod(property(get_numpy, set_numpy))
+    classmethod(property(get_torch, set_torch))
+
 
 class toTensor(BaseTransform):
     """
@@ -81,6 +117,7 @@ class toTensor(BaseTransform):
         #     img = img.repeat(3, 1, 1)
 
         results["img"] = img
+        results["torch"] = True
         return results
 
     def __repr__(self):
@@ -202,14 +239,14 @@ class Resize(BaseTransform):
             `resized_img`.
         """
 
-        imread_backend = "cv2"
-        h, w = img.shape[:2]
+        h, w = img.shape[:2] if isinstance(img, np.ndarray) else img.shape[1:]
+        new_size, scale_factor = simplecv_rescale_size((w, h), size, return_scale=True)
 
-        backend = imread_backend
         if isinstance(img, (torch.Tensor, tv.tv_tensors._image.Image)):
             backend = "torch"
         elif isinstance(img, np.ndarray):
             backend = "cv2"
+        self.backend = backend
         if backend not in ["cv2", "pillow", "torch"]:
             raise ValueError(
                 f"backend: {backend} is not supported for resize."
@@ -218,19 +255,29 @@ class Resize(BaseTransform):
         if backend == "pillow":
             assert img.dtype == np.uint8, "Pillow backend only support uint8 type"
             pil_image = Image.fromarray(img)
-            pil_image = pil_image.resize(size, pillow_interp_codes[interpolation])
+            pil_image = pil_image.resize(new_size, pillow_interp_codes[interpolation])
             resized_img = np.array(pil_image)
         elif backend == "torch":
-            resized_img = F.resize(img, size, interpolation=InterpolationMode.BILINEAR)
+            resized_img = F.resize(
+                img, new_size, interpolation=InterpolationMode.BILINEAR
+            )
         else:
             resized_img = cv2.resize(
-                img, size, dst=out, interpolation=cv2_interp_codes[interpolation]
+                img,
+                new_size,
+                dst=out,
+                interpolation=cv2_interp_codes[interpolation],
             )
         if not return_scale:
             return resized_img
         else:
-            w_scale = size[0] / w
-            h_scale = size[1] / h
+            new_h, new_w = (
+                resized_img.shape[:2]
+                if isinstance(resized_img, np.ndarray)
+                else resized_img.shape[1:]
+            )
+            w_scale = new_w / w
+            h_scale = new_h / h
             return resized_img, w_scale, h_scale
 
     def _resize_img(self, results: dict) -> None:
@@ -240,9 +287,8 @@ class Resize(BaseTransform):
                 img, w_scale, h_scale = self.imresize(
                     results["img"],
                     results["scale"],
-                    interpolation=self.interpolation,
                     return_scale=True,
-                    backend=self.backend,
+                    interpolation=self.interpolation,
                 )
             else:
                 img = F.resize(
@@ -256,7 +302,7 @@ class Resize(BaseTransform):
 
             results["img"] = img
             results["img_shape"] = (
-                img.shape[:2] if isinstance(img, np.ndarray) else img.shape[:-1]
+                img.shape[:2] if isinstance(img, np.ndarray) else img.shape[1:]
             )
             results["scale_factor"] = (w_scale, h_scale)
             results["keep_ratio"] = self.keep_ratio
@@ -608,9 +654,16 @@ class RandomFlip(BaseTransform):
         # flip image
         flip_dims = {"horizontal": [2], "vertical": [1], "diagonal": [1, 2]}
         assert results["flip_direction"] in flip_dims
-        results["img"] = torch.flip(
-            results["img"], dims=flip_dims[results["flip_direction"]]
-        )
+
+        if results["torch"]:
+            results["img"] = torch.flip(
+                results["img"], dims=flip_dims[results["flip_direction"]]
+            )
+        else:
+            results["img"] = np.flip(
+                results["img"],
+                axis=flip_dims[results["flip_direction"]],
+            )
 
         img_shape = results["img"].shape[1:]
 
@@ -772,11 +825,19 @@ class Pad(BaseTransform):
         if isinstance(pad_val, int) and results["img"].ndim == 3:
             pad_val = tuple(pad_val for _ in range(results["img"].shape[2]))
 
-        width = max(size[1] - results["img"].shape[2], 0)
-        height = max(size[0] - results["img"].shape[1], 0)
+        width = max(size[1] - results["img"].shape[2 if results["torch"] else 1], 0)
+        height = max(size[0] - results["img"].shape[1 if results["torch"] else 0], 0)
         padding = [0, 0, width, height]
 
-        padded_img = F.pad(results["img"], padding, pad_val, self.padding_mode)
+        if not results["torch"]:
+            padded_img = np.pad(
+                results["img"],
+                ((0, height), (0, width), (0, 0)),
+                mode="constant",
+                constant_values=pad_val[0],
+            )
+        else:
+            padded_img = F.pad(results["img"], padding, pad_val, self.padding_mode)
         # padded_img = simplecv_impad(
         #     results["img"], shape=size, pad_val=pad_val, padding_mode=self.padding_mode
         # )
@@ -785,7 +846,9 @@ class Pad(BaseTransform):
         results["pad_shape"] = padded_img.shape
         results["pad_fixed_size"] = self.size
         results["pad_size_divisor"] = self.size_divisor
-        results["img_shape"] = padded_img.shape[1:]
+        results["img_shape"] = (
+            padded_img.shape[1:] if results["torch"] else padded_img.shape[:2]
+        )
 
     def _pad_seg(self, results: dict) -> None:
         """Pad semantic segmentation map according to
@@ -941,7 +1004,7 @@ class RandomCrop(BaseTransform):
         """
         assert crop_size[0] > 0 and crop_size[1] > 0
         img = results["img"]
-        _, h, w = img.size()
+        h, w = img.shape[:2] if isinstance(img, np.ndarray) else img.shape[1:]
         margin_h = max(h - crop_size[0], 0)
         margin_w = max(w - crop_size[1], 0)
         offset_h, offset_w = self._rand_offset((margin_h, margin_w))
@@ -961,18 +1024,23 @@ class RandomCrop(BaseTransform):
             )
 
         # crop the image
-        img = img[:, crop_y1:crop_y2, crop_x1:crop_x2]
+        img = (
+            img[crop_y1:crop_y2, crop_x1:crop_x2, :]
+            if isinstance(img, np.ndarray)
+            else img[:, crop_y1:crop_y2, crop_x1:crop_x2]
+        )
         img_shape = img.shape
+        img_hw = img_shape[:2] if isinstance(img, np.ndarray) else img_shape[1:]
         results["img"] = img
-        results["img_shape"] = img_shape[1:]
+        results["img_shape"] = img_hw
 
         # crop bboxes accordingly and clip to the image boundary
         if results.get("gt_bboxes", None) is not None:
             bboxes = results["gt_bboxes"]
             bboxes.translate_([-offset_w, -offset_h])
             if self.bbox_clip_border:
-                bboxes.clip_(img_shape[1:])
-            valid_inds = bboxes.is_inside(img_shape[1:]).numpy()
+                bboxes.clip_(img_hw)
+            valid_inds = bboxes.is_inside(img_hw).numpy()
             # If the crop does not contain any gt-bbox area and
             # allow_negative_crop is False, skip this image.
             if not valid_inds.any() and not allow_negative_crop:
@@ -1068,7 +1136,11 @@ class RandomCrop(BaseTransform):
                 key in result dict is updated according to crop size. None will
                 be returned when there is no valid bbox after cropping.
         """
-        image_size = results["img"].shape[1:]
+        image_size = (
+            results["img"].shape[:2]
+            if isinstance(results["img"], np.ndarray)
+            else results["img"].shape[1:]
+        )
         crop_size = self._get_crop_size(image_size)
         results = self._crop_data(results, crop_size, self.allow_negative_crop)
         return results
@@ -1137,6 +1209,7 @@ class HSVRandomAug(BaseTransform):
             (cv2.LUT(hue, lut_hue), cv2.LUT(sat, lut_sat), cv2.LUT(val, lut_val))
         )
         results["img"] = cv2.cvtColor(im_hsv, cv2.COLOR_HSV2BGR)
+        results["torch"] = False
         return results
 
     def __repr__(self):
@@ -1460,11 +1533,19 @@ class Mosaic(BaseMixImageTransform):
         img_scale_w, img_scale_h = self.img_scale
 
         if len(results["img"].shape) == 3:
-            mosaic_img = torch.full(
-                (3, int(img_scale_h * 2), int(img_scale_w * 2)),
-                self.pad_val,
-                dtype=results["img"].dtype,
-            )
+            if results["torch"]:
+                mosaic_img = torch.full(
+                    (3, int(img_scale_h * 2), int(img_scale_w * 2)),
+                    self.pad_val,
+                    dtype=results["img"].dtype,
+                )
+            else:
+                mosaic_img = np.full(
+                    (int(img_scale_h * 2), int(img_scale_w * 2), 3),
+                    self.pad_val,
+                    dtype=results["img"].dtype,
+                )
+
         else:
             mosaic_img = torch.full(
                 (int(img_scale_h * 2), int(img_scale_w * 2)),
@@ -1484,22 +1565,32 @@ class Mosaic(BaseMixImageTransform):
                 results_patch = results["mix_results"][i - 1]
 
             img_i = results_patch["img"]
-            h_i, w_i = img_i.shape[1:]
+            h_i, w_i = img_i.shape[1:] if results["torch"] else img_i.shape[:2]
             # keep_ratio resize
             scale_ratio_i = min(img_scale_h / h_i, img_scale_w / w_i)
-            img_i = F.resize(
-                img_i, [int(h_i * scale_ratio_i), int(w_i * scale_ratio_i)]
-            )
+            if results["torch"]:
+                img_i = F.resize(
+                    img_i, [int(h_i * scale_ratio_i), int(w_i * scale_ratio_i)]
+                )
+            else:
+                img_i = cv2.resize(
+                    img_i, (int(w_i * scale_ratio_i), int(h_i * scale_ratio_i)), img_i
+                )
 
             # compute the combine parameters
             paste_coord, crop_coord = self._mosaic_combine(
-                loc, center_position, img_i.shape[1:][::-1]
+                loc,
+                center_position,
+                img_i.shape[1:][::-1] if results["torch"] else img_i.shape[:2][::-1],
             )
             x1_p, y1_p, x2_p, y2_p = paste_coord
             x1_c, y1_c, x2_c, y2_c = crop_coord
 
             # crop and paste image
-            mosaic_img[:, y1_p:y2_p, x1_p:x2_p] = img_i[:, y1_c:y2_c, x1_c:x2_c]
+            if results["torch"]:
+                mosaic_img[:, y1_p:y2_p, x1_p:x2_p] = img_i[:, y1_c:y2_c, x1_c:x2_c]
+            else:
+                mosaic_img[y1_p:y2_p, x1_p:x2_p, :] = img_i[y1_c:y2_c, x1_c:x2_c, :]
 
             # adjust coordinate
             gt_bboxes_i = results_patch["gt_bboxes"]
@@ -1515,7 +1606,9 @@ class Mosaic(BaseMixImageTransform):
             mosaic_ignore_flags.append(gt_ignore_flags_i)
             if with_mask and results_patch.get("gt_masks", None) is not None:
                 gt_masks_i = results_patch["gt_masks"]
-                gt_masks_i = gt_masks_i.resize(img_i.shape[1:])
+                gt_masks_i = gt_masks_i.resize(
+                    img_i.shape[1:] if results["torch"] else img_i.shape[:2]
+                )
                 gt_masks_i = gt_masks_i.translate(
                     out_shape=(int(self.img_scale[0] * 2), int(self.img_scale[1] * 2)),
                     offset=padw,
@@ -1563,7 +1656,9 @@ class Mosaic(BaseMixImageTransform):
                 results["gt_keypoints"] = mosaic_kps
 
         results["img"] = mosaic_img
-        results["img_shape"] = mosaic_img.shape
+        results["img_shape"] = (
+            mosaic_img.shape[1:] if results["torch"] else mosaic_img.shape[:2]
+        )
         results["gt_bboxes"] = mosaic_bboxes
         results["gt_bboxes_labels"] = mosaic_bboxes_labels
         results["gt_ignore_flags"] = mosaic_ignore_flags
@@ -1802,64 +1897,130 @@ class MixUp(BaseMixImageTransform):
         is_filp = random.uniform(0, 1) > self.flip_ratio
 
         if len(retrieve_img.shape) == 3:
-            out_img = torch.full(
-                (3, self.img_scale[1], self.img_scale[0]),
-                self.pad_val,
-                dtype=retrieve_img.dtype,
+            if results["torch"]:
+                out_img = torch.full(
+                    (3, self.img_scale[1], self.img_scale[0]),
+                    self.pad_val,
+                    dtype=retrieve_img.dtype,
+                )
+            else:
+                out_img = np.full(
+                    (self.img_scale[1], self.img_scale[0], 3),
+                    self.pad_val,
+                    dtype=retrieve_img.dtype,
+                )
+            img_shape = (
+                retrieve_img.shape[1:] if results["torch"] else retrieve_img.shape[:2]
             )
+            out_img_shape = out_img.shape[1:] if results["torch"] else out_img.shape[:2]
         else:
-            out_img = torch.full(
-                (self.img_scale[1], self.img_scale[0]),
-                self.pad_val,
-                dtype=retrieve_img.dtype,
-            )
+            if results["torch"]:
+                out_img = torch.full(
+                    (self.img_scale[1], self.img_scale[0]),
+                    self.pad_val,
+                    dtype=retrieve_img.dtype,
+                )
+            else:
+                out_img = np.full(
+                    (self.img_scale[1], self.img_scale[0]),
+                    self.pad_val,
+                    dtype=retrieve_img.dtype,
+                )
+            img_shape = retrieve_img.shape
+            out_img_shape = out_img.shape
 
         # 1. keep_ratio resize
+
         scale_ratio = min(
-            self.img_scale[1] / retrieve_img.shape[1],  # h
-            self.img_scale[0] / retrieve_img.shape[2],  # w
+            self.img_scale[1] / img_shape[0],  # h
+            self.img_scale[0] / img_shape[1],  # w
         )
 
-        retrieve_img = F.resize(
-            retrieve_img,
-            [
-                int(retrieve_img.shape[1] * scale_ratio),
-                int(retrieve_img.shape[2] * scale_ratio),
-            ],
+        if results["torch"]:
+            retrieve_img = F.resize(
+                retrieve_img,
+                [
+                    int(img_shape[0] * scale_ratio),
+                    int(img_shape[1] * scale_ratio),
+                ],
+            )
+        else:
+            retrieve_img = cv2.resize(
+                retrieve_img,
+                [
+                    int(img_shape[1] * scale_ratio),
+                    int(img_shape[0] * scale_ratio),
+                ],
+            )
+        img_shape = img_shape = (
+            retrieve_img.shape[1:] if results["torch"] else retrieve_img.shape[:2]
         )
-
         # 2. paste
-        out_img[: retrieve_img.shape[1], : retrieve_img.shape[2]] = retrieve_img
+        if results["torch"]:
+            out_img[:, : img_shape[0], : img_shape[1]] = retrieve_img
+        else:
+            out_img[: img_shape[0], : img_shape[1], :] = retrieve_img
 
         # 3. scale jit
         scale_ratio *= jit_factor
 
-        out_img = F.resize(
-            out_img,
-            [int(out_img.shape[1] * jit_factor), int(out_img.shape[2] * jit_factor)],
-        )
+        if results["torch"]:
+            out_img = F.resize(
+                out_img,
+                [
+                    int(out_img_shape[0] * jit_factor),
+                    int(out_img_shape[1] * jit_factor),
+                ],
+            )
+        else:
+            out_img = cv2.resize(
+                out_img,
+                [
+                    int(out_img_shape[1] * jit_factor),
+                    int(out_img_shape[0] * jit_factor),
+                ],
+            )
 
         # 4. flip ？
         if is_filp:
-            out_img = torch.flip(out_img, [2])
+            if results["torch"]:
+                out_img = torch.flip(out_img, [2])
+            else:
+                out_img = np.flip(out_img, [2])
 
         # 5. random crop
         ori_img = results["img"]
-        origin_h, origin_w = out_img.shape[1:]
-        target_h, target_w = ori_img.shape[1:]
-        padded_img = (
-            torch.ones(
-                3, max(origin_h, target_h), max(origin_w, target_w), dtype=torch.uint8
-            )
-            * self.pad_val
+        origin_h, origin_w = out_img_shape
+        target_h, target_w = (
+            ori_img.shape[1:] if results["torch"] else ori_img.shape[:2]
         )
+        if results["torch"]:
+            padded_img = (
+                torch.ones(
+                    3,
+                    max(origin_h, target_h),
+                    max(origin_w, target_w),
+                    dtype=torch.uint8,
+                )
+                * self.pad_val
+            )
+        else:
+            padded_img = (
+                np.ones(
+                    (max(origin_h, target_h), max(origin_w, target_w), 3),
+                    dtype=np.uint8,
+                )
+                * self.pad_val
+            )
         padded_img[:origin_h, :origin_w] = out_img
-
+        padded_img_shape = (
+            padded_img.shape[1:] if results["torch"] else padded_img.shape[:2]
+        )
         x_offset, y_offset = 0, 0
-        if padded_img.shape[0] > target_h:
-            y_offset = random.randint(0, padded_img.shape[1] - target_h)
-        if padded_img.shape[1] > target_w:
-            x_offset = random.randint(0, padded_img.shape[2] - target_w)
+        if padded_img_shape[0] > target_h:
+            y_offset = random.randint(0, padded_img_shape[0] - target_h)
+        if padded_img_shape[1] > target_w:
+            x_offset = random.randint(0, padded_img_shape[1] - target_w)
         padded_cropped_img = padded_img[
             y_offset : y_offset + target_h, x_offset : x_offset + target_w
         ]

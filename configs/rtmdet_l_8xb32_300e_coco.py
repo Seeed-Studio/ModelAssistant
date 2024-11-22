@@ -3,16 +3,16 @@ from mmengine.config import read_base
 
 with read_base():
     from ._base_.default_runtime import *
-    from .schedules.schedule_1x import *
+    from ._base_.schedules.schedule_1x import *
     from .datasets.coco_detection import *
 
 from torchvision.ops import nms
-from torch.nn import SiLU, ReLU6, SyncBatchNorm
+from torch.nn import SiLU, ReLU6, SyncBatchNorm,ReLU
 from torch.optim.adamw import AdamW
 
 from mmengine.hooks import EMAHook
-from mmengine.optim import OptimWrapper, CosineAnnealingLR, LinearLR
-from sscma.datasets.transforms import (
+from mmengine.optim import OptimWrapper, CosineAnnealingLR, LinearLR, AmpOptimWrapper
+from sscma.datasets.transforms import (Resize,
     MixUp,
     Mosaic,
     Pad,
@@ -43,10 +43,11 @@ from sscma.models import (
     CSPNeXt,
 )
 from sscma.visualization import DetLocalVisualizer
+from sscma.deploy.models import RTMDetInfer
 
 
 default_hooks.visualization = dict(
-    type=DetVisualizationHook, draw=True, test_out_dir="works"
+    type=DetVisualizationHook, test_out_dir="works"
 )
 
 visualizer = dict(type=DetLocalVisualizer, vis_backends=vis_backends, name="visualizer")
@@ -54,7 +55,7 @@ visualizer = dict(type=DetLocalVisualizer, vis_backends=vis_backends, name="visu
 d_factor = 1
 w_factor = 1
 num_classes = 80
-imgsz = (416, 416)
+imgsz = (640, 640)
 max_epochs = 300
 stage2_num_epochs = 20
 base_lr = 0.00065
@@ -77,9 +78,9 @@ model = dict(
         expand_ratio=0.5,
         deepen_factor=d_factor,
         widen_factor=w_factor,
-        channel_attention=True,
+        channel_attention=False,
         norm_cfg=dict(type=SyncBatchNorm),
-        act_cfg=dict(type=SiLU, inplace=True),
+        act_cfg=dict(type=ReLU, inplace=True),
     ),
     neck=dict(
         type=CSPNeXtPAFPN,
@@ -90,7 +91,7 @@ model = dict(
         num_csp_blocks=1,
         expand_ratio=0.5,
         norm_cfg=dict(type=SyncBatchNorm),
-        act_cfg=dict(type=SiLU, inplace=True),
+        act_cfg=dict(type=ReLU, inplace=True),
     ),
     bbox_head=dict(
         type=RTMDetHead,
@@ -101,7 +102,7 @@ model = dict(
             stacked_convs=2,
             feat_channels=256,
             norm_cfg=dict(type=SyncBatchNorm),
-            act_cfg=dict(type=SiLU, inplace=True),
+            act_cfg=dict(type=ReLU, inplace=True),
             share_conv=True,
             pred_kernel_size=1,
             featmap_strides=[8, 16, 32],
@@ -131,6 +132,17 @@ model = dict(
         score_thr=0.001,
         nms=dict(type=nms, iou_threshold=0.65),
         max_per_img=300,
+    ),
+)
+
+deploy = dict(
+    type=RTMDetInfer,
+    data_preprocessor=dict(
+        type=DetDataPreprocessor,
+        mean=[0, 0, 0],
+        std=[255, 255, 255],
+        bgr_to_rgb=False,
+        batch_augments=None,
     ),
 )
 
