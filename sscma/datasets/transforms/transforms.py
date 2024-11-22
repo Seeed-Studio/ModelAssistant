@@ -662,7 +662,7 @@ class RandomFlip(BaseTransform):
         else:
             results["img"] = np.flip(
                 results["img"],
-                axis=flip_dims[results["flip_direction"]],
+                axis=[i - 1 for i in flip_dims[results["flip_direction"]]],
             )
 
         img_shape = results["img"].shape[1:]
@@ -1994,7 +1994,7 @@ class MixUp(BaseMixImageTransform):
             if results["torch"]:
                 out_img = torch.flip(out_img, [2])
             else:
-                out_img = np.flip(out_img, [2])
+                out_img = np.flip(out_img, [1])
 
         # 5. random crop
         ori_img = results["img"]
@@ -2099,7 +2099,9 @@ class MixUp(BaseMixImageTransform):
             results["gt_keypoints"] = mixup_gt_keypoints
 
         results["img"] = mixup_img
-        results["img_shape"] = mixup_img.shape
+        results["img_shape"] = (
+            mixup_img.shape[1:] if results["torch"] else mixup_img.shape[:2]
+        )
         results["gt_bboxes"] = mixup_gt_bboxes
         results["gt_bboxes_labels"] = mixup_gt_bboxes_labels
         results["gt_ignore_flags"] = mixup_gt_ignore_flags
