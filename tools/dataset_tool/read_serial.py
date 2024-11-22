@@ -1,7 +1,6 @@
 import serial
 import argparse
 import csv
-import tools as dt
 
 
 def get_args():

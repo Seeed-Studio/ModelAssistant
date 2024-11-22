@@ -2,12 +2,11 @@ import numpy as np
 import pandas as pd
 import os
 import argparse
-import tools as dt
 
 import cv2
 import pywt
 
-from scipy.signal import firwin, lfilter, stft
+from scipy.signal import firwin, lfilter
 
 
 def CWT(signal, scales=np.arange(1, 32), wavelet="cgau8"):
@@ -175,12 +174,13 @@ def main():
 
     mean, std = global_mean_std_estimate(datas.values)
     for iter, item in datas.iterrows():
-        data, c, label = sample_c_process(item, mean=mean, std=std,sample_rate=sample_rate)
+        data, c, label = sample_c_process(
+            item, mean=mean, std=std, sample_rate=sample_rate
+        )
         process_data.append([data, c, label])
-
     process_data = np.array(process_data)
 
-    save_and_split_data(process_data.astype(np.float32), tag, file_path)
+    save_and_split_data(process_data, tag, file_path)
 
 
 def save_and_split_data(data, tag, data_path):
