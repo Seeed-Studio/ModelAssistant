@@ -102,11 +102,15 @@ class LoadImageFromFile(BaseTransform):
         filename = results["img_path"]
         image = Image.open(filename)
         img = _pillow2array(image, "color", "bgr")
+        if self.imdecode_backend == "torch":
+            img = F.to_dtype(F.to_image(image.copy()), torch.uint8, scale=True)
+            results["torch"] = True
+        else:
+            results["torch"] = False
 
         results["img"] = img
         results["img_shape"] = img.shape[:2]
         results["ori_shape"] = img.shape[:2]
-        results["torch"] = False
 
         return results
 

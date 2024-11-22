@@ -1183,6 +1183,11 @@ class HSVRandomAug(BaseTransform):
         self.hue_delta = hue_delta
         self.saturation_delta = saturation_delta
         self.value_delta = value_delta
+        self.torch_Aug = tv.transforms.ColorJitter(
+            hue=self.hue_delta,
+            saturation=self.saturation_delta,
+            brightness=self.value_delta,
+        )
 
     def transform(self, results: dict) -> dict:
         """The HSV augmentation transform function.
@@ -1193,23 +1198,26 @@ class HSVRandomAug(BaseTransform):
         Returns:
             dict: The result dict.
         """
-        hsv_gains = (
-            random.uniform(-1, 1, 3)
-            * [self.hue_delta, self.saturation_delta, self.value_delta]
-            + 1
-        )
-        hue, sat, val = cv2.split(cv2.cvtColor(results["img"], cv2.COLOR_BGR2HSV))
+        if results.get("torch", False):
+            results["img"] = self.torch_Aug(results["img"])
+        else:
+            hsv_gains = (
+                random.uniform(-1, 1, 3)
+                * [self.hue_delta, self.saturation_delta, self.value_delta]
+                + 1
+            )
+            hue, sat, val = cv2.split(cv2.cvtColor(results["img"], cv2.COLOR_BGR2HSV))
 
-        table_list = np.arange(0, 256, dtype=hsv_gains.dtype)
-        lut_hue = ((table_list * hsv_gains[0]) % 180).astype(np.uint8)
-        lut_sat = np.clip(table_list * hsv_gains[1], 0, 255).astype(np.uint8)
-        lut_val = np.clip(table_list * hsv_gains[2], 0, 255).astype(np.uint8)
+            table_list = np.arange(0, 256, dtype=hsv_gains.dtype)
+            lut_hue = ((table_list * hsv_gains[0]) % 180).astype(np.uint8)
+            lut_sat = np.clip(table_list * hsv_gains[1], 0, 255).astype(np.uint8)
+            lut_val = np.clip(table_list * hsv_gains[2], 0, 255).astype(np.uint8)
 
-        im_hsv = cv2.merge(
-            (cv2.LUT(hue, lut_hue), cv2.LUT(sat, lut_sat), cv2.LUT(val, lut_val))
-        )
-        results["img"] = cv2.cvtColor(im_hsv, cv2.COLOR_HSV2BGR)
-        results["torch"] = False
+            im_hsv = cv2.merge(
+                (cv2.LUT(hue, lut_hue), cv2.LUT(sat, lut_sat), cv2.LUT(val, lut_val))
+            )
+            results["img"] = cv2.cvtColor(im_hsv, cv2.COLOR_HSV2BGR)
+            results["torch"] = False
         return results
 
     def __repr__(self):
