@@ -2244,9 +2244,9 @@ class Runner:
             meta,
             'state_dict':
             weights_to_cpu(model.state_dict()),
-            'message_hub':
-            apply_to(self.message_hub.state_dict(),
-                     lambda x: hasattr(x, 'cpu'), lambda x: x.cpu()),
+            # 'message_hub':
+            # apply_to(self.message_hub.state_dict(),
+            #          lambda x: hasattr(x, 'cpu'), lambda x: x.cpu()),
         }
         # save optimizer state dict to checkpoint
         if save_optimizer:
