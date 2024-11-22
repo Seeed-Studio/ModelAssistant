@@ -39,11 +39,8 @@ class Signal_dataset(Dataset):
 
 
 class Microphone_dataset(Dataset):
-    def __init__(
-        self,
-        data_root=None,
-    ):
-        self.data_root = data_root
+    def __init__(self, data_root=None, data_prefix=None):
+        self.data_root = osp.join(data_root, data_prefix)
         self.mel_transform, self.db_transform = generate_Mel_DBtans()
 
         self.sample = self.get_all_sample()

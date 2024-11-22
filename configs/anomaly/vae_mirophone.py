@@ -12,7 +12,9 @@ from sscma.deploy.models.anomaly_infer import AnomalyInfer
 
 dataset_type = Microphone_dataset
 
-data_root = ""
+data_root = "./datasets"
+train_data_prefix = "train"
+val_data_prefix = "val"
 
 imgsz = (32, 32)
 batch_size = 1
@@ -43,7 +45,7 @@ train_dataloader = dict(
     persistent_workers=True,
     drop_last=True,
     # collate_fn=dict(type=default_collate),
-    dataset=dict(type=dataset_type, data_root=data_root),
+    dataset=dict(type=dataset_type, data_root=data_root, data_prefix=train_data_prefix),
 )
 val_dataloader = dict(
     batch_size=batch_size,
@@ -51,7 +53,7 @@ val_dataloader = dict(
     persistent_workers=True,
     drop_last=True,
     # collate_fn=dict(type=default_collate),
-    dataset=dict(type=dataset_type, data_root=data_root),
+    dataset=dict(type=dataset_type, data_root=data_root, data_prefix=val_data_prefix),
 )
 test_dataloader = val_dataloader
 
