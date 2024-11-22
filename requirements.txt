@@ -7,8 +7,17 @@ lance
 shapely
 torch>=2.1.0
 torchvision>=0.16.0
+torchaudio>=2.1.0
 tensorboard
 opencv-python>=4.6.0
 numpy>=1.23.0,<2.0.0
 pillow>=7.1.2
 torchinfo
+yapf
+rich
+pyyaml
+tqdm
+pyarrow
+albumentations
+scikit-learn
+timm
