@@ -3,7 +3,7 @@
 import math
 import os
 import urllib
-from typing import List, Union
+from typing import List, Union, Optional
 
 import numpy as np
 import torch
@@ -46,6 +46,20 @@ def make_divisible(x: float, widen_factor: float = 1.0, divisor: int = 8) -> int
     """Make sure that x*widen_factor is divisible by divisor."""
     return math.ceil(x * widen_factor / divisor) * divisor
 
+def _make_divisible(v: float, divisor: int, min_value: Optional[int] = None) -> int:
+    """
+    This function is taken from the original tf repo.
+    It ensures that all layers have a channel number that is divisible by 8
+    It can be seen here:
+    https://github.com/tensorflow/models/blob/master/research/slim/nets/mobilenet/mobilenet.py
+    """
+    if min_value is None:
+        min_value = divisor
+    new_v = max(min_value, int(v + divisor / 2) // divisor * divisor)
+    # Make sure that round down does not go down by more than 10%.
+    if new_v < 0.9 * v:
+        new_v += divisor
+    return new_v
 
 def make_round(x: float, deepen_factor: float = 1.0) -> int:
     """Make sure that x*deepen_factor becomes an integer not less than 1."""

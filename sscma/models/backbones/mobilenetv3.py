@@ -7,10 +7,11 @@ from torch import Tensor
 from torchvision.ops.misc import SqueezeExcitation as SElayer
 
 from mmengine.model import BaseModule
-from ..utils import make_divisible
+from ..utils import _make_divisible
 from ..base.general import ConvNormActivation, get_norm
 
 
+# from torchvision.models.mobilenetv3 import MobileNetV3
 class InvertedResidualConfig:
     # Analytic model configuration table
     def __init__(
@@ -36,7 +37,7 @@ class InvertedResidualConfig:
 
     @staticmethod
     def adjust_channels(channels: int, widen_factor: float):
-        return make_divisible(channels * widen_factor, 8)
+        return _make_divisible(channels * widen_factor, 8)
 
 
 class InvertedResidual(nn.Module):
@@ -88,7 +89,7 @@ class InvertedResidual(nn.Module):
             )
         )
         if cnf.use_se:
-            squeeze_channels = make_divisible(cnf.expanded_channels // 4, 8)
+            squeeze_channels = _make_divisible(cnf.expanded_channels // 4, 8)
             layers.append(se_layer(cnf.expanded_channels, squeeze_channels))
 
         # project
@@ -220,8 +221,8 @@ class MobileNetV3(BaseModule):
             norm_layer = partial(nn.BatchNorm2d, eps=0.001, momentum=0.01)
         else:
             norm_layer = get_norm(norm_cfg)
+        self.in_channels = _make_divisible(16 * widen_factor, 8)
 
-        self.in_channels = make_divisible(16 * widen_factor, 8)
         # conv1
         conv1_output_channels = inverted_residual_setting[0].input_channels
         # 1/2
