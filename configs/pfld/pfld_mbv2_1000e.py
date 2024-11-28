@@ -2,7 +2,7 @@
 from mmengine.config import read_base
 
 with read_base():
-    from .._base_.pose.default_runtime import *
+    from .._base_.default_runtime import *
     from .._base_.schedules.schedule_1x import *
 
 from sscma.datasets import MeterData
@@ -46,8 +46,8 @@ imgsz = (width, height)
 # TRAIN
 batch = 32
 workers = 4
-val_batch = 1
-val_workers = 1
+val_batch = 32
+val_workers = 1000
 lr = 0.0001
 epochs = 1000
 weight_decay = 1e-6
@@ -148,8 +148,8 @@ param_scheduler = [
     dict(
         type=MultiStepLR,
         begin=1,
-        end=500,
-        milestones=[350, 500, 600, 700, 800, 900],
+        end=epochs,
+        milestones=[350, 500, 600, 700, 850, 1050,1300,1400],
         gamma=0.1,
         by_epoch=True,
     ),
