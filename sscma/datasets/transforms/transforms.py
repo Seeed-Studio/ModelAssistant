@@ -2153,6 +2153,6 @@ class Bbox2FomoMask(BaseTransform):
         for idx, i in enumerate(bboxs):
             w = int(i.centers[0][0] / ori_shape[0] * W)
             h = int(i.centers[0][1] / ori_shape[1] * H)
-            target_data[0, h, w, 0] = 0  # background
-            target_data[0, h, w, int(labels[idx] + 1)] = 1  # label
+            target_data[0, h-1, w-1, 0] = 0  # background
+            target_data[0, h-1, w-1, int(labels[idx] + 1)] = 1  # label
         return target_data
