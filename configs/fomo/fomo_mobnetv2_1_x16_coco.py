@@ -33,28 +33,36 @@ from sscma.evaluation import FomoMetric
 
 # ========================Suggested optional parameters========================
 # MODEL
-num_classes = 2
-widen_factor = 0.35
+num_classes = 1
+widen_factor = 1
 # DATA
 dataset_type = CustomFomoCocoDataset
-# datasets link: https://public.roboflow.com/object-detection/mask-wearing
-data_root = "/home/dq/code/sscma/datasets/hES8s8Gy7u"
+# datasets
+dump_config = True
 
-train_ann = "train/_annotations.coco.json"
-train_data = "train/"
-val_ann = "valid/_annotations.coco.json"
-val_data = "valid/"
-metainfo = None
+data_root = "datasets/coco/"
 
-height = 96
-width = 96
+train_ann = "annotations/instances_train2017.json"
+train_data = "train2017/"
+val_ann = "annotations/instances_val2017.json"
+val_data = "val2017/"
+metainfo = {
+    "classes": ("person",),
+    "palette": [
+        (220, 20, 60),
+    ],
+}
+
+
+height = 192
+width = 192
 imgsz = (width, height)
 
-downsample_factor = (8,)
+downsample_factor = (16,)
 
 # TRAIN
-batch = 8
-workers = 2
+batch = 16
+workers = 4
 persistent_workers = True
 
 val_batch = 16
@@ -65,9 +73,7 @@ epochs = 100
 
 weight_decay = 0.0005
 momentum = 0.95
-# momentum = (0.9,0.99)
-
-# ================================END=================================
+# momentum = (0.9,0.99)3
 
 
 default_hooks = dict(visualization=dict(type=DetVisualizationHook, score_thr=0.8))
@@ -88,13 +94,13 @@ model = dict(
     type=Fomo,
     data_preprocessor=data_preprocessor,
     backbone=dict(
-        type=MobileNetv2, widen_factor=widen_factor, out_indices=(2,), rep=False
+        type=MobileNetv2, widen_factor=widen_factor, out_indices=(4,), rep=False
     ),
     head=dict(
         type=FomoHead,
-        input_channels=[16],
+        input_channels=[96],
         num_classes=num_classes,
-        middle_channel=48,
+        middle_channel=96,
         act_cfg=ReLU,
         loss_cls=dict(type=BCEWithLogitsLoss, reduction="none"),
         loss_bg=dict(type=BCEWithLogitsLoss, reduction="none"),
@@ -102,18 +108,9 @@ model = dict(
     skip_preprocessor=True,
 )
 
-deploy = dict(
-    type=FomoInfer,
-    data_preprocessor=dict(
-        type=DetDataPreprocessor,
-        mean=[0, 0, 0],
-        std=[255, 255, 255],
-        bgr_to_rgb=False,
-        batch_augments=None,
-    ),
-)
+deploy = dict(type=FomoInfer, data_preprocessor=data_preprocessor)
 
-imdecode_backend = "cv2"
+imdecode_backend = "torch"
 
 pre_transform = [
     dict(
@@ -126,7 +123,7 @@ pre_transform = [
 
 train_pipeline = [
     *pre_transform,
-    dict(type=HSVRandomAug),
+    # dict(type=HSVRandomAug),
     dict(
         type=Mosaic,
         img_scale=imgsz,
@@ -208,10 +205,7 @@ val_dataloader = dict(
 )
 test_dataloader = val_dataloader
 
-# data_preprocessor=dict(type='mmdet.DetDataPreprocessor')
 # optimizer
-
-
 find_unused_parameters = True
 
 optim_wrapper = dict(

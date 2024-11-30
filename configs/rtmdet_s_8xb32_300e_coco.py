@@ -13,7 +13,6 @@ from sscma.datasets.transforms import (
     RandomFlip,
     Resize,
     HSVRandomAug,
-    toTensor,
     LoadAnnotations,
     PackDetInputs,
     RandomResize,
@@ -53,7 +52,6 @@ train_pipeline = [
     ),
     dict(type=LoadAnnotations, imdecode_backend="pillow", with_bbox=True),
     dict(type=HSVRandomAug),
-    dict(type=toTensor),
     dict(type=Mosaic, img_scale=imgsz, pad_val=114.0),
     dict(
         type=RandomResize,
@@ -83,7 +81,6 @@ train_pipeline_stage2 = [
     ),
     dict(type=LoadAnnotations, imdecode_backend="pillow", with_bbox=True),
     dict(type=HSVRandomAug),
-    dict(type=toTensor),
     dict(
         type=RandomResize,
         scale=(imgsz[0] * 2, imgsz[1] * 2),

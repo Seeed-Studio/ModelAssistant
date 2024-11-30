@@ -40,8 +40,8 @@ train_data = "train/images"
 val_ann = "val/annotations.txt"
 val_data = "val/images"
 
-height = 192
-width = 192
+height = 112
+width = 112
 imgsz = (width, height)
 
 # TRAIN
@@ -63,12 +63,13 @@ model = dict(
         type=MobileNetV3,
         inchannel=3,
         arch="large",
-        out_indices=(3,),
+        out_indices=(6,),
+        widen_factor=1
     ),
     head=dict(
         type=PFLDhead,
         num_point=num_classes,
-        input_channel=320,
+        input_channel=80,
         act_cfg=ReLU,
         loss_cfg=dict(type=PFLDLoss),
     ),

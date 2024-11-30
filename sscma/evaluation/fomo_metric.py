@@ -92,9 +92,6 @@ class FomoMetric(BaseMetric):
             data_samples[0]["pred_instances"]["pred"],
             data_samples[0]["pred_instances"]["labels"],
         )
-        preds = tuple(
-            [pred.permute(0, 2, 3, 1) if pred.shape[1] == 3 else pred for pred in preds]
-        )
 
         tp, fp, fn = multi_apply(self.compute_ftp, preds, target)
 

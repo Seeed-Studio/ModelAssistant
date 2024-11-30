@@ -7,12 +7,13 @@ with read_base():
     from .datasets.coco_detection import *
 
 from torchvision.ops import nms
-from torch.nn import SiLU, ReLU6, SyncBatchNorm,ReLU
+from torch.nn import SiLU, ReLU6, SyncBatchNorm, ReLU
 from torch.optim.adamw import AdamW
 
 from mmengine.hooks import EMAHook
 from mmengine.optim import OptimWrapper, CosineAnnealingLR, LinearLR, AmpOptimWrapper
-from sscma.datasets.transforms import (Resize,
+from sscma.datasets.transforms import (
+    Resize,
     MixUp,
     Mosaic,
     Pad,
@@ -20,7 +21,6 @@ from sscma.datasets.transforms import (Resize,
     RandomFlip,
     Resize,
     HSVRandomAug,
-    toTensor,
     RandomResize,
     LoadImageFromFile,
     LoadAnnotations,
@@ -46,9 +46,7 @@ from sscma.visualization import DetLocalVisualizer
 from sscma.deploy.models import RTMDetInfer
 
 
-default_hooks.visualization = dict(
-    type=DetVisualizationHook, test_out_dir="works"
-)
+default_hooks.visualization = dict(type=DetVisualizationHook, test_out_dir="works")
 
 visualizer = dict(type=DetLocalVisualizer, vis_backends=vis_backends, name="visualizer")
 
@@ -59,9 +57,9 @@ imgsz = (640, 640)
 max_epochs = 300
 stage2_num_epochs = 20
 base_lr = 0.00065
-interval = 10
-batch_size = (32,)
-num_workers = (12,)
+interval = 1
+batch_size = 16
+num_workers = 4
 
 model = dict(
     type=RTMDet,
@@ -145,16 +143,15 @@ deploy = dict(
         batch_augments=None,
     ),
 )
-
+imdecode_backend='torch'
 train_pipeline = [
     dict(
         type=LoadImageFromFile,
-        imdecode_backend="pillow",
+        imdecode_backend=imdecode_backend,
         backend_args=None,
     ),
-    dict(type=LoadAnnotations, imdecode_backend="pillow", with_bbox=True),
+    dict(type=LoadAnnotations, imdecode_backend=imdecode_backend, with_bbox=True),
     dict(type=HSVRandomAug),
-    dict(type=toTensor),
     dict(type=Mosaic, img_scale=imgsz, pad_val=114.0),
     dict(
         type=RandomResize,
@@ -179,12 +176,12 @@ train_pipeline = [
 train_pipeline_stage2 = [
     dict(
         type=LoadImageFromFile,
-        imdecode_backend="pillow",
+        imdecode_backend=imdecode_backend,
         backend_args=None,
     ),
-    dict(type=LoadAnnotations, imdecode_backend="pillow", with_bbox=True),
+    dict(type=LoadAnnotations, imdecode_backend=imdecode_backend, with_bbox=True),
     dict(type=HSVRandomAug),
-    dict(type=toTensor),
+    # dict(type=toTensor),
     dict(
         type=RandomResize,
         scale=(imgsz[0] * 2, imgsz[1] * 2),
@@ -193,14 +190,14 @@ train_pipeline_stage2 = [
         keep_ratio=True,
     ),
     dict(type=RandomCrop, crop_size=imgsz),
-    dict(type=RandomFlip, prob=0.5),
+    # dict(type=RandomFlip, prob=0.5),
     dict(type=Pad, size=imgsz, pad_val=dict(img=(114, 114, 114))),
     dict(type=PackDetInputs),
 ]
 
 test_pipeline = [
-    dict(type=LoadImageFromFile, backend_args=backend_args),
-    dict(type=toTensor),
+    dict(type=LoadImageFromFile, imdecode_backend="pillow", backend_args=backend_args),
+    # dict(type=toTensor),
     dict(type=Resize, scale=imgsz, keep_ratio=True),
     dict(type=Pad, size=imgsz, pad_val=dict(img=(114, 114, 114))),
     dict(type=LoadAnnotations, with_bbox=True),

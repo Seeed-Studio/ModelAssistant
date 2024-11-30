@@ -19,7 +19,6 @@ from sscma.datasets.transforms import (
     RandomFlip,
     Resize,
     HSVRandomAug,
-    toTensor,
     RandomResize,
     LoadImageFromFile,
     LoadAnnotations,

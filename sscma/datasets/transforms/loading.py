@@ -108,9 +108,12 @@ class LoadImageFromFile(BaseTransform):
         else:
             results["torch"] = False
 
+        if img.shape[0] == 1:
+            img = img.repeat(3, 1, 1)
+
         results["img"] = img
-        results["img_shape"] = img.shape[:2]
-        results["ori_shape"] = img.shape[:2]
+        results["img_shape"] = img.shape[1:] if results["torch"] else img.shape[:2]
+        results["ori_shape"] = img.shape[1:] if results["torch"] else img.shape[:2]
 
         return results
 

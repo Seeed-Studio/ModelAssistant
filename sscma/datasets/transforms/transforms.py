@@ -1938,7 +1938,6 @@ class MixUp(BaseMixImageTransform):
             out_img_shape = out_img.shape
 
         # 1. keep_ratio resize
-
         scale_ratio = min(
             self.img_scale[1] / img_shape[0],  # h
             self.img_scale[0] / img_shape[1],  # w
@@ -1965,9 +1964,9 @@ class MixUp(BaseMixImageTransform):
         )
         # 2. paste
         if results["torch"]:
-            out_img[:, : img_shape[0], : img_shape[1]] = retrieve_img
+            out_img[: img_shape[0], : img_shape[1]] = retrieve_img
         else:
-            out_img[: img_shape[0], : img_shape[1], :] = retrieve_img
+            out_img[: img_shape[0], : img_shape[1]] = retrieve_img
 
         # 3. scale jit
         scale_ratio *= jit_factor
@@ -1997,6 +1996,7 @@ class MixUp(BaseMixImageTransform):
                 out_img = np.flip(out_img, [1])
 
         # 5. random crop
+        out_img_shape = out_img.shape[1:] if results["torch"] else out_img.shape[:2]
         ori_img = results["img"]
         origin_h, origin_w = out_img_shape
         target_h, target_w = (
@@ -2130,7 +2130,7 @@ class Bbox2FomoMask(BaseTransform):
         self.num_classes = num_classes
 
     def transform(self, results: Dict) -> Optional[Union[Dict, Tuple[List, List]]]:
-        H, W = results["img_shape"]
+        H, W = results["scale"]
         bbox = results["gt_bboxes"]
         labels = results["gt_bboxes_labels"]
 
@@ -2153,6 +2153,6 @@ class Bbox2FomoMask(BaseTransform):
         for idx, i in enumerate(bboxs):
             w = int(i.centers[0][0] / ori_shape[0] * W)
             h = int(i.centers[0][1] / ori_shape[1] * H)
-            target_data[0, h, w, 0] = 0  # background
-            target_data[0, h, w, int(labels[idx] + 1)] = 1  # label
+            target_data[0, h-1, w-1, 0] = 0  # background
+            target_data[0, h-1, w-1, int(labels[idx] + 1)] = 1  # label
         return target_data
