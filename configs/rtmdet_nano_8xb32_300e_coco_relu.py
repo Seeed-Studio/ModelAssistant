@@ -10,7 +10,7 @@ from torch.nn import ReLU, BatchNorm2d
 from torch.optim.adamw import AdamW
 
 from mmengine.hooks import EMAHook
-from mmengine.optim import OptimWrapper, CosineAnnealingLR, LinearLR
+from mmengine.optim import CosineAnnealingLR, LinearLR,AmpOptimWrapper
 from sscma.datasets.transforms import (
     MixUp,
     Mosaic,
@@ -68,14 +68,14 @@ mosaic_max_cached_images = 20
 # Number of cached images in mixup
 mixup_max_cached_images = 10
 
-checkpoint = "/home/baozhu/storage/epoch_67.pth"
+checkpoint = "http://192.168.1.77/epoch_593_top1_59.06.pth"
 model = dict(
     type=RTMDet,
     data_preprocessor=dict(
         type=DetDataPreprocessor,
-        mean=[0, 0, 0],
-        std=[255, 255, 255],
-        bgr_to_rgb=True,
+        mean=[103.53, 116.28, 123.675],
+        std=[57.375, 57.12, 58.395],
+        bgr_to_rgb=False,
         batch_augments=None,
     ),
     backbone=dict(
@@ -105,7 +105,7 @@ model = dict(
         type=RTMDetHead,
         head_module=dict(
             type=RTMDetSepBNHeadModule,
-            num_classes=80,
+            num_classes=num_classes,
             in_channels=256,
             stacked_convs=2,
             feat_channels=256,
@@ -151,8 +151,6 @@ train_pipeline = [
         backend_args=None,
     ),
     dict(type=LoadAnnotations, imdecode_backend="pillow", with_bbox=True),
-    dict(type=HSVRandomAug),
-    dict(type=toTensor),
     dict(type=Mosaic,
          img_scale=imgsz,
          use_cached=True,
@@ -163,11 +161,12 @@ train_pipeline = [
     dict(
         type=RandomResize,
         scale=(imgsz[0] * 2, imgsz[1] * 2),
-        ratio_range=(0.1, 2.0),
+        ratio_range=(0.5, 2.0),
         resize_type=Resize,
         keep_ratio=True,
     ),
     dict(type=RandomCrop, crop_size=imgsz),
+    dict(type=HSVRandomAug),
     dict(type=RandomFlip, prob=0.5),
     dict(type=Pad, size=imgsz, pad_val=dict(img=(114, 114, 114))),
     dict(
@@ -187,16 +186,15 @@ train_pipeline_stage2 = [
         backend_args=None,
     ),
     dict(type=LoadAnnotations, imdecode_backend="pillow", with_bbox=True),
-    dict(type=HSVRandomAug),
-    dict(type=toTensor),
     dict(
         type=RandomResize,
         scale=(imgsz[0] * 2, imgsz[1] * 2),
-        ratio_range=(0.1, 2.0),
+        ratio_range=(0.5, 2.0),
         resize_type=Resize,
         keep_ratio=True,
     ),
     dict(type=RandomCrop, crop_size=imgsz),
+    dict(type=HSVRandomAug),
     dict(type=RandomFlip, prob=0.5),
     dict(type=Pad, size=imgsz, pad_val=dict(img=(114, 114, 114))),
     dict(type=PackDetInputs),
@@ -204,15 +202,15 @@ train_pipeline_stage2 = [
 
 test_pipeline = [
     dict(type=LoadImageFromFile, backend_args=backend_args),
-    dict(type=toTensor),
+    dict(type=LoadAnnotations, with_bbox=True),
     dict(type=Resize, scale=imgsz, keep_ratio=True),
     dict(type=Pad, size=imgsz, pad_val=dict(img=(114, 114, 114))),
-    dict(type=LoadAnnotations, with_bbox=True),
     dict(
         type=PackDetInputs,
         meta_keys=("img_id", "img_path", "ori_shape", "img_shape", "scale_factor"),
     ),
 ]
+
 
 train_dataloader.update(
     dict(
@@ -222,12 +220,36 @@ train_dataloader.update(
         pin_memory=True,
         collate_fn=coco_collate,
         dataset=dict(pipeline=train_pipeline,
-                     ann_file="annotations/instances_minitrain2017.json"),
+                     ann_file="annotations/instances_train2017.json"),
     )
 )
 
-val_dataloader.update(
-    dict(batch_size=16, num_workers=8, dataset=dict(pipeline=test_pipeline))
+# Config of batch shapes. Only on val.
+batch_shapes_cfg = dict(
+    type=BatchShapePolicy,
+    batch_size=32,
+    img_size=imgsz[0],
+    size_divisor=32,
+    extra_pad_ratio=0.5,
+)
+
+
+val_dataloader = dict(
+    batch_size=16,
+    num_workers=8,
+    persistent_workers=True,
+    pin_memory=True,
+    drop_last=False,
+    sampler=dict(type=DefaultSampler, shuffle=False),
+    dataset=dict(
+        type=dataset_type,
+        data_root=data_root,
+        ann_file="annotations/instances_val2017.json",
+        data_prefix=dict(img="val2017/"),
+        test_mode=True,
+        pipeline=test_pipeline,
+        batch_shapes_cfg=batch_shapes_cfg,
+    ),
 )
 test_dataloader = val_dataloader
 
@@ -245,14 +267,14 @@ test_evaluator = val_evaluator
 
 # optimizer
 optim_wrapper = dict(
-    type=OptimWrapper,
+    type=AmpOptimWrapper,
     optimizer=dict(type=AdamW, lr=base_lr, weight_decay=0.05),
     paramwise_cfg=dict(norm_decay_mult=0, bias_decay_mult=0, bypass_duplicate=True),
 )
 
 # learning rate
 param_scheduler = [
-    dict(type=LinearLR, start_factor=1.0e-5, by_epoch=False, begin=0, end=1000),
+    dict(type=LinearLR, start_factor=1.0e-5, by_epoch=False, begin=0, end=2000),
     dict(
         # use cosine lr from 150 to 300 epoch
         type=CosineAnnealingLR,
@@ -290,5 +312,6 @@ custom_hooks = [
         switch_pipeline=train_pipeline_stage2,
     ),
 ]
+auto_scale_lr = dict(enable=True, base_batch_size=32)
 
 dump_config = True
