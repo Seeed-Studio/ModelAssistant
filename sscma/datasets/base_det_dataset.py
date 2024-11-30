@@ -1,10 +1,11 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import os.path as osp
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from mmengine.dataset import BaseDataset
 from mmengine.fileio import load
 from mmengine.utils import is_abs
+from mmengine.registry import TASK_UTILS
 
 
 class BaseDetDataset(BaseDataset):
@@ -30,6 +31,7 @@ class BaseDetDataset(BaseDataset):
         backend_args: dict = None,
         return_classes: bool = False,
         caption_prompt: Optional[dict] = None,
+        batch_shapes_cfg: Optional[dict] = None,
         **kwargs,
     ) -> None:
         self.seg_map_suffix = seg_map_suffix
@@ -37,6 +39,7 @@ class BaseDetDataset(BaseDataset):
         self.backend_args = backend_args
         self.return_classes = return_classes
         self.caption_prompt = caption_prompt
+        self.batch_shapes_cfg = batch_shapes_cfg
         if self.caption_prompt is not None:
             assert (
                 self.return_classes
@@ -49,36 +52,22 @@ class BaseDetDataset(BaseDataset):
             )
         super().__init__(*args, **kwargs)
 
-    def full_init(self) -> None:
-        """Load annotation file and set ``BaseDataset._fully_initialized`` to
-        True.
-
-        If ``lazy_init=False``, ``full_init`` will be called during the
-        instantiation and ``self._fully_initialized`` will be set to True. If
-        ``obj._fully_initialized=False``, the class method decorated by
-        ``force_full_init`` will call ``full_init`` automatically.
-
-        Several steps to initialize annotation:
-
-            - load_data_list: Load annotations from annotation file.
-            - load_proposals: Load proposals from proposal file, if
-              `self.proposal_file` is not None.
-            - filter data information: Filter annotations according to
-              filter_cfg.
-            - slice_data: Slice dataset according to ``self._indices``
-            - serialize_data: Serialize ``self.data_list`` if
-            ``self.serialize_data`` is True.
-        """
+    def full_init(self):
+        """rewrite full_init() to be compatible with serialize_data in
+        BatchShapePolicy."""
         if self._fully_initialized:
             return
         # load data information
         self.data_list = self.load_data_list()
-        # get proposals from file
-        if self.proposal_file is not None:
-            self.load_proposals()
+
+        # batch_shapes_cfg
+        if self.batch_shapes_cfg:
+            batch_shapes_policy = TASK_UTILS.build(self.batch_shapes_cfg)
+            self.data_list = batch_shapes_policy(self.data_list)
+            del batch_shapes_policy
+
         # filter illegal data, such as data that has no annotations.
         self.data_list = self.filter_data()
-
         # Get subset data according to indices.
         if self._indices is not None:
             self.data_list = self._get_unserialized_subset(self._indices)
@@ -88,6 +77,7 @@ class BaseDetDataset(BaseDataset):
             self.data_bytes, self.data_address = self._serialize_data()
 
         self._fully_initialized = True
+
 
     def load_proposals(self) -> None:
         """Load proposals from proposals file.
@@ -127,3 +117,13 @@ class BaseDetDataset(BaseDataset):
         """
         instances = self.get_data_info(idx)["instances"]
         return [instance["bbox_label"] for instance in instances]
+    
+    def prepare_data(self, idx: int) -> Any:
+        """Pass the dataset to the pipeline during training to support mixed
+        data augmentation, such as Mosaic and MixUp."""
+        if self.test_mode is False:
+            data_info = self.get_data_info(idx)
+            data_info['dataset'] = self
+            return self.pipeline(data_info)
+        else:
+            return super().prepare_data(idx)
