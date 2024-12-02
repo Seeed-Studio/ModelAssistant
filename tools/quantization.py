@@ -1,5 +1,6 @@
 import argparse
 import os
+import sys
 import os.path as osp
 import time
 import torch
@@ -9,9 +10,8 @@ from tqdm import tqdm
 from typing import Dict, List, Tuple, Union
 import torch.nn as nn
 
-current_path = osp.dirname(osp.abspath(__file__))
-sys.path.append(osp.dirname(current_path))
 
+sys.path.insert(0, osp.dirname(osp.dirname(osp.abspath(__file__))))
 
 from tinynn.graph.quantization.quantizer import QATQuantizer, PostQuantizer
 from tinynn.util.train_util import AverageMeter
@@ -248,6 +248,7 @@ def main():
 
     runner = Runner.from_cfg(cfg)
     runner.load_or_resume()
+    #test for original pytorch fp32 model
     runner.test()
     model = runner.model
 
@@ -341,6 +342,8 @@ def main():
         tinynn_model=ptq_model,
     )
     runner.model = q_model
+
+    #test initial quantized model
     runner.test()
 
     runner.train()
