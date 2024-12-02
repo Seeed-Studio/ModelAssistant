@@ -27,7 +27,7 @@ from sscma.structures import (
     cat_batch_labels,
     tensor_split,
 )
-from sscma.models.utils import samplelist_boxtype2tensor
+from sscma.utils.misc import samplelist_boxtype2tensor
 
 class BatchSyncRandomResize(nn.Module):
     """Batch random resize which synchronizes the random size across ranks.
