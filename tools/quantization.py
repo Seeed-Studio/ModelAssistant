@@ -245,6 +245,8 @@ def main():
         )
 
     cfg.load_from = args.model
+    
+    imgsz = cfg.get("imgsz")
 
     runner = Runner.from_cfg(cfg)
     runner.load_or_resume()
@@ -267,10 +269,8 @@ def main():
     # )
 
     with model_tracer():
-        model_copy = copy.deepcopy(model).eval()
-        model_copy = model_copy.to(get_device())
-        # model_copy = model_copy.to("cpu")
-        dummy_input = torch.randn(1, 3, 640, 640)
+        model.to("cpu")
+        dummy_input = torch.randn(1, 3, imgsz[0], imgsz[1])
         # model_copy = cross_layer_equalize(model_copy, dummy_input, get_device())
 
         # More information for QATQuantizer initialization, see `examples/quantization/qat.py`.
@@ -290,7 +290,7 @@ def main():
         # per tensor quantization with out cle : 0.254
 
         quantizer = QATQuantizer(
-            model_copy,
+            model,
             dummy_input,
             work_dir="out",
             config={
@@ -341,6 +341,7 @@ def main():
         bbox_head=runner.model.bbox_head,
         tinynn_model=ptq_model,
     )
+    q_model.to(get_device())
     runner.model = q_model
 
     #test initial quantized model
@@ -357,7 +358,7 @@ def main():
 
         tf_converter = TFLiteConverter(
             ptq_model,
-            torch.randn(1, 3, 640, 640),
+            torch.randn(1, 3, imgsz[0], imgsz[1]),
             tflite_path="out/qat_model.tflite",
             fuse_quant_dequant=True,
             quantize_target_type="int8",
