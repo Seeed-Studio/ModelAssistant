@@ -11,6 +11,8 @@ from mmengine.config import Config, DictAction
 from mmengine.runner import Runner
 from mmengine.evaluator import DumpResults
 
+from sscma.utils import lazy_import
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="test (and eval) a model")
@@ -194,10 +196,11 @@ def export_torchscript(model, args):
     torch.jit.save(script_model, f)
 
 
+@lazy_import("onnx")
 def export_onnx(model, args):
     import onnx
 
-    fake_input = torch.randn(3, 3, *args.img_size).to(args.device)
+    fake_input = torch.randn(1, 3, *args.img_size).to(args.device)
     f = f"{osp.splitext(args.checkpoint)[0]}.onnx"
     torch.onnx.export(
         model,
@@ -269,6 +272,7 @@ def export_hailo(onnx_path: str, arch: str, img_path, img_shape, cfg):
         f.write(hef)
 
 
+@lazy_import("tensorflow")
 def export_tflite(onnx_path: str, img_path, img_shape):
     import os.path as osp
     import cv2

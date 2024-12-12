@@ -46,6 +46,8 @@ from .typing_utils import (
     RangeType,
 )
 
+from .lazy_import import lazy_import
+
 __all__ = [
     "_scale_size",
     "simplecv_imresize",
@@ -87,4 +89,5 @@ __all__ = [
     "PixelList",
     "OptPixelList",
     "RangeType",
+    "lazy_import"
 ]
