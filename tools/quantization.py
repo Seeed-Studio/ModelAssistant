@@ -4,16 +4,12 @@ import sys
 import os.path as osp
 import time
 import torch
-import copy
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from typing import Dict, List, Tuple, Union
-import torch.nn as nn
-
 
 sys.path.insert(0, osp.dirname(osp.dirname(osp.abspath(__file__))))
 
-from tinynn.graph.quantization.quantizer import QATQuantizer, PostQuantizer
+from tinynn.graph.quantization.quantizer import QATQuantizer
 from tinynn.util.train_util import AverageMeter
 from tinynn.graph.tracer import model_tracer
 from tinynn.graph.quantization.algorithm.cross_layer_equalization import (
@@ -21,27 +17,11 @@ from tinynn.graph.quantization.algorithm.cross_layer_equalization import (
 )
 from tinynn.graph.quantization.fake_quantize import set_ptq_fake_quantize
 from tinynn.converter import TFLiteConverter
-from tinynn.util.quantization_analysis_util import (
-    graph_error_analysis,
-    layer_error_analysis,
-    get_weight_dis,
-)
-from tinynn.prune.identity_pruner import IdentityChannelPruner
-
-
 from mmengine.config import Config, DictAction
-from mmengine.evaluator import DumpResults
-from mmengine.fileio.backends import backends
 from mmengine.runner import Runner
 from mmengine.device import get_device
-from mmengine.model import BaseModel
-from sscma.utils.typing_utils import OptConfigType, OptMultiConfig
-from sscma.structures import DetDataSample, OptSampleList
-from sscma.utils.misc import samplelist_boxtype2tensor
 
-ForwardResults = Union[
-    Dict[str, torch.Tensor], List[DetDataSample], Tuple[torch.Tensor], torch.Tensor
-]
+from mmengine import MODELS
 
 
 def parse_args():
@@ -51,6 +31,9 @@ def parse_args():
     parser.add_argument(
         "--work-dir",
         help="the directory to save the file containing evaluation metrics",
+    )
+    parser.add_argument(
+        "--test", action="store_true", help="Whether to evaluate inference results"
     )
     parser.add_argument(
         "--out",
@@ -74,7 +57,7 @@ def parse_args():
         default="none",
         help="job launcher",
     )
-    parser.add_argument("--local_rank", type=int, default=0)
+    parser.add_argument("--local_rank", "--local-rank", type=int, default=0)
     args = parser.parse_args()
     if "LOCAL_RANK" not in os.environ:
         os.environ["LOCAL_RANK"] = str(args.local_rank)
@@ -142,89 +125,11 @@ def plot_output_channel(X):
     # plt.show()
 
 
-class QuantModel(BaseModel):
-    """RTMDetInfer class for rtmdet serial inference.
-
-    Args:
-       data_preprocessor (dict or ConfigDict, optional): The pre-process
-           config of :class:`BaseDataPreprocessor`.  it usually includes,
-            ``pad_size_divisor``, ``pad_value``, ``mean`` and ``std``.
-       init_cfg (dict or ConfigDict, optional): the config to control the
-           initialization. Defaults to None.
-    """
-
-    def __init__(
-        self,
-        data_preprocessor: OptConfigType = None,
-        init_cfg: OptMultiConfig = None,
-        tinynn_model: torch.nn.Module = None,
-        bbox_head: torch.nn.Module = None,
-    ):
-        super().__init__(data_preprocessor=data_preprocessor, init_cfg=init_cfg)
-        self._model = tinynn_model
-        self.bbox_head = bbox_head
-
-    def forward(
-        self,
-        inputs: torch.Tensor,
-        data_samples: OptSampleList = None,
-        mode: str = "predict",
-    ) -> ForwardResults:
-        """The unified entry for a forward process in both training and test.
-        The method should accept three modes: "tensor", "predict" and "loss":
-
-        - "predict": Forward and return the predictions, which are fully
-        processed to a list of :obj:`DetDataSample`.
-
-        Note that this method doesn't handle either back propagation or
-        parameter update, which are supposed to be done in :meth:`train_step`.
-
-        Args:
-            inputs (torch.Tensor): The input tensor with shape
-                (N, C, ...) in general.
-            data_samples (list[:obj:`DetDataSample`], optional): A batch of
-                data samples that contain annotations and predictions.
-                Defaults to None.
-            mode (str): Return what kind of value. Defaults to 'tensor'.
-
-        Returns:
-            The return type depends on ``mode``.
-        """
-        if mode == "predict":
-            data = self._model(inputs)
-            batch_img_metas = [data_samples.metainfo for data_samples in data_samples]
-            results = self.bbox_head.predict_by_feat(
-                *data, batch_img_metas=batch_img_metas
-            )
-            # data_samples.pred_instances = result
-            for result, data_sample in zip(results, data_samples):
-                data_sample.pred_instances = result
-
-            samplelist_boxtype2tensor(data_samples)
-            return data_samples
-        elif mode == "loss":
-            return self._loss(inputs, data_samples)
-        else:
-            raise RuntimeError(
-                f'Invalid mode "{mode}". ' "QuantModel Only supports predict mode"
-            )
-
-    def _loss(self, inputs: torch.Tensor, batch_data_samples: OptSampleList):
-        data = self._model(inputs)
-        # Fast version
-        loss_inputs = data + (
-            batch_data_samples["bboxes_labels"],
-            batch_data_samples["img_metas"],
-        )
-        losses = self.bbox_head.loss_by_feat(*loss_inputs)
-        return losses
-
-
 def main():
     args = parse_args()
 
     # load config
-    cfg = Config.fromfile(args.config)
+    cfg = Config.fromfile(args.config, modified_constant=args.cfg_options)
     cfg.launcher = args.launcher
 
     # multiprocessing.set_start_method("spawn")
@@ -243,52 +148,36 @@ def main():
         cfg.work_dir = osp.join(
             "./work_dirs", osp.splitext(osp.basename(args.config))[0]
         )
+    # load hook config
+    cfg.custom_hooks = [
+        dict(
+            type="QuantizerSwitchHook",
+            freeze_quantizer_epoch= cfg.epochs if hasattr(cfg, "epochs") else 5 // 3,
+            freeze_bn_epoch=cfg.epochs if hasattr(cfg, "epochs") else 5 // 3 * 2,
+        ),
+    ]
 
     cfg.load_from = args.model
-    
+
     imgsz = cfg.get("imgsz")
 
     runner = Runner.from_cfg(cfg)
     runner.load_or_resume()
-    #test for original pytorch fp32 model
-    runner.test()
+    # test for original pytorch fp32 model
+    if args.test:
+        runner.test()
+
     model = runner.model
 
-    # pruner = IdentityChannelPruner(
-    #     model, torch.ones(1, 3, 640, 640), config={"multiple": 8}
-    # )
-    # st_flops = pruner.calc_flops()
-    # pruner.prune()  # Get the pruned model
-    #
-    # print("Validation accuracy of the pruned model")
-    # runner.model = model
-    # # runner.test()
-    # ed_flops = pruner.calc_flops()
-    # print(
-    #     f"Pruning over, reduced FLOPS {100 * (st_flops - ed_flops) / st_flops:.2f}%  ({st_flops} -> {ed_flops})"
-    # )
+    model = cross_layer_equalize(
+        model, torch.randn(1, 3, imgsz[0], imgsz[1]), get_device()
+    )
 
+    # init quant model
     with model_tracer():
         model.to("cpu")
         dummy_input = torch.randn(1, 3, imgsz[0], imgsz[1])
         # model_copy = cross_layer_equalize(model_copy, dummy_input, get_device())
-
-        # More information for QATQuantizer initialization, see `examples/quantization/qat.py`.
-        # We set 'override_qconfig_func' when initializing QATQuantizer to use fake-quantize to do post quantization.
-        # quantizer = PostQuantizer(
-        #     model_copy,
-        #     dummy_input,
-        #     work_dir="out",
-        #     config={
-        #         "asymmetric": True,
-        #         "backend": "qnnpack",
-        #         "disable_requantization_for_cat": True,
-        #         "per_tensor": True,
-        #         "override_qconfig_func": set_ptq_fake_quantize,
-        #     },
-        # )
-        # per tensor quantization with out cle : 0.254
-
         quantizer = QATQuantizer(
             model,
             dummy_input,
@@ -297,6 +186,7 @@ def main():
                 "asymmetric": True,
                 "force_overwrite": True,
                 "per_tensor": False,
+                "disable_requantization_for_cat": True,
                 "override_qconfig_func": set_ptq_fake_quantize,
             },
         )
@@ -304,62 +194,31 @@ def main():
 
         quantizer.optimize_conv_bn_fusion(ptq_model)
 
-    # with torch.no_grad():
-    #     ptq_model.eval()
-    #     ptq_model.cpu()
-    #
-    #     # Post quantization calibration
-    #     ptq_model.apply(torch.quantization.disable_fake_quant)
-    #     ptq_model.apply(torch.quantization.enable_observer)
-    #
-    #     calibrate(ptq_model, runner, max_iteration=10, device="cpu")
-    #
-    #     # Disable observer and enable fake quantization to validate model with quantization error
-    #     ptq_model.apply(torch.quantization.disable_observer)
-    #     ptq_model.apply(torch.quantization.enable_fake_quant)
-    #
-    #     datas = next(iter(runner.train_dataloader))
-    #     datas = runner.model.data_preprocessor(datas, False)
-    #     dummy_input_real = datas["inputs"][1].squeeze(0)
-    #     graph_error_analysis(ptq_model, dummy_input_real, metric="cosine")
-    #
-    #     layer_error_analysis(ptq_model, dummy_input_real, metric="cosine")
-    #
-    # exit(0)
+    q_model = MODELS.build(cfg.quantizer_config)
+    q_model.set_model(ptq_model)
 
-    # with torch.no_grad():
-    #     ptq_model.eval()
-    #     ptq_model.cpu()
-    #     # -----------------------------------------------
-    #     for n, m in model.named_modules():
-    #         if isinstance(m, nn.BatchNorm2d):
-    #             f = m.weight / (m.running_var**0.5)
-    #             print(f"Layer: {n}, Min: {f.min()}, Max: {f.max()}")
-
-    q_model = QuantModel(
-        data_preprocessor=runner.model.data_preprocessor,
-        bbox_head=runner.model.bbox_head,
-        tinynn_model=ptq_model,
-    )
     q_model.to(get_device())
     runner.model = q_model
 
-    #test initial quantized model
-    runner.test()
+    # test initial quantized model
+    if args.test:
+        runner.test()
 
+    # qat train
     runner.train()
 
+    # export to tflite
     with torch.no_grad():
-        ptq_model.eval()
-
+        
         # The step below converts the model to an actual quantized model, which uses the quantized kernels.
         ptq_model.cpu()
+        ptq_model.eval()
         ptq_model = quantizer.convert(ptq_model, backend="qnnpack")
 
         tf_converter = TFLiteConverter(
             ptq_model,
             torch.randn(1, 3, imgsz[0], imgsz[1]),
-            tflite_path="out/qat_model.tflite",
+            tflite_path="out/qat_model_test.tflite",
             fuse_quant_dequant=True,
             quantize_target_type="int8",
         )
