@@ -1,11 +1,15 @@
 import numpy as np
 import torch
-from tflite_runtime.interpreter import Interpreter
+import torchvision.transforms as transforms
 
 from .base_infer import BaseInfer
 
+from sscma.utils import lazy_import
+
 
 class TFliteInfer(BaseInfer):
+
+    @lazy_import("tflite_runtime", install_only=True)
     def __init__(self, weights="sscma.tflite", device=torch.device("cpu")):
         super().__init__(weights=weights, device=device)
         self.interpreter = None
@@ -17,10 +21,16 @@ class TFliteInfer(BaseInfer):
         for data in input_data.split(1, 0):
             # check if input_data is Tensor
             if isinstance(data, torch.Tensor):
+                input = self.input_details[0]
+                shape = input["shape"]
+                if len(data.shape) == len(shape) and (data.shape[1] == 3 or data.shape[1] == 1):
+                    w = shape[2]
+                    h = shape[1]
+                    # resize to model input shape
+                    data = transforms.Resize((h, w))(data)
                 # Torch Tensor convert NCWH to NHW
                 data = data.permute(0, 2, 3, 1).numpy()
 
-                input = self.input_details[0]
                 int8 = (
                     input["dtype"] == np.uint8 or input["dtype"] == np.int8
                 )  # is TFLite quantized uint8 model
@@ -29,6 +39,7 @@ class TFliteInfer(BaseInfer):
                     data = (data / scale + zero_point).astype(
                         input["dtype"]
                     )  # de-scale
+                
                 self.interpreter.set_tensor(input["index"], data)
                 self.interpreter.invoke()
                 y = []
@@ -41,10 +52,11 @@ class TFliteInfer(BaseInfer):
                     y.append(np.transpose(x, [0, 3, 1, 2]))
 
                 results.append(y)
-
         return results
 
     def load_weights(self):
+        from tflite_runtime.interpreter import Interpreter
+
         self.interpreter = Interpreter(model_path=self.weights)  # load TFLite model
 
         self.interpreter.allocate_tensors()  # allocate
