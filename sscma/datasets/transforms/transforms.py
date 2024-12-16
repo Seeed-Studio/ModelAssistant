@@ -1582,7 +1582,7 @@ class Mosaic(BaseMixImageTransform):
                 )
             else:
                 img_i = cv2.resize(
-                    img_i, (int(w_i * scale_ratio_i), int(h_i * scale_ratio_i)), img_i
+                    img_i, (int(w_i * scale_ratio_i), int(h_i * scale_ratio_i))#, img_i
                 )
 
             # compute the combine parameters
