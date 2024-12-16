@@ -90,9 +90,29 @@ def parse_args():
     return args
 
 
+def generate_input(images_path, img_shape):
+    import cv2
+
+    res = []
+    datasets = [
+        osp.join(images_path, i) for i in os.listdir(images_path) if i.endswith(".jpg")
+    ]
+    for ps in datasets[:100]:
+        img = cv2.imread(ps)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) / 255
+        img = cv2.resize(img, (img_shape[0], img_shape[1]))
+        res.append(img)
+    return np.asarray(res)
+
+
 def main():
     args = parse_args()
-
+    # verify args
+    if (
+        len([fm in ["hailo", "tflite", "vela"] for fm in args.format])
+        and args.image_path is None
+    ):
+        raise ValueError("image_path is required for hailo/tflite/vela format")
     # load config
     cfg = Config.fromfile(args.config, modified_constant=args.cfg_options)
     cfg.launcher = args.launcher
@@ -143,6 +163,39 @@ def main():
             new_model_format.append("torchscript")
     new_model_format = list(set(new_model_format))
 
+    calibration_data = None
+    if args.image_path:
+        if not osp.exists("calibration_image_sample_data_20x128x128x3_float32.npy"):
+            input_data = generate_input(args.image_path, args.img_size)
+            np.save(
+                "calibration_image_sample_data_20x128x128x3_float32.npy", input_data
+            )
+        std = (
+            (
+                cfg.model.data_preprocessor.std
+                if cfg.model.data_preprocessor.get("std", False)
+                else [0, 0, 0]
+            )
+            if cfg.model.get("data_preprocessor", False)
+            else [0, 0, 0]
+        )
+        mean = (
+            (
+                cfg.model.data_preprocessor.mean
+                if cfg.model.data_preprocessor.get("mean", False)
+                else [255, 255, 255]
+            )
+            if cfg.model.get("data_preprocessor", False)
+            else [255, 255, 255]
+        )
+        calibration_data = [
+            [
+                "images",
+                "calibration_image_sample_data_20x128x128x3_float32.npy",
+                [[[std]]],
+                [[[mean]]],
+            ]
+        ]
     # export
     if "torchscript" in new_model_format:
         export_torchscript(model, args)
@@ -151,13 +204,17 @@ def main():
         onnx_file = export_onnx(model, args)
 
     if "hailo" in new_model_format:
-        export_hailo(onnx_file, args.arch, args.image_path, args.img_size, cfg)
+        export_hailo(onnx_file, args.arch, args.img_size, cfg, args.image_path)
 
     if "savemodel" in new_model_format:
-        export_savemodel(onnx_file)
+        export_savemodel(onnx_file, calibration_data)
 
     if "tflite" in new_model_format:
-        tflite_file = export_tflite(onnx_file, args.image_path, args.img_size)
+        tflite_file = export_tflite(
+            onnx_file,
+            args.img_size,
+            args.image_path,
+        )
 
     if "vela" in new_model_format:
         export_vela(tflite_file, args.verify)
@@ -170,13 +227,21 @@ def main():
         runner.test_evaluator.metrics.append(DumpResults(out_file_path=args.out))
 
 
-def export_savemodel(onnx_file):
+def export_savemodel(onnx_file, calibration_data=None):
     # onnx convert to pb
-    cmd = f"onnx2tf -i {onnx_file}  -v warn  -osd -o {osp.dirname(onnx_file)}"
-    state = os.system(cmd)
-    if not state:
+    from onnx2tf import onnx2tf
+
+    try:
+        onnx2tf.convert(
+            onnx_file,
+            output_folder_path=osp.dirname(onnx_file),
+            # batch_size=1,
+            custom_input_op_name_np_data_path=calibration_data,
+            output_signaturedefs=True,
+            verbosity="warn",
+        )
         print("The pb model format was exported successfully")
-    else:
+    except Exception as e:
         print("Export of pb model failed, export interrupted")
         return
 
@@ -197,7 +262,7 @@ def export_torchscript(model, args):
 def export_onnx(model, args):
     import onnx
 
-    fake_input = torch.randn(3, 3, *args.img_size).to(args.device)
+    fake_input = torch.randn(1, 3, *args.img_size).to(args.device)
     f = f"{osp.splitext(args.checkpoint)[0]}.onnx"
     torch.onnx.export(
         model,
@@ -222,7 +287,7 @@ def export_onnx(model, args):
     return f
 
 
-def export_hailo(onnx_path: str, arch: str, img_path, img_shape, cfg):
+def export_hailo(onnx_path: str, arch: str, img_shape, cfg, img_path):
     from hailo_sdk_client import ClientRunner
     import onnx
     import cv2
@@ -269,7 +334,7 @@ def export_hailo(onnx_path: str, arch: str, img_path, img_shape, cfg):
         f.write(hef)
 
 
-def export_tflite(onnx_path: str, img_path, img_shape):
+def export_tflite(onnx_path: str, img_shape, img_path):
     import os.path as osp
     import cv2
     from tqdm.std import tqdm
