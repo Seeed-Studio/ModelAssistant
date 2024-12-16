@@ -58,3 +58,6 @@ docs/.vitepress/dist
 examples/
 work_dir/
 data/
+
+# numpy
+*.npy
