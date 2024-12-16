@@ -1,8 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
 from mmengine.hooks import Hook
+from mmengine import HOOKS
 
-
+@HOOKS.register_module()
 class QuantizerSwitchHook(Hook):
     """Switch data pipeline at switch_epoch.
 
