@@ -172,6 +172,11 @@ def main():
         runner.test_evaluator.metrics.append(DumpResults(out_file_path=args.out))
 
 
+@lazy_import("onnx2tf", install_only=True)
+@lazy_import("tf-keras", install_only=True)
+@lazy_import("onnx-graphsurgeon", install_only=True)
+@lazy_import("sng4onnx", install_only=True)
+@lazy_import("onnxsim", install_only=True)
 def export_savemodel(onnx_file):
     # onnx convert to pb
     cmd = f"onnx2tf -i {onnx_file}  -v warn  -osd -o {osp.dirname(onnx_file)}"
@@ -197,6 +202,7 @@ def export_torchscript(model, args):
 
 
 @lazy_import("onnx")
+@lazy_import("onnxsim", install_only=True)
 def export_onnx(model, args):
     import onnx
 
@@ -279,7 +285,8 @@ def export_tflite(onnx_path: str, img_path, img_shape):
     from tqdm.std import tqdm
     import tensorflow as tf
 
-    tflite_path = f"{osp.splitext(onnx_path)[0]}_int8.tflite"
+    file_stem = osp.splitext(osp.basename(onnx_path))[0]
+    tflite_path = osp.join(osp.dirname(onnx_path), f"{file_stem}_int8.tflite")
     # pb convert to tflite
     converter = tf.lite.TFLiteConverter.from_saved_model(osp.dirname(onnx_path))
 
@@ -313,7 +320,7 @@ def export_tflite(onnx_path: str, img_path, img_shape):
 
     return tflite_path
 
-
+@lazy_import('ethos-u-vela', install_only=True)
 def export_vela(tflite_path: str, verify=False):
     # tflite convert to vela.tflite
     cmd = f"vela \
