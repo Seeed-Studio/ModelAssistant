@@ -95,7 +95,7 @@ model = dict(
         type=RTMDetHead,
         head_module=dict(
             type=RTMDetSepBNHeadModule,
-            num_classes=80,
+            num_classes=num_classes,
             in_channels=256,
             stacked_convs=2,
             feat_channels=256,
@@ -132,6 +132,7 @@ model = dict(
         max_per_img=300,
     ),
 )
+
 
 deploy = dict(
     type=RTMDetInfer,

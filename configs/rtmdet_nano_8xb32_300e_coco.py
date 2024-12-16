@@ -19,7 +19,10 @@ from sscma.datasets.transforms import (
 )
 
 from sscma.engine import PipelineSwitchHook
+from sscma.engine.hooks import QuantizerSwitchHook
 from sscma.models import ExpMomentumEMA
+from sscma.quantizer import RtmdetQuantModel
+
 
 d_factor = 0.33
 w_factor = 0.25
@@ -46,6 +49,15 @@ model.update(
         bbox_head=dict(head_module=dict(widen_factor=w_factor, share_conv=False)),
     )
 )
+
+model.bbox_head.update(train_cfg=model.train_cfg)
+model.bbox_head.update(test_cfg=model.test_cfg)
+quantizer_config = dict(
+    type=RtmdetQuantModel,
+    bbox_head=model.bbox_head,
+    data_preprocessor=model.data_preprocessor,
+)
+
 
 train_pipeline = [
     dict(

@@ -13,6 +13,10 @@ from sscma.evaluation import CocoMetric
 # dataset settings
 dataset_type = CocoDataset
 data_root = "datasets/coco/"
+train_ann_file = "annotations/instances_train2017.json"
+val_ann_file = "annotations/instances_val2017.json"
+train_img_prefix = "train2017/"
+val_img_prefix = "val2017/"
 
 # Example to use different file client
 # Method 1: simply set the data root and let the file I/O module
@@ -68,8 +72,8 @@ train_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        ann_file="annotations/instances_train2017.json",
-        data_prefix=dict(img="train2017/"),
+        ann_file=train_ann_file,
+        data_prefix=dict(img=train_img_prefix),
         filter_cfg=dict(filter_empty_gt=True, min_size=32),
         pipeline=train_pipeline,
     ),
@@ -84,8 +88,8 @@ val_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        ann_file="annotations/instances_val2017.json",
-        data_prefix=dict(img="val2017/"),
+        ann_file=val_ann_file,
+        data_prefix=dict(img=val_img_prefix),
         test_mode=True,
         pipeline=test_pipeline,
         # batch_shapes_cfg=batch_shapes_cfg,
@@ -95,10 +99,11 @@ test_dataloader = val_dataloader
 
 val_evaluator = dict(
     type=CocoMetric,
-    ann_file=data_root + "annotations/instances_val2017.json",
+    ann_file=data_root + val_ann_file,
     metric="bbox",
     format_only=False,
     backend_args=backend_args,
+    sort_categories=True
 )
 test_evaluator = val_evaluator
 
