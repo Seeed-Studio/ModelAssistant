@@ -1,12 +1,7 @@
 from typing import Union, List, Dict, Tuple
 import torch
 
-from mmengine.config import Config, DictAction
-from mmengine.evaluator import DumpResults
-from mmengine.fileio.backends import backends
-from mmengine.runner import Runner
 from mmengine.registry import MODELS
-from mmengine.device import get_device
 from mmengine.model import BaseModel
 from sscma.utils.typing_utils import OptConfigType, OptMultiConfig
 from sscma.structures import DetDataSample, OptSampleList
