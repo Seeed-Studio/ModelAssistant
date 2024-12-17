@@ -7,7 +7,7 @@ with read_base():
     from .datasets.coco_detection import *
 
 from torchvision.ops import nms
-from torch.nn import SiLU, ReLU6, SyncBatchNorm, ReLU
+from torch.nn import SiLU, ReLU6, BatchNorm2d, ReLU
 from torch.optim.adamw import AdamW
 
 from mmengine.hooks import EMAHook
@@ -77,7 +77,7 @@ model = dict(
         deepen_factor=d_factor,
         widen_factor=w_factor,
         channel_attention=False,
-        norm_cfg=dict(type=SyncBatchNorm),
+        norm_cfg=dict(type=BatchNorm2d),
         act_cfg=dict(type=ReLU, inplace=True),
     ),
     neck=dict(
@@ -88,7 +88,7 @@ model = dict(
         out_channels=256,
         num_csp_blocks=1,
         expand_ratio=0.5,
-        norm_cfg=dict(type=SyncBatchNorm),
+        norm_cfg=dict(type=BatchNorm2d),
         act_cfg=dict(type=ReLU, inplace=True),
     ),
     bbox_head=dict(
@@ -99,7 +99,7 @@ model = dict(
             in_channels=256,
             stacked_convs=2,
             feat_channels=256,
-            norm_cfg=dict(type=SyncBatchNorm),
+            norm_cfg=dict(type=BatchNorm2d),
             act_cfg=dict(type=ReLU, inplace=True),
             share_conv=True,
             pred_kernel_size=1,

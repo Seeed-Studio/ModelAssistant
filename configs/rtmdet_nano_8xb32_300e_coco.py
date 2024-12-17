@@ -19,7 +19,6 @@ from sscma.datasets.transforms import (
 )
 
 from sscma.engine import PipelineSwitchHook
-from sscma.engine.hooks import QuantizerSwitchHook
 from sscma.models import ExpMomentumEMA
 from sscma.quantizer import RtmdetQuantModel
 
