@@ -81,7 +81,7 @@ options:
 
 These commands and their options provide a detailed guide on how to train and export models using SSCMA. By customizing these parameters according to your specific requirements, you can effectively utilize SSCMA for your machine learning tasks.
 
-## PTQ Parameter Description
+## QAT Parameter Description
 
 You need to replace the following parts of the parameters according to the actual situation. The specific descriptions of each parameter are as follows:
 

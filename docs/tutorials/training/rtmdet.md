@@ -32,7 +32,7 @@ python3 tools/train.py \
     val_ann_file=valid/_annotations.coco.json \
     train_img_prefix=train/ \
     val_img_prefix=valid/ \
-    max_epochs=50 \
+    max_epochs=150 \
     imgsz='(192,192)'
 ```
 
@@ -52,42 +52,42 @@ After the training is complete, you can find the trained model in the `work_dirs
 :::details
 
 ```sh
-12/15 08:45:34 - mmengine - INFO - Saving checkpoint at 50 epochs
-12/15 08:45:35 - mmengine - INFO - Evaluating bbox...
+12/17 03:55:23 - mmengine - INFO - Saving checkpoint at 150 epochs
+12/17 03:55:24 - mmengine - INFO - Evaluating bbox...
 Loading and preparing results...
 DONE (t=0.02s)
 creating index...
 index created!
 Running per image evaluation...
 Evaluate annotation type *bbox*
-DONE (t=0.32s).
+DONE (t=0.31s).
 Accumulating evaluation results...
 DONE (t=0.06s).
- Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.254
- Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.743
- Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.093
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.506
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.946
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.456
  Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
  Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.000
- Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.259
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.331
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.422
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.453
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.517
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.547
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.591
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.608
  Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.000
- Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.456
-12/15 08:45:36 - mmengine - INFO - bbox_mAP_copypaste: 0.254 0.743 0.093 -1.000 0.000 0.259
-12/15 08:45:36 - mmengine - INFO - Epoch(val) [50][6/6]    coco/bbox_mAP: 0.2540  coco/bbox_mAP_50: 0.7430  coco/bbox_mAP_75: 0.0930  coco/bbox_mAP_s: -1.0000  coco/bbox_mAP_m: 0.0000  coco/bbox_mAP_l: 0.2590  data_time: 0.0224  time: 0.0578
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.100
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.612
+12/17 03:55:24 - mmengine - INFO - bbox_mAP_copypaste: 0.506 0.946 0.456 -1.000 0.000 0.517
+12/17 03:55:24 - mmengine - INFO - Epoch(val) [150][6/6]    coco/bbox_mAP: 0.5060  coco/bbox_mAP_50: 0.9460  coco/bbox_mAP_75: 0.4560  coco/bbox_mAP_s: -1.0000  coco/bbox_mAP_m: 0.0000  coco/bbox_mAP_l: 0.5170  data_time: 0.0205  time: 0.0563
 ```
 
 By analyzing the COCO Eval results, we can identify issues and take corresponding measures for optimization. The optimization direction is suggested to start with the dataset, followed by training parameters, and then the model structure.
 
 Average Precision (AP):
-- At IoU=0.50:0.95 and area=all, AP is 0.254, which is at a medium-low level overall. The model has room for improvement in detection accuracy under different intersection-over-union ratios.
-- When IoU=0.50, AP reaches 0.743, indicating that the model can perform well under loose intersection-over-union requirements. However, at IoU=0.75, AP is only 0.093, meaning the model performs poorly under high intersection-over-union requirements, especially when the prediction box and the ground truth box need to coincide closely.
+- At IoU=0.50:0.95 and area=all, AP is 0.506, which is at a medium-low level overall. The model has room for improvement in detection accuracy under different intersection-over-union ratios.
+- When IoU=0.50, AP reaches 0.946, indicating that the model can perform well under loose intersection-over-union requirements. However, at IoU=0.75, AP is only 0.456, meaning the model performs poorly under high intersection-over-union requirements, especially when the prediction box and the ground truth box need to coincide closely.
 - Classified by detection target area, area=small has an AP of -1.000, indicating a severe problem with small target detection, and the validation set lacks small targets. Area=medium has an AR and AP of 0, indicating that there are some other issues, such as a lack of medium targets in the training set or abnormal data augmentation parameters.
 
 Average Recall (AR):
-- At IoU=0.50:0.95 and area=all under different maxDets, as maxDets increases from 1 to 100, AR increases from 0.331 to 0.453. Increasing the maximum number of detectable targets can improve recall to some extent, but the overall values are not high, and the model may miss many targets in actual situations.
+- At IoU=0.50:0.95 and area=all under different maxDets, as maxDets increases from 1 to 100, AR increases from 0.547 to 0.608. Increasing the maximum number of detectable targets can improve recall to some extent, but the overall values are not high, and the model may miss many targets in actual situations.
 - In the area classification, area=small has an AR of -1.000, again highlighting the issue of lacking small targets in the validation set.
 
 Based on the above data, we first check whether there are enough small targets in the dataset, whether the data annotation for small targets is accurate and complete, and if necessary, re-annotate to ensure that the annotation box fits the actual boundary of small targets. Then, check the dataset after it has passed through the training pipeline, and ensure that the image colors and annotations after data augmentation are correct and reasonable.
@@ -128,7 +128,7 @@ Here, we take exporting the TFLite model as an example. You can use the followin
 ```sh
 python3 tools/export.py \
     configs/rtmdet_nano_8xb32_300e_coco.py \
-    work_dirs/epoch_50.pth \
+    work_dirs/rtmdet_nano_8xb32_300e_coco/epoch_150.pth \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
@@ -137,7 +137,8 @@ python3 tools/export.py \
     train_img_prefix=train/ \
     val_img_prefix=valid/ \
     --imgsz 192 192 \
-    --format tflite
+    --format tflite \
+    --image_path $(pwd)/datasets/coco_mask/mask/valid
 ```
 
 :::warning
@@ -177,7 +178,7 @@ After exporting, you can use the following command to verify the TFLite Int8 mod
 ```sh
 python3 tools/test.py \
     configs/rtmdet_nano_8xb32_300e_coco.py \
-    work_dirs/epoch_50_int8.tflite \
+    work_dirs/rtmdet_nano_8xb32_300e_coco/epoch_150_int8.tflite \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
@@ -191,21 +192,21 @@ python3 tools/test.py \
 You will get the following output:
 
 ```sh
- Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.163
- Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.415
- Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.064
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.046
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.112
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.019
  Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
  Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.000
- Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.174
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.258
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.409
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.486
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.050
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.106
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.165
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.352
  Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.000
- Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.490
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.200
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.353
 ```
 
-From the verification results, it can be seen that the exported model's performance on the verification set is different from its performance during training, with a decrease of 8.1% in AP@50:95 and a decrease of 33.8% in AP@50. You can try using QAT to reduce the loss of quantization accuracy.
+From the verification results, it can be seen that the exported model's performance on the verification set is different from its performance during training, with a decrease of 46.0% in AP@50:95 and a decrease of 83.4% in AP@50. You can try using QAT to reduce the loss of quantization accuracy.
 
 :::tip
 
@@ -221,7 +222,7 @@ QAT (Quantization-Aware Training) is a method that simulates quantization operat
 ```sh
 python3 tools/quantization.py \
     configs/rtmdet_nano_8xb32_300e_coco.py \
-    work_dirs/epoch_50.pth \
+    work_dirs/rtmdet_nano_8xb32_300e_coco/epoch_150.pth \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
@@ -230,15 +231,49 @@ python3 tools/quantization.py \
     train_img_prefix=train/ \
     val_img_prefix=valid/ \
     imgsz='(192,192)' \
-    max_epochs=50
+    max_epochs=5
 ```
+
+:::details
+
+QAT training results:
+
+```sh
+12/17 09:43:41 - mmengine - INFO - Saving checkpoint at 5 epochs
+12/17 09:43:43 - mmengine - INFO - Evaluating bbox...
+Loading and preparing results...
+DONE (t=0.02s)
+creating index...
+index created!
+Running per image evaluation...
+Evaluate annotation type *bbox*
+DONE (t=0.31s).
+Accumulating evaluation results...
+DONE (t=0.06s).
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.600
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.971
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.784
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.000
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.605
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.638
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.663
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.663
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.000
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.668
+12/17 09:43:44 - mmengine - INFO - bbox_mAP_copypaste: 0.600 0.971 0.784 -1.000 0.000 0.605
+12/17 09:43:44 - mmengine - INFO - Epoch(val) [5][6/6]    coco/bbox_mAP: 0.6000  coco/bbox_mAP_50: 0.9710  coco/bbox_mAP_75: 0.7840  coco/bbox_mAP_s: -1.0000  coco/bbox_mAP_m: 0.0000  coco/bbox_mAP_l: 0.6050  data_time: 0.0342  time: 0.2558
+```
+
+:::
 
 After QAT training is completed, the quantized model will be automatically exported, and its storage path will be `out/qat_model_test.tflite`. You can use the following command to verify it:
 
 ```sh
 python3 tools/test.py \
     configs/rtmdet_nano_8xb32_300e_coco.py \
-    out/qat_model_test.tflite \
+    work_dirs/rtmdet_nano_8xb32_300e_coco/qat/qat_model_int8.tflite \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
@@ -247,4 +282,21 @@ python3 tools/test.py \
     train_img_prefix=train/ \
     val_img_prefix=valid/ \
     imgsz='(192,192)'
+```
+
+The evalution results are shown below:
+
+```sh
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.091
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.209
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.069
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.000
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.094
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.138
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.185
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.311
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.000
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.314
 ```
