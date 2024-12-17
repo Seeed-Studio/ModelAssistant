@@ -46,8 +46,8 @@ val_ann = "valid/_annotations.coco.json"
 val_data = "valid/"
 metainfo = None
 
-height = 96
-width = 96
+height = 192
+width = 192
 imgsz = (width, height)
 
 downsample_factor = (8,)
@@ -96,6 +96,7 @@ model = dict(
         num_classes=num_classes,
         middle_channel=48,
         act_cfg=ReLU,
+        cls_weight=100.0,
         loss_cls=dict(type=BCEWithLogitsLoss, reduction="none"),
         loss_bg=dict(type=BCEWithLogitsLoss, reduction="none"),
     ),

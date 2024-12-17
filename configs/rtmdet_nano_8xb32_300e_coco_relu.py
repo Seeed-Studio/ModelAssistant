@@ -10,7 +10,7 @@ from torch.nn import ReLU, BatchNorm2d
 from torch.optim.adamw import AdamW
 
 from mmengine.hooks import EMAHook
-from mmengine.optim import CosineAnnealingLR, LinearLR,AmpOptimWrapper
+from mmengine.optim import CosineAnnealingLR, LinearLR, AmpOptimWrapper
 from sscma.datasets.transforms import (
     MixUp,
     Mosaic,
@@ -41,6 +41,7 @@ from sscma.models import (
     CSPNeXt,
 )
 from sscma.visualization import DetLocalVisualizer
+from sscma.deploy.models import RTMDetInfer
 
 
 default_hooks.visualization = dict(
@@ -142,7 +143,16 @@ model = dict(
         max_per_img=300,
     ),
 )
-
+deploy = dict(
+    type=RTMDetInfer,
+    data_preprocessor=dict(
+        type=DetDataPreprocessor,
+        mean=[103.53, 116.28, 123.675],
+        std=[57.375, 57.12, 58.395],
+        bgr_to_rgb=False,
+        batch_augments=None,
+    ),
+)
 train_pipeline = [
     dict(
         type=LoadImageFromFile,
@@ -150,13 +160,14 @@ train_pipeline = [
         backend_args=None,
     ),
     dict(type=LoadAnnotations, imdecode_backend="pillow", with_bbox=True),
-    dict(type=Mosaic,
-         img_scale=imgsz,
-         use_cached=True,
-         max_cached_images=mosaic_max_cached_images,  # note
-         random_pop=False,  # note
-         pad_val=114.0
-         ),
+    dict(
+        type=Mosaic,
+        img_scale=imgsz,
+        use_cached=True,
+        max_cached_images=mosaic_max_cached_images,  # note
+        random_pop=False,  # note
+        pad_val=114.0,
+    ),
     dict(
         type=RandomResize,
         scale=(imgsz[0] * 2, imgsz[1] * 2),
@@ -173,7 +184,7 @@ train_pipeline = [
         use_cached=True,
         random_pop=False,
         max_cached_images=mixup_max_cached_images,
-        prob=0.5
+        prob=0.5,
     ),
     dict(type=PackDetInputs),
 ]
@@ -218,8 +229,9 @@ train_dataloader.update(
         batch_sampler=None,
         pin_memory=True,
         collate_fn=coco_collate,
-        dataset=dict(pipeline=train_pipeline,
-                     ann_file="annotations/instances_train2017.json"),
+        dataset=dict(
+            pipeline=train_pipeline, ann_file="annotations/instances_train2017.json"
+        ),
     )
 )
 
@@ -292,7 +304,7 @@ default_hooks.update(
         checkpoint=dict(
             interval=interval,
             max_keep_ckpts=3,  # only keep latest 3 checkpoints
-            save_best='auto'
+            save_best="auto",
         )
     )
 )

@@ -43,6 +43,7 @@ def parse_args():
     parser.add_argument(
         "--cfg-options",
         nargs="+",
+        default=dict(epochs=5),
         action=DictAction,
         help="override some settings in the used config, the key-value pair "
         "in xxx=yyy format will be merged into config file. If the value to "
@@ -152,10 +153,17 @@ def main():
     cfg.custom_hooks = [
         dict(
             type="QuantizerSwitchHook",
-            freeze_quantizer_epoch= cfg.epochs if hasattr(cfg, "epochs") else 5 // 3,
+            freeze_quantizer_epoch=cfg.epochs if hasattr(cfg, "epochs") else 5 // 3,
             freeze_bn_epoch=cfg.epochs if hasattr(cfg, "epochs") else 5 // 3 * 2,
         ),
     ]
+
+    # remove amp
+    if (
+        hasattr(cfg.optim_wrapper, "type")
+        and cfg.optim_wrapper.type.__name__ == "AmpOptimWrapper"
+    ):
+        cfg.optim_wrapper.type = "OptimWrapper"
 
     cfg.load_from = args.model
 

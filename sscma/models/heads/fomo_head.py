@@ -33,6 +33,7 @@ class FomoHead(BaseModule):
         loss_cls: Optional[dict] = dict(type="BCEWithLogitsLoss", reduction="mean"),
         loss_bg: Optional[dict] = dict(type="BCEWithLogitsLoss", reduction="mean"),
         init_cfg: Optional[dict] = dict(type="Normal", std=0.01),
+        cls_weight: float = 1.0,
     ) -> None:
         super(FomoHead, self).__init__(init_cfg)
         self.num_classes = num_classes
@@ -53,6 +54,8 @@ class FomoHead(BaseModule):
 
         self.loss_bg = MODELS.build(loss_bg)
         self.loss_cls = MODELS.build(loss_cls)
+        if hasattr(self.loss_cls, "pos_weight"):
+            self.loss_cls.pos_weight = torch.as_tensor(cls_weight)
 
         # Offset of the ground truth box
         self.posit_offset = np.array(
@@ -79,9 +82,9 @@ class FomoHead(BaseModule):
                 CBR(
                     self.input_channels[i],
                     self.middle_channels,
-                    3,
                     1,
-                    padding=1,
+                    1,
+                    padding=0,
                     act=self.act_cfg,
                 )
             )
@@ -134,7 +137,6 @@ class FomoHead(BaseModule):
         batch_gt_instances = [
             data_samples.fomo_mask for data_samples in batch_data_samples
         ]
-
         return [
             InstanceData(
                 pred=preds,

@@ -20,12 +20,11 @@ from sscma.datasets.transforms.transforms import (
 )
 from sscma.engine.schedulers import QuadraticWarmupLR
 from sscma.engine.hooks import QuantizerSwitchHook
-
-
+from sscma.quantizer import RtmdetQuantModel
 
 
 imgsz = (640, 640)
-dump_config = True
+dump_config = False
 
 
 max_epochs = 5
@@ -52,6 +51,13 @@ train_pipeline = [
     dict(type=Pad, size=imgsz, pad_val=dict(img=(114, 114, 114))),
     dict(type=PackDetInputs),
 ]
+model.bbox_head.update(train_cfg=model.train_cfg)
+model.bbox_head.update(test_cfg=model.test_cfg)
+quantizer_config = dict(
+    type=RtmdetQuantModel,
+    bbox_head=model.bbox_head,
+    data_preprocessor=model.data_preprocessor,
+)
 
 train_dataloader.update(
     dict(batch_size=32, num_workers=16, dataset=dict(pipeline=train_pipeline))
@@ -70,7 +76,7 @@ train_cfg.update(
 # optimizer
 optim_wrapper = dict(
     type=OptimWrapper,
-    optimizer=dict(type=AdamW, lr=base_lr, weight_decay=0.05),
+    optimizer=dict(type=AdamW, lr=base_lr, weight_decay=0.0005),
     paramwise_cfg=dict(norm_decay_mult=0, bias_decay_mult=0, bypass_duplicate=True),
 )
 

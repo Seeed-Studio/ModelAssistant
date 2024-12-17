@@ -1582,7 +1582,8 @@ class Mosaic(BaseMixImageTransform):
                 )
             else:
                 img_i = cv2.resize(
-                    img_i, (int(w_i * scale_ratio_i), int(h_i * scale_ratio_i)), img_i
+                    img_i,
+                    (int(w_i * scale_ratio_i), int(h_i * scale_ratio_i)),  # , img_i
                 )
 
             # compute the combine parameters
@@ -2020,7 +2021,10 @@ class MixUp(BaseMixImageTransform):
                 )
                 * self.pad_val
             )
-        padded_img[:origin_h, :origin_w] = out_img
+        if results["torch"]:
+            padded_img[:, :origin_h, :origin_w] = out_img
+        else:
+            padded_img[:origin_h, :origin_w] = out_img
         padded_img_shape = (
             padded_img.shape[1:] if results["torch"] else padded_img.shape[:2]
         )
@@ -2029,9 +2033,15 @@ class MixUp(BaseMixImageTransform):
             y_offset = random.randint(0, padded_img_shape[0] - target_h)
         if padded_img_shape[1] > target_w:
             x_offset = random.randint(0, padded_img_shape[1] - target_w)
-        padded_cropped_img = padded_img[
-            y_offset : y_offset + target_h, x_offset : x_offset + target_w
-        ]
+
+        if results["torch"]:
+            padded_cropped_img = padded_img[
+                :, y_offset : y_offset + target_h, x_offset : x_offset + target_w
+            ]
+        else:
+            padded_cropped_img = padded_img[
+                y_offset : y_offset + target_h, x_offset : x_offset + target_w
+            ]
 
         # 6. adjust bbox
         retrieve_gt_bboxes = retrieve_results["gt_bboxes"]
@@ -2153,6 +2163,6 @@ class Bbox2FomoMask(BaseTransform):
         for idx, i in enumerate(bboxs):
             w = int(i.centers[0][0] / ori_shape[0] * W)
             h = int(i.centers[0][1] / ori_shape[1] * H)
-            target_data[0, h-1, w-1, 0] = 0  # background
-            target_data[0, h-1, w-1, int(labels[idx] + 1)] = 1  # label
+            target_data[0, h - 1, w - 1, 0] = 0  # background
+            target_data[0, h - 1, w - 1, int(labels[idx] + 1)] = 1  # label
         return target_data
