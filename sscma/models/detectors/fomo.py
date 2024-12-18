@@ -101,7 +101,7 @@ class Fomo(SingleStageDetector):
         """
         x = self.extract_feat(batch_inputs)
         results = self.bbox_head.forward(x)
-        return torch.softmax(results[0].permute(0, 2, 3, 1), dim=-1)
+        return results[0]
 
     def train_step(
         self, data: Union[dict, tuple, list], optim_wrapper: OptimWrapper
