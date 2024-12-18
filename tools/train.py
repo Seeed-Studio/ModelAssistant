@@ -36,7 +36,7 @@ def parse_args():
     parser.add_argument(
         "--work_dir",
         "--work-dir",
-        default="work_dirs",
+        default=None,
         help="the dir to save logs and models",
     )
     parser.add_argument(
@@ -80,7 +80,7 @@ def main():
     elif cfg.get("work_dir", None) is None:
         # use config filename as default work_dir if cfg.work_dir is None
         cfg.work_dir = osp.join(
-            "./work_dirs", osp.splitext(osp.basename(args.config))[0]
+            "work_dirs", osp.splitext(osp.basename(args.config))[0]
         )
 
     # enable automatic-mixed-precision training

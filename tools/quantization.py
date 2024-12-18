@@ -147,7 +147,7 @@ def main():
     elif cfg.get("work_dir", None) is None:
         # use config filename as default work_dir if cfg.work_dir is None
         cfg.work_dir = osp.join(
-            "./work_dirs", osp.splitext(osp.basename(args.config))[0]
+            "work_dirs", osp.splitext(osp.basename(args.config))[0]
         )
     # load hook config
     cfg.custom_hooks = [
@@ -181,6 +181,11 @@ def main():
         model, torch.randn(1, 3, imgsz[0], imgsz[1]), get_device()
     )
 
+    qat_path = os.path.join(cfg.work_dir, "qat")
+    if os.path.exists(qat_path):
+        if sys.platform == "linux":
+            os.system(f"rm -rf {qat_path}")
+
     # init quant model
     with model_tracer():
         model.to("cpu")
@@ -189,10 +194,11 @@ def main():
         quantizer = QATQuantizer(
             model,
             dummy_input,
-            work_dir="out",
+            work_dir=os.path.join(cfg.work_dir, "qat"),
             config={
                 "asymmetric": True,
                 "force_overwrite": True,
+                "is_input_quantized":None,
                 "per_tensor": False,
                 "disable_requantization_for_cat": True,
                 "override_qconfig_func": set_ptq_fake_quantize,
@@ -201,6 +207,7 @@ def main():
         ptq_model = quantizer.quantize()
 
         quantizer.optimize_conv_bn_fusion(ptq_model)
+
 
     q_model = MODELS.build(cfg.quantizer_config)
     q_model.set_model(ptq_model)
@@ -217,16 +224,16 @@ def main():
 
     # export to tflite
     with torch.no_grad():
-        ptq_model.eval()
-
+        
         # The step below converts the model to an actual quantized model, which uses the quantized kernels.
         ptq_model.cpu()
+        ptq_model.eval()
         ptq_model = quantizer.convert(ptq_model, backend="qnnpack")
 
         tf_converter = TFLiteConverter(
             ptq_model,
-            torch.randn(3, 3, imgsz[0], imgsz[1]),
-            tflite_path="out/qat_model_test.tflite",
+            torch.randn(1, 3, imgsz[0], imgsz[1]),
+            tflite_path=osp.join(qat_path, "qat_model_int8.tflite"),
             fuse_quant_dequant=True,
             quantize_target_type="int8",
         )

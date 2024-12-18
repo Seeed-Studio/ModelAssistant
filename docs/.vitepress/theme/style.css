@@ -84,3 +84,9 @@
 .DocSearch {
     --docsearch-primary-color: var(--vp-c-brand) !important;
 }
+
+
+.mermaid {
+    display: flex;
+    justify-content: center;
+}

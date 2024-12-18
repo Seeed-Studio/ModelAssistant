@@ -320,6 +320,8 @@ class CocoDataset(BaseDetDataset):
             self.ann_file, backend_args=self.backend_args
         ) as local_path:
             self.coco = self.COCOAPI(local_path)
+            
+        self._metainfo["classes"] = set([cat["name"] for cat in self.coco.cats.values()]) if len(self.coco.cats.values()) > 0 else self.METAINFO["classes"]
         # The order of returned `cat_ids` will not
         # change with the order of the `classes`
         self.cat_ids = self.coco.get_cat_ids(cat_names=self.metainfo["classes"])

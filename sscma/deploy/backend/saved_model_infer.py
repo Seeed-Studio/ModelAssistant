@@ -1,12 +1,14 @@
 import os.path as osp
 
-import tensorflow as tf
 import torch
 
 from .base_infer import BaseInfer
 
+from sscma.utils import lazy_import
+
 
 class SavedModelInfer(BaseInfer):
+    @lazy_import("tensorflow","tf")
     def __init__(self, weights="sscma.pb", device=torch.device("cpu")):
         super().__init__(weights=weights, device=device)
         self.model = None

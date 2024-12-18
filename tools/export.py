@@ -11,6 +11,8 @@ from mmengine.config import Config, DictAction
 from mmengine.runner import Runner
 from mmengine.evaluator import DumpResults
 
+from sscma.utils import lazy_import
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="test (and eval) a model")
@@ -227,6 +229,11 @@ def main():
         runner.test_evaluator.metrics.append(DumpResults(out_file_path=args.out))
 
 
+@lazy_import("onnx2tf", install_only=True)
+@lazy_import("tf-keras", install_only=True)
+@lazy_import("onnx-graphsurgeon", install_only=True)
+@lazy_import("sng4onnx", install_only=True)
+@lazy_import("onnxsim", install_only=True)
 def export_savemodel(onnx_file, calibration_data=None):
     # onnx convert to pb
     from onnx2tf import onnx2tf
@@ -259,6 +266,8 @@ def export_torchscript(model, args):
     torch.jit.save(script_model, f)
 
 
+@lazy_import("onnx")
+@lazy_import("onnxsim", install_only=True)
 def export_onnx(model, args):
     import onnx
 
@@ -334,13 +343,15 @@ def export_hailo(onnx_path: str, arch: str, img_shape, cfg, img_path):
         f.write(hef)
 
 
+@lazy_import("tensorflow")
 def export_tflite(onnx_path: str, img_shape, img_path):
     import os.path as osp
     import cv2
     from tqdm.std import tqdm
     import tensorflow as tf
 
-    tflite_path = f"{osp.splitext(onnx_path)[0]}_int8.tflite"
+    file_stem = osp.splitext(osp.basename(onnx_path))[0]
+    tflite_path = osp.join(osp.dirname(onnx_path), f"{file_stem}_int8.tflite")
     # pb convert to tflite
     converter = tf.lite.TFLiteConverter.from_saved_model(osp.dirname(onnx_path))
 
@@ -374,7 +385,7 @@ def export_tflite(onnx_path: str, img_shape, img_path):
 
     return tflite_path
 
-
+@lazy_import('ethos-u-vela', install_only=True)
 def export_vela(tflite_path: str, verify=False):
     # tflite convert to vela.tflite
     cmd = f"vela \

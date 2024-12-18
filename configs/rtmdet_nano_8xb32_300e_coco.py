@@ -22,6 +22,7 @@ from sscma.engine import PipelineSwitchHook
 from sscma.models import ExpMomentumEMA
 from sscma.quantizer import RtmdetQuantModel
 
+
 d_factor = 0.33
 w_factor = 0.25
 
@@ -48,6 +49,7 @@ model.update(
     )
 )
 
+
 model["bbox_head"].update(train_cfg=model["train_cfg"])
 model["bbox_head"].update(test_cfg=model["test_cfg"])
 quantizer_config = dict(
@@ -55,7 +57,6 @@ quantizer_config = dict(
     bbox_head=model["bbox_head"],
     data_preprocessor=model["data_preprocessor"],  # data_preprocessor,
 )
-
 train_pipeline = [
     dict(
         type=LoadImageFromFile,

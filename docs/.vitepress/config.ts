@@ -1,9 +1,12 @@
 import { defineConfig } from 'vitepress'
 
+import { withMermaid } from 'vitepress-plugin-mermaid'
+
 import en_US from './locales/en_US'
 import zh_CN from './locales/zh_CN'
 
-export default defineConfig({
+
+export default withMermaid(defineConfig({
     base: '/',
     title: 'SSCMA',
     lastUpdated: true,
@@ -46,4 +49,4 @@ export default defineConfig({
             { icon: 'github', link: 'https://github.com/Seeed-Studio/ModelAssistant' }
         ]
     }
-})
+}))

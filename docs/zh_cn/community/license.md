@@ -1,6 +1,7 @@
-# Copyrights and Licenses
+# 开源许可
 
-[SSCMA](https://github.com/Seeed-Studio/ModelAssistant)  采用 [Apache 2.0 开源许可证](https://github.com/Seeed-Studio/ModelAssistant/blob/main/LICENSE)。
+[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 采用 [Apache 2.0 开源许可证](https://github.com/Seeed-Studio/ModelAssistant/blob/main/LICENSE)。
+
 
 ```
                                  Apache License

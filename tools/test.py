@@ -17,6 +17,7 @@ from sscma.deploy.backend import (
     HailoInfer,
 )
 from sscma.deploy.utils import model_type
+from sscma.utils import lazy_import
 
 
 def parse_args():
@@ -71,6 +72,7 @@ def parse_args():
     return args
 
 
+@lazy_import("tensorflow") # TODO: move it to components
 def main():
     args = parse_args()
 
