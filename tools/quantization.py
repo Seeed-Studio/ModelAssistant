@@ -150,6 +150,7 @@ def main():
             "work_dirs", osp.splitext(osp.basename(args.config))[0]
         )
     # load hook config
+    from sscma.engine.hooks import QuantizerSwitchHook
     cfg.custom_hooks = [
         dict(
             type="QuantizerSwitchHook",

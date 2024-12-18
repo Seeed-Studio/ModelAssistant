@@ -8,7 +8,7 @@ Before using the VAE model for anomaly detection, manual data collection is requ
 
 ### Compile Firmware
 
-First, you need to compile the ESP32 firmware. You can refer to [ESP32 Compile Firmware](../../hardware/esp32/compile_firmware.md).
+First, you need to compile the ESP32 firmware. You can refer to [ESP32 Compile Firmware](../deploy/xiao_esp32s3).
 
 We provide the source code for data collection, which you can access at [SSCMA Example ESP32 - GADNN](https://github.com/Seeed-Studio/sscma-example-esp32/blob/dev/examples/gyro_anomaly_detection_nn/main/app_main.cpp) to get the source code.
 

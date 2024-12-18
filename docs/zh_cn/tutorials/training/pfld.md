@@ -69,7 +69,7 @@ conda activate sscma
 ```sh
 python3 tools/export.py \
     configs/pfld/pfld_mbv2_1000e.py \
-    work_dirs/epoch_100.pth \
+    work_dirs/pfld_mbv2_1000e/epoch_100.pth \
     --cfg-options \
     data_root=$(pwd)/datasets/meter/ \
     val_workers=2 \
@@ -116,7 +116,7 @@ wget https://github.com/PINTO0309/onnx2tf/releases/download/1.20.4/calibration_i
 ```sh
 python3 tools/test.py \
     configs/pfld/pfld_mbv2_1000e.py \
-    work_dirs/epoch_100_int8.tflite \
+    work_dirs/pfld_mbv2_1000e/epoch_100_int8.tflite \
     --cfg-options \
     data_root=$(pwd)/datasets/meter/ \
     val_workers=2 
@@ -129,19 +129,19 @@ QAT（量化感知训练）是一种在模型训练过程中模拟量化操作�
 ```sh
 python3 tools/quantization.py \
     configs/pfld/pfld_mbv2_1000e.py \
-    work_dirs/epoch_100.pth \
+    work_dirs/pfld_mbv2_1000e/epoch_100.pth \
     --cfg-options \
     data_root=$(pwd)/datasets/meter/ \
-    epochs=100 \
+    epochs=5 \
     val_workers=2
 ```
 
-QAT 训练完毕后，会自动导出量化后的模型，其存放路径为 `out/qat_model_test.tflite`，您可以使用以下命令对其进行验证：
+QAT 训练完毕后，会自动导出量化后的模型，您可以使用以下命令对其进行验证：
 
 ```sh
 python3 tools/test.py \
     configs/pfld/pfld_mbv2_1000e.py \
-    out/qat_model_test.tflite \
+    work_dirs/rtmdet_nano_8xb32_300e_coco/qat/qat_model_int8.tflite \
     --cfg-options \
     data_root=$(pwd)/datasets/meter/ \
     val_workers=2  

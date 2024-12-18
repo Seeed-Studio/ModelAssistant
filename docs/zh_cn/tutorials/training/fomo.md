@@ -13,15 +13,16 @@
 SSCMA 提供了多种不同的 FOMO 模型配置，您可以根据自己的需求选择合适的模型进行训练。
 
 ```sh
-fomo_mobnetv2_0.35_abl_coco.py
+fomo_mobnetv2_0.1_x8_coco.py
+fomo_mobnetv2_0.35_x8_coco.py
 fomo_mobnetv2_1_x16_coco.py
 ```
 
-在此我们以 `fomo_mobnetv2_0.35_abl_coco.py` 为例，展示如何使用 SSCMA 进行 FOMO 模型训练。
+在此我们以 `fomo_mobnetv2_0.35_x8_coco.py` 为例，展示如何使用 SSCMA 进行 FOMO 模型训练。
 
 ```sh
 python3 tools/train.py \
-    configs/fomo/fomo_mobnetv2_0.35_abl_coco.py \
+    configs/fomo/fomo_mobnetv2_0.35_x8_coco.py \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
@@ -34,7 +35,7 @@ python3 tools/train.py \
     width=192
 ```
 
-- `configs/fomo/fomo_mobnetv2_0.35_abl_coco.py`: 指定配置文件，定义模型和训练设置。
+- `configs/fomo/fomo_mobnetv2_0.35_x8_coco.py`: 指定配置文件，定义模型和训练设置。
 - `--cfg-options`: 用于指定额外的配置选项。
     - `data_root`: 设定数据集的根目录。
     - `num_classes`: 指定模型需要识别的类别数量。
@@ -44,13 +45,13 @@ python3 tools/train.py \
     - `val_data`: 指定验证图像的前缀路径。
     - `epochs`: 设置训练的最大周期数。
 
-等待训练结束后，您可以在 `work_dirs/fomo_mobnetv2_0.35_abl_coco` 目录下找到训练好的模型，在查找模型前，我们建议先关注训练结果。以下是对结果的分析以及一些改进方向。
+等待训练结束后，您可以在 `work_dirs/fomo_mobnetv2_0.35_x8_coco` 目录下找到训练好的模型，在查找模型前，我们建议先关注训练结果。以下是对结果的分析以及一些改进方向。
 
 
 :::details
 
 ```sh
-12/16 04:32:12 - mmengine - INFO - Epoch(val) [100][6/6]    P: 0.0000  R: 0.0000  F1: 0.0000  data_time: 0.0664  time: 0.0796
+12/18 01:47:05 - mmengine - INFO - Epoch(val) [50][6/6]    P: 0.2545  R: 0.4610  F1: 0.3279  data_time: 0.0644  time: 0.0798
 ```
 
 F1 综合了精确率（Precision）和召回率（Recall）两个指标，旨在提供一个单一的数字来衡量模型的整体性能,F1 分数的值范围在 0 到 1 之间，值越高表示模型的精确率和召回率都越高，性能越好。当模型的精确率和召回率相等时，F1 分数达到最大值。
@@ -67,8 +68,8 @@ F1 综合了精确率（Precision）和召回率（Recall）两个指标，旨�
 
 ```sh
 python3 tools/export.py \
-    configs/fomo/fomo_mobnetv2_0.35_abl_coco.py \
-    work_dirs/epoch_50.pth \
+    configs/fomo/fomo_mobnetv2_0.35_x8_coco.py \
+    work_dirs/fomo_mobnetv2_0.35_x8_coco/epoch_50.pth \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
@@ -119,15 +120,17 @@ wget https://github.com/PINTO0309/onnx2tf/releases/download/1.20.4/calibration_i
 
 ```sh
 python3 tools/test.py \
-    configs/fomo/fomo_mobnetv2_0.35_abl_coco.py \
-    work_dirs/epoch_50_int8.tflite \
+    configs/fomo/fomo_mobnetv2_0.35_x8_coco.py \
+    work_dirs/fomo_mobnetv2_0.35_x8_coco/epoch_50_int8.tflite \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
     train_ann=train/_annotations.coco.json \
     val_ann=valid/_annotations.coco.json \
     train_data=train/ \
-    val_data=valid/ 
+    val_data=valid/ \
+    height=192 \
+    width=192
 ```
 
 ### QAT
@@ -136,8 +139,8 @@ QAT（量化感知训练）是一种在模型训练过程中模拟量化操作�
 
 ```sh
 python3 tools/quantization.py \
-    configs/fomo/fomo_mobnetv2_0.35_abl_coco.py \
-    work_dirs/epoch_50.pth \
+    configs/fomo/fomo_mobnetv2_0.35_x8_coco.py \
+    work_dirs/fomo_mobnetv2_0.35_x8_coco/epoch_50.pth \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
@@ -145,23 +148,25 @@ python3 tools/quantization.py \
     val_ann=valid/_annotations.coco.json \
     train_data=train/ \
     val_data=valid/ \
-    epochs=50 \
+    epochs=5 \
     height=192 \
     width=192
 ```
 
-QAT 训练完毕后，会自动导出量化后的模型，其存放路径为 `out/qat_model_test.tflite`，您可以使用以下命令对其进行验证：
+QAT 训练完毕后，会自动导出量化后的模型，您可以使用以下命令对其进行验证：
 
 ```sh
 python3 tools/test.py \
-    configs/fomo/fomo_mobnetv2_0.35_abl_coco.py \
-    out/qat_model_test.tflite \
+    configs/fomo/fomo_mobnetv2_0.35_x8_coco.py \
+    work_dirs/fomo_mobnetv2_0.35_x8_coco/qat/qat_model_int8.tflite \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
     train_ann=train/_annotations.coco.json \
     val_ann=valid/_annotations.coco.json \
     train_data=train/ \
-    val_data=valid/ 
+    val_data=valid/ \
+    height=192 \
+    width=192
 ```
 

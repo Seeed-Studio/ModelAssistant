@@ -11,15 +11,16 @@ Before training the FOMO model, we need to prepare the dataset. Here, we take th
 SSCMA offers various FOMO model configurations, and you can choose the appropriate model for training based on your needs.
 
 ```sh
-fomo_mobnetv2_0.35_abl_coco.py
+fomo_mobnetv2_0.1_x8_coco.py
+fomo_mobnetv2_0.35_x8_coco.py
 fomo_mobnetv2_1_x16_coco.py
 ```
 
-Here, we take `fomo_mobnetv2_0.35_abl_coco.py` as an example to show how to use SSCMA for FOMO model training.
+Here, we take `fomo_mobnetv2_0.35_x8_coco.py` as an example to show how to use SSCMA for FOMO model training.
 
 ```sh
 python3 tools/train.py \
-    configs/fomo/fomo_mobnetv2_0.35_abl_coco.py \
+    configs/fomo/fomo_mobnetv2_0.35_x8_coco.py \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
@@ -32,7 +33,7 @@ python3 tools/train.py \
     width=192
 ```
 
-- `configs/fomo/fomo_mobnetv2_0.35_abl_coco.py`: Specifies the configuration file, defining the model and training settings.
+- `configs/fomo/fomo_mobnetv2_0.35_x8_coco.py`: Specifies the configuration file, defining the model and training settings.
 - `--cfg-options`: Used to specify additional configuration options.
     - `data_root`: Sets the root directory of the dataset.
     - `num_classes`: Specifies the number of categories the model needs to recognize.
@@ -42,12 +43,12 @@ python3 tools/train.py \
     - `val_data`: Specifies the prefix path for validation images.
     - `epochs`: Sets the maximum number of training epochs.
 
-After the training is complete, you can find the trained model in the `work_dirs/fomo_mobnetv2_0.35_abl_coco` directory. Before looking for the model, we suggest focusing on the training results first. Below is an analysis of the results and some suggestions for improvement.
+After the training is complete, you can find the trained model in the `work_dirs/fomo_mobnetv2_0.35_x8_coco` directory. Before looking for the model, we suggest focusing on the training results first. Below is an analysis of the results and some suggestions for improvement.
 
 :::details
 
 ```sh
-12/16 04:32:12 - mmengine - INFO - Epoch(val) [100][6/6]    P: 0.0000  R: 0.0000  F1: 0.0000  data_time: 0.0664  time: 0.0796
+12/18 01:47:05 - mmengine - INFO - Epoch(val) [50][6/6]    P: 0.2545  R: 0.4610  F1: 0.3279  data_time: 0.0644  time: 0.0798
 ```
 
 The F1 score combines the precision and recall metrics, aiming to provide a single number to measure the overall performance of the model. The F1 score ranges from 0 to 1, with higher values indicating higher precision and recall, and better performance. The F1 score reaches its maximum value when the precision and recall of the model are equal.
@@ -64,8 +65,8 @@ Here, we take exporting the TFLite model as an example. You can use the followin
 
 ```sh
 python3 tools/export.py \
-    configs/fomo/fomo_mobnetv2_0.35_abl_coco.py \
-    work_dirs/epoch_50.pth \
+    configs/fomo/fomo_mobnetv2_0.35_x8_coco.py \
+    work_dirs/fomo_mobnetv2_0.35_x8_coco/epoch_50.pth \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
@@ -115,15 +116,17 @@ After exporting the model, you can use the following command to verify its perfo
 
 ```sh
 python3 tools/test.py \
-    configs/fomo/fomo_mobnetv2_0.35_abl_coco.py \
-    work_dirs/epoch_50_int8.tflite \
+    configs/fomo/fomo_mobnetv2_0.35_x8_coco.py \
+    work_dirs/fomo_mobnetv2_0.35_x8_coco/epoch_50_int8.tflite \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
     train_ann=train/_annotations.coco.json \
     val_ann=valid/_annotations.coco.json \
     train_data=train/ \
-    val_data=valid/
+    val_data=valid/ \
+    height=192 \
+    width=192
 ```
 
 ### QAT
@@ -132,8 +135,8 @@ QAT (Quantization-Aware Training) is a method that simulates quantization operat
 
 ```sh
 python3 tools/quantization.py \
-    configs/fomo/fomo_mobnetv2_0.35_abl_coco.py \
-    work_dirs/epoch_50.pth \
+    configs/fomo/fomo_mobnetv2_0.35_x8_coco.py \
+    work_dirs/fomo_mobnetv2_0.35_x8_coco/epoch_50.pth \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
@@ -141,22 +144,24 @@ python3 tools/quantization.py \
     val_ann=valid/_annotations.coco.json \
     train_data=train/ \
     val_data=valid/ \
-    epochs=50 \
+    epochs=5 \
     height=192 \
     width=192
 ```
 
-After QAT training, the quantized model will be automatically exported, and its storage path will be `out/qat_model_test.tflite`. You can use the following command to verify it:
+After QAT training, the quantized model will be automatically exported. You can use the following command to verify it:
 
 ```sh
 python3 tools/test.py \
-    configs/fomo/fomo_mobnetv2_0.35_abl_coco.py \
-    out/qat_model_test.tflite \
+    configs/fomo/fomo_mobnetv2_0.35_x8_coco.py \
+    work_dirs/fomo_mobnetv2_0.35_x8_coco/qat/qat_model_int8.tflite \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
     train_ann=train/_annotations.coco.json \
     val_ann=valid/_annotations.coco.json \
     train_data=train/ \
-    val_data=valid/
+    val_data=valid/ \
+    height=192 \
+    width=192
 ```
