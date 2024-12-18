@@ -1,6 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from mmengine.dataset.sampler import DefaultSampler
-from sscma.datasets import CocoDataset, coco_collate, BatchShapePolicy
+from sscma.datasets import CocoDataset, coco_collate, BatchShapePolicy,CustomFomoCocoDataset
 from sscma.datasets.transforms import (
     LoadAnnotations,
     PackDetInputs,
@@ -11,7 +11,7 @@ from sscma.datasets.transforms import (
 from sscma.evaluation import CocoMetric
 
 # dataset settings
-dataset_type = CocoDataset
+dataset_type = CustomFomoCocoDataset
 data_root = "datasets/coco/"
 train_ann_file = "annotations/instances_train2017.json"
 val_ann_file = "annotations/instances_val2017.json"
