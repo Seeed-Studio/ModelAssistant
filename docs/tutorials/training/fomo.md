@@ -149,7 +149,7 @@ python3 tools/quantization.py \
     width=192
 ```
 
-After QAT training, the quantized model will be automatically exported, and its storage path will be `out/qat_model_test.tflite`. You can use the following command to verify it:
+After QAT training, the quantized model will be automatically exported. You can use the following command to verify it:
 
 ```sh
 python3 tools/test.py \

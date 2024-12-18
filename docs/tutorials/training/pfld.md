@@ -66,7 +66,7 @@ Here, we take exporting the TFLite model as an example. You can use the followin
 ```sh
 python3 tools/export.py \
     configs/pfld/pfld_mbv2_1000e.py \
-    work_dirs/epoch_100.pth \
+    work_dirs/pfld_mbv2_1000e/epoch_100.pth \
     --cfg-options \
     data_root=$(pwd)/datasets/meter/ \
     val_workers=2 \
@@ -112,7 +112,7 @@ After exporting the model, you can use the following command to verify its perfo
 ```sh
 python3 tools/test.py \
     configs/pfld/pfld_mbv2_1000e.py \
-    work_dirs/epoch_100_int8.tflite \
+    work_dirs/pfld_mbv2_1000e/epoch_100_int8.tflite \
     --cfg-options \
     data_root=$(pwd)/datasets/meter/ \
     val_workers=2 
@@ -125,19 +125,19 @@ QAT (Quantization-Aware Training) is a method that simulates quantization operat
 ```sh
 python3 tools/quantization.py \
     configs/pfld/pfld_mbv2_1000e.py \
-    work_dirs/epoch_100.pth \
+    work_dirs/pfld_mbv2_1000e/epoch_100.pth \
     --cfg-options \
     data_root=$(pwd)/datasets/meter/ \
-    epochs=100 \
+    epochs=5 \
     val_workers=2
 ```
 
-After QAT training, the quantized model will be automatically exported, and its storage path will be `out/qat_model_test.tflite`. You can use the following command to verify it:
+After QAT training, the quantized model will be automatically exported. You can use the following command to verify it:
 
 ```sh
 python3 tools/test.py \
     configs/pfld/pfld_mbv2_1000e.py \
-    out/qat_model_test.tflite \
+    work_dirs/rtmdet_nano_8xb32_300e_coco/qat/qat_model_int8.tflite \
     --cfg-options \
     data_root=$(pwd)/datasets/meter/ \
     val_workers=2  

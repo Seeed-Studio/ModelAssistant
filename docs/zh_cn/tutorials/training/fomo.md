@@ -153,7 +153,7 @@ python3 tools/quantization.py \
     width=192
 ```
 
-QAT 训练完毕后，会自动导出量化后的模型，其存放路径为 `out/qat_model_test.tflite`，您可以使用以下命令对其进行验证：
+QAT 训练完毕后，会自动导出量化后的模型，您可以使用以下命令对其进行验证：
 
 ```sh
 python3 tools/test.py \
