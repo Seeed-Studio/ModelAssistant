@@ -1,5 +1,5 @@
 import copy
-
+import numpy as np
 import torch
 
 from mmengine import MODELS
@@ -59,8 +59,8 @@ class FomoInfer(BaseModel):
             )
 
     def _predict(self, inputs: torch.Tensor, batch_data_samples=None):
-        data = self.func.infer(inputs)[0]
-        data = [torch.from_numpy(data[0])]
+        data = self.func.infer(inputs)
+        data = [torch.from_numpy(np.concatenate([d[0] for d in data],axis=0))]
         resutlts_dict = self.pred_head.predict_by_feat(data, batch_data_samples)
 
         for data_sample, pred_instances in zip(batch_data_samples, resutlts_dict):

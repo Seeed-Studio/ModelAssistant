@@ -22,6 +22,7 @@ from torch.optim import Adam
 from sscma.evaluation import PointMetric
 from mmengine.dataset import default_collate
 from sscma.deploy.models.pfld_infer import PFLDInfer
+from sscma.quantizer.models import PFLDQuantModel
 
 # ========================Suggested optional parameters========================
 # MODEL
@@ -47,7 +48,7 @@ imgsz = (width, height)
 batch = 32
 workers = 4
 val_batch = 32
-val_workers = 1000
+val_workers = 10
 lr = 0.0001
 epochs = 1000
 weight_decay = 1e-6
@@ -77,6 +78,11 @@ model = dict(
 
 deploy = dict(
     type=PFLDInfer,
+)
+
+quantizer_config = dict(
+    type=PFLDQuantModel,
+    loss_cfg=dict(type=PFLDLoss),
 )
 
 train_pipeline = [

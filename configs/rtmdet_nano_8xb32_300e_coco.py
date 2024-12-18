@@ -20,13 +20,14 @@ from sscma.datasets.transforms import (
 
 from sscma.engine import PipelineSwitchHook
 from sscma.models import ExpMomentumEMA
+from sscma.quantizer import RtmdetQuantModel
 
 d_factor = 0.33
 w_factor = 0.25
 
 imgsz = (320, 320)
 
-max_epochs = 120
+epochs = 120
 stage2_num_epochs = 50
 
 
@@ -45,6 +46,14 @@ model.update(
         ),
         bbox_head=dict(head_module=dict(widen_factor=w_factor, share_conv=False)),
     )
+)
+
+model["bbox_head"].update(train_cfg=model["train_cfg"])
+model["bbox_head"].update(test_cfg=model["test_cfg"])
+quantizer_config = dict(
+    type=RtmdetQuantModel,
+    bbox_head=model["bbox_head"],
+    data_preprocessor=model["data_preprocessor"],  # data_preprocessor,
 )
 
 train_pipeline = [
@@ -105,7 +114,7 @@ custom_hooks = [
     ),
     dict(
         type=PipelineSwitchHook,
-        switch_epoch=max_epochs - stage2_num_epochs,
+        switch_epoch=epochs - stage2_num_epochs,
         switch_pipeline=train_pipeline_stage2,
     ),
     # dict(

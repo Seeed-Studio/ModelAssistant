@@ -9,6 +9,7 @@ from torch.nn import MSELoss
 from sscma.datasets import Microphone_dataset
 from sscma.evaluation import MseMetric
 from sscma.deploy.models.anomaly_infer import AnomalyInfer
+from sscma.quantizer.models import AnomalyQuantModel
 
 dataset_type = Microphone_dataset
 
@@ -16,6 +17,7 @@ data_root = "./datasets"
 train_data_prefix = "train"
 val_data_prefix = "val"
 
+epochs=100
 imgsz = (32, 32)
 batch_size = 1
 
@@ -37,7 +39,9 @@ model = model = dict(
 
 
 deploy = dict(type=AnomalyInfer)
-
+quantizer_config=dict(
+    type=AnomalyQuantModel,
+)
 
 train_dataloader = dict(
     batch_size=batch_size,
@@ -57,7 +61,7 @@ val_dataloader = dict(
 )
 test_dataloader = val_dataloader
 
-train_cfg = dict(by_epoch=True, max_epochs=100)
+train_cfg = dict(by_epoch=True, max_epochs=epochs)
 val_cfg = dict()
 test_cfg = dict()
 
