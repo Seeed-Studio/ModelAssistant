@@ -32,29 +32,25 @@ class FomoQuantizer(BaseModel):
     ):
         if isinstance(inputs, list):
             inputs = torch.stack(inputs, dim=0).to(self.data_preprocessor.device)
-        if True:
-            if inputs.dtype == torch.uint8:
-                inputs = inputs / 255
-            if inputs.dtype == torch.int8:
-                inputs = inputs / 128
+       
+        if inputs.dtype == torch.uint8:
+            inputs = inputs / 255
+        elif inputs.dtype == torch.int8:
+            inputs = inputs / 128
+
         if mode == "loss":
             pred = self._model(inputs)
             gt = unpack_gt_instances(data_samples)
             (batch_gt_instances, batch_gt_instances_ignore, batch_img_metas) = gt
             loss = self.head.loss_by_feat(
-                [pred.permute(0, 3, 1, 2)],
+                [pred],
                 batch_gt_instances,
                 batch_img_metas,
                 batch_gt_instances_ignore,
             )
             return loss
         elif mode == "predict":
-            preds = self._model(inputs)
-            preds = (
-                torch.stack([F.softmax(pred, dim=1) for pred in preds]).permute(
-                    0, 3, 1, 2
-                ),
-            )
+            preds = self._model(inputs).unsqueeze(0)
             results_list = self.head.predict_by_feat(preds, data_samples)
             for data_sample, pred_instances in zip(data_samples, results_list):
                 data_sample.pred_instances = pred_instances

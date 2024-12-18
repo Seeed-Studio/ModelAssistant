@@ -30,7 +30,7 @@ from torch.nn import ReLU6, BCEWithLogitsLoss, ReLU
 
 from torch.optim import Adam, SGD
 from sscma.evaluation import FomoMetric
-from sscma.quantizer.models import FomoQuantizer
+from sscma.quantizer import FomoQuantizer
 
 # ========================Suggested optional parameters========================
 # MODEL
@@ -102,6 +102,12 @@ model = dict(
         loss_bg=dict(type=BCEWithLogitsLoss, reduction="none"),
     ),
     skip_preprocessor=True,
+)
+
+quantizer_config = dict(
+    type=FomoQuantizer,
+    head=model['head'],
+    data_preprocessor=model['data_preprocessor'],
 )
 
 deploy = dict(
