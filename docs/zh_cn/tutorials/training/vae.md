@@ -8,7 +8,7 @@
 
 ### 编译固件
 
-首先需要编译 ESP32 的固件，可以参考 [ESP32 编译固件](../../hardware/esp32/compile_firmware.md)。
+首先需要编译 ESP32 的固件，可以参考 [SSCMA - 在 Espressif 芯片上部署模型](../deploy/xiao_esp32s3)。
 
 我们提供了用于数据采集的源码，您可以访问 [SSCMA Example ESP32 - GADNN](https://github.com/Seeed-Studio/sscma-example-esp32/blob/dev/examples/gyro_anomaly_detection_nn/main/app_main.cpp) 获取源码。
 

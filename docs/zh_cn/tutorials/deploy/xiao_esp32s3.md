@@ -1,4 +1,4 @@
-# 在 Espressif 芯片上部署 SSCMA 模型
+# 在 Espressif 芯片上部署模型
 
 本示例为 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 包含的模型在 Espreessif 芯片的部署教程，部署工作基于 [ESP-IDF](https://github.com/espressif/esp-idf) 和 [Tensorflow Lite Micro](https://github.com/tensorflow/tflite-micro) 实现。
 
@@ -14,7 +14,7 @@
 
 ### 安装 ESP-IDF
 
-[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 包含的模型在 ESP32 的部署需要 ESP-IDF `4.4.x`，请参考以下教程 [ESP-IDF Get Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html)，安装配置工具链和 ESP-IDF。
+[SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 包含的模型在 ESP32 的部署需要 ESP-IDF `5.1.x`，请参考以下教程 [ESP-IDF Get Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html)，安装配置工具链和 ESP-IDF。
 
 在成功 ESP-IDF 安装后，请再次确认[配置 IDF 环境变量](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html#step-4-set-up-the-environment-variables)是否完成:
 
@@ -56,11 +56,7 @@ popd
 
 在开始编译和部署之前，您需要先根据实际应用场景，准备好需要部署的模型。因此，您可能需要经历模型或神经网络的选择、自定义数据集、导出或转换模型等步骤。
 
-为了让您更有条理地理解该过程，我们针对不同的应用场景编写了完整的文档:
-
-- [**ESP32 口罩检测**](./mask_detection)
-
-- [**ESP32 表计读数**](./meter_reader)
+为了让您更有条理地理解该过程，我们针对不同的应用场景编写了完整的文档 [SSCMA - 模型训练与导出](../training/overview.md)。
 
 :::warning
 
@@ -72,10 +68,10 @@ popd
 
 ### 编译例程
 
-1. 进入 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 项目的根目录，运行以下命令进入示例目录 `examples/esp32`:
+1. 进入 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 项目的根目录，运行以下命令进入示例目录 `examples`:
 
 ```sh
-cd examples/esp32 # SSCMA/examples/esp32
+cd examples/<examples>
 ```
 
 2. 设置 `IDF_TARGET` 为 `esp32s3`:
