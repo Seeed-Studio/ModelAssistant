@@ -76,7 +76,7 @@ train_cfg.update(
 # optimizer
 optim_wrapper = dict(
     type=OptimWrapper,
-    optimizer=dict(type=AdamW, lr=base_lr, weight_decay=0.0005),
+    optimizer=dict(type=AdamW, lr=base_lr, weight_decay=0.05),
     paramwise_cfg=dict(norm_decay_mult=0, bias_decay_mult=0, bypass_duplicate=True),
 )
 

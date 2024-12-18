@@ -79,6 +79,11 @@ deploy = dict(
     type=PFLDInfer,
 )
 
+quantizer_config = dict(
+    type=PFLDQuantModel,
+    loss_cfg=dict(type=PFLDLoss),
+)
+
 
 train_pipeline = [
     dict(type=Resize, height=imgsz[1], width=imgsz[0], interpolation=0),

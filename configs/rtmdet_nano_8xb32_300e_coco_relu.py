@@ -42,7 +42,7 @@ from sscma.models import (
 )
 from sscma.visualization import DetLocalVisualizer
 from sscma.deploy.models import RTMDetInfer
-
+from sscma.quantizer import RtmdetQuantModel
 
 default_hooks.visualization = dict(
     type=DetVisualizationHook, draw=True, test_out_dir="works"
@@ -54,7 +54,7 @@ d_factor = 0.33
 w_factor = 0.25
 num_classes = 80
 imgsz = (640, 640)
-max_epochs = 300
+epochs = 300
 stage2_num_epochs = 20
 base_lr = 0.0005
 interval = 10
@@ -73,8 +73,8 @@ model = dict(
     type=RTMDet,
     data_preprocessor=dict(
         type=DetDataPreprocessor,
-        mean=[103.53, 116.28, 123.675],
-        std=[57.375, 57.12, 58.395],
+        mean=[0, 0, 0],
+        std=[255, 255, 255],
         bgr_to_rgb=False,
         batch_augments=None,
     ),
@@ -147,19 +147,27 @@ deploy = dict(
     type=RTMDetInfer,
     data_preprocessor=dict(
         type=DetDataPreprocessor,
-        mean=[103.53, 116.28, 123.675],
-        std=[57.375, 57.12, 58.395],
+        mean=[0, 0, 0],
+        std=[255, 255, 255],
         bgr_to_rgb=False,
         batch_augments=None,
     ),
 )
+model["bbox_head"].update(train_cfg=model["train_cfg"])
+model["bbox_head"].update(test_cfg=model["test_cfg"])
+quantizer_config = dict(
+    type=RtmdetQuantModel,
+    bbox_head=model["bbox_head"],
+    data_preprocessor=model["data_preprocessor"],  # data_preprocessor,
+)
+imdecode_backend = "torch"
 train_pipeline = [
     dict(
         type=LoadImageFromFile,
-        imdecode_backend="pillow",
+        imdecode_backend=imdecode_backend,
         backend_args=None,
     ),
-    dict(type=LoadAnnotations, imdecode_backend="pillow", with_bbox=True),
+    dict(type=LoadAnnotations, imdecode_backend=imdecode_backend, with_bbox=True),
     dict(
         type=Mosaic,
         img_scale=imgsz,
@@ -192,10 +200,10 @@ train_pipeline = [
 train_pipeline_stage2 = [
     dict(
         type=LoadImageFromFile,
-        imdecode_backend="pillow",
+        imdecode_backend=imdecode_backend,
         backend_args=None,
     ),
-    dict(type=LoadAnnotations, imdecode_backend="pillow", with_bbox=True),
+    dict(type=LoadAnnotations, imdecode_backend=imdecode_backend, with_bbox=True),
     dict(
         type=RandomResize,
         scale=(imgsz[0] * 2, imgsz[1] * 2),
@@ -211,8 +219,8 @@ train_pipeline_stage2 = [
 ]
 
 test_pipeline = [
-    dict(type=LoadImageFromFile, backend_args=backend_args),
-    dict(type=LoadAnnotations, with_bbox=True),
+    dict(type=LoadImageFromFile,imdecode_backend=imdecode_backend, backend_args=backend_args),
+    dict(type=LoadAnnotations,imdecode_backend=imdecode_backend, with_bbox=True),
     dict(type=Resize, scale=imgsz, keep_ratio=True),
     dict(type=Pad, size=imgsz, pad_val=dict(img=(114, 114, 114))),
     dict(
@@ -267,9 +275,9 @@ test_dataloader = val_dataloader
 
 train_cfg.update(
     dict(
-        max_epochs=max_epochs,
+        max_epochs=epochs,
         val_interval=interval,
-        dynamic_intervals=[(max_epochs - stage2_num_epochs, 1)],
+        dynamic_intervals=[(epochs - stage2_num_epochs, 1)],
     )
 )
 
@@ -290,9 +298,9 @@ param_scheduler = [
         # use cosine lr from 150 to 300 epoch
         type=CosineAnnealingLR,
         eta_min=base_lr * 0.05,
-        begin=max_epochs // 2,
-        end=max_epochs,
-        T_max=max_epochs // 2,
+        begin=epochs // 2,
+        end=epochs,
+        T_max=epochs // 2,
         by_epoch=True,
         convert_to_iter_based=True,
     ),
@@ -319,7 +327,7 @@ custom_hooks = [
     ),
     dict(
         type=PipelineSwitchHook,
-        switch_epoch=max_epochs - stage2_num_epochs,
+        switch_epoch=epochs - stage2_num_epochs,
         switch_pipeline=train_pipeline_stage2,
     ),
 ]
