@@ -562,15 +562,16 @@ class RandomResize(BaseTransform):
         self,
         scale: Union[Tuple[int, int], Sequence[Tuple[int, int]]],
         ratio_range: Tuple[float, float] = None,
-        resize_type: str = "Resize",
+        resize_type: str = 'Resize',
         **resize_kwargs,
     ) -> None:
+
         self.scale = scale
         self.ratio_range = ratio_range
 
         self.resize_cfg = dict(type=resize_type, **resize_kwargs)
         # create a empty Reisize object
-        self.resize = TRANSFORMS.build({"scale": 0, **self.resize_cfg})
+        self.resize = TRANSFORMS.build({'scale': 0, **self.resize_cfg})
 
     @staticmethod
     def _random_sample(scales: Sequence[Tuple[int, int]]) -> tuple:
@@ -594,7 +595,8 @@ class RandomResize(BaseTransform):
         return scale
 
     @staticmethod
-    def _random_sample_ratio(scale: tuple, ratio_range: Tuple[float, float]) -> tuple:
+    def _random_sample_ratio(scale: tuple, ratio_range: Tuple[float,
+                                                              float]) -> tuple:
         """Private function to randomly sample a scale from a tuple.
 
         A ratio will be randomly sampled from the range specified by
@@ -630,14 +632,12 @@ class RandomResize(BaseTransform):
             assert self.ratio_range is not None and len(self.ratio_range) == 2
             scale = self._random_sample_ratio(
                 self.scale,  # type: ignore
-                self.ratio_range,
-            )
+                self.ratio_range)
         elif is_seq_of(self.scale, tuple):
             scale = self._random_sample(self.scale)  # type: ignore
         else:
-            raise NotImplementedError(
-                "Do not support sampling function " f'for "{self.scale}"'
-            )
+            raise NotImplementedError('Do not support sampling function '
+                                      f'for "{self.scale}"')
 
         return scale
 
@@ -653,14 +653,14 @@ class RandomResize(BaseTransform):
             ``gt_keypoints``, ``scale``, ``scale_factor``, ``img_shape``, and
             ``keep_ratio`` keys are updated in result dict.
         """
-        results["scale"] = self._random_scale()
-        self.resize.scale = results["scale"]
+        results['scale'] = self._random_scale()
+        self.resize.scale = results['scale']
         results = self.resize(results)
         return results
 
     def __repr__(self) -> str:
         repr_str = self.__class__.__name__
-        repr_str += f"(scale={self.scale}, "
-        repr_str += f"ratio_range={self.ratio_range}, "
-        repr_str += f"resize_cfg={self.resize_cfg})"
+        repr_str += f'(scale={self.scale}, '
+        repr_str += f'ratio_range={self.ratio_range}, '
+        repr_str += f'resize_cfg={self.resize_cfg})'
         return repr_str
