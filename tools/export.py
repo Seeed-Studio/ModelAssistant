@@ -1,6 +1,7 @@
 import os
 import os.path as osp
 import sys
+import shutil
 import argparse
 
 sys.path.insert(0, osp.dirname(osp.dirname(osp.abspath(__file__))))
@@ -137,6 +138,8 @@ def main():
     if "runner_type" not in cfg:
         # build the default runner
         runner = Runner.from_cfg(cfg)
+        shutil.rmtree(runner.log_dir, ignore_errors=True)
+        runner._log_dir = osp.dirname(args.checkpoint)
 
     # else:
     #     # build customized runner from the registry
@@ -385,7 +388,8 @@ def export_tflite(onnx_path: str, img_shape, img_path):
 
     return tflite_path
 
-@lazy_import('ethos-u-vela', install_only=True)
+
+@lazy_import("ethos-u-vela", install_only=True)
 def export_vela(tflite_path: str, verify=False):
     # tflite convert to vela.tflite
     cmd = f"vela \

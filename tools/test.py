@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import shutil
 import os.path as osp
 
 sys.path.insert(0, osp.dirname(osp.dirname(osp.abspath(__file__))))
@@ -72,7 +73,7 @@ def parse_args():
     return args
 
 
-@lazy_import("tensorflow") # TODO: move it to components
+@lazy_import("tensorflow")  # TODO: move it to components
 def main():
     args = parse_args()
 
@@ -130,6 +131,9 @@ def main():
         model.set_infer(infer_hailo, cfg)
 
     runner = Runner.from_cfg(cfg)
+    shutil.rmtree(runner.log_dir, ignore_errors=True)
+    runner._log_dir = osp.dirname(args.model)
+
     if not (backend[0] or backend[1]):
         runner.load_or_resume = lambda *args: None
         runner.model = model
