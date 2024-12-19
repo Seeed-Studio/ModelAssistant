@@ -11,20 +11,16 @@ RTMDet (Real-time Models for Object Detection) 是一个高精度、低延时的
 SSCMA 提供了多种不同的 RTMDet 模型配置，您可以根据自己的需求选择合适的模型进行训练。
 
 ```sh
-rtmdet_l_8xb32_300e_coco.py
-rtmdet_m_8xb32_300e_coco.py
-rtmdet_mnv4_8xb32_300e_coco.py
-rtmdet_nano_8xb32_300e_coco.py
+rtmdet_nano_8xb32_300e_coco_ncadc_relu6.py
 rtmdet_nano_8xb32_300e_coco_relu.py
 rtmdet_nano_8xb32_300e_coco_relu_q.py
-rtmdet_s_8xb32_300e_coco.py
 ```
 
-在此我们以 `rtmdet_nano_8xb32_300e_coco.py` 为例，展示如何使用 SSCMA 进行 RTMDet 模型训练。
+在此我们以 `rtmdet_nano_8xb32_300e_coco_ncadc_relu6.py` 为例，展示如何使用 SSCMA 进行 RTMDet 模型训练。
 
 ```sh
 python3 tools/train.py \
-    configs/rtmdet_nano_8xb32_300e_coco.py \
+    configs/rtmdet/rtmdet_nano_8xb32_300e_coco_ncadc_relu6.py \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
@@ -32,11 +28,11 @@ python3 tools/train.py \
     val_ann_file=valid/_annotations.coco.json \
     train_img_prefix=train/ \
     val_img_prefix=valid/ \
-    max_epochs=150 \
+    epochs=150 \
     imgsz='(192,192)'
 ```
 
-- `configs/rtmdet_nano_8xb32_300e_coco.py`: 指定配置文件，定义模型和训练设置。
+- `configs/rtmdet/rtmdet_nano_8xb32_300e_coco_ncadc_relu6.py`: 指定配置文件，定义模型和训练设置。
 - `--cfg-options`: 用于指定额外的配置选项。
     - `data_root`: 设定数据集的根目录。
     - `num_classes`: 指定模型需要识别的类别数量。
@@ -44,18 +40,19 @@ python3 tools/train.py \
     - `val_ann_file`: 指定验证数据的注释文件路径。
     - `train_img_prefix`: 指定训练图像的前缀路径。
     - `val_img_prefix`: 指定验证图像的前缀路径。
-    - `max_epochs`: 设置训练的最大周期数。
+    - `epochs`: 设置训练的最大周期数。
     - `imgsz`：指定模型训练使用的图像尺寸。
 
-等待训练结束后，您可以在 `work_dirs/rtmdet_nano_8xb32_300e_coco` 目录下找到训练好的模型，在查找模型前，我们建议先关注训练结果。以下是对结果的分析以及一些改进方向。
+等待训练结束后，您可以在 `work_dirs/rtmdet_nano_8xb32_300e_coco_ncadc_relu6` 目录下找到训练好的模型，在查找模型前，我们建议先关注训练结果。以下是对结果的分析以及一些改进方向。
 
 :::details
 
 ```sh
-12/17 03:55:23 - mmengine - INFO - Saving checkpoint at 150 epochs
-12/17 03:55:24 - mmengine - INFO - Evaluating bbox...
+12/19 03:35:57 - mmengine - INFO - Epoch(train) [150][30/30]  base_lr: 2.5000e-05 lr: 2.5000e-05  eta: 0:00:00  time: 0.1145  data_time: 0.0051  memory: 383  loss: 0.6947  loss_cls: 0.3424  loss_bbox: 0.3523
+12/19 03:35:57 - mmengine - INFO - Saving checkpoint at 150 epochs
+12/19 03:35:58 - mmengine - INFO - Evaluating bbox...
 Loading and preparing results...
-DONE (t=0.02s)
+DONE (t=0.30s)
 creating index...
 index created!
 Running per image evaluation...
@@ -63,20 +60,20 @@ Evaluate annotation type *bbox*
 DONE (t=0.31s).
 Accumulating evaluation results...
 DONE (t=0.06s).
- Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.506
- Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.946
- Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.456
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.409
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.930
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.253
  Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
  Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.000
- Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.517
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.547
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.591
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.608
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.413
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.437
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.566
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.574
  Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.100
- Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.612
-12/17 03:55:24 - mmengine - INFO - bbox_mAP_copypaste: 0.506 0.946 0.456 -1.000 0.000 0.517
-12/17 03:55:24 - mmengine - INFO - Epoch(val) [150][6/6]    coco/bbox_mAP: 0.5060  coco/bbox_mAP_50: 0.9460  coco/bbox_mAP_75: 0.4560  coco/bbox_mAP_s: -1.0000  coco/bbox_mAP_m: 0.0000  coco/bbox_mAP_l: 0.5170  data_time: 0.0205  time: 0.0563
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.000
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.579
+12/19 03:35:59 - mmengine - INFO - bbox_mAP_copypaste: 0.409 0.930 0.253 -1.000 0.000 0.413
+12/19 03:35:59 - mmengine - INFO - Epoch(val) [150][6/6]    coco/bbox_mAP: 0.4090  coco/bbox_mAP_50: 0.9300  coco/bbox_mAP_75: 0.2530  coco/bbox_mAP_s: -1.0000  coco/bbox_mAP_m: 0.0000  coco/bbox_mAP_l: 0.4130  data_time: 0.0629  time: 0.1037
 ```
 
 通过分析 COCO Eval 的结果可以发现问题所在，并采取相应的措施进行优化，优化方向建议优先从数据集入手，再是训练参数、以及模型结构。
@@ -107,7 +104,7 @@ python3 -m pip install tensorboard && \
 
 :::
 
-在 `work_dirs/rtmdet_nano_8xb32_300e_coco` 目录下找到训练好的模型。此外，当模型训练结果精度不佳时，通过分析 COCO Eval 的结果可以发现问题所在，并采取相应的措施进行优化。
+在 `work_dirs/rtmdet_nano_8xb32_300e_coco_ncadc_relu6` 目录下找到训练好的模型。此外，当模型训练结果精度不佳时，通过分析 COCO Eval 的结果可以发现问题所在，并采取相应的措施进行优化。
 
 :::tip
 
@@ -126,8 +123,8 @@ python3 -m pip install tensorboard && \
 
 ```sh
 python3 tools/export.py \
-    configs/rtmdet_nano_8xb32_300e_coco.py \
-    work_dirs/rtmdet_nano_8xb32_300e_coco/epoch_150.pth \
+    configs/rtmdet/rtmdet_nano_8xb32_300e_coco_ncadc_relu6.py \
+    work_dirs/rtmdet_nano_8xb32_300e_coco_ncadc_relu6/epoch_150.pth \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
@@ -176,8 +173,8 @@ wget https://github.com/PINTO0309/onnx2tf/releases/download/1.20.4/calibration_i
 
 ```sh
 python3 tools/test.py \
-    configs/rtmdet_nano_8xb32_300e_coco.py \
-    work_dirs/rtmdet_nano_8xb32_300e_coco/epoch_150_int8.tflite \
+    configs/rtmdet/rtmdet_nano_8xb32_300e_coco_ncadc_relu6.py \
+    work_dirs/rtmdet_nano_8xb32_300e_coco_ncadc_relu6/epoch_150_int8.tflite \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
@@ -191,21 +188,19 @@ python3 tools/test.py \
 得到以下输出:
 
 ```sh
- Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.046
- Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.112
- Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.019
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.409
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.934
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.284
  Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
  Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.000
- Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.050
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.106
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.165
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.352
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.413
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.433
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.559
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.563
  Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.200
- Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.353
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.000
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.568
 ```
-
-从验证结果可以看出，导出的模型在验证集上的表现与训练时的表现有所差异，AP@50:95 相比训练时下降了 46.0%，AP@50 下降了 83.4%，您可以尝试使用 QAT 来减少量化精度的损失。
 
 
 :::tip
@@ -221,8 +216,8 @@ QAT（量化感知训练）是一种在模型训练过程中模拟量化操作�
 
 ```sh
 python3 tools/quantization.py \
-    configs/rtmdet_nano_8xb32_300e_coco.py \
-    work_dirs/rtmdet_nano_8xb32_300e_coco/epoch_150.pth \
+    configs/rtmdet/rtmdet_nano_8xb32_300e_coco_ncadc_relu6.py \
+    work_dirs/rtmdet_nano_8xb32_300e_coco_ncadc_relu6/epoch_150.pth \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
@@ -231,7 +226,7 @@ python3 tools/quantization.py \
     train_img_prefix=train/ \
     val_img_prefix=valid/ \
     imgsz='(192,192)' \
-    max_epochs=5
+    epochs=5
 ```
 
 :::details
@@ -273,8 +268,8 @@ QAT 训练完毕后，会自动导出量化后的模型，您可以使用以下�
 
 ```sh
 python3 tools/test.py \
-    configs/rtmdet_nano_8xb32_300e_coco.py \
-    work_dirs/rtmdet_nano_8xb32_300e_coco/qat/qat_model_int8.tflite \
+    configs/rtmdet/rtmdet_nano_8xb32_300e_coco_ncadc_relu6.py \
+    work_dirs/rtmdet_nano_8xb32_300e_coco_ncadc_relu6/qat/qat_model_int8.tflite \
     --cfg-options \
     data_root=$(pwd)/datasets/coco_mask/mask/ \
     num_classes=2 \
@@ -288,17 +283,17 @@ python3 tools/test.py \
 评估得到的精度如下：
 
 ```sh
- Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.091
- Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.209
- Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.069
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.455
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.842
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.417
  Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
  Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.000
- Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.094
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.138
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.185
- Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.311
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.459
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.499
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.583
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.618
  Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
  Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.000
- Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.314
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.623
 ```
 

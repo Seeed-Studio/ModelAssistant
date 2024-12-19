@@ -68,7 +68,7 @@ mosaic_max_cached_images = 20
 # Number of cached images in mixup
 mixup_max_cached_images = 10
 
-checkpoint = "http://192.168.1.77/epoch_593_top1_59.06.pth"
+checkpoint = "https://download.openmmlab.com/mmdetection/v3.0/rtmdet/cspnext_rsb_pretrain/cspnext-s_imagenet_600e.pth"
 model = dict(
     type=RTMDet,
     data_preprocessor=dict(

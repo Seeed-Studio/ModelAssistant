@@ -1,9 +1,9 @@
 from mmengine.config import read_base
 
 with read_base():
-    from ._base_.default_runtime import *
-    from ._base_.schedules.schedule_1x import *
-    from .datasets.coco_detection import *
+    from .._base_.default_runtime import *
+    from .._base_.schedules.schedule_1x import *
+    from ..datasets.coco_detection import *
 
 from torchvision.ops import nms
 from torch.nn import ReLU, BatchNorm2d, ReLU6
@@ -68,7 +68,13 @@ mosaic_max_cached_images = 20
 # Number of cached images in mixup
 mixup_max_cached_images = 10
 
-checkpoint = "http://192.168.1.77/epoch_593_top1_59.06.pth"
+train_ann_file = "annotations/instances_train2017.json"
+val_ann_file = "annotations/instances_val2017.json"
+train_img_prefix = "train2017/"
+val_img_prefix = "val2017/"
+
+
+checkpoint = "https://download.openmmlab.com/mmdetection/v3.0/rtmdet/cspnext_rsb_pretrain/cspnext-s_imagenet_600e.pth"
 model = dict(
     type=RTMDet,
     data_preprocessor=dict(
@@ -242,7 +248,7 @@ train_dataloader.update(
         pin_memory=True,
         collate_fn=coco_collate,
         dataset=dict(
-            pipeline=train_pipeline, ann_file="annotations/instances_train2017.json"
+            pipeline=train_pipeline, ann_file=train_ann_file, data_prefix=dict(img=train_img_prefix)
         ),
     )
 )
@@ -267,8 +273,8 @@ val_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        ann_file="annotations/instances_val2017.json",
-        data_prefix=dict(img="val2017/"),
+        ann_file=val_ann_file,
+        data_prefix=dict(img=val_img_prefix),
         test_mode=True,
         pipeline=test_pipeline,
         batch_shapes_cfg=batch_shapes_cfg,
