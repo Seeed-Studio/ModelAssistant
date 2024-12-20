@@ -112,7 +112,7 @@ def main():
     args = parse_args()
     # verify args
     if (
-        len([fm in ["hailo", "tflite", "vela"] for fm in args.format])
+        True in [fm in ["hailo", "tflite", "vela"] for fm in args.format]
         and args.image_path is None
     ):
         raise ValueError("image_path is required for hailo/tflite/vela format")
@@ -253,7 +253,7 @@ def export_savemodel(onnx_file, calibration_data=None):
         print("The pb model format was exported successfully")
     except Exception as e:
         print("Export of pb model failed, export interrupted")
-        return
+        raise RuntimeError(e)
 
     return osp.dirname(onnx_file)
 
@@ -295,6 +295,7 @@ def export_onnx(model, args):
             onnx.save(onnx_model, f)
         except Exception as e:
             print(f"Simplify failure: {e}")
+            raise RuntimeError(e)
 
     return f
 
@@ -377,10 +378,6 @@ def export_tflite(onnx_path: str, img_shape, img_path):
     converter.representative_dataset = representative_dataset
     converter._experimental_disable_per_channel = False
 
-    # converter._experimental_disable_fuse_mul_and_fc
-    # converter.experimental_new_dynamic_range_quantizer=True
-    # converter.experimental_use_stablehlo_quantizer=True
-
     tflite_quant_model = converter.convert()
     with open(tflite_path, "wb") as f:
         f.write(tflite_quant_model)
@@ -404,7 +401,7 @@ def export_vela(tflite_path: str, verify=False):
     if not state:
         print("Export of vela model succeeded")
     else:
-        print("Exporting vela model failed")
+        raise RuntimeError("Export of vela model failed")
 
     if verify:
         verify_tflite(tflite_path)
