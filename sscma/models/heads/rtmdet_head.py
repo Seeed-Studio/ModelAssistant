@@ -1,6 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from typing import List, Optional, Tuple, Union, Sequence
 import copy
+import math
 import torch
 import torch.nn as nn
 from torch import Tensor
@@ -213,6 +214,7 @@ class RTMDetSepBNHeadModule(BaseModule):
 
         cls_scores = []
         bbox_preds = []
+
         for idx, x in enumerate(feats):
             cls_feat = x
             reg_feat = x
@@ -225,11 +227,13 @@ class RTMDetSepBNHeadModule(BaseModule):
                 reg_feat = reg_layer(reg_feat)
 
             reg_dist = self.rtm_reg[idx](reg_feat)
-            # cls_scores.append(cls_score.permute(0,2,3,1).reshape(1,-1,self.num_classes))
-            # bbox_preds.append(reg_dist.permute(0,2,3,1).reshape(1,-1,4))
-            cls_scores.append(cls_score)
-            bbox_preds.append(reg_dist)
+            cls_scores.append(cls_score.permute(0,2,3,1).reshape(1,-1,self.num_classes))
+            bbox_preds.append(reg_dist.permute(0,2,3,1).reshape(1,-1,4))
+            # cls_scores.append(cls_score)
+            # bbox_preds.append(reg_dist)#32,6,6,2
         return tuple(cls_scores), tuple(bbox_preds)
+
+
 
 
 class YOLOv5Head(BaseDenseHead):
@@ -444,7 +448,7 @@ class YOLOv5Head(BaseDenseHead):
         cfg.multi_label = multi_label
 
         num_imgs = len(batch_img_metas)
-        featmap_sizes = [cls_score.shape[2:] for cls_score in cls_scores]
+        featmap_sizes = [[int(math.sqrt(featmap.shape[1] // num_imgs))] * 2 for featmap in cls_scores]
 
         # If the shape does not change, use the previous mlvl_priors
         if featmap_sizes != self.featmap_sizes:
@@ -456,18 +460,18 @@ class YOLOv5Head(BaseDenseHead):
 
         mlvl_strides = [
             flatten_priors.new_full(
-                (featmap_size.numel() * self.num_base_priors,), stride
+                (featmap_size[0] * featmap_size[1] * self.num_base_priors,), stride
             )
             for featmap_size, stride in zip(featmap_sizes, self.featmap_strides)
         ]
         flatten_stride = torch.cat(mlvl_strides)
 
         flatten_cls_scores = [
-            cls_score.permute(0, 2, 3, 1).reshape(num_imgs, -1, self.num_classes)
+            cls_score.reshape(num_imgs, -1, self.num_classes)
             for cls_score in cls_scores
         ]
         flatten_bbox_preds = [
-            bbox_pred.permute(0, 2, 3, 1).reshape(num_imgs, -1, 4)
+            bbox_pred.reshape(num_imgs, -1, 4)
             for bbox_pred in bbox_preds
         ]
 
@@ -1157,7 +1161,7 @@ class RTMDetHead(YOLOv5Head):
             dict[str, Tensor]: A dictionary of loss components.
         """
         num_imgs = len(batch_img_metas)
-        featmap_sizes = [featmap.size()[-2:] for featmap in cls_scores]
+        featmap_sizes = [[int(math.sqrt(featmap.shape[1] // num_imgs))] * 2 for featmap in cls_scores]
         assert len(featmap_sizes) == self.prior_generator.num_levels
 
         gt_info = gt_instances_preprocess(batch_gt_instances, num_imgs)
@@ -1177,7 +1181,7 @@ class RTMDetHead(YOLOv5Head):
 
         flatten_cls_scores = torch.cat(
             [
-                cls_score.permute(0, 2, 3, 1).reshape(
+                cls_score.reshape(
                     num_imgs, -1, self.cls_out_channels
                 )
                 for cls_score in cls_scores
@@ -1187,11 +1191,12 @@ class RTMDetHead(YOLOv5Head):
 
         flatten_bboxes = torch.cat(
             [
-                bbox_pred.permute(0, 2, 3, 1).reshape(num_imgs, -1, 4)
+                bbox_pred.reshape(num_imgs, -1, 4)
                 for bbox_pred in bbox_preds
             ],
             1,
-        )
+        ).contiguous()
+
         flatten_bboxes = flatten_bboxes * self.flatten_priors_train[..., -1, None]
         flatten_bboxes = distance2bbox(
             self.flatten_priors_train[..., :2], flatten_bboxes

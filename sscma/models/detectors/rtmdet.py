@@ -1,9 +1,12 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+from typing import List, Tuple, Union
 import torch
+from torch import Tensor
 
 from mmengine.dist import get_world_size
 from mmengine.logging import print_log
 
+from sscma.structures import SampleList
 from sscma.utils.typing_utils import ConfigType, OptConfigType, OptMultiConfig
 from .single_stage import SingleStageDetector
 
