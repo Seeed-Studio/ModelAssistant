@@ -9,6 +9,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/build-docs.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
