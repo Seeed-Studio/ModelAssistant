@@ -39,7 +39,6 @@ class TFliteInfer(BaseInfer):
                     data = (data / scale + zero_point).astype(
                         input["dtype"]
                     )  # de-scale
-                
                 self.interpreter.set_tensor(input["index"], data)
                 self.interpreter.invoke()
                 y = []
@@ -49,7 +48,7 @@ class TFliteInfer(BaseInfer):
                         scale, zero_point = output["quantization"]
                         x = (x.astype(np.float32) - zero_point) * scale  # re-scale
                     # numpy x convert NHWC to NCWH
-                    y.append(np.transpose(x, [0, 3, 1, 2]))
+                    y.append(np.transpose(x, [0, 3, 1, 2]) if len(x.shape) == 4 else x)
 
                 results.append(y)
         return results

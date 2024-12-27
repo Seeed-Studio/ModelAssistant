@@ -1,4 +1,5 @@
 import copy
+import math
 import warnings
 from typing import Dict, List, Tuple, Union
 
@@ -104,13 +105,17 @@ class RTMDetInfer(BaseModel):
         for dt in data_tmp:
             tmp = [None for _ in range(6)]
             for d in dt:
-                if d.shape[2:] in featmap_size:
-                    if d.shape[1] == 4:
-                        tmp[3 + featmap_size.index(d.shape[2:])] = d
+                fs = int(math.sqrt(d.shape[1]))
+                ts = (fs, fs)
+                if ts in featmap_size:
+                    if d.shape[2] == 4:
+                        tmp[3 + featmap_size.index(ts)] = d
                     else:
-                        tmp[featmap_size.index(d.shape[2:])] = d
+                        tmp[featmap_size.index(ts)] = d
 
             data.append(tmp)
+
+
         for result, data_sample in zip(data, batch_data_samples):
             # check item in result is tensor or numpy
 
