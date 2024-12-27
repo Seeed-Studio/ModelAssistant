@@ -77,7 +77,7 @@ The learning rate is the step size of the optimizer when updating model paramete
 
 :::tip
 
-For more information on training details, please refer to [SSCMA - Customization - Training and Validation Pipeline](../custom/pipeline) and [SSCMA - Customization - Optimizers](../custom/optimizer).
+For more information on training details, please refer to [SSCMA - Customization - Training and Validation Pipeline](../custom/pipelines) and [SSCMA - Customization - Optimizers](../custom/optimizer).
 
 :::
 

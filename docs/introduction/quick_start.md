@@ -10,7 +10,7 @@ We suggest that all beginners of [SSCMA](https://github.com/Seeed-Studio/ModelAs
 
 ### Model Deployment
 
-If you want to deploy the model on the device, please refer to the section [Deploy](../deploy/overview) to learn how to deploy the model.
+If you want to deploy the model on the device, please refer to the section [Deploy](../tutorials/deploy/overview) to learn how to deploy the model.
 
 ### Model Training
 
@@ -48,15 +48,15 @@ If you want to train a model, we highly recommend that you first try to train a 
 
    - **Model Training**, please refer to [Model Training](../tutorials/training/overview) to learn how to use [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) to train a model. We suggest that you select a model from an example for training.
 
-   - **Model Export**. After completing model training, in order to deploy on the edge-computing device, it is necessary to first export the model. For the export tutorial of the model, please refer to [Model Export](../tutorials/export/overview).
+   - **Model Export**. After completing model training, in order to deploy on the edge-computing device, it is necessary to first export the model.
 
    - **Model Verification**. Model verification can be performed after training or export. The former verifies the correctness of the neural network and training results, while the latter mainly verifies the correctness of the exported model, facilitating deployment and debugging on edge computing devices later. Some methods for model validation have been provided in the documents in the above two steps.
 
-- **Model Deployment**. If you want to deploy the exported training model on edge computing devices, please refer to [ESP32 Deployment Example](../deploy/esp32/deploy) or [Grove Vision AI Deployment Example](../deploy/grove/deploy).
+- **Model Deployment**. If you want to deploy the exported training model on edge computing devices, please refer to [ESP32 Deployment Example](../tutorials/deploy/xiao_esp32s3) or [Grove Vision AI Deployment Example](../tutorials/deploy/grove_vision_ai_v2).
 
-- **Custom Datasets**. If you want to train on a custom dataset, please refer to [Datasets](../tutorials/datasets).
+- **Custom Datasets**. If you want to train on a custom dataset, please refer to [Datasets](../datasets/custom).
 
-- **Custom Model**. If you want to modify an existing neural network or design your own neural network, please refer to [Model Configuration](../tutorials/config).
+- **Custom Model**. If you want to modify an existing neural network or design your own neural network, please refer to [Model Configuration](../custom/basics).
 
 ## Necessary Knowledge
 

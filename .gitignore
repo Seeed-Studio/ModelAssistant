@@ -30,7 +30,7 @@ env.bak/
 venv.bak/
 
 # Datasets (and explicitly disignore sscma/datasets)
-datasets/
+./datasets/
 !sscma/datasets
 !configs/datasets
 
