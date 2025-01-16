@@ -361,7 +361,9 @@ def export_tflite(onnx_path: str, img_shape, img_path):
 
     def representative_dataset():
         datasets = [
-            osp.join(img_path, i) for i in os.listdir(img_path) if i.endswith(".jpg")
+            osp.join(img_path, i)
+            for i in os.listdir(img_path)
+            if i.lower().endswith((".jpg", ".jpeg", ".png"))
         ]
         for ps in tqdm(datasets[:300]):
             img = cv2.imread(ps)
