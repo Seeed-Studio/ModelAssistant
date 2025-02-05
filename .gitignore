@@ -61,3 +61,6 @@ data/
 
 # numpy
 *.npy
+
+# datasets
+datasets/

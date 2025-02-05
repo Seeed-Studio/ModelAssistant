@@ -21,3 +21,4 @@ pyarrow
 albumentations
 scikit-learn
 timm
+psutil
