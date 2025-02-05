@@ -64,3 +64,6 @@ data/
 
 # datasets
 datasets/
+
+# quantization
+out/

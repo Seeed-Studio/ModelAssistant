@@ -9,6 +9,12 @@ from tqdm import tqdm
 
 sys.path.insert(0, osp.dirname(osp.dirname(osp.abspath(__file__))))
 
+try:
+    import tinynn
+except ModuleNotFoundError:
+    import subprocess
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'git+https://github.com/alibaba/TinyNeuralNetwork.git'])
+
 from tinynn.graph.quantization.quantizer import QATQuantizer
 from tinynn.util.train_util import AverageMeter
 from tinynn.graph.tracer import model_tracer
