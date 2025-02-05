@@ -2,14 +2,11 @@ import numpy as np
 import torch
 import torchvision.transforms as transforms
 
+import tensorflow as tf
+
 from .base_infer import BaseInfer
-
-from sscma.utils import lazy_import
-
-
 class TFliteInfer(BaseInfer):
 
-    @lazy_import("tflite_runtime", install_only=True)
     def __init__(self, weights="sscma.tflite", device=torch.device("cpu")):
         super().__init__(weights=weights, device=device)
         self.interpreter = None
@@ -54,9 +51,8 @@ class TFliteInfer(BaseInfer):
         return results
 
     def load_weights(self):
-        from tflite_runtime.interpreter import Interpreter
 
-        self.interpreter = Interpreter(model_path=self.weights)  # load TFLite model
+        self.interpreter = tf.lite.Interpreter(model_path=self.weights)  # load TFLite model
 
         self.interpreter.allocate_tensors()  # allocate
         self.input_details = self.interpreter.get_input_details()  # inputs
