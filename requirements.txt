@@ -22,3 +22,4 @@ albumentations
 scikit-learn
 timm
 psutil
+regex
