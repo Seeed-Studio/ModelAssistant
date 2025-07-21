@@ -5,7 +5,8 @@ libusb1
 
 # sensor
 cbor
-numpy>=1.23.5
+numpy>=1.23.0,<2.0.0
+
 
 
 # vision
