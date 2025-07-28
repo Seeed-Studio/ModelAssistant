@@ -92,19 +92,46 @@ def parse_args():
         os.environ["LOCAL_RANK"] = str(args.local_rank)
     return args
 
+def find_and_sample_images(folder_path, limit=10000, sample_size=100):
+    import random
+
+    image_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp'}
+    image_files = []
+
+    if not os.path.isdir(folder_path):
+        raise ValueError(f"The provided image path '{folder_path}' is not a valid directory.")
+
+    for root, _, files in os.walk(folder_path):
+        for file in files:
+            if os.path.splitext(file)[1].lower() in image_extensions:
+                image_files.append(os.path.join(root, file))
+                if len(image_files) >= limit:
+                    break
+        if len(image_files) >= limit:
+            break
+
+    found = len(image_files)
+    if found < sample_size:
+        if found == 0:
+            raise ValueError(f"No images found in the directory '{folder_path}'.")
+        print(f"Warning: Found only {found} images, which is less than the requested sample size of {sample_size}.")
+        sample_size = found
+
+    random_sample = random.sample(image_files, sample_size)
+
+    return random_sample
 
 def generate_input(images_path, img_shape):
     import cv2
 
     res = []
-    datasets = [
-        osp.join(images_path, i) for i in os.listdir(images_path) if i.endswith(".jpg")
-    ]
+    datasets = find_and_sample_images(images_path, limit=10000, sample_size=100)
     for ps in datasets[:100]:
         img = cv2.imread(ps)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) / 255
         img = cv2.resize(img, (img_shape[0], img_shape[1]))
         res.append(img)
+        res.append(img.astype(np.float32))
     return np.asarray(res)
 
 
@@ -360,11 +387,7 @@ def export_tflite(onnx_path: str, img_shape, img_path):
     converter = tf.lite.TFLiteConverter.from_saved_model(osp.dirname(onnx_path))
 
     def representative_dataset():
-        datasets = [
-            osp.join(img_path, i)
-            for i in os.listdir(img_path)
-            if i.lower().endswith((".jpg", ".jpeg", ".png"))
-        ]
+        datasets = find_and_sample_images(img_path, limit=10000, sample_size=300)
         for ps in tqdm(datasets[:300]):
             img = cv2.imread(ps)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) / 255
