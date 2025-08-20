@@ -13,7 +13,7 @@ This document summarizes all the files created to provide Swift YOLO QAT support
 ### Code Templates and Implementation (3 files)  
 5. **`sscma/quantizer/models/swift_yolo_quantizer.py`** - SwiftYOLOQuantModel implementation
 6. **`configs/swift_yolo/swift_yolo_qat_template.py`** - QAT configuration template
-7. **`examples/swift_yolo_qat_example.py`** - Usage example script
+7. **`tools/swift_yolo_qat_example.py`** - Usage example script
 
 ### Modified Files (1 file)
 8. **`sscma/quantizer/models/__init__.py`** - Added SwiftYOLOQuantModel registration
