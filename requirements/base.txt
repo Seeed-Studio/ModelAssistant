@@ -9,7 +9,7 @@ numpy>=1.23.5
 
 
 # vision
-opencv-python>=4.9.0.80
+opencv-python>=4.13.0.92
 
 
 # openmmlab package manager
