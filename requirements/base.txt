@@ -19,7 +19,7 @@ pandas>=2.0.0
 pillow>=9.4.0
 pyyaml>=6.0
 scikit-image>=0.20.0
-scikit-learn>=1.2.2
+scikit-learn>=1.8.0
 
 
 # sound
