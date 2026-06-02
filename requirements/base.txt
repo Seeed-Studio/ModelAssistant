@@ -27,7 +27,7 @@ soundfile>=0.12.1
 
 
 # visualize
-tensorboard>=2.12.3
+tensorboard>=2.20.0
 tqdm>=4.67.3
 
 
