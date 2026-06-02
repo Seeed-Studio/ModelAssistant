@@ -288,30 +288,13 @@ def get_exported_file_name_from_precision(args, precision, ext: str = '') -> str
 
 def export_pnnx(args, model):
     import os.path as osp
-    import sys
 
     import pnnx
 
     model.eval()
-    pnnx_bin_path = osp.join(osp.dirname(pnnx.__file__), 'bin')
-    bin_list = os.listdir(pnnx_bin_path)
     x = torch.randn(args.input_shape)
 
-    cmd = ''
-    dir_dict = {}
-    for dir_name in bin_list:
-        if 'ubuntu' in dir_name:
-            dir_dict['linux'] = dir_name
-        elif 'windows' in dir_name:
-            dir_dict['win'] = dir_name
-        elif 'macos' in dir_name:
-            dir_dict['darwin'] = dir_name
-    if sys.platform.startswith('linux'):
-        cmd += os.path.join(pnnx_bin_path, dir_dict['linux'], 'pnnx ')
-    elif sys.platform.startswith('win'):
-        cmd += os.path.join(pnnx_bin_path, dir_dict['win'], 'pnnx.exe ')
-    elif sys.platform.startswith('darwin'):
-        cmd += os.path.join(pnnx_bin_path, dir_dict['darwin'], 'pnnx ')
+    cmd = pnnx.EXEC_PATH + ' '
     cmd += 'model.pt '
     cmd += 'inputshape=' + ','.join(str(d) for d in x.shape) + ' '
     cmd += ' pnnxparam=' + get_exported_file_name_from_precision(args, 'float', '.pnnx.param')
