@@ -35,7 +35,7 @@ class MNIST(BaseDataset):
         **kwargs: Other keyword arguments in :class:`BaseDataset`.
     """  # noqa: E501
 
-    url_prefix = 'http://yann.lecun.com/exdb/mnist/'
+    url_prefix = 'https://ossci-datasets.s3.amazonaws.com/mnist/'
     # train images and labels
     train_list = [
         ['train-images-idx3-ubyte.gz', 'f68b3c2dcbeaaa9fbdd348bbdeb94873'],
