@@ -1,11 +1,11 @@
 # common
-albumentations<=2.0.8
+albumentations>=1.0,<1.4
 libusb1
 
 
 # sensor
 cbor
-numpy>=1.23.5
+numpy>=1.23.5,<2.0
 
 
 # vision
