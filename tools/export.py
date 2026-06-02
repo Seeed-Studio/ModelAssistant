@@ -287,8 +287,6 @@ def get_exported_file_name_from_precision(args, precision, ext: str = '') -> str
 
 
 def export_pnnx(args, model):
-    import os.path as osp
-
     import pnnx
 
     model.eval()
