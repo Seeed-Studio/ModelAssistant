@@ -1,4 +1,4 @@
-from typing import List, Optional, Callable, AnyStr, Union, Dict
+from typing import Optional, Callable, AnyStr, Union, Dict
 import math
 import torch
 import torch.nn as nn
@@ -378,8 +378,6 @@ class InvertedBottleneckBlock(nn.Module):
         layers = []
         expand_channels = make_divisible(self.in_channels * self._expand_ratio, self._division)
 
-        expand_kernel = 1 if self._use_depthwise else self._kernel_size
-        expand_stride = 1 if self._use_depthwise else self._stride
         # if self._expand_ratio > 1:
         #     layers.append(
         #         ConvNormActivation(
@@ -571,7 +569,7 @@ class OptimizedMultiQueryAttentionLayerWithDownSampling(nn.Module):
 
         k = self.layer1(x)
 
-        num_elements = k.shape[2:].numel()
+        k.shape[2:].numel()
         channels = k.shape[1]
         k = k.reshape([B, channels, -1])
 

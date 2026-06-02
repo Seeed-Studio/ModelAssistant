@@ -1,8 +1,6 @@
-from typing import List, Text, Dict, Union, Optional
+from typing import Optional
 
-import torch
 import torch.nn as nn
-from torch import Tensor
 
 from sscma.models.base.general import ConvNormActivation
 from sscma.registry import MODELS
@@ -357,11 +355,9 @@ class MobileNetv4(nn.Module):
 
             if self._output_stride is not None and current_stride == self._output_stride:
                 layer_stride = 1
-                layer_rate = layer_rate
                 rate *= block.stride
             else:
                 layer_stride = block.stride
-                layer_rate = 1
                 current_stride *= block.stride
 
             if block.block_name == 'convbn':

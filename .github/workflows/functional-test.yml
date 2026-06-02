@@ -73,8 +73,9 @@ jobs:
             python -m pip install -r requirements/base.txt
             python -m pip install -r requirements/inference.txt
             python -m pip install --no-build-isolation -r requirements/export.txt
-            python -m mim install -r requirements/mmlab.txt
-            python -m mim install -e .
+            echo "ethos-u-vela>=5.0.0" > /tmp/pip-constraints.txt
+            PIP_CONSTRAINT=/tmp/pip-constraints.txt python -m mim install -r requirements/mmlab.txt
+            PIP_CONSTRAINT=/tmp/pip-constraints.txt python -m mim install -e .
             python --version
             python -m pip --version
             python -m pip list
