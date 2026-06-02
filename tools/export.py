@@ -291,7 +291,6 @@ def export_pnnx(args, model):
     import sys
 
     import pnnx
-    from pnnx.wrapper import convert_inputshape_to_cmd
 
     model.eval()
     pnnx_bin_path = osp.join(osp.dirname(pnnx.__file__), 'bin')
@@ -314,7 +313,7 @@ def export_pnnx(args, model):
     elif sys.platform.startswith('darwin'):
         cmd += os.path.join(pnnx_bin_path, dir_dict['darwin'], 'pnnx ')
     cmd += 'model.pt '
-    cmd += convert_inputshape_to_cmd(x)
+    cmd += 'inputshape=' + ','.join(str(d) for d in x.shape) + ' '
     cmd += ' pnnxparam=' + get_exported_file_name_from_precision(args, 'float', '.pnnx.param')
     cmd += ' pnnxbin=' + get_exported_file_name_from_precision(args, 'float', '.pnnx.bin')
     cmd += ' pnnxpy=' + get_exported_file_name_from_precision(args, 'float', '.pnnx.py')
