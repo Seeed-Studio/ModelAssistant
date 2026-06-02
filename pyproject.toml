@@ -41,5 +41,9 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 target-version = "py38"
 
 
+[tool.ruff.per-file-ignores]
+"sscma/models/backbones/MobileNetv4.py" = ["F401", "F821", "F841"]
+"sscma/models/layers/nn_blocks.py" = ["F401", "F841"]
+
 [tool.ruff.mccabe]
 max-complexity = 10

@@ -93,10 +93,21 @@ class OneOf(A.OneOf):
         super().__init__(transforms, p)
 
 
+try:
+    _IAAAdditiveGaussianNoise = A.IAAAdditiveGaussianNoise
+    _IS_NEW_ALBUMENTATIONS = False
+except AttributeError:
+    _IAAAdditiveGaussianNoise = A.GaussNoise
+    _IS_NEW_ALBUMENTATIONS = True
+
+
 @TRANSFORMS.register_module()
-class IAAAdditiveGaussianNoise(A.IAAAdditiveGaussianNoise):
+class IAAAdditiveGaussianNoise(_IAAAdditiveGaussianNoise):
     def __init__(self, loc=0, scale=..., per_channel=False, always_apply=False, p=0.5):
-        super().__init__(loc, scale, per_channel, always_apply, p)
+        if _IS_NEW_ALBUMENTATIONS:
+            super().__init__(mean=loc, per_channel=per_channel, always_apply=always_apply, p=p)
+        else:
+            super().__init__(loc, scale, per_channel, always_apply, p)
 
 
 @TRANSFORMS.register_module()

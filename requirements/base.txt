@@ -5,11 +5,11 @@ libusb1
 
 # sensor
 cbor
-numpy>=1.23.5
+numpy>=1.23.5,<2.0
 
 
 # vision
-opencv-python>=4.9.0.80
+opencv-python>=4.9.0.80,<4.10
 
 
 # openmmlab package manager
@@ -18,8 +18,8 @@ packaging>=23.1
 pandas>=2.0.0
 pillow>=9.4.0
 pyyaml>=6.0
-scikit-image>=0.20.0
-scikit-learn>=1.2.2
+scikit-image>=0.26.0
+scikit-learn>=1.8.0
 
 
 # sound
@@ -27,8 +27,8 @@ soundfile>=0.12.1
 
 
 # visualize
-tensorboard>=2.12.3
-tqdm>=4.65.0
+tensorboard>=2.20.0
+tqdm>=4.67.3
 
 
 # data
