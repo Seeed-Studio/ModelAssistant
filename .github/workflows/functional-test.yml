@@ -72,7 +72,7 @@ jobs:
             python -m pip install -r requirements/pytorch_cpu.txt
             python -m pip install -r requirements/base.txt
             python -m pip install -r requirements/inference.txt
-            python -m pip install -r requirements/export.txt
+            python -m pip install --no-build-isolation -r requirements/export.txt
             python -m mim install -r requirements/mmlab.txt
             python -m mim install -e .
             python --version

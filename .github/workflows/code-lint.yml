@@ -44,4 +44,4 @@ jobs:
         run: python -m pip install -r requirements/tests.txt
 
       - name: ruff lint
-        run: python -m ruff check .
+        run: python -m ruff .
