@@ -53,7 +53,7 @@ jobs:
 
       - name: pip install deps (CPU)
         run: |
-            python3 -m pip install --upgrade pip wheel setuptools
+            python3 -m pip install --upgrade pip wheel "setuptools>=65.5,<70"
             python3 -m pip install -r requirements/pytorch_cpu.txt
             python3 -m pip install -r requirements/base.txt
             python3 -m pip install -r requirements/inference.txt
