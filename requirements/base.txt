@@ -18,7 +18,7 @@ packaging>=23.1
 pandas>=2.0.0
 pillow>=9.4.0
 pyyaml>=6.0
-scikit-image>=0.26.0
+scikit-image>=0.25.0,<0.26
 scikit-learn>=1.8.0
 
 
