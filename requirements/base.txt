@@ -23,7 +23,7 @@ scikit-learn>=1.8.0
 
 
 # sound
-soundfile>=0.12.1
+soundfile>=0.14.0
 
 
 # visualize
