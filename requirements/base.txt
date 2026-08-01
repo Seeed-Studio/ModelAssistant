@@ -13,7 +13,7 @@ opencv-python>=4.9.0.80,<4.10
 
 
 # openmmlab package manager
-openmim>=0.3.7
+openmim>=0.3.9
 packaging>=23.1
 pandas>=2.0.0
 pillow>=9.4.0
