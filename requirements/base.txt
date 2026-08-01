@@ -15,7 +15,7 @@ opencv-python>=4.9.0.80,<4.10
 # openmmlab package manager
 openmim>=0.3.7
 packaging>=23.1
-pandas>=2.0.0
+pandas>=3.0.5
 pillow>=9.4.0
 pyyaml>=6.0
 scikit-image>=0.26.0
