@@ -3,7 +3,7 @@ pnnx==20251031
 ncnn>=1.0.20230517
 onnx>=1.14.0
 onnxmltools>=1.11.2
-onnxruntime>=1.15.1
+onnxruntime>=1.28.0
 onnxsim>=0.4.33
 protobuf>=4.23.3
 tensorflow>=2.12.0
