@@ -11,7 +11,6 @@ import torch
 # which rejects checkpoints containing non-tensor objects (e.g. NumPy arrays
 # in `meta`) and breaks mmengine's checkpoint loading. Restore the previous
 # behavior for our trusted checkpoints; can be overridden from outside.
-import os
 os.environ.setdefault('TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD', '1')
 
 current_path = osp.dirname(osp.abspath(__file__))

@@ -88,9 +88,10 @@ conda activate sscma
 - 安装 [SSCMA](https://github.com/Seeed-Studio/ModelAssistant) 依赖项
 
 ```sh
+pip3 install openmim && \
 pip3 install -r requirements/base.txt && \
 mim install -r requirements/mmlab.txt && \
-mim install -e .
+pip3 install -e . --no-deps
 ```
 
 ### 第 4 步 - 安装额外依赖项（可选）
@@ -124,16 +125,18 @@ bash scripts/setup_linux.sh
 conda env create -n sscma -f environment.yml && \
 conda activate sscma && \
 pip3 install -r requirements/inference.txt -r requirements/export.txt -r requirements/tests.txt && \
+pip3 install openmim && \
 mim install -r requirements/mmlab.txt && \
-mim install -e .
+pip3 install -e . --no-deps
 ```
 
 ```sh [GPU（CUDA）]
 conda env create -n sscma -f environment_cuda.yml && \
 conda activate sscma && \
 pip3 install -r requirements/inference.txt -r requirements/export.txt -r requirements/tests.txt && \
+pip3 install openmim && \
 mim install -r requirements/mmlab.txt && \
-mim install -e .
+pip3 install -e . --no-deps
 ```
 
 :::
