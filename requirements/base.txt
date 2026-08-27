@@ -13,8 +13,11 @@ numpy>=1.23.0,<2.0.0
 opencv-python>=4.9.0.80
 
 
-# openmmlab package manager
-openmim>=0.3.7
+# NOTE: openmim is intentionally NOT listed here. It pulls in `openxlab`,
+# which hard-pins `setuptools~=60.2.0` - a version too old to build anything
+# on Python >= 3.12 (pkgutil.ImpImporter was removed). If you need the `mim`
+# command, install it separately with `pip install openmim` and mind your
+# setuptools version afterwards.
 packaging>=23.1
 pandas>=2.0.0
 pillow>=9.4.0

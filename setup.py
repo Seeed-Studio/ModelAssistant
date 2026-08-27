@@ -47,7 +47,17 @@ def parse_requirements(fpath: str = ''):
             line = line.strip()
             if line and not line.startswith('#'):
                 if line.startswith('-r'):
-                    res = parse_requirements(line.split(' ')[-1])
+                    target = line.split(' ')[-1]
+                    # OpenMMLab packages (mmcv/mmdet/mmcls/mmengine) are
+                    # environment-sensitive: mmcv has no prebuilt wheels for
+                    # recent PyTorch/Python and must be built from source with
+                    # MMCV_WITH_OPS=1. They must NOT end up in install_requires,
+                    # otherwise `pip install .` would silently build a CPU-only
+                    # (or legacy mmcv-full) mmcv and break the installation.
+                    # Install them with scripts/setup_colab.sh or manually.
+                    if target.endswith('mmlab.txt'):
+                        continue
+                    res = parse_requirements(target)
                     reqs += res[0]
                     index += res[1]
                 elif line.startswith('-i'):

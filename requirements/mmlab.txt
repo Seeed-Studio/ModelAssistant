@@ -1,5 +1,11 @@
-# use openmim to install
-mmcls>=1.0.0.rc6
-mmcv-full<=2.1.0
-mmdet>=3.0.0, <3.1.0 # mmyolo currently does not support mmdet 3.1.0
-mmengine>=0.8.2
+# OpenMMLab dependencies
+# NOTE: mmcv 2.2.0 is the last mmcv release and the only one that compiles
+# against recent PyTorch (>= 2.6). There are no prebuilt mmcv wheels for
+# recent PyTorch/Python combinations, so mmcv must be built from source
+# (scripts/setup_colab.sh does this). mmdet 3.0.x / mmcls 1.0.0rc6 hard-code
+# an mmcv < 2.1.0 ceiling at import time; use scripts/patch_mmlab_versions.py
+# to relax that assertion after installation.
+mmcls>=1.0.0rc6
+mmcv>=2.2.0,<=2.2.0
+mmdet>=3.0.0,<3.1.0
+mmengine>=0.8.2,<1.0.0

@@ -67,9 +67,13 @@ fi
 
 
 # openmim install deps
+# NOTE: openmim is no longer part of requirements/base.txt (it drags in a
+# setuptools pin that breaks Python >= 3.12); install it explicitly and keep
+# a working setuptools afterwards.
 echo -en "Installing OpenMIM deps... \n"
+conda run -n sscma pip install openmim "setuptools>=69,<81" && \
 conda run -n sscma mim install -r requirements/mmlab.txt && \
-conda run -n sscma mim install -e .
+conda run -n sscma pip install -e . --no-deps
 if [ "$?" != 0 ]; then
     echo -en "OpenMIM install deps failed... ${RED}Exiting${RST}\n"
     exit 1
