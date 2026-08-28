@@ -6,7 +6,7 @@
 #      replaced afterwards - the mmcv extension is compiled against them.
 #      (Some dependencies, e.g. pyvww, pull an unpinned `torchvision`, whose
 #      latest release pins an exact torch version and would silently swap it.)
-#   2. numpy is pinned (< 2.0) BEFORE anything is compiled.
+#   2. numpy is pinned (< 2.3, for numba) BEFORE anything is compiled.
 #   3. mmcv is compiled from source LAST, after all pip installs are done.
 set -e
 
@@ -52,7 +52,7 @@ cat "${CONSTRAINTS_FILE}"
 # step 2: build tools and pinned numpy (must happen before compiling mmcv)
 echo -en "${BLUE}Installing build tools... ${RST}\n"
 # setuptools<81: still ships the distutils shim required by TinyNeuralNetwork
-pip install "numpy>=1.23.0,<2.0.0" "setuptools>=49.4.0,<81" Cython ninja wheel packaging
+pip install "numpy>=1.23.0,<2.3.0" "setuptools>=49.4.0,<81" Cython ninja wheel packaging
 
 
 # step 3: python dependencies (with the torch stack constrained, nothing here

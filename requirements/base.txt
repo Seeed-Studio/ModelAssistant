@@ -5,7 +5,12 @@ libusb1
 
 # sensor
 cbor
-numpy>=1.23.0,<2.0.0
+# numpy < 2.3: numba (preinstalled on Colab) requires numpy < 2.3, while
+# everything else in a modern image (opencv 5, jax, ml-dtypes, tensorflow
+# 2.20, h5py, keras) requires numpy >= 2. A numpy < 2.0 pin forces a numpy
+# 1.26 source build on Python 3.13 and makes pip downgrade half of the
+# preinstalled stack (opencv, keras, ml-dtypes, h5py, vela).
+numpy>=1.23.0,<2.3.0
 
 
 
