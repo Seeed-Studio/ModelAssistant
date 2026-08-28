@@ -77,8 +77,43 @@ pip install --only-binary ethos-u-vela "ethos-u-vela>=4.2.0,<=5.1.0"
 # PyTorch/Python versions. Compiling with CUDA ops takes ~10-15 min on Colab.
 # MAX_JOBS is capped at 4 by default: each nvcc job needs ~1-2 GB RAM and
 # Colab instances only have ~12 GB. Override with MAX_JOBS=N on bigger hosts.
+#
+# The sdist is downloaded and patched BEFORE building: mmcv 2.2.0's setup.py
+# get_version() does exec(...) at function scope and reads locals(), which no
+# longer works on Python >= 3.13 (PEP 667) and kills the build with
+# "KeyError: '__version__'" at the metadata step.
 echo -en "${BLUE}Building mmcv 2.2.0 from source (this takes a while)... ${RST}\n"
-MMCV_WITH_OPS=1 MAX_JOBS="${MAX_JOBS:-4}" pip install --no-build-isolation --no-cache-dir --no-binary mmcv "mmcv==2.2.0"
+MMCV_BUILD_DIR="$(mktemp -d)"
+trap 'rm -rf "${CONSTRAINTS_FILE}" "${MMCV_BUILD_DIR}"' EXIT
+pip download "mmcv==2.2.0" --no-deps --no-binary mmcv -d "${MMCV_BUILD_DIR}"
+tar xzf "${MMCV_BUILD_DIR}/mmcv-2.2.0.tar.gz" -C "${MMCV_BUILD_DIR}"
+python - "${MMCV_BUILD_DIR}/mmcv-2.2.0/setup.py" <<'EOF'
+import sys
+
+path = sys.argv[1]
+src = open(path).read()
+old = (
+    "    with open(version_file, encoding='utf-8') as f:\n"
+    "        exec(compile(f.read(), version_file, 'exec'))\n"
+    "    return locals()['__version__']"
+)
+new = (
+    "    namespace = {}\n"
+    "    with open(version_file, encoding='utf-8') as f:\n"
+    "        exec(compile(f.read(), version_file, 'exec'), namespace)\n"
+    "    return namespace['__version__']"
+)
+if old not in src:
+    if 'namespace' in src and "namespace['__version__']" in src:
+        print('mmcv setup.py already py3.13-compatible, nothing to patch')
+        sys.exit(0)
+    print('ERROR: could not find get_version() exec pattern in mmcv setup.py -')
+    print('mmcv may have changed; please report this.')
+    sys.exit(1)
+open(path, 'w').write(src.replace(old, new))
+print('patched mmcv setup.py get_version() for Python >= 3.13')
+EOF
+MMCV_WITH_OPS=1 MAX_JOBS="${MAX_JOBS:-4}" pip install --no-build-isolation --no-cache-dir "${MMCV_BUILD_DIR}/mmcv-2.2.0"
 
 
 # step 6: relax the mmcv < 2.1.0 assertion hard-coded in mmdet/mmcls
