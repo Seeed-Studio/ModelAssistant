@@ -59,6 +59,50 @@ def patch_package(name: str, new_maximum: str) -> bool:
     return True
 
 
+ADAFACTOR_OLD = "        OPTIMIZERS.register_module(name='Adafactor', module=Adafactor)\n        transformer_optimizers.append('Adafactor')"
+ADAFACTOR_NEW = (
+    "        if 'Adafactor' not in OPTIMIZERS:\n"
+    "            OPTIMIZERS.register_module(name='Adafactor', module=Adafactor)\n"
+    "            transformer_optimizers.append('Adafactor')"
+)
+
+
+def patch_mmengine_adafactor() -> bool:
+    """Guard mmengine's transformers-Adafactor registration.
+
+    mmengine (<= 0.10.7, including the current upstream) unconditionally
+    registers transformers' Adafactor when transformers is installed. Since
+    torch >= 2.9 ships torch.optim.Adafactor - already registered under the
+    same name - importing mmengine.optim crashes with
+    ``KeyError: 'Adafactor is already registered in optimizer ...'`` whenever
+    both torch >= 2.9 and transformers are present (both are preinstalled on
+    Colab).
+    """
+    spec = importlib.util.find_spec('mmengine')
+    if spec is None or not spec.submodule_search_locations:
+        print('[SKIP] mmengine is not installed')
+        return False
+
+    builder_file = os.path.join(
+        spec.submodule_search_locations[0], 'optim', 'optimizer', 'builder.py'
+    )
+    with open(builder_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    if ADAFACTOR_NEW in content:
+        print(f'[OK]   mmengine: Adafactor guard already present ({builder_file})')
+        return True
+    if ADAFACTOR_OLD not in content:
+        print(f'[FAIL] mmengine: Adafactor registration pattern not found in {builder_file}')
+        print('       The installed mmengine version may have changed - please check it manually.')
+        return False
+
+    with open(builder_file, 'w', encoding='utf-8') as f:
+        f.write(content.replace(ADAFACTOR_OLD, ADAFACTOR_NEW))
+    print(f'[OK]   mmengine: guarded Adafactor registration ({builder_file})')
+    return True
+
+
 def verify_imports() -> bool:
     ok = True
     for name in ('mmcv', 'mmdet', 'mmcls', 'mmengine'):
@@ -67,6 +111,15 @@ def verify_imports() -> bool:
             print(f'[OK]   import {name} {module.__version__}')
         except Exception as exc:  # noqa: BLE001
             print(f'[FAIL] import {name}: {exc}')
+            ok = False
+    if ok:
+        try:
+            # triggers the optimizer registration code paths
+            from mmengine.optim.optimizer import OPTIMIZERS  # noqa: F401
+
+            print('[OK]   mmengine optimizer registry builds')
+        except Exception as exc:  # noqa: BLE001
+            print(f'[FAIL] mmengine optimizer registry: {exc}')
             ok = False
     return ok
 
@@ -77,6 +130,7 @@ def main():
     args = parser.parse_args()
 
     results = [patch_package(name, maximum) for name, maximum in PACKAGES.items()]
+    results.append(patch_mmengine_adafactor())
     if not all(results):
         sys.exit(1)
 
