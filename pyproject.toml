@@ -1,0 +1,6 @@
+[build-system]
+# PEP 517/660 build via setuptools. Without this, pip falls back to the
+# deprecated legacy `setup.py egg_info`/`setup.py develop` path, which is
+# removed in newer pip releases and fails on modern environments (e.g. Colab).
+requires = ["setuptools>=64,<81", "wheel"]
+build-backend = "setuptools.build_meta"

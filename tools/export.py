@@ -46,7 +46,14 @@ def parse_args():
     parser.add_argument(
         "--simplify", action="store_true", help="Simplify onnx model by onnx-sim"
     )
-    parser.add_argument("--opset", type=int, default=11, help="ONNX opset version")
+    parser.add_argument(
+        "--opset",
+        type=int,
+        default=18,
+        help="ONNX opset version (PyTorch >= 2.9's dynamo exporter supports "
+        "opset >= 18 only; lower values trigger a noisy, usually failing "
+        "version-conversion fallback)",
+    )
     parser.add_argument(
         "--image_path", type=str, help="Used to export verification data of tflite"
     )
@@ -130,7 +137,8 @@ def generate_input(images_path, img_shape):
         img = cv2.imread(ps)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) / 255
         img = cv2.resize(img, (img_shape[0], img_shape[1]))
-        res.append(img)
+        # keep a consistent float32 dtype - a mixed float64/float32 array is
+        # upcast to float64 and confuses onnx2tf's quantization calibration
         res.append(img.astype(np.float32))
     return np.asarray(res)
 
@@ -176,7 +184,9 @@ def main():
     runner.call_hook("before_run")
     runner.model.to(device=args.device)
     runner.load_checkpoint(args.checkpoint, map_location=torch.device(args.device))
-    model = runner.model.to(device=args.device)
+    # the runner builds the model in training mode; exporting without eval()
+    # would bake batch-statistics BatchNorm into the graph
+    model = runner.model.to(device=args.device).eval()
 
     model_format = args.format
     new_model_format = []
@@ -188,9 +198,9 @@ def main():
         elif fmt == "savemodel":
             new_model_format.extend(["onnx", "savemodel"])
         elif fmt == "tflite":
-            new_model_format.extend(["onnx", "savemodel", "tflite"])
+            new_model_format.extend(["onnx", "tflite"])
         elif fmt == "vela":
-            new_model_format.extend(["onnx", "savemodel", "tflite", "vela"])
+            new_model_format.extend(["onnx", "tflite", "vela"])
         elif fmt == "torchscript":
             new_model_format.append("torchscript")
     new_model_format = list(set(new_model_format))
@@ -202,30 +212,17 @@ def main():
             np.save(
                 "calibration_image_sample_data_20x128x128x3_float32.npy", input_data
             )
-        std = (
-            (
-                cfg.model.data_preprocessor.std
-                if cfg.model.data_preprocessor.get("std", False)
-                else [0, 0, 0]
-            )
-            if cfg.model.get("data_preprocessor", False)
-            else [0, 0, 0]
-        )
-        mean = (
-            (
-                cfg.model.data_preprocessor.mean
-                if cfg.model.data_preprocessor.get("mean", False)
-                else [255, 255, 255]
-            )
-            if cfg.model.get("data_preprocessor", False)
-            else [255, 255, 255]
-        )
+        # generate_input() produces samples already normalized to [0, 1], so
+        # the calibration normalization is a no-op: mean=0, std=1. (Deriving
+        # these from the config's data_preprocessor is wrong here - those
+        # values describe the model's internal normalization of 0-255 inputs,
+        # and a missing std would produce a division by zero.)
         calibration_data = [
             [
                 "images",
                 "calibration_image_sample_data_20x128x128x3_float32.npy",
-                [[[std]]],
-                [[[mean]]],
+                [[[0.0]]],
+                [[[1.0]]],
             ]
         ]
     # export
@@ -242,11 +239,7 @@ def main():
         export_savemodel(onnx_file, calibration_data)
 
     if "tflite" in new_model_format:
-        tflite_file = export_tflite(
-            onnx_file,
-            args.img_size,
-            args.image_path,
-        )
+        tflite_file = export_tflite(onnx_file, calibration_data)
 
     if "vela" in new_model_format:
         export_vela(tflite_file, args.verify)
@@ -259,7 +252,7 @@ def main():
         runner.test_evaluator.metrics.append(DumpResults(out_file_path=args.out))
 
 
-@lazy_import("onnx2tf", install_only=True)
+@lazy_import("onnx2tf", install_only=True, version=">=2.5.0,<=2.6.8")
 @lazy_import("tf-keras", install_only=True)
 @lazy_import("onnx-graphsurgeon", install_only=True)
 @lazy_import("sng4onnx", install_only=True)
@@ -275,6 +268,9 @@ def export_savemodel(onnx_file, calibration_data=None):
             # batch_size=1,
             custom_input_op_name_np_data_path=calibration_data,
             output_signaturedefs=True,
+            # onnx2tf >= 2.0 defaults to the flatbuffer-direct path and no
+            # longer writes a SavedModel unless explicitly requested
+            flatbuffer_direct_output_saved_model=True,
             verbosity="warn",
         )
         print("The pb model format was exported successfully")
@@ -374,39 +370,51 @@ def export_hailo(onnx_path: str, arch: str, img_shape, cfg, img_path):
         f.write(hef)
 
 
-@lazy_import("tensorflow")
-def export_tflite(onnx_path: str, img_shape, img_path):
-    import os.path as osp
-    import cv2
-    from tqdm.std import tqdm
-    import tensorflow as tf
+@lazy_import("onnx2tf", install_only=True, version=">=2.5.0,<=2.6.8")
+def export_tflite(onnx_path: str, calibration_data=None):
+    # Convert ONNX directly to a full-integer-quantized INT8 TFLite model via
+    # onnx2tf's flatbuffer-direct path. The previous pipeline (onnx2tf ->
+    # SavedModel -> tf.lite.TFLiteConverter.from_saved_model) no longer works:
+    # onnx2tf >= 2.0 does not emit SavedModel by default, and its SavedModel
+    # exporter is broken with TensorFlow >= 2.20 (depthwise_conv2d dilations).
+    # Per-tensor quantization is used: it is what the Ethos-U55 Vela compiler
+    # expects, and onnx2tf's strict per-channel validation fails for some ops.
+    from onnx2tf import onnx2tf
 
     file_stem = osp.splitext(osp.basename(onnx_path))[0]
-    tflite_path = osp.join(osp.dirname(onnx_path), f"{file_stem}_int8.tflite")
-    # pb convert to tflite
-    converter = tf.lite.TFLiteConverter.from_saved_model(osp.dirname(onnx_path))
+    out_dir = osp.dirname(onnx_path)
+    tflite_path = osp.join(out_dir, f"{file_stem}_int8.tflite")
 
-    def representative_dataset():
-        datasets = find_and_sample_images(img_path, limit=10000, sample_size=300)
-        for ps in tqdm(datasets[:300]):
-            img = cv2.imread(ps)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) / 255
-            img = cv2.resize(img, (img_shape[0], img_shape[1]))
-            img = tf.convert_to_tensor([img], dtype=tf.float32)
+    quantized_file = osp.join(out_dir, f"{file_stem}_full_integer_quant.tflite")
+    try:
+        onnx2tf.convert(
+            onnx_path,
+            output_folder_path=out_dir,
+            output_signaturedefs=True,
+            verbosity="warn",
+            output_integer_quantized_tflite=True,
+            quant_type="per-tensor",
+            custom_input_op_name_np_data_path=calibration_data,
+            input_quant_dtype="int8",
+            output_quant_dtype="int8",
+        )
+    except Exception as exc:
+        # onnx2tf also emits an experimental int16-activations variant whose
+        # strict validation is broken for depthwise convs (int32 vs int64
+        # bias). That failure is raised *after* the int8 artifacts we need
+        # have already been written and validated - tolerate it, but only if
+        # the target file actually exists.
+        if not osp.exists(quantized_file):
+            raise
+        print(f"Warning: onnx2tf reported an error after writing the INT8 model (ignored): {exc}")
 
-            yield [img]
-
-    converter.optimizations = [tf.lite.Optimize.DEFAULT]
-    converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
-    converter.inference_input_type = tf.int8
-    converter.inference_output_type = tf.int8
-    converter.representative_dataset = representative_dataset
-    converter._experimental_disable_per_channel = False
-
-    tflite_quant_model = converter.convert()
-    with open(tflite_path, "wb") as f:
-        f.write(tflite_quant_model)
-    print("tflite model export successful")
+    if not osp.exists(quantized_file):
+        raise RuntimeError(
+            f"INT8 quantization failed: {quantized_file} was not produced. "
+            "Check the onnx2tf log above for details."
+        )
+    shutil.move(quantized_file, tflite_path)
+    print(f"tflite model export successful: {tflite_path}")
 
     return tflite_path
 

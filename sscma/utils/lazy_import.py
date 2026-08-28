@@ -3,7 +3,15 @@ import sys
 import importlib
 
 
-def lazy_import(module_name: str, name_alias: str = None, name_variants: dict[str, str] = {}, index_url: str = None, install_only: bool = False):
+def lazy_import(module_name: str, name_alias: str = None, name_variants: dict[str, str] = {}, index_url: str = None, install_only: bool = False, version: str = None):
+    """Import a module, installing it with pip on demand if missing.
+
+    Args:
+        version: optional PEP 440 version specifier (e.g. ">=2.5.0,<2.7.0")
+            used only when the package has to be installed. Use it to keep
+            runtime auto-installs deterministic instead of silently pulling
+            the latest (possibly incompatible) release.
+    """
     def validate_name(name: str):
         if not name.replace("-", "_").isidentifier():
             raise ValueError(f"Invalid module name: {name}")
@@ -55,7 +63,7 @@ def lazy_import(module_name: str, name_alias: str = None, name_variants: dict[st
                         package_name = k
                         break
                 cmds = [sys.executable, '-m', 'pip', 'install']
-                cmds.append(package_name)
+                cmds.append(package_name + version if version else package_name)
                 if index_url is not None:
                     cmds.extend(['-i', index_url])
                 ret = subprocess.call(cmds)
