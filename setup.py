@@ -15,10 +15,13 @@ def readme():
 
 
 def get_version():
+    # NOTE: exec into an explicit namespace dict - writing to function
+    # locals() via exec no longer works on Python >= 3.13
+    namespace = {}
     version_file = 'sscma/version.py'
     with open(version_file, 'r', encoding='utf-8') as f:
-        exec(compile(f.read(), version_file, 'exec'))
-    return locals()['__version__']
+        exec(compile(f.read(), version_file, 'exec'), namespace)
+    return namespace['__version__']
 
 
 def parse_line(line: str):
