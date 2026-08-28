@@ -81,11 +81,25 @@ pip install --only-binary ethos-u-vela "ethos-u-vela>=4.2.0,<=5.1.0"
 # The sdist is downloaded and patched BEFORE building: mmcv 2.2.0's setup.py
 # get_version() does exec(...) at function scope and reads locals(), which no
 # longer works on Python >= 3.13 (PEP 667) and kills the build with
-# "KeyError: '__version__'" at the metadata step.
+# "KeyError: '__version__'" at the metadata step. It cannot be fetched with
+# pip (neither pip install nor pip download): pip ALWAYS builds the sdist's
+# metadata first - i.e. runs the broken setup.py before we can patch it - so
+# the sdist is fetched from PyPI out-of-band (with sha256 verification).
 echo -en "${BLUE}Building mmcv 2.2.0 from source (this takes a while)... ${RST}\n"
 MMCV_BUILD_DIR="$(mktemp -d)"
 trap 'rm -rf "${CONSTRAINTS_FILE}" "${MMCV_BUILD_DIR}"' EXIT
-pip download "mmcv==2.2.0" --no-deps --no-binary mmcv -d "${MMCV_BUILD_DIR}"
+read -r MMCV_URL MMCV_SHA256 < <(python - <<'EOF'
+import json
+import urllib.request
+
+with urllib.request.urlopen('https://pypi.org/pypi/mmcv/2.2.0/json') as r:
+    data = json.load(r)
+sdist = next(u for u in data['urls'] if u['packagetype'] == 'sdist')
+print(sdist['url'], sdist['digests']['sha256'])
+EOF
+)
+curl -fSL --retry 3 -o "${MMCV_BUILD_DIR}/mmcv-2.2.0.tar.gz" "${MMCV_URL}"
+echo "${MMCV_SHA256}  ${MMCV_BUILD_DIR}/mmcv-2.2.0.tar.gz" | sha256sum -c -
 tar xzf "${MMCV_BUILD_DIR}/mmcv-2.2.0.tar.gz" -C "${MMCV_BUILD_DIR}"
 python - "${MMCV_BUILD_DIR}/mmcv-2.2.0/setup.py" <<'EOF'
 import sys
