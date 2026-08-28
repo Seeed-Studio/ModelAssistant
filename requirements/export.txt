@@ -5,4 +5,12 @@ TinyNeuralNetwork @ https://files.seeedstudio.com/sscma/library/TinyNeuralNetwor
 pnnx
 
 # vela
-ethos-u-vela
+# NOTE: pinned to a range with prebuilt wheels for Python >= 3.12.
+# ethos-u-vela <= 4.1.0 ships sdists only and its legacy setup.py fails to
+# build on Python >= 3.12 (needs flatbuffers at build time). Worse, vela
+# 3.7.0 declares NO dependencies at all, so pip's resolver can always
+# backtrack to it when anything else conflicts - silently turning a
+# dependency conflict into a source build that then fails.
+# 5.1.0 is verified with tools/export.py and the vela CLI flags used in the
+# docs/notebooks; bump the ceiling after re-verifying.
+ethos-u-vela>=4.2.0,<=5.1.0

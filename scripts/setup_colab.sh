@@ -66,6 +66,12 @@ pip install -c "${CONSTRAINTS_FILE}" -r requirements/base.txt -r requirements/in
 echo -en "${BLUE}Installing OpenMMLab deps... ${RST}\n"
 pip install -c "${CONSTRAINTS_FILE}" "mmengine>=0.8.2,<1.0.0" "mmdet>=3.0.0,<3.1.0" "mmcls>=1.0.0rc6"
 
+# vela: wheel-only. Sdist releases (<= 4.1.0) fail to build on Python >= 3.12
+# (their setup.py imports flatbuffers at build time), and the metadata-less
+# vela 3.7.0 is pip's favorite backtracking target on conflict-heavy
+# environments like Colab.
+pip install --only-binary ethos-u-vela "ethos-u-vela>=4.2.0,<=5.1.0"
+
 
 # step 5: build mmcv from source - there are no prebuilt wheels for recent
 # PyTorch/Python versions. Compiling with CUDA ops takes ~10-15 min on Colab.
