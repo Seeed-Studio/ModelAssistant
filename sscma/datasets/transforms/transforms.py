@@ -26,10 +26,10 @@ except ImportError:
 
 try:
     import albumentations
-    from albumentations import Compose
 except ImportError:
     albumentations = None
-    Compose = None
+
+from mmengine.dataset import Compose
 
 try:
     from PIL import Image

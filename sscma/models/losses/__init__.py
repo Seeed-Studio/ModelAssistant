@@ -11,6 +11,7 @@ from .iou_loss import (
     SIoULoss,
 )
 from .label_smooth_loss import LabelSmoothLoss
+from .yolo_iou_loss import YOLOv5IoULoss
 from .utils import reduce_loss, weight_reduce_loss, weighted_loss, convert_to_one_hot
 from .pfld_loss import PFLDLoss
 
@@ -28,6 +29,7 @@ __all__ = [
     "CIoULoss",
     "EIoULoss",
     "SIoULoss",
+    "YOLOv5IoULoss",
     "LabelSmoothLoss",
     "reduce_loss",
     "weight_reduce_loss",

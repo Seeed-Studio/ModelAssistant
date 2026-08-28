@@ -1,7 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from mmengine.utils.dl_utils import TORCH_VERSION
 from mmengine.utils.version_utils import digit_version
-from .averaged_model import (BaseAveragedModel, ExponentialMovingAverage,
+from .averaged_model import (BaseAveragedModel, ExpMomentumEMA, ExponentialMovingAverage,
                              MomentumAnnealingEMA, StochasticWeightAverage)
 from .base_model import BaseDataPreprocessor, BaseModel, ImgDataPreprocessor
 from .base_module import BaseModule, ModuleDict, ModuleList, Sequential

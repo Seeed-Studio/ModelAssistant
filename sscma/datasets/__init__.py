@@ -15,6 +15,7 @@ from .imagenet import ImageNet, ImageNet21k
 from .lancedb_datasets import LanceDataset
 from .meter import MeterData
 from .fomo import CustomFomoCocoDataset
+from .yolodataset import CustomYOLOv5CocoDataset
 from .anomaly_dataset import Microphone_dataset, Signal_dataset
 
 

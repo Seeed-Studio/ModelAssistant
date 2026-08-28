@@ -7,6 +7,25 @@ import torch.nn.functional as F
 
 from mmengine.registry import MODELS
 
+# Mirror of the registrations mmcv used to provide: string-based act_cfg
+# (e.g. dict(type='ReLU')) resolves through the MODELS registry.
+for module in [
+    nn.ReLU,
+    nn.LeakyReLU,
+    nn.PReLU,
+    nn.RReLU,
+    nn.ReLU6,
+    nn.ELU,
+    nn.Sigmoid,
+    nn.Tanh,
+    nn.SiLU,
+    nn.GELU,
+    nn.Hardswish,
+    nn.Hardsigmoid,
+    nn.Mish,
+]:
+    MODELS.register_module(module=module)
+
 
 class Clamp(nn.Module):
     """Clamp activation layer.

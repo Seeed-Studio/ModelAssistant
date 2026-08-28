@@ -51,9 +51,16 @@ class TFliteInfer(BaseInfer):
         return results
 
     def load_weights(self):
+        try:
+            self.interpreter = tf.lite.Interpreter(model_path=self.weights)  # load TFLite model
+            self.interpreter.allocate_tensors()  # allocate
+        except RuntimeError:
+            # some graphs (e.g. CONCATENATION whose inputs carry different
+            # quantization scales) are rejected by the default XNNPACK
+            # delegate but are legal for the reference kernels, which
+            # requantize per input - fall back to them
+            self.interpreter = tf.lite.Interpreter(model_path=self.weights, experimental_delegates=[])
+            self.interpreter.allocate_tensors()
 
-        self.interpreter = tf.lite.Interpreter(model_path=self.weights)  # load TFLite model
-
-        self.interpreter.allocate_tensors()  # allocate
         self.input_details = self.interpreter.get_input_details()  # inputs
         self.output_details = self.interpreter.get_output_details()  # outputs

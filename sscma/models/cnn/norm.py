@@ -11,6 +11,20 @@ from mmengine.utils.dl_utils.parrots_wrapper import (
     _InstanceNorm,
 )
 
+# Mirror of the registrations mmcv used to provide: string-based norm_cfg
+# (e.g. dict(type='BN')) resolves through the MODELS registry.
+MODELS.register_module('BN', module=nn.BatchNorm2d)
+MODELS.register_module('BN1d', module=nn.BatchNorm1d)
+MODELS.register_module('BN2d', module=nn.BatchNorm2d)
+MODELS.register_module('BN3d', module=nn.BatchNorm3d)
+MODELS.register_module('SyncBN', module=nn.SyncBatchNorm)
+MODELS.register_module('GN', module=nn.GroupNorm)
+MODELS.register_module('LN', module=nn.LayerNorm)
+MODELS.register_module('IN', module=nn.InstanceNorm2d)
+MODELS.register_module('IN1d', module=nn.InstanceNorm1d)
+MODELS.register_module('IN2d', module=nn.InstanceNorm2d)
+MODELS.register_module('IN3d', module=nn.InstanceNorm3d)
+
 
 def infer_abbr(class_type):
     """Infer abbreviation from the class name.
