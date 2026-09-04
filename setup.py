@@ -15,10 +15,13 @@ def readme():
 
 
 def get_version():
+    # NOTE: exec into an explicit namespace dict - writing to function
+    # locals() via exec no longer works on Python >= 3.13
+    namespace = {}
     version_file = 'sscma/version.py'
     with open(version_file, 'r', encoding='utf-8') as f:
-        exec(compile(f.read(), version_file, 'exec'))
-    return locals()['__version__']
+        exec(compile(f.read(), version_file, 'exec'), namespace)
+    return namespace['__version__']
 
 
 def parse_line(line: str):
@@ -47,7 +50,17 @@ def parse_requirements(fpath: str = ''):
             line = line.strip()
             if line and not line.startswith('#'):
                 if line.startswith('-r'):
-                    res = parse_requirements(line.split(' ')[-1])
+                    target = line.split(' ')[-1]
+                    # OpenMMLab packages (mmcv/mmdet/mmcls/mmengine) are
+                    # environment-sensitive: mmcv has no prebuilt wheels for
+                    # recent PyTorch/Python and must be built from source with
+                    # MMCV_WITH_OPS=1. They must NOT end up in install_requires,
+                    # otherwise `pip install .` would silently build a CPU-only
+                    # (or legacy mmcv-full) mmcv and break the installation.
+                    # Install them with scripts/setup_colab.sh or manually.
+                    if target.endswith('mmlab.txt'):
+                        continue
+                    res = parse_requirements(target)
                     reqs += res[0]
                     index += res[1]
                 elif line.startswith('-i'):

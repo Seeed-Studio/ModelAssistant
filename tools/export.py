@@ -6,6 +6,13 @@ import sys
 import tempfile
 
 import torch
+
+# PyTorch >= 2.6 changed the default of `torch.load` to `weights_only=True`,
+# which rejects checkpoints containing non-tensor objects (e.g. NumPy arrays
+# in `meta`) and breaks mmengine's checkpoint loading. Restore the previous
+# behavior for our trusted checkpoints; can be overridden from outside.
+os.environ.setdefault('TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD', '1')
+
 from tqdm import tqdm
 
 current_path = osp.dirname(osp.abspath(__file__))
@@ -291,6 +298,15 @@ def export_pnnx(args, model):
     import sys
 
     import pnnx
+
+    if not hasattr(pnnx, 'wrapper'):
+        raise RuntimeError(
+            f'The installed pnnx=={getattr(pnnx, "__version__", "unknown")} no longer provides '
+            '"pnnx.wrapper" (removed in pnnx >= 20231211, which also switched from TorchScript to '
+            'torch.export). The "pnnx" export target is currently incompatible with modern pnnx '
+            'releases - please export with --targets tflite/onnx/vela instead.'
+        )
+
     from pnnx.wrapper import convert_inputshape_to_cmd
 
     model.eval()
@@ -497,13 +513,27 @@ def main():
     model = runner.model.to(device=args.device)
     loader = runner.val_dataloader
 
+    failed_targets = []
     for target in args.targets:
-        if target == 'tflite':
-            export_tflite(args, model, loader)
-        elif target == 'onnx':
-            export_onnx(args, model)
-        elif target == 'pnnx':
-            export_pnnx(args, model)
+        # Export targets are independent: a failure in one (e.g. pnnx, whose
+        # upstream package changed its API) must not discard the artifacts
+        # already produced by the others (e.g. tflite/vela).
+        try:
+            if target == 'tflite':
+                export_tflite(args, model, loader)
+            elif target == 'onnx':
+                export_onnx(args, model)
+            elif target == 'pnnx':
+                export_pnnx(args, model)
+        except Exception as exc:
+            failed_targets.append(target)
+            print(f'ERROR: exporting target "{target}" failed: {exc}')
+
+    if failed_targets:
+        raise RuntimeError(
+            f'Export failed for target(s): {failed_targets}. '
+            'Artifacts for the remaining targets were exported successfully.'
+        )
 
 
 if __name__ == '__main__':

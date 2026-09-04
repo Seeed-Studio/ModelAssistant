@@ -1,7 +1,13 @@
 libusb1>=3.0.0
-pnnx==0.0.4
+# NOTE: keep unpinned. The previous pin (==0.0.4) resolved to an ancient
+# placeholder release, and it conflicts with the unpinned pnnx in
+# requirements/export.txt.
+pnnx
 ncnn>=1.0.20230517
 onnx>=1.14.0
+# torch.onnx.export uses the dynamo exporter by default since PyTorch 2.9,
+# which requires onnxscript
+onnxscript>=0.1.0
 onnxmltools>=1.11.2
 onnxruntime>=1.15.1
 onnxsim>=0.4.33

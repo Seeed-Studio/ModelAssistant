@@ -5,7 +5,12 @@ libusb1
 
 # sensor
 cbor
-numpy>=1.23.0,<2.0.0
+# numpy < 2.3: numba (preinstalled on Colab) requires numpy < 2.3, while
+# everything else in a modern image (opencv 5, jax, ml-dtypes, tensorflow
+# 2.20, h5py, keras) requires numpy >= 2. A numpy < 2.0 pin forces a numpy
+# 1.26 source build on Python 3.13 and makes pip downgrade half of the
+# preinstalled stack (opencv, keras, ml-dtypes, h5py, vela).
+numpy>=1.23.0,<2.3.0
 
 
 
@@ -13,8 +18,11 @@ numpy>=1.23.0,<2.0.0
 opencv-python>=4.9.0.80
 
 
-# openmmlab package manager
-openmim>=0.3.7
+# NOTE: openmim is intentionally NOT listed here. It pulls in `openxlab`,
+# which hard-pins `setuptools~=60.2.0` - a version too old to build anything
+# on Python >= 3.12 (pkgutil.ImpImporter was removed). If you need the `mim`
+# command, install it separately with `pip install openmim` and mind your
+# setuptools version afterwards.
 packaging>=23.1
 pandas>=2.0.0
 pillow>=9.4.0

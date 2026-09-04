@@ -1,5 +1,9 @@
 -i https://download.pytorch.org/whl/cpu
 
-torch<=2.0.1
-torchaudio<=2.0.2
-torchvision<=0.15.2
+# NOTE: no upper version bound on purpose. The previous ceiling (torch<=2.0.1)
+# has no wheels for Python >= 3.12 and made the whole installation fail.
+# torch/torchvision/torchaudio versions must stay mutually compatible;
+# on Google Colab the preinstalled versions are used as-is.
+torch>=2.1.0
+torchaudio>=2.1.0
+torchvision>=0.16.0

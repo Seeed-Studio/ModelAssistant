@@ -158,7 +158,7 @@ def check_file(path, store_dir=None, data_name=None):
             download_dir = (
                 f"{os.environ['HOME']}/datasets"
                 if platform.system() == 'Linux' and not store_dir
-                else 'D:\datasets'
+                else r'D:\datasets'
                 if not store_dir
                 else store_dir
             )
@@ -175,7 +175,7 @@ def check_file(path, store_dir=None, data_name=None):
             download_dir = (
                 f"{os.environ['HOME']}/datasets"
                 if platform.system() == 'Linux' and not store_dir
-                else 'D:\datasets'
+                else r'D:\datasets'
                 if not store_dir
                 else store_dir
             )
