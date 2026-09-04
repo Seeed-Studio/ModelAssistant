@@ -46,7 +46,14 @@ def parse_args():
     parser.add_argument(
         "--simplify", action="store_true", help="Simplify onnx model by onnx-sim"
     )
-    parser.add_argument("--opset", type=int, default=11, help="ONNX opset version")
+    parser.add_argument(
+        "--opset",
+        type=int,
+        default=18,
+        help="ONNX opset version (PyTorch >= 2.9's dynamo exporter supports "
+        "opset >= 18 only; lower values trigger a noisy, usually failing "
+        "version-conversion fallback)",
+    )
     parser.add_argument(
         "--image_path", type=str, help="Used to export verification data of tflite"
     )
@@ -130,7 +137,8 @@ def generate_input(images_path, img_shape):
         img = cv2.imread(ps)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) / 255
         img = cv2.resize(img, (img_shape[0], img_shape[1]))
-        res.append(img)
+        # keep a consistent float32 dtype - a mixed float64/float32 array is
+        # upcast to float64 and confuses onnx2tf's quantization calibration
         res.append(img.astype(np.float32))
     return np.asarray(res)
 
@@ -176,7 +184,9 @@ def main():
     runner.call_hook("before_run")
     runner.model.to(device=args.device)
     runner.load_checkpoint(args.checkpoint, map_location=torch.device(args.device))
-    model = runner.model.to(device=args.device)
+    # the runner builds the model in training mode; exporting without eval()
+    # would bake batch-statistics BatchNorm into the graph
+    model = runner.model.to(device=args.device).eval()
 
     model_format = args.format
     new_model_format = []
@@ -188,9 +198,9 @@ def main():
         elif fmt == "savemodel":
             new_model_format.extend(["onnx", "savemodel"])
         elif fmt == "tflite":
-            new_model_format.extend(["onnx", "savemodel", "tflite"])
+            new_model_format.extend(["onnx", "tflite"])
         elif fmt == "vela":
-            new_model_format.extend(["onnx", "savemodel", "tflite", "vela"])
+            new_model_format.extend(["onnx", "tflite", "vela"])
         elif fmt == "torchscript":
             new_model_format.append("torchscript")
     new_model_format = list(set(new_model_format))
@@ -202,30 +212,17 @@ def main():
             np.save(
                 "calibration_image_sample_data_20x128x128x3_float32.npy", input_data
             )
-        std = (
-            (
-                cfg.model.data_preprocessor.std
-                if cfg.model.data_preprocessor.get("std", False)
-                else [0, 0, 0]
-            )
-            if cfg.model.get("data_preprocessor", False)
-            else [0, 0, 0]
-        )
-        mean = (
-            (
-                cfg.model.data_preprocessor.mean
-                if cfg.model.data_preprocessor.get("mean", False)
-                else [255, 255, 255]
-            )
-            if cfg.model.get("data_preprocessor", False)
-            else [255, 255, 255]
-        )
+        # generate_input() produces samples already normalized to [0, 1], so
+        # the calibration normalization is a no-op: mean=0, std=1. (Deriving
+        # these from the config's data_preprocessor is wrong here - those
+        # values describe the model's internal normalization of 0-255 inputs,
+        # and a missing std would produce a division by zero.)
         calibration_data = [
             [
                 "images",
                 "calibration_image_sample_data_20x128x128x3_float32.npy",
-                [[[std]]],
-                [[[mean]]],
+                [[[0.0]]],
+                [[[1.0]]],
             ]
         ]
     # export
@@ -242,11 +239,7 @@ def main():
         export_savemodel(onnx_file, calibration_data)
 
     if "tflite" in new_model_format:
-        tflite_file = export_tflite(
-            onnx_file,
-            args.img_size,
-            args.image_path,
-        )
+        tflite_file = export_tflite(onnx_file, calibration_data)
 
     if "vela" in new_model_format:
         export_vela(tflite_file, args.verify)
@@ -259,7 +252,7 @@ def main():
         runner.test_evaluator.metrics.append(DumpResults(out_file_path=args.out))
 
 
-@lazy_import("onnx2tf", install_only=True)
+@lazy_import("onnx2tf", install_only=True, version=">=2.5.0,<=2.6.8")
 @lazy_import("tf-keras", install_only=True)
 @lazy_import("onnx-graphsurgeon", install_only=True)
 @lazy_import("sng4onnx", install_only=True)
@@ -272,9 +265,15 @@ def export_savemodel(onnx_file, calibration_data=None):
         onnx2tf.convert(
             onnx_file,
             output_folder_path=osp.dirname(onnx_file),
-            # batch_size=1,
+            # fix the batch dim: onnx2tf keeps it dynamic by default and then
+            # emits RESHAPE ops with computed (non-constant) shapes, which
+            # vela rejects ("Does not have valid TFLite Semantics")
+            batch_size=1,
             custom_input_op_name_np_data_path=calibration_data,
             output_signaturedefs=True,
+            # onnx2tf >= 2.0 defaults to the flatbuffer-direct path and no
+            # longer writes a SavedModel unless explicitly requested
+            flatbuffer_direct_output_saved_model=True,
             verbosity="warn",
         )
         print("The pb model format was exported successfully")
@@ -374,39 +373,308 @@ def export_hailo(onnx_path: str, arch: str, img_shape, cfg, img_path):
         f.write(hef)
 
 
-@lazy_import("tensorflow")
-def export_tflite(onnx_path: str, img_shape, img_path):
-    import os.path as osp
-    import cv2
-    from tqdm.std import tqdm
-    import tensorflow as tf
+def optimize_tflite_for_vela(tflite_path: str) -> None:
+    """Post-process a quantized TFLite model so the whole graph is legal
+    static TFLite that the Vela compiler (and XNNPACK) fully accepts.
+
+    onnx2tf's per-tensor quantizer leaves three classes of problems behind
+    (all visible in the YOLOv5 decode tail):
+
+    1. ``shape_signature`` keeps dynamic (-1) dims even though every tensor
+       has a static shape. Vela's regor reads the *signature*, reports
+       "Dynamic non-batch dimension" and refuses to place any downstream op
+       on the NPU. The signatures are synced to the static shapes.
+    2. Quantization scales/zero-points drift inside bit-exact op chains
+       (RESHAPE/SQUEEZE/EXPAND_DIMS/TRANSPOSE/SLICE/CONCATENATION), which
+       both Vela ("Does not have valid TFLite Semantics") and XNNPACK
+       reject. Tensors linked by such ops are grouped (union-find) and
+       share one parameter set (graph output wins, else the chain source),
+       matching the reference TFLite quantizer's same-scale propagation.
+    3. Elementwise ops whose constant operand is broadcast along a
+       non-batch axis (e.g. the YOLOv5 grid add) are not NPU-placeable;
+       the constant is materialized (tiled) to the full shape, and groups
+       of constant SLICEs that partition one axis are merged into a single
+       SPLIT_V (the form regor handles best).
+    """
+    import flatbuffers
+    import numpy as np
+    from onnx2tf.tflite_builder.schema import schema_generated as sgt
+
+    passthrough = {
+        sgt.BuiltinOperator.RESHAPE,
+        sgt.BuiltinOperator.SQUEEZE,
+        sgt.BuiltinOperator.EXPAND_DIMS,
+        sgt.BuiltinOperator.TRANSPOSE,
+        sgt.BuiltinOperator.SLICE,
+    }
+    elementwise = {
+        sgt.BuiltinOperator.ADD,
+        sgt.BuiltinOperator.SUB,
+        sgt.BuiltinOperator.MUL,
+    }
+
+    with open(tflite_path, 'rb') as f:
+        buf = f.read()
+    model_t = sgt.ModelT.InitFromObj(sgt.Model.GetRootAsModel(buf, 0))
+    n_splitv = n_bcast = n_quant = n_sig = 0
+
+    for subgraph in model_t.subgraphs:
+        # --- pass 1: merge constant SLICE partitions into SPLIT_V ---------
+        def read_const_i32(t):
+            b = model_t.buffers[t.buffer].data
+            return np.frombuffer(bytes(b), dtype=np.int32) if b is not None else None
+
+        def add_const_i32(values):
+            arr = np.array(values, dtype=np.int32)
+            buf_t = sgt.BufferT()
+            buf_t.data = arr.tobytes()
+            model_t.buffers.append(buf_t)
+            t = sgt.TensorT()
+            t.type = sgt.TensorType.INT32
+            t.shape = np.array(list(arr.shape), dtype=np.int32)
+            t.buffer = len(model_t.buffers) - 1
+            t.name = f'vela_const_{len(model_t.buffers) - 1}'.encode()
+            subgraph.tensors.append(t)
+            return len(subgraph.tensors) - 1
+
+        groups = {}
+        for idx, op in enumerate(subgraph.operators):
+            if model_t.operatorCodes[op.opcodeIndex].builtinCode == sgt.BuiltinOperator.SLICE:
+                groups.setdefault(op.inputs[0], []).append(idx)
+
+        splitv_opcode = next(
+            (i for i, o in enumerate(model_t.operatorCodes) if o.builtinCode == sgt.BuiltinOperator.SPLIT_V), None
+        )
+        if splitv_opcode is None:
+            oc = sgt.OperatorCodeT()
+            oc.builtinCode = sgt.BuiltinOperator.SPLIT_V
+            model_t.operatorCodes.append(oc)
+            splitv_opcode = len(model_t.operatorCodes) - 1
+
+        to_delete = set()
+        for input_t, idxs in groups.items():
+            if len(idxs) < 2:
+                continue
+            ops = [subgraph.operators[i] for i in idxs]
+            begins = [read_const_i32(subgraph.tensors[op.inputs[1]]) for op in ops]
+            sizes = [read_const_i32(subgraph.tensors[op.inputs[2]]) for op in ops]
+            if any(b is None or s is None for b, s in zip(begins, sizes)):
+                continue
+            axis_set = {int(np.nonzero(s != -1)[0][0]) for s in sizes}
+            if len(axis_set) != 1:
+                continue
+            axis = axis_set.pop()
+            in_shape = [int(d) for d in subgraph.tensors[input_t].shape]
+            order = sorted(range(len(ops)), key=lambda k: int(begins[k][axis]))
+            lens, outs, ok, pos = [], [], True, 0
+            for k in order:
+                b, ln = int(begins[k][axis]), int(sizes[k][axis])
+                if b != pos:
+                    ok = False
+                    break
+                pos += ln
+                lens.append(ln)
+                outs.append(ops[k].outputs[0])
+            if not ok or pos != in_shape[axis]:
+                continue
+            new_op = sgt.OperatorT()
+            new_op.opcodeIndex = splitv_opcode
+            new_op.inputs = np.array([input_t, add_const_i32(lens), add_const_i32([axis])], dtype=np.int32)
+            new_op.outputs = np.array(outs, dtype=np.int32)
+            opts = sgt.SplitVOptionsT()
+            opts.numSplits = len(ops)
+            new_op.builtinOptionsType = sgt.BuiltinOptions.SplitVOptions
+            new_op.builtinOptions = opts
+            subgraph.operators[idxs[0]] = new_op
+            for i in idxs[1:]:
+                to_delete.add(i)
+            n_splitv += 1
+        if to_delete:
+            subgraph.operators = [op for i, op in enumerate(subgraph.operators) if i not in to_delete]
+
+        # --- pass 2: materialize broadcast constants ----------------------
+        consumers = {}
+        for op in subgraph.operators:
+            if op.inputs is not None:
+                for i in op.inputs:
+                    consumers[i] = consumers.get(i, 0) + 1
+        for op in subgraph.operators:
+            code = model_t.operatorCodes[op.opcodeIndex].builtinCode
+            if code not in elementwise or op.inputs is None or len(op.inputs) != 2:
+                continue
+            a_t, b_t = subgraph.tensors[op.inputs[0]], subgraph.tensors[op.inputs[1]]
+            for const_t, other_t in ((b_t, a_t), (a_t, b_t)):
+                buf = model_t.buffers[const_t.buffer]
+                const_idx = op.inputs[0] if const_t is a_t else op.inputs[1]
+                if buf.data is None or consumers.get(const_idx, 0) != 1:
+                    continue
+                if const_t.type not in (sgt.TensorType.INT8, sgt.TensorType.UINT8):
+                    continue
+                c_shape = [int(d) for d in const_t.shape]
+                o_shape = [int(d) for d in other_t.shape]
+                if c_shape == o_shape or len(c_shape) != len(o_shape):
+                    continue
+                if all(c == 1 or c == o for c, o in zip(c_shape, o_shape)):
+                    data = np.frombuffer(bytes(buf.data), dtype=np.int8).reshape(c_shape)
+                    tiled = np.broadcast_to(data, o_shape).copy()
+                    new_buf = sgt.BufferT()
+                    new_buf.data = tiled.tobytes()
+                    model_t.buffers[const_t.buffer] = new_buf
+                    const_t.shape = np.array(o_shape, dtype=np.int32)
+                    n_bcast += 1
+                    break
+
+        # --- pass 3: quant consistency across bit-exact chains ------------
+        n_tensors = len(subgraph.tensors)
+        parent = list(range(n_tensors))
+
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        def union(a, b):
+            parent[find(a)] = find(b)
+
+        producer = {}
+        for op in subgraph.operators:
+            if op.outputs is not None:
+                for o in op.outputs:
+                    producer[o] = op
+
+        for op in subgraph.operators:
+            if op.inputs is None or op.outputs is None or len(op.inputs) == 0 or len(op.outputs) == 0:
+                continue
+            opcode = model_t.operatorCodes[op.opcodeIndex].builtinCode
+            if opcode in passthrough:
+                union(op.inputs[0], op.outputs[0])
+            elif opcode == sgt.BuiltinOperator.CONCATENATION:
+                for i in op.inputs:
+                    union(i, op.outputs[0])
+            elif opcode == sgt.BuiltinOperator.SPLIT_V:
+                for o in op.outputs:
+                    union(op.inputs[0], o)
+
+        uf_groups = {}
+        for t in range(n_tensors):
+            uf_groups.setdefault(find(t), []).append(t)
+
+        graph_outputs = set(subgraph.outputs) if subgraph.outputs is not None else set()
+        for members in uf_groups.values():
+            if len(members) < 2:
+                continue
+            canonical = None
+            for t in members:
+                if t in graph_outputs and subgraph.tensors[t].quantization is not None:
+                    canonical = subgraph.tensors[t].quantization
+                    break
+            if canonical is None:
+                for t in members:
+                    prod_op = producer.get(t)
+                    prod_code = (
+                        model_t.operatorCodes[prod_op.opcodeIndex].builtinCode if prod_op is not None else None
+                    )
+                    if prod_code not in passthrough and prod_code not in (
+                        sgt.BuiltinOperator.CONCATENATION,
+                        sgt.BuiltinOperator.SPLIT_V,
+                    ):
+                        if subgraph.tensors[t].quantization is not None:
+                            canonical = subgraph.tensors[t].quantization
+                            break
+            if canonical is None:
+                continue
+            for t in members:
+                q = subgraph.tensors[t].quantization
+                if q is None:
+                    continue
+                if q.scale != canonical.scale or q.zeroPoint != canonical.zeroPoint:
+                    subgraph.tensors[t].quantization = canonical
+                    n_quant += 1
+
+        # --- pass 4: sync shape signatures to static shapes ----------------
+        for t in subgraph.tensors:
+            shape = [int(d) for d in t.shape] if t.shape is not None else []
+            if not shape or any(d <= 0 for d in shape):
+                continue
+            sig = [int(d) for d in t.shapeSignature] if t.shapeSignature is not None else []
+            if sig != shape:
+                t.shapeSignature = np.array(shape, dtype=np.int32)
+                n_sig += 1
+
+    builder = flatbuffers.Builder(0)
+    builder.Finish(model_t.Pack(builder), b'TFL3')
+    with open(tflite_path, 'wb') as f:
+        f.write(builder.Output())
+    print(
+        f'vela optimization of {osp.basename(tflite_path)}: '
+        f'{n_splitv} SLICE->SPLIT_V merge(s), {n_bcast} broadcast constant(s) materialized, '
+        f'{n_quant} quant parameter(s) aligned, {n_sig} shape signature(s) synced'
+    )
+
+
+@lazy_import("onnx2tf", install_only=True, version=">=2.5.0,<=2.6.8")
+def export_tflite(onnx_path: str, calibration_data=None):
+    # Convert ONNX directly to a full-integer-quantized INT8 TFLite model via
+    # onnx2tf's flatbuffer-direct path. The previous pipeline (onnx2tf ->
+    # SavedModel -> tf.lite.TFLiteConverter.from_saved_model) no longer works:
+    # onnx2tf >= 2.0 does not emit SavedModel by default, and its SavedModel
+    # exporter is broken with TensorFlow >= 2.20 (depthwise_conv2d dilations).
+    # Per-tensor quantization is used: it is what the Ethos-U55 Vela compiler
+    # expects, and onnx2tf's strict per-channel validation fails for some ops.
+    from onnx2tf import onnx2tf
+
+    # Constant-fold the graph first: computed Reshape shapes (e.g. from the
+    # YOLOv5 head's view calls) otherwise survive into the TFLite model as
+    # non-constant shape tensors, which Vela rejects.
+    try:
+        import onnx
+        import onnxsim
+
+        onnx_model, ok = onnxsim.simplify(onnx.load(onnx_path))
+        if ok:
+            onnx.save(onnx_model, onnx_path)
+    except Exception as exc:
+        print(f'Warning: onnxsim simplification skipped ({exc})')
 
     file_stem = osp.splitext(osp.basename(onnx_path))[0]
-    tflite_path = osp.join(osp.dirname(onnx_path), f"{file_stem}_int8.tflite")
-    # pb convert to tflite
-    converter = tf.lite.TFLiteConverter.from_saved_model(osp.dirname(onnx_path))
+    out_dir = osp.dirname(onnx_path)
+    tflite_path = osp.join(out_dir, f"{file_stem}_int8.tflite")
 
-    def representative_dataset():
-        datasets = find_and_sample_images(img_path, limit=10000, sample_size=300)
-        for ps in tqdm(datasets[:300]):
-            img = cv2.imread(ps)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) / 255
-            img = cv2.resize(img, (img_shape[0], img_shape[1]))
-            img = tf.convert_to_tensor([img], dtype=tf.float32)
+    quantized_file = osp.join(out_dir, f"{file_stem}_full_integer_quant.tflite")
+    try:
+        onnx2tf.convert(
+            onnx_path,
+            output_folder_path=out_dir,
+            # see export_savemodel: a fixed batch dim keeps RESHAPE shapes
+            # constant so vela accepts them
+            batch_size=1,
+            output_signaturedefs=True,
+            verbosity="warn",
+            output_integer_quantized_tflite=True,
+            quant_type="per-tensor",
+            custom_input_op_name_np_data_path=calibration_data,
+            input_quant_dtype="int8",
+            output_quant_dtype="int8",
+        )
+    except Exception as exc:
+        # onnx2tf also emits an experimental int16-activations variant whose
+        # strict validation is broken for depthwise convs (int32 vs int64
+        # bias). That failure is raised *after* the int8 artifacts we need
+        # have already been written and validated - tolerate it, but only if
+        # the target file actually exists.
+        if not osp.exists(quantized_file):
+            raise
+        print(f"Warning: onnx2tf reported an error after writing the INT8 model (ignored): {exc}")
 
-            yield [img]
-
-    converter.optimizations = [tf.lite.Optimize.DEFAULT]
-    converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
-    converter.inference_input_type = tf.int8
-    converter.inference_output_type = tf.int8
-    converter.representative_dataset = representative_dataset
-    converter._experimental_disable_per_channel = False
-
-    tflite_quant_model = converter.convert()
-    with open(tflite_path, "wb") as f:
-        f.write(tflite_quant_model)
-    print("tflite model export successful")
+    if not osp.exists(quantized_file):
+        raise RuntimeError(
+            f"INT8 quantization failed: {quantized_file} was not produced. "
+            "Check the onnx2tf log above for details."
+        )
+    shutil.move(quantized_file, tflite_path)
+    optimize_tflite_for_vela(tflite_path)
+    print(f"tflite model export successful: {tflite_path}")
 
     return tflite_path
 

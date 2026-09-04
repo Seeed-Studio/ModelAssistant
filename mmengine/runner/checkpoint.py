@@ -22,6 +22,19 @@ from mmengine.utils import (apply_to, deprecated_function, digit_version,
                             mkdir_or_exist)
 from mmengine.utils.dl_utils import load_url
 
+
+def _torch_load(*args, **kwargs):
+    """Compatibility wrapper around :func:`torch.load`.
+
+    PyTorch >= 2.6 changed the default of ``weights_only`` to ``True``,
+    which rejects checkpoints containing non-tensor objects (e.g. NumPy
+    arrays in ``meta``). SSCMA checkpoints are produced by ourselves and
+    are trusted, so restore the previous behavior.
+    """
+    if digit_version(torch.__version__) >= digit_version('2.6.0'):
+        kwargs.setdefault('weights_only', False)
+    return torch.load(*args, **kwargs)
+
 # `MMENGINE_HOME` is the highest priority directory to save checkpoints
 # downloaded from Internet. If it is not set, as a workaround, using
 # `XDG_CACHE_HOME`` or `~/.cache` instead.
@@ -344,7 +357,7 @@ def load_from_local(filename, map_location):
     filename = osp.expanduser(filename)
     if not osp.isfile(filename):
         raise FileNotFoundError(f'{filename} can not be found.')
-    checkpoint = torch.load(filename, map_location=map_location)
+    checkpoint = _torch_load(filename, map_location=map_location)
     return checkpoint
 
 
@@ -412,7 +425,7 @@ def load_from_pavi(filename, map_location=None):
     with TemporaryDirectory() as tmp_dir:
         downloaded_file = osp.join(tmp_dir, model.name)
         model.download(downloaded_file)
-        checkpoint = torch.load(downloaded_file, map_location=map_location)
+        checkpoint = _torch_load(downloaded_file, map_location=map_location)
     return checkpoint
 
 
@@ -435,7 +448,7 @@ def load_from_ceph(filename, map_location=None, backend='petrel'):
     file_backend = get_file_backend(
         filename, backend_args={'backend': backend})
     with io.BytesIO(file_backend.get(filename)) as buffer:
-        checkpoint = torch.load(buffer, map_location=map_location)
+        checkpoint = _torch_load(buffer, map_location=map_location)
     return checkpoint
 
 
@@ -504,7 +517,7 @@ def load_from_openmmlab(filename, map_location=None):
         filename = osp.join(_get_mmengine_home(), model_url)
         if not osp.isfile(filename):
             raise FileNotFoundError(f'{filename} can not be found.')
-        checkpoint = torch.load(filename, map_location=map_location)
+        checkpoint = _torch_load(filename, map_location=map_location)
     return checkpoint
 
 

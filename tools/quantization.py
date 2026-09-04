@@ -13,7 +13,18 @@ try:
     import tinynn
 except ModuleNotFoundError:
     import subprocess
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'git+https://github.com/alibaba/TinyNeuralNetwork.git'])
+
+    # install the verified SSCMA build of TinyNeuralNetwork instead of an
+    # unpinned git snapshot, which may break on newer Python/PyTorch
+    subprocess.check_call(
+        [
+            sys.executable,
+            '-m',
+            'pip',
+            'install',
+            'TinyNeuralNetwork @ https://files.seeedstudio.com/sscma/library/TinyNeuralNetwork-0.1.1-py3-none-any.whl',
+        ]
+    )
 
 from tinynn.graph.quantization.quantizer import QATQuantizer
 from tinynn.util.train_util import AverageMeter

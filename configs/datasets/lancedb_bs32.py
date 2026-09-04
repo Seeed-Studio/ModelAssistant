@@ -12,7 +12,7 @@ from sscma.evaluation import Accuracy
 # dataset settings
 dataset_type = LanceDataset
 
-data_root = "/home/dq/datasets/imagenet100/"
+data_root = "datasets/imagenet100"
 
 train_pipeline = [
     dict(type=RandomResizedCrop, scale=224),

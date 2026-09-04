@@ -10,13 +10,6 @@ from mmengine.config import Config, DictAction
 from mmengine.evaluator import DumpResults
 from mmengine.runner import Runner
 from mmengine.registry import MODELS
-from sscma.deploy.backend import (
-    TorchScriptInfer,
-    OnnxInfer,
-    SavedModelInfer,
-    TFliteInfer,
-    HailoInfer,
-)
 from sscma.deploy.utils import model_type
 from sscma.utils import lazy_import
 
@@ -106,29 +99,47 @@ def main():
         cfg.default_hooks.visualization.test_out_dir = args.show_dir
 
     cfg.load_from = args.model
-    # cfg.model = cfg.deploy
-    # build model
-    model = MODELS.build(cfg.deploy)
 
-    # select backend
+    # select backend; import only the selected one so that its heavy
+    # dependencies (tensorflow, onnxruntime, ...) are not required otherwise.
+    # The deploy wrapper (cfg.deploy) is only needed for exported formats;
+    # plain checkpoints go straight to cfg.model and do not require a deploy
+    # block in the config.
     backend = model_type(args.model)
-    if backend[2]:  # torchscript
-        infer_torchscript_model = TorchScriptInfer(args.model)
-        model.set_infer(infer_torchscript_model, cfg)
-    elif backend[3]:  # onnx
-        infer_onnx_model = OnnxInfer(args.model)
-        model.set_infer(infer_onnx_model, cfg)
-    elif backend[9]:  # TFlite
-        infer_tflite_model = TFliteInfer(args.model)
-        model.set_infer(infer_tflite_model, cfg)
-    elif backend[7]:  # saved_model
-        infer_saved_model = SavedModelInfer(args.model)
-        model.set_infer(infer_saved_model, cfg)
-    elif backend[0] or backend[1]:
+    if backend[0] or backend[1]:  # pytorch checkpoint
         model = MODELS.build(cfg.model)
-    elif backend[13]:
-        infer_hailo = HailoInfer(args.model)
-        model.set_infer(infer_hailo, cfg)
+    else:
+        model = MODELS.build(cfg.deploy)
+        # exported models have a fixed input shape, while BatchShapePolicy
+        # letterboxes to batch-dependent sizes - disable it so the test
+        # pipeline produces exactly the exported shape
+        if cfg.test_dataloader.dataset.get('batch_shapes_cfg', None) is not None:
+            cfg.test_dataloader.dataset.batch_shapes_cfg = None
+        if backend[2]:  # torchscript
+            from sscma.deploy.backend import TorchScriptInfer
+
+            infer_torchscript_model = TorchScriptInfer(args.model)
+            model.set_infer(infer_torchscript_model, cfg)
+        elif backend[3]:  # onnx
+            from sscma.deploy.backend import OnnxInfer
+
+            infer_onnx_model = OnnxInfer(args.model)
+            model.set_infer(infer_onnx_model, cfg)
+        elif backend[9]:  # TFlite
+            from sscma.deploy.backend import TFliteInfer
+
+            infer_tflite_model = TFliteInfer(args.model)
+            model.set_infer(infer_tflite_model, cfg)
+        elif backend[7]:  # saved_model
+            from sscma.deploy.backend import SavedModelInfer
+
+            infer_saved_model = SavedModelInfer(args.model)
+            model.set_infer(infer_saved_model, cfg)
+        elif backend[13]:
+            from sscma.deploy.backend import HailoInfer
+
+            infer_hailo = HailoInfer(args.model)
+            model.set_infer(infer_hailo, cfg)
 
     runner = Runner.from_cfg(cfg)
     shutil.rmtree(runner.log_dir, ignore_errors=True)

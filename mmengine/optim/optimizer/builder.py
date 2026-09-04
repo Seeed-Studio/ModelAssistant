@@ -25,7 +25,15 @@ def register_torch_optimizers() -> List[str]:
         _optim = getattr(torch.optim, module_name)
         if inspect.isclass(_optim) and issubclass(_optim,
                                                   torch.optim.Optimizer):
-            OPTIMIZERS.register_module(module=_optim)
+            if module_name == 'Adafactor':
+                # torch >= 2.9 ships torch.optim.Adafactor while
+                # transformers also provides an Adafactor optimizer.
+                # Register torch's one with a prefix to avoid the name
+                # clash (backports the mmengine 0.10.7 fix).
+                OPTIMIZERS.register_module(
+                    name='TorchAdafactor', module=_optim)
+            else:
+                OPTIMIZERS.register_module(module=_optim)
             torch_optimizers.append(module_name)
     return torch_optimizers
 
@@ -166,6 +174,8 @@ def register_transformers_optimizers():
     except ImportError:
         pass
     else:
+        # torch's Adafactor is registered as 'TorchAdafactor' (see
+        # register_torch_optimizers), so no name clash here.
         OPTIMIZERS.register_module(name='Adafactor', module=Adafactor)
         transformer_optimizers.append('Adafactor')
     return transformer_optimizers

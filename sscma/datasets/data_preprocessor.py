@@ -539,9 +539,36 @@ class DetDataPreprocessor(ImgDataPreprocessor):
             return {'inputs': inputs, 'data_samples': data_samples}
 
 
+        if not isinstance(data.get("data_samples"), dict):
+            # Standard mmdet-format samples (a list of DetDataSample produced
+            # by the default collate): use the regular mmdet training path.
+            # The fast dict path below is kept for coco_collate-based configs
+            # (e.g. RTMDet).
+            data = super().forward(data=data, training=training)
+            inputs, data_samples = data['inputs'], data['data_samples']
+
+            if data_samples is not None:
+                batch_input_shape = tuple(inputs[0].size()[-2:])
+                for data_sample in data_samples:
+                    data_sample.set_metainfo({'batch_input_shape': batch_input_shape})
+
+                if self.boxtype2tensor:
+                    samplelist_boxtype2tensor(data_samples)
+
+                if self.pad_mask:
+                    self.pad_gt_masks(data_samples)
+
+                if self.pad_seg:
+                    self.pad_gt_sem_seg(data_samples)
+
+            if self.batch_augments is not None:
+                for batch_aug in self.batch_augments:
+                    inputs, data_samples = batch_aug(inputs, data_samples)
+
+            return {'inputs': inputs, 'data_samples': data_samples}
+
         data = self.cast_data(data)
         inputs, data_samples = data["inputs"], data["data_samples"]
-        assert isinstance(data["data_samples"], dict)
 
         # TODO: Supports multi-scale training
         if self._channel_conversion and inputs.shape[1] == 3:

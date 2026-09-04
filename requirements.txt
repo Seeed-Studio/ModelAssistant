@@ -10,7 +10,10 @@ torchvision>=0.16.0
 torchaudio>=2.1.0
 tensorboard
 opencv-python>=4.6.0
-numpy>=1.23.0,<2.0.0
+# NOTE: <2.3.0 cap keeps Colab's preinstalled numba (requires numpy<2.3)
+# working; 2.2.x also satisfies onnx2tf's numpy==2.2.6 pin used by
+# tools/export.py. numpy 1.x (>=1.23.0) remains acceptable for legacy setups.
+numpy>=1.23.0,<2.3.0
 pillow>=7.1.2
 torchinfo
 yapf
@@ -23,3 +26,20 @@ scikit-learn
 timm
 psutil
 regex
+
+# visualization (imported by sscma.visualization at package level)
+matplotlib
+
+# model export / evaluation
+onnx>=1.14.0
+# torch.onnx.export uses the dynamo exporter by default since PyTorch 2.9,
+# which requires onnxscript
+onnxscript>=0.1.0
+onnxsim
+onnxruntime
+# NOTE: pinned to releases with prebuilt wheels for Python >= 3.12.
+# ethos-u-vela <= 4.1.0 ships sdists only and fails to build on modern
+# Python; worse, 3.7.0 declares no dependencies at all, making it pip's
+# favorite backtracking target on conflict-heavy environments (e.g. Colab).
+# 5.1.0 is verified with tools/export.py; bump the ceiling after re-verifying.
+ethos-u-vela>=4.2.0,<=5.1.0
